@@ -79,14 +79,14 @@ class ACA_Cron {
             ACA_Core::generate_ideas();
         } elseif ($working_mode === 'full-auto') {
             // In full-auto mode, generate ideas and then write drafts.
-            $ideas = ACA_Core::generate_ideas();
-            if (!is_wp_error($ideas) && !empty($ideas)) {
+            $idea_ids = ACA_Core::generate_ideas();
+            if (!is_wp_error($idea_ids) && !empty($idea_ids)) {
                 // Respect the generation limit.
                 $limit = $options['generation_limit'] ?? 1;
-                $ideas_to_write = array_slice($ideas, 0, $limit);
+                $ideas_to_write = array_slice($idea_ids, 0, $limit);
 
-                foreach ($ideas_to_write as $idea_title) {
-                    ACA_Core::write_post_draft($idea_title);
+                foreach ($ideas_to_write as $idea_id) {
+                    ACA_Core::write_post_draft($idea_id);
                 }
             }
         }
@@ -97,5 +97,7 @@ class ACA_Cron {
      */
     public function reset_api_usage_counter() {
         update_option('aca_api_usage_current_month', 0);
+        update_option('aca_idea_count_current_month', 0);
+        update_option('aca_draft_count_current_month', 0);
     }
 }

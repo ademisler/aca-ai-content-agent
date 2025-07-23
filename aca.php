@@ -35,6 +35,7 @@ require_once ACA_PLUGIN_DIR . 'includes/class-aca-dashboard.php';
 require_once ACA_PLUGIN_DIR . 'includes/class-aca.php';
 require_once ACA_PLUGIN_DIR . 'includes/class-aca-onboarding.php';
 require_once ACA_PLUGIN_DIR . 'includes/class-aca-cron.php';
+require_once ACA_PLUGIN_DIR . 'includes/class-aca-privacy.php';
 
 // Activation hook for onboarding and database setup
 register_activation_hook(__FILE__, ['ACA', 'activate']);
@@ -63,6 +64,9 @@ class ACA {
 
         // Initialize cron jobs
         new ACA_Cron();
+
+        // Register privacy hooks
+        ACA_Privacy::init();
     }
 
     /**

@@ -515,8 +515,17 @@ class ACA_Admin {
     public function render_working_mode_field() {
         $options = get_option('aca_options');
         $current_mode = isset($options['working_mode']) ? $options['working_mode'] : 'manual';
+        if ( ! aca_is_pro() ) {
+            echo '<select name="aca_options[working_mode]" disabled>';
+            echo '<option value="manual" selected>' . esc_html__( 'Manual Mode', 'aca' ) . '</option>';
+            echo '</select>';
+            echo '<p class="description">' . esc_html__( 'Automation modes require ACA Pro.', 'aca' ) . '</p>';
+            echo '<input type="hidden" name="aca_options[working_mode]" value="manual">';
+            return;
+        }
+
         $modes = [
-            'manual' => __('Manual Mode', 'aca'),
+            'manual'    => __('Manual Mode', 'aca'),
             'semi-auto' => __('Semi-Automatic (Ideas & Approval)', 'aca'),
             'full-auto' => __('Fully Automatic (Draft Creation)', 'aca'),
         ];

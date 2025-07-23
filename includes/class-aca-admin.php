@@ -31,6 +31,7 @@ class ACA_Admin {
         add_action('wp_ajax_aca_generate_cluster', [$this, 'handle_ajax_generate_cluster']);
         add_action('wp_ajax_aca_submit_feedback', [$this, 'handle_ajax_submit_feedback']);
         add_action('wp_ajax_aca_suggest_update', [$this, 'handle_ajax_suggest_update']);
+        add_action('wp_ajax_aca_fetch_gsc_data', [$this, 'handle_ajax_fetch_gsc_data']);
         add_action('admin_notices', [$this, 'display_admin_notices']);
     }
 
@@ -260,6 +261,26 @@ class ACA_Admin {
         }
 
         $result = ACA_Core::suggest_content_update($post_id);
+
+        if (is_wp_error($result)) {
+            wp_send_json_error($result->get_error_message());
+        } else {
+            wp_send_json_success($result);
+        }
+    }
+
+    /**
+     * Handle AJAX request for fetching Search Console data.
+     */
+    public function handle_ajax_fetch_gsc_data() {
+        check_ajax_referer('aca_admin_nonce', 'nonce');
+
+        $options = get_option('aca_options');
+        $site_url = $options['gsc_site_url'] ?? '';
+        $end      = current_time('Y-m-d');
+        $start    = date('Y-m-d', strtotime('-7 days', strtotime($end)));
+
+        $result = ACA_Core::fetch_gsc_data($site_url, $start, $end);
 
         if (is_wp_error($result)) {
             wp_send_json_error($result->get_error_message());

@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-class ACA_Core {
+class ACA_Engine {
 
     /**
      * Add a log entry to the database.
@@ -38,7 +38,7 @@ class ACA_Core {
         $defaults = [
             'style_guide' => "Analyze the following texts. Create a 'Style Guide' that defines the writing tone (e.g., friendly, formal, witty), sentence structure (short, long), paragraph length, and general formatting style (e.g., use of lists, bold text). This guide should be a set of instructions for another writer to imitate this style. The texts are:\n\n%s",
             'idea_generation' => "Existing blog post titles are: [%s]. Based on these topics, suggest %d new, SEO-friendly, and engaging blog post titles that are related but do not repeat these. Return only a numbered list of titles.",
-            'content_writing' => "Task: Write a SEO-friendly blog post of approximately 800 words with the title '%s'. Structure the post with an introduction, a main body with H2 and H3 subheadings, and a conclusion.\n\n---\n\nMetadata Request: At the end of the post, provide 5 relevant tags, a meta description of 155 characters, and at least 2 reliable source URLs for any significant data mentioned.\n\n---\n\nFormatting Instruction: Provide the output in the following format, and do not add any other text outside of this structure: ---POST CONTENT--- [Post] ---TAGS--- [Tags] ---META DESCRIPTION--- [Description] ---SOURCES--- [URLs]",
+            'content_writing' => "Task: Write a SEO-friendly blog post of approximately 800 words with the title '%s'. Structure the post with an introduction, a main body with H2 and H3 subheadings, and a conclusion. At the end, return the entire response as a single JSON object with the keys: postContent, tags, metaDescription, and sources.",
         ];
 
         $custom_prompts = get_option('aca_prompts', []);
@@ -52,7 +52,7 @@ class ACA_Core {
         return [
             'style_guide'      => "Analyze the following texts. Create a 'Style Guide' that defines the writing tone (e.g., friendly, formal, witty), sentence structure (short, long), paragraph length, and general formatting style (e.g., use of lists, bold text). This guide should be a set of instructions for another writer to imitate this style. The texts are:\n\n%s",
             'idea_generation'  => "Existing blog post titles are: [%s]. Based on these topics, suggest %d new, SEO-friendly, and engaging blog post titles that are related but do not repeat these. Return only a numbered list of titles.",
-            'content_writing'  => "Task: Write a SEO-friendly blog post of approximately 800 words with the title '%s'. Structure the post with an introduction, a main body with H2 and H3 subheadings, and a conclusion.\n\n---\n\nMetadata Request: At the end of the post, provide 5 relevant tags, a meta description of 155 characters, and at least 2 reliable source URLs for any significant data mentioned.\n\n---\n\nFormatting Instruction: Provide the output in the following format, and do not add any other text outside of this structure: ---POST CONTENT--- [Post] ---TAGS--- [Tags] ---META DESCRIPTION--- [Description] ---SOURCES--- [URLs]",
+            'content_writing'  => "Task: Write a SEO-friendly blog post of approximately 800 words with the title '%s'. Structure the post with an introduction, a main body with H2 and H3 subheadings, and a conclusion. At the end, return the entire response as a single JSON object with the keys: postContent, tags, metaDescription, and sources.",
         ];
     }
 
@@ -326,22 +326,32 @@ class ACA_Core {
      */
     public static function parse_ai_response($response) {
         $sections = [
-            'content' => '',
-            'tags' => '',
+            'content'          => '',
+            'tags'             => '',
             'meta_description' => '',
-            'sources' => ''
+            'sources'          => ''
         ];
 
-        if (preg_match('/---POST CONTENT---\s*(.*?)\s*---TAGS---/s', $response, $m)) {
+        $json = json_decode($response, true);
+        if (null !== $json && json_last_error() === JSON_ERROR_NONE) {
+            $sections['content']          = $json['postContent'] ?? '';
+            $sections['tags']             = is_array($json['tags'] ?? null) ? implode(',', $json['tags']) : ($json['tags'] ?? '');
+            $sections['meta_description'] = $json['metaDescription'] ?? '';
+            $sections['sources']          = is_array($json['sources'] ?? null) ? implode("\n", $json['sources']) : ($json['sources'] ?? '');
+            return $sections;
+        }
+
+        // Fallback to legacy parsing for backward compatibility
+        if (preg_match('/---POST CONTENT---\s*(.*?)\s*---TAGS---/is', $response, $m)) {
             $sections['content'] = trim($m[1]);
         }
-        if (preg_match('/---TAGS---\s*(.*?)\s*---META DESCRIPTION---/s', $response, $m)) {
+        if (preg_match('/---TAGS---\s*(.*?)\s*---META DESCRIPTION---/is', $response, $m)) {
             $sections['tags'] = trim($m[1]);
         }
-        if (preg_match('/---META DESCRIPTION---\s*(.*?)\s*---SOURCES---/s', $response, $m)) {
+        if (preg_match('/---META DESCRIPTION---\s*(.*?)\s*---SOURCES---/is', $response, $m)) {
             $sections['meta_description'] = trim($m[1]);
         }
-        if (preg_match('/---SOURCES---\s*(.*)$/s', $response, $m)) {
+        if (preg_match('/---SOURCES---\s*(.*)$/is', $response, $m)) {
             $sections['sources'] = trim($m[1]);
         }
 
@@ -384,26 +394,56 @@ class ACA_Core {
             return;
         }
 
-        $content = $post->post_content;
-        $existing_posts = get_posts([
-            'numberposts' => $max_links,
-            'post_type' => 'post',
-            'post_status' => 'publish',
-            'orderby' => 'rand'
-        ]);
+        $content  = $post->post_content;
 
-        foreach ($existing_posts as $existing) {
-            $title = preg_quote($existing->post_title, '/');
-            if (preg_match('/\b' . $title . '\b/i', $content)) {
-                $link = get_permalink($existing->ID);
-                $content = preg_replace('/\b' . $title . '\b/i', '<a href="' . esc_url($link) . '">' . $existing->post_title . '</a>', $content, 1);
+        $keywords = self::extract_keywords($post->post_title . ' ' . wp_strip_all_tags($content), 10);
+        $inserted = 0;
+
+        foreach ($keywords as $keyword) {
+            $query = new WP_Query([
+                's'              => $keyword,
+                'post_type'      => 'post',
+                'post_status'    => 'publish',
+                'posts_per_page' => 1,
+                'post__not_in'   => [$post_id],
+            ]);
+
+            if ($query->have_posts() && preg_match('/(' . preg_quote($keyword, '/') . ')/i', $content, $match)) {
+                $link = get_permalink($query->posts[0]->ID);
+                $content = preg_replace('/' . preg_quote($match[1], '/') . '/i', '<a href="' . esc_url($link) . '">' . $match[1] . '</a>', $content, 1);
+                $inserted++;
+            }
+
+            wp_reset_postdata();
+
+            if ($inserted >= $max_links) {
+                break;
             }
         }
 
         wp_update_post([
-            'ID' => $post_id,
-            'post_content' => $content
+            'ID'           => $post_id,
+            'post_content' => $content,
         ]);
+    }
+
+    /**
+     * Extract simple keywords from text.
+     */
+    private static function extract_keywords($text, $limit = 10) {
+        $text  = strtolower($text);
+        $words = preg_split('/[^a-zA-Z0-9ğüşöçıİĞÜŞÖÇ]+/', $text);
+        $stop  = ['the','and','for','with','that','this','have','from','your','you','about','into','will','been','them','then','than'];
+        $keywords = [];
+        foreach ($words as $w) {
+            if (strlen($w) > 3 && !in_array($w, $stop) && !in_array($w, $keywords)) {
+                $keywords[] = $w;
+                if (count($keywords) >= $limit) {
+                    break;
+                }
+            }
+        }
+        return $keywords;
     }
 
     /**

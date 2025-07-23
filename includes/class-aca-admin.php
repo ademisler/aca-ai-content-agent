@@ -22,6 +22,7 @@ class ACA_Admin {
         add_action('admin_menu', [$this, 'add_admin_menu']);
         add_action('admin_init', [$this, 'register_settings']);
         add_action('admin_enqueue_scripts', [$this, 'enqueue_scripts']);
+        add_filter('post_row_actions', [$this, 'add_update_link'], 10, 2);
         add_action('wp_ajax_aca_test_connection', [$this, 'handle_ajax_test_connection']);
         add_action('wp_ajax_aca_generate_style_guide', [$this, 'handle_ajax_generate_style_guide']);
         add_action('wp_ajax_aca_generate_ideas', [$this, 'handle_ajax_generate_ideas']);
@@ -41,7 +42,7 @@ class ACA_Admin {
      * Enqueue admin scripts and styles.
      */
     public function enqueue_scripts($hook) {
-        if (strpos($hook, 'page_aca') === false) {
+        if (strpos($hook, 'page_aca') === false && $hook !== 'edit.php') {
             return;
         }
 
@@ -99,7 +100,7 @@ class ACA_Admin {
             wp_send_json_error(esc_html__('You do not have permission to do this.', 'aca'));
         }
 
-        $result = ACA_Core::generate_style_guide();
+        $result = ACA_Engine::generate_style_guide();
 
         if (is_wp_error($result)) {
             wp_send_json_error($result->get_error_message());
@@ -118,7 +119,7 @@ class ACA_Admin {
             wp_send_json_error(esc_html__('You do not have permission to do this.', 'aca'));
         }
 
-        $result = ACA_Core::generate_ideas();
+        $result = ACA_Engine::generate_ideas();
 
         if (is_wp_error($result)) {
             wp_send_json_error($result->get_error_message());
@@ -143,7 +144,7 @@ class ACA_Admin {
         }
 
         $idea_id = absint($_POST['id']);
-        $result = ACA_Core::write_post_draft($idea_id);
+        $result = ACA_Engine::write_post_draft($idea_id);
 
         if (is_wp_error($result)) {
             wp_send_json_error($result->get_error_message());
@@ -179,7 +180,7 @@ class ACA_Admin {
             ['id' => $idea_id]
         );
 
-        ACA_Core::add_log(sprintf(esc_html__('Idea #%d rejected by user.', 'aca'), $idea_id));
+        ACA_Engine::add_log(sprintf(esc_html__('Idea #%d rejected by user.', 'aca'), $idea_id));
         wp_send_json_success(esc_html__('Idea rejected.', 'aca'));
     }
 
@@ -260,7 +261,7 @@ class ACA_Admin {
         }
 
         $topic = sanitize_text_field($_POST['topic']);
-        $result = ACA_Core::generate_content_cluster($topic);
+        $result = ACA_Engine::generate_content_cluster($topic);
 
         if (is_wp_error($result)) {
             wp_send_json_error($result->get_error_message());
@@ -283,7 +284,7 @@ class ACA_Admin {
         $value   = isset($_POST['value']) ? intval($_POST['value']) : 0;
 
         if ($idea_id) {
-            ACA_Core::record_feedback($idea_id, $value);
+            ACA_Engine::record_feedback($idea_id, $value);
             wp_send_json_success();
         } else {
             wp_send_json_error(__('Invalid idea ID.', 'aca'));
@@ -305,7 +306,7 @@ class ACA_Admin {
             wp_send_json_error(__('Invalid post ID.', 'aca'));
         }
 
-        $result = ACA_Core::suggest_content_update($post_id);
+        $result = ACA_Engine::suggest_content_update($post_id);
 
         if (is_wp_error($result)) {
             wp_send_json_error($result->get_error_message());
@@ -329,7 +330,7 @@ class ACA_Admin {
         $end      = current_time('Y-m-d');
         $start    = date('Y-m-d', strtotime('-7 days', strtotime($end)));
 
-        $result = ACA_Core::fetch_gsc_data($site_url, $start, $end);
+        $result = ACA_Engine::fetch_gsc_data($site_url, $start, $end);
 
         if (is_wp_error($result)) {
             wp_send_json_error($result->get_error_message());
@@ -348,7 +349,7 @@ class ACA_Admin {
             wp_send_json_error(esc_html__('You do not have permission to do this.', 'aca'));
         }
 
-        $result = ACA_Core::generate_ideas_from_gsc();
+        $result = ACA_Engine::generate_ideas_from_gsc();
 
         if (is_wp_error($result)) {
             wp_send_json_error($result->get_error_message());
@@ -699,7 +700,7 @@ class ACA_Admin {
      */
     public function render_default_profile_field() {
         $options  = get_option('aca_options');
-        $profiles = ACA_Core::get_brand_profiles();
+        $profiles = ACA_Engine::get_brand_profiles();
         $current  = $options['default_profile'] ?? '';
 
         echo '<select name="aca_options[default_profile]">';
@@ -861,8 +862,8 @@ class ACA_Admin {
         <form action="options.php" method="post">
             <?php
             settings_fields('aca_prompts_group');
-            $prompts = ACA_Core::get_prompts();
-            $profiles = ACA_Core::get_brand_profiles();
+            $prompts = ACA_Engine::get_prompts();
+            $profiles = ACA_Engine::get_brand_profiles();
             ?>
             <h3><?php esc_html_e('Style Guide Prompt', 'aca'); ?></h3>
             <textarea name="aca_prompts[style_guide]" rows="10" cols="50" class="large-text"><?php echo esc_textarea($prompts['style_guide']); ?></textarea>
@@ -898,7 +899,7 @@ class ACA_Admin {
      */
     public function sanitize_prompts($input) {
         $new_input = [];
-        $default_prompts = ACA_Core::get_default_prompts();
+        $default_prompts = ACA_Engine::get_default_prompts();
 
         foreach ($default_prompts as $key => $value) {
             if (isset($input[$key]) && !empty(trim($input[$key]))) {
@@ -967,5 +968,15 @@ class ACA_Admin {
         } else {
             echo '<pre style="overflow:auto; max-height:150px;">' . esc_html($raw) . '</pre>';
         }
+    }
+
+    /**
+     * Add update suggestion link on post list rows.
+     */
+    public function add_update_link($actions, $post) {
+        if ($post->post_type === 'post' && $post->post_status === 'publish' && current_user_can('manage_aca_settings')) {
+            $actions['aca_update'] = '<a href="#" class="aca-suggest-update" data-post-id="' . $post->ID . '">' . __( 'ACA ile Güncelleme Önerisi Al', 'aca' ) . '</a>';
+        }
+        return $actions;
     }
 }

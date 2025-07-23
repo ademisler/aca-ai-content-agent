@@ -28,6 +28,9 @@ class ACA_Dashboard {
         // Idea Stream Section
         self::render_idea_stream_section();
 
+        // Cluster Planner Section
+        self::render_cluster_planner_section();
+
         // Recent Activity Section
         self::render_recent_activity_section();
 
@@ -76,6 +79,13 @@ class ACA_Dashboard {
 
         echo '<button class="button-primary" id="aca-generate-ideas">' . __( 'Generate New Ideas Manually', 'aca' ) . '</button>';
         echo '<span id="aca-ideas-status"></span>';
+    }
+
+    private static function render_cluster_planner_section() {
+        echo '<h2>' . __( 'Content Cluster Planner', 'aca' ) . '</h2>';
+        echo '<input type="text" id="aca-cluster-topic" placeholder="' . esc_attr__( 'Main Topic', 'aca' ) . '" /> ';
+        echo '<button class="button" id="aca-generate-cluster">' . __( 'Generate Cluster Ideas', 'aca' ) . '</button> ';
+        echo '<span id="aca-cluster-status"></span>';
     }
 
     private static function render_recent_activity_section() {

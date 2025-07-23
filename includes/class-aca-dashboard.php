@@ -64,7 +64,10 @@ class ACA_Dashboard {
                 echo '<li data-id="' . $idea->id . '">' . esc_html($idea->idea_title) .
                      ' <button class="button-primary aca-write-draft" data-id="' . $idea->id . '">' . __('Write Draft', 'aca') . '</button>' .
                      ' <span class="aca-draft-status"></span>' .
-                     ' <button class="button-secondary aca-reject-idea" data-id="' . $idea->id . '">' . __('Reject', 'aca') . '</button></li>';
+                     ' <button class="button-secondary aca-reject-idea" data-id="' . $idea->id . '">' . __('Reject', 'aca') . '</button>' .
+                     ' <button class="button aca-feedback-btn" data-value="1">👍</button>' .
+                     ' <button class="button aca-feedback-btn" data-value="-1">👎</button>' .
+                     '</li>';
             }
             echo '</ul>';
         } else {

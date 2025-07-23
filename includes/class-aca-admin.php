@@ -33,6 +33,7 @@ class ACA_Admin {
         add_action('wp_ajax_aca_suggest_update', [$this, 'handle_ajax_suggest_update']);
         add_action('wp_ajax_aca_fetch_gsc_data', [$this, 'handle_ajax_fetch_gsc_data']);
         add_action('admin_notices', [$this, 'display_admin_notices']);
+        add_action('add_meta_boxes', [$this, 'add_plagiarism_metabox']);
     }
 
     /**
@@ -388,6 +389,7 @@ class ACA_Admin {
         add_settings_field('aca_automation_frequency', __('Automation Frequency', 'aca'), [$this, 'render_automation_frequency_field'], 'aca', 'aca_automation_settings_section');
         add_settings_field('aca_generation_limit', __('Generation Limit', 'aca'), [$this, 'render_generation_limit_field'], 'aca', 'aca_automation_settings_section');
         add_settings_field('aca_default_author', __('Default Author', 'aca'), [$this, 'render_default_author_field'], 'aca', 'aca_automation_settings_section');
+        add_settings_field('aca_default_profile', __('Brand Voice Profile', 'aca'), [$this, 'render_default_profile_field'], 'aca', 'aca_automation_settings_section');
 
         // Content Analysis Section
         add_settings_section('aca_analysis_settings_section', __('Content Analysis & Learning Rules', 'aca'), null, 'aca');
@@ -426,6 +428,7 @@ class ACA_Admin {
         $new_input['automation_frequency'] = isset($input['automation_frequency']) ? sanitize_key($input['automation_frequency']) : ($options['automation_frequency'] ?? 'daily');
         $new_input['generation_limit'] = isset($input['generation_limit']) ? absint($input['generation_limit']) : ($options['generation_limit'] ?? 5);
         $new_input['default_author'] = isset($input['default_author']) ? absint($input['default_author']) : ($options['default_author'] ?? get_current_user_id());
+        $new_input['default_profile'] = isset($input['default_profile']) ? sanitize_key($input['default_profile']) : ($options['default_profile'] ?? '');
         $new_input['analysis_post_types'] = isset($input['analysis_post_types']) ? array_map('sanitize_text_field', $input['analysis_post_types']) : ($options['analysis_post_types'] ?? ['post']);
         $new_input['analysis_depth'] = isset($input['analysis_depth']) ? absint($input['analysis_depth']) : ($options['analysis_depth'] ?? 20);
         $new_input['analysis_include_categories'] = isset($input['analysis_include_categories']) ? array_map('absint', $input['analysis_include_categories']) : ($options['analysis_include_categories'] ?? []);
@@ -581,6 +584,24 @@ class ACA_Admin {
             'selected' => $selected_author,
             'show_option_none' => __('Select an Author', 'aca'),
         ]);
+    }
+
+    /**
+     * Render the default brand voice profile dropdown.
+     */
+    public function render_default_profile_field() {
+        $options  = get_option('aca_options');
+        $profiles = ACA_Core::get_brand_profiles();
+        $current  = $options['default_profile'] ?? '';
+
+        echo '<select name="aca_options[default_profile]">';
+        echo '<option value="">' . esc_html__('Default', 'aca') . '</option>';
+        foreach ($profiles as $key => $guide) {
+            $selected = selected($current, $key, false);
+            echo '<option value="' . esc_attr($key) . '" ' . $selected . '>' . esc_html($key) . '</option>';
+        }
+        echo '</select>';
+        echo '<p class="description">' . __('Select which brand voice profile to use for new drafts.', 'aca') . '</p>';
     }
 
     /**
@@ -792,5 +813,29 @@ class ACA_Admin {
             <?php submit_button(esc_html__('Activate License', 'aca')); ?>
         </form>
         <?php
+    }
+
+    /**
+     * Add plagiarism meta box on post edit screen.
+     */
+    public function add_plagiarism_metabox() {
+        add_meta_box('aca_plagiarism', __('Plagiarism Check', 'aca'), [$this, 'render_plagiarism_metabox'], 'post', 'side');
+    }
+
+    /**
+     * Render plagiarism meta box content.
+     */
+    public function render_plagiarism_metabox($post) {
+        $raw = get_post_meta($post->ID, '_aca_plagiarism_raw', true);
+        if (empty($raw)) {
+            echo '<p>' . esc_html__('No plagiarism data available.', 'aca') . '</p>';
+            return;
+        }
+        $data = json_decode($raw, true);
+        if (isset($data['count'])) {
+            echo '<p>' . sprintf(esc_html__('Matches found: %d', 'aca'), intval($data['count'])) . '</p>';
+        } else {
+            echo '<pre style="overflow:auto; max-height:150px;">' . esc_html($raw) . '</pre>';
+        }
     }
 }

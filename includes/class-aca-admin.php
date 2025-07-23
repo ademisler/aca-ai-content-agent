@@ -382,6 +382,7 @@ class ACA_Admin {
         add_settings_field('aca_copyscape_api_key', __('Copyscape API Key', 'aca'), [$this, 'render_copyscape_api_key_field'], 'aca', 'aca_api_settings_section');
         add_settings_field('aca_gsc_site_url', __('Search Console Site URL', 'aca'), [$this, 'render_gsc_site_url_field'], 'aca', 'aca_api_settings_section');
         add_settings_field('aca_gsc_api_key', __('Search Console API Key', 'aca'), [$this, 'render_gsc_api_key_field'], 'aca', 'aca_api_settings_section');
+        add_settings_field('aca_pexels_api_key', __('Pexels API Key', 'aca'), [$this, 'render_pexels_api_key_field'], 'aca', 'aca_api_settings_section');
 
         // Automation Settings Section
         add_settings_section('aca_automation_settings_section', __('Automation Settings', 'aca'), null, 'aca');
@@ -396,6 +397,7 @@ class ACA_Admin {
         add_settings_field('aca_analysis_post_types', __('Analyze Content Types', 'aca'), [$this, 'render_analysis_post_types_field'], 'aca', 'aca_analysis_settings_section');
         add_settings_field('aca_analysis_depth', __('Analysis Depth', 'aca'), [$this, 'render_analysis_depth_field'], 'aca', 'aca_analysis_settings_section');
         add_settings_field('aca_analysis_categories', __('Analysis Categories', 'aca'), [$this, 'render_analysis_categories_field'], 'aca', 'aca_analysis_settings_section');
+        add_settings_field('aca_style_guide_frequency', __('Style Guide Refresh', 'aca'), [$this, 'render_style_guide_frequency_field'], 'aca', 'aca_analysis_settings_section');
 
         // Content Enrichment Section
         add_settings_section('aca_enrichment_settings_section', __('Content Enrichment', 'aca'), null, 'aca');
@@ -438,6 +440,8 @@ class ACA_Admin {
         $new_input['add_data_sections'] = isset($input['add_data_sections']) ? 1 : ($options['add_data_sections'] ?? 0);
         $new_input['gsc_site_url'] = isset($input['gsc_site_url']) ? esc_url_raw($input['gsc_site_url']) : ($options['gsc_site_url'] ?? '');
         $new_input['gsc_api_key'] = isset($input['gsc_api_key']) ? sanitize_text_field($input['gsc_api_key']) : ($options['gsc_api_key'] ?? '');
+        $new_input['pexels_api_key'] = isset($input['pexels_api_key']) ? sanitize_text_field($input['pexels_api_key']) : ($options['pexels_api_key'] ?? '');
+        $new_input['style_guide_frequency'] = isset($input['style_guide_frequency']) ? sanitize_key($input['style_guide_frequency']) : ($options['style_guide_frequency'] ?? 'weekly');
         $new_input['api_monthly_limit'] = isset($input['api_monthly_limit']) ? absint($input['api_monthly_limit']) : ($options['api_monthly_limit'] ?? 0);
         $new_input['copyscape_username'] = isset($input['copyscape_username']) ? sanitize_text_field($input['copyscape_username']) : ($options['copyscape_username'] ?? '');
         $new_input['copyscape_api_key'] = isset($input['copyscape_api_key']) ? sanitize_text_field($input['copyscape_api_key']) : ($options['copyscape_api_key'] ?? '');
@@ -510,6 +514,15 @@ class ACA_Admin {
         $options = get_option('aca_options');
         $key = isset($options['gsc_api_key']) ? $options['gsc_api_key'] : '';
         echo '<input type="password" name="aca_options[gsc_api_key]" value="' . esc_attr($key) . '" class="regular-text">';
+    }
+
+    /**
+     * Render the Pexels API key field.
+     */
+    public function render_pexels_api_key_field() {
+        $options = get_option('aca_options');
+        $key = isset($options['pexels_api_key']) ? $options['pexels_api_key'] : '';
+        echo '<input type="password" name="aca_options[pexels_api_key]" value="' . esc_attr($key) . '" class="regular-text">';
     }
 
     /**
@@ -666,6 +679,26 @@ class ACA_Admin {
     }
 
     /**
+     * Render the Style Guide refresh frequency dropdown.
+     */
+    public function render_style_guide_frequency_field() {
+        $options = get_option('aca_options');
+        $current = isset($options['style_guide_frequency']) ? $options['style_guide_frequency'] : 'weekly';
+        $schedules = wp_get_schedules();
+        $frequencies = ['manual' => __('Manual', 'aca')];
+        foreach ($schedules as $key => $schedule) {
+            $frequencies[$key] = $schedule['display'];
+        }
+        echo '<select name="aca_options[style_guide_frequency]">';
+        foreach ($frequencies as $key => $label) {
+            $selected = selected($current, $key, false);
+            echo '<option value="' . esc_attr($key) . '" ' . $selected . '>' . esc_html($label) . '</option>';
+        }
+        echo '</select>';
+        echo '<p class="description">' . __('How often ACA should regenerate the style guide automatically.', 'aca') . '</p>';
+    }
+
+    /**
      * Render the Max Internal Links input.
      */
     public function render_internal_links_max_field() {
@@ -684,6 +717,7 @@ class ACA_Admin {
         $providers = [
             'none' => __('None', 'aca'),
             'unsplash' => __('Unsplash', 'aca'),
+            'pexels' => __('Pexels', 'aca'),
         ];
 
         echo '<select name="aca_options[featured_image_provider]">';

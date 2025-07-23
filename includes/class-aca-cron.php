@@ -19,6 +19,7 @@ class ACA_Cron {
         add_action('init', [$this, 'schedule_events']);
         add_action('aca_run_main_automation', [$this, 'run_main_automation']);
         add_action('aca_reset_api_usage_counter', [$this, 'reset_api_usage_counter']);
+        add_action('aca_generate_style_guide', [$this, 'generate_style_guide']);
 
         // Hook to reschedule events when settings are saved.
         add_action('update_option_aca_options', [$this, 'schedule_events']);
@@ -32,18 +33,22 @@ class ACA_Cron {
         if ( function_exists( 'as_unschedule_all_actions' ) ) {
             as_unschedule_all_actions( 'aca_run_main_automation' );
             as_unschedule_all_actions( 'aca_reset_api_usage_counter' );
+            as_unschedule_all_actions( 'aca_generate_style_guide' );
         } else {
             wp_clear_scheduled_hook( 'aca_run_main_automation' );
             wp_clear_scheduled_hook( 'aca_reset_api_usage_counter' );
+            wp_clear_scheduled_hook( 'aca_generate_style_guide' );
         }
 
         $options = get_option('aca_options');
         $working_mode = $options['working_mode'] ?? 'manual';
         $frequency = $options['automation_frequency'] ?? 'daily';
+        $style_freq = $options['style_guide_frequency'] ?? 'weekly';
 
         // Determine interval seconds from WP schedules.
         $schedules = wp_get_schedules();
         $interval  = isset( $schedules[ $frequency ] ) ? intval( $schedules[ $frequency ]['interval'] ) : DAY_IN_SECONDS;
+        $style_interval = isset( $schedules[ $style_freq ] ) ? intval( $schedules[ $style_freq ]['interval'] ) : WEEK_IN_SECONDS;
 
         // Only schedule the main automation if the mode is not manual.
         if ( $working_mode !== 'manual' ) {
@@ -64,6 +69,17 @@ class ACA_Cron {
             }
         } elseif ( ! wp_next_scheduled( 'aca_reset_api_usage_counter' ) ) {
             wp_schedule_event( time(), 'monthly', 'aca_reset_api_usage_counter' );
+        }
+
+        // Schedule style guide generation if enabled
+        if ( $style_freq !== 'manual' ) {
+            if ( function_exists( 'as_next_scheduled_action' ) ) {
+                if ( ! as_next_scheduled_action( 'aca_generate_style_guide' ) ) {
+                    as_schedule_recurring_action( time(), $style_interval, 'aca_generate_style_guide' );
+                }
+            } elseif ( ! wp_next_scheduled( 'aca_generate_style_guide' ) ) {
+                wp_schedule_event( time(), $style_freq, 'aca_generate_style_guide' );
+            }
         }
     }
 
@@ -99,5 +115,12 @@ class ACA_Cron {
         update_option('aca_api_usage_current_month', 0);
         update_option('aca_idea_count_current_month', 0);
         update_option('aca_draft_count_current_month', 0);
+    }
+
+    /**
+     * Generate style guide periodically.
+     */
+    public function generate_style_guide() {
+        ACA_Core::generate_style_guide();
     }
 }

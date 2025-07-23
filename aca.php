@@ -114,6 +114,28 @@ class ACA {
             PRIMARY KEY  (id)
         ) $charset_collate;";
         dbDelta($sql_logs);
+
+        // Table for content clusters (for strategic planning)
+        $table_name_clusters = $wpdb->prefix . 'aca_clusters';
+        $sql_clusters = "CREATE TABLE $table_name_clusters (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            topic text NOT NULL,
+            created_at datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+            PRIMARY KEY  (id)
+        ) $charset_collate;";
+        dbDelta($sql_clusters);
+
+        // Table for cluster items (sub topics)
+        $table_name_cluster_items = $wpdb->prefix . 'aca_cluster_items';
+        $sql_cluster_items = "CREATE TABLE $table_name_cluster_items (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            cluster_id mediumint(9) NOT NULL,
+            subtopic_title text NOT NULL,
+            created_at datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+            PRIMARY KEY  (id),
+            KEY cluster_id (cluster_id)
+        ) $charset_collate;";
+        dbDelta($sql_cluster_items);
     }
 
     /**

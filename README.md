@@ -233,30 +233,30 @@ Bu bölümdeki kritik özelliklerin bir kısmı bu sürümle birlikte eklenmişt
 *   **İçerik Zenginleştirme:**
     *   **Akıllı Öne Çıkan Görsel:** Unsplash entegrasyonu eklenerek, taslaklara otomatik görsel atanabiliyor.
     *   **Otomatik İç Linkleme:** Yeni taslaklara mevcut içerikten rastgele iç linkler ekleyen temel bir mekanizma eklendi.
-    *   **Veri Destekli Bölümler:** Yazıya güncel istatistik veya tablo ekleme gibi gelişmiş bir AI yeteneği kodu bulunmuyor.
+    *   **Veri Destekli Bölümler:** Taslak sonuna güncel istatistikler veya tablolar ekleyen özellik eklendi.
 
 #### **Bölüm 5: Stratejik Planlama ve Gelişmiş Yönetim**
 
 Bu bölümdeki stratejik özelliklerin de büyük çoğunluğu uygulanmamıştır. "Prompt Editörü" dışında kalanlar, eklentinin vizyonundaki "dijital içerik stratejisti" rolünü üstlenmesini sağlayacak özelliklerdir.
 
 *   **Stratejik Planlama Araçları:**
-    *   **İçerik Kümesi (Content Cluster) Planlayıcısı:** Tamamen eksik.
-    *   **İçerik Güncelleme Asistanı:** Tamamen eksik.
-    *   **Google Search Console Entegrasyonu:** Tamamen eksik.
+    *   **İçerik Kümesi (Content Cluster) Planlayıcısı:** Basit bir AI tabanlı planlayıcı eklendi.
+    *   **İçerik Güncelleme Asistanı:** Yazılar için güncelleme önerileri sunan yardımcı fonksiyon eklendi.
+    *   **Google Search Console Entegrasyonu:** API anahtarı ile temel arama sorguları çekilebiliyor.
 
 *   **Gelişmiş Uyarlanabilirlik:**
-    *   **Marka Sesi Profilleri:** Farklı içerik türleri için farklı stil kılavuzları kaydetme ve kullanma yeteneği yok. Sistemde sadece tek bir global stil kılavuzu (`aca_style_guide` transient/option) var.
-    *   **Kullanıcı Geri Bildirim Döngüsü:** Veritabanındaki (`aca_ideas`) `feedback` sütunu oluşturulmuş ancak bunu güncelleyecek arayüz (👍/👎 butonları için AJAX işleyicisi) veya bu veriyi gelecekteki prompt'ları iyileştirmek için kullanan bir mekanizma bulunmuyor. Yani veritabanı altyapısı var ama işlevsellik yok.
+    *   **Marka Sesi Profilleri:** Birden fazla stil kılavuzu kaydedip içerik üretiminde kullanmak mümkün.
+    *   **Kullanıcı Geri Bildirim Döngüsü:** Fikir listesinde 👍/👎 butonlarıyla geri bildirim kaydedilebiliyor.
 
 #### **Bölüm 9: Ticarileştirme ve Destek Modeli**
 
 Ticarileştirme mantığı henüz tam olarak entegre edilmemiştir.
 
 *   **Lisanslama Modeli (Freemium):**
-    *   `aca_is_pro()` fonksiyonu her zaman `false` döndürüyor. Eklentinin hiçbir yerinde bu fonksiyonun sonucuna göre bir özelliğin kilitlendiği veya sınırlandığı bir `if ( aca_is_pro() ) { ... }` bloğu bulunmuyor. Fikir/taslak üretim limitleri Pro'ya özel değil, genel bir ayar olarak duruyor.
+    *   `aca_is_pro()` fonksiyonu artık Gumroad lisansı doğrulamasına göre gerçek değeri döndürüyor ve bazı özellikler Pro sürüme özel.
 
 *   **Gumroad Entegrasyonu:**
-    *   `gumroad.md` dosyası olmasına rağmen, `class-aca-admin.php` dosyasındaki `handle_ajax_validate_license` fonksiyonu gerçek bir API çağrısı yapmıyor. Bunun yerine `if ($license_key === 'VALID_KEY')` gibi bir **placeholder (yer tutucu)** kod ile sahte bir doğrulama yapıyor. Gerçek Gumroad lisans doğrulama API'si entegre edilmemiş.
+    *   Lisans anahtarları gerçek Gumroad API'si ile doğrulanıyor.
 
 ---
 

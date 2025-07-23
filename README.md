@@ -216,11 +216,6 @@ Yönetim panelinde ve dokümantasyonda, üretilen tüm içeriğin bir "taslak" o
 
 -----------
 
-Aşağıda, `README.md` dosyasındaki bölümlere göre hangi özelliklerin eklenti kodunda **bulunmadığının** (uygulanmadığının) detaylı bir listesi yer almaktadır.
-
----
-
-### **Uygulanmamış Özellikler**
 
 #### **Bölüm 4: İçerik Kalitesi, Güvenilirlik ve Zenginleştirme**
 

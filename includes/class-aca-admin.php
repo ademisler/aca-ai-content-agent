@@ -32,6 +32,7 @@ class ACA_Admin {
         add_action('wp_ajax_aca_submit_feedback', [$this, 'handle_ajax_submit_feedback']);
         add_action('wp_ajax_aca_suggest_update', [$this, 'handle_ajax_suggest_update']);
         add_action('wp_ajax_aca_fetch_gsc_data', [$this, 'handle_ajax_fetch_gsc_data']);
+        add_action('wp_ajax_aca_generate_gsc_ideas', [$this, 'handle_ajax_generate_gsc_ideas']);
         add_action('admin_notices', [$this, 'display_admin_notices']);
         add_action('add_meta_boxes', [$this, 'add_plagiarism_metabox']);
     }
@@ -323,6 +324,26 @@ class ACA_Admin {
             wp_send_json_error($result->get_error_message());
         } else {
             wp_send_json_success($result);
+        }
+    }
+
+    /**
+     * Generate ideas based on Search Console queries.
+     */
+    public function handle_ajax_generate_gsc_ideas() {
+        check_ajax_referer('aca_admin_nonce', 'nonce');
+
+        if ( ! current_user_can('manage_aca_settings') ) {
+            wp_send_json_error(esc_html__('You do not have permission to do this.', 'aca'));
+        }
+
+        $result = ACA_Core::generate_ideas_from_gsc();
+
+        if (is_wp_error($result)) {
+            wp_send_json_error($result->get_error_message());
+        } else {
+            $message = sprintf(esc_html(_n('%d new idea generated.', '%d new ideas generated.', count($result), 'aca')), count($result));
+            wp_send_json_success(['message' => $message]);
         }
     }
 

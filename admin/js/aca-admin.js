@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const generateClusterButton = document.getElementById('aca-generate-cluster');
     const suggestUpdateButtons = document.querySelectorAll('.aca-suggest-update');
     const fetchGSCButton = document.getElementById('aca-fetch-gsc');
+    const generateGSCIdeasButton = document.getElementById('aca-generate-gsc-ideas');
     const gscResults = document.getElementById('aca-gsc-results');
 
     const validateLicenseButton = document.getElementById('aca-validate-license');
@@ -204,6 +205,22 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 } else {
                     gscResults.textContent = 'Error: ' + result.data;
+                }
+            });
+        });
+    }
+
+    if (generateGSCIdeasButton) {
+        generateGSCIdeasButton.addEventListener('click', () => {
+            handleApiRequest('aca_generate_gsc_ideas', {}, ideasStatus, generateGSCIdeasButton)
+            .then(result => {
+                if (result.success) {
+                    ideasStatus.textContent = result.data.message;
+                    ideasStatus.style.color = '#228B22';
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    ideasStatus.textContent = 'Error: ' + result.data;
+                    ideasStatus.style.color = '#DC143C';
                 }
             });
         });

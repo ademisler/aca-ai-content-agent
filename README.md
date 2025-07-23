@@ -287,3 +287,24 @@ Eklenti, **"Proje Uygulama Belgesi"nin yaklaşık %40-50'sini** kapsayan sağlam
 *   Pro özellikleri için temel lisanslama mantığı (Gumroad doğrulaması) uygulanmış olsa da daha gelişmiş bir model planlanmaktadır.
 
 Proje, temel işlevleri yerine getiren bir "Minimum Viable Product" (MVP - Minimum Uygulanabilir Ürün) aşamasındadır. `README.md`'de belirtilen vizyona tam olarak ulaşması için özellikle Bölüm 4, 5 ve 9'daki özelliklerin geliştirilmesi gerekmektedir.
+
+
+API Keys
+Quickly test the Gemini API
+API quickstart guide
+
+curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent" \
+  -H 'Content-Type: application/json' \
+  -H 'X-goog-api-key: GEMINI_API_KEY' \
+  -X POST \
+  -d '{
+    "contents": [
+      {
+        "parts": [
+          {
+            "text": "Explain how AI works in a few words"
+          }
+        ]
+      }
+    ]
+  }'

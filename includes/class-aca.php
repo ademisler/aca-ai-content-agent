@@ -668,4 +668,91 @@ class ACA_Core {
 
         return json_decode(wp_remote_retrieve_body($response), true);
     }
+
+    /**
+     * Generate new ideas using Google Search Console queries.
+     *
+     * This analyzes search queries that bring traffic but are not yet covered
+     * by existing posts and sends them to the AI for new title suggestions.
+     *
+     * @return array|WP_Error Array of inserted idea IDs on success or WP_Error.
+     */
+    public static function generate_ideas_from_gsc() {
+        global $wpdb;
+
+        $options  = get_option('aca_options');
+        $site_url = $options['gsc_site_url'] ?? '';
+        $api_key  = $options['gsc_api_key'] ?? '';
+
+        if (empty($site_url) || empty($api_key)) {
+            return new WP_Error('missing_credentials', __('Search Console credentials are missing.', 'aca'));
+        }
+
+        $end   = current_time('Y-m-d');
+        $start = date('Y-m-d', strtotime('-30 days', strtotime($end)));
+        $data  = self::fetch_gsc_data($site_url, $start, $end);
+
+        if (is_wp_error($data)) {
+            return $data;
+        }
+
+        $queries = [];
+        if (!empty($data['rows'])) {
+            foreach ($data['rows'] as $row) {
+                $query = $row['keys'][0] ?? '';
+                if (!$query) {
+                    continue;
+                }
+                $exists = get_posts([
+                    's'              => $query,
+                    'post_type'      => 'post',
+                    'post_status'    => 'publish',
+                    'fields'         => 'ids',
+                    'posts_per_page' => 1,
+                ]);
+                if (empty($exists)) {
+                    $queries[] = $query;
+                }
+            }
+        }
+
+        if (empty($queries)) {
+            return new WP_Error('no_queries', __('No new query opportunities found.', 'aca'));
+        }
+
+        $limit  = $options['generation_limit'] ?? 5;
+        $prompt = sprintf(
+            'The following search queries are popular on Google but not well covered on our site: %s. Suggest %d SEO-friendly blog post titles to address them.',
+            implode(', ', $queries),
+            $limit
+        );
+
+        $response = aca_call_gemini_api($prompt);
+
+        if (is_wp_error($response)) {
+            self::add_log('Failed to generate GSC ideas: ' . $response->get_error_message(), 'error');
+            return $response;
+        }
+
+        $ideas = array_filter(array_map('trim', explode("\n", $response)));
+        $inserted_ids = [];
+        $table_name   = $wpdb->prefix . 'aca_ideas';
+
+        foreach ($ideas as $idea) {
+            $clean = preg_replace('/^\d+\.\s*/', '', $idea);
+            if ($clean) {
+                $wpdb->insert(
+                    $table_name,
+                    [
+                        'idea_title' => $clean,
+                        'created_at' => current_time('mysql'),
+                    ]
+                );
+                $inserted_ids[] = $wpdb->insert_id;
+            }
+        }
+
+        self::add_log(sprintf('%d ideas generated from Search Console data.', count($inserted_ids)), 'success');
+        return $inserted_ids;
+    }
 }

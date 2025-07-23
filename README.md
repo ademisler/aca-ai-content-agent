@@ -237,7 +237,7 @@ Bu bölümdeki stratejik özelliklerin de büyük çoğunluğu uygulanmamıştı
 *   **Stratejik Planlama Araçları:**
     *   **İçerik Kümesi (Content Cluster) Planlayıcısı:** Basit bir AI tabanlı planlayıcı eklendi.
     *   **İçerik Güncelleme Asistanı:** Yazılar için güncelleme önerileri sunan yardımcı fonksiyon eklendi.
-    *   **Google Search Console Entegrasyonu:** API anahtarı ile temel arama sorguları çekilebiliyor.
+    *   **Google Search Console Entegrasyonu:** API anahtarı ile temel arama sorguları çekiliyor ve henüz karşılanmamış sorgulardan otomatik içerik fikirleri üretiliyor.
 
 *   **Gelişmiş Uyarlanabilirlik:**
     *   **Marka Sesi Profilleri:** Birden fazla stil kılavuzu kaydedip içerik üretiminde kullanmak mümkün.

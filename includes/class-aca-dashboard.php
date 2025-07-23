@@ -101,7 +101,8 @@ class ACA_Dashboard {
 
     private static function render_gsc_section() {
         echo '<h2>' . __( 'Top Search Queries', 'aca' ) . '</h2>';
-        echo '<button class="button" id="aca-fetch-gsc">' . __( 'Fetch Queries', 'aca' ) . '</button>';
-        echo '<div id="aca-gsc-results"></div>';
+        echo '<button class="button" id="aca-fetch-gsc">' . __( 'Fetch Queries', 'aca' ) . '</button> ';
+        echo '<button class="button" id="aca-generate-gsc-ideas">' . __( 'Generate Ideas', 'aca' ) . '</button>';
+        echo '<div id="aca-gsc-results" style="margin-top:10px;"></div>';
     }
 }

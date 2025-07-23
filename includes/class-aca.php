@@ -410,11 +410,30 @@ class ACA_Core {
      * Download and set a featured image using Unsplash.
      */
     public static function maybe_set_featured_image($post_id, $query, $provider) {
-        if ($provider !== 'unsplash') {
+        if ($provider === 'unsplash') {
+            $url = 'https://source.unsplash.com/1600x900/?' . urlencode($query);
+        } elseif ($provider === 'pexels') {
+            $options = get_option('aca_options');
+            $api_key = $options['pexels_api_key'] ?? '';
+            if (empty($api_key)) {
+                return;
+            }
+            $endpoint = 'https://api.pexels.com/v1/search?per_page=1&query=' . urlencode($query);
+            $response = wp_remote_get($endpoint, [
+                'headers' => ['Authorization' => $api_key],
+                'timeout' => 15,
+            ]);
+            if (is_wp_error($response)) {
+                return;
+            }
+            $body = json_decode(wp_remote_retrieve_body($response), true);
+            if (empty($body['photos'][0]['src']['large'])) {
+                return;
+            }
+            $url = $body['photos'][0]['src']['large'];
+        } else {
             return;
         }
-
-        $url = 'https://source.unsplash.com/1600x900/?' . urlencode($query);
         require_once ABSPATH . 'wp-admin/includes/file.php';
         require_once ABSPATH . 'wp-admin/includes/media.php';
         require_once ABSPATH . 'wp-admin/includes/image.php';

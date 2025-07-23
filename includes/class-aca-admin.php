@@ -296,6 +296,8 @@ class ACA_Admin {
         add_settings_section('aca_api_settings_section', __('API and Connection Settings', 'aca'), null, 'aca');
         add_settings_field('aca_gemini_api_key', __('Google Gemini API Key', 'aca'), [$this, 'render_api_key_field'], 'aca', 'aca_api_settings_section');
         add_settings_field('aca_api_test', __('Connection Test', 'aca'), [$this, 'render_api_test_button'], 'aca', 'aca_api_settings_section');
+        add_settings_field('aca_copyscape_username', __('Copyscape Username', 'aca'), [$this, 'render_copyscape_username_field'], 'aca', 'aca_api_settings_section');
+        add_settings_field('aca_copyscape_api_key', __('Copyscape API Key', 'aca'), [$this, 'render_copyscape_api_key_field'], 'aca', 'aca_api_settings_section');
 
         // Automation Settings Section
         add_settings_section('aca_automation_settings_section', __('Automation Settings', 'aca'), null, 'aca');
@@ -346,6 +348,8 @@ class ACA_Admin {
         $new_input['internal_links_max'] = isset($input['internal_links_max']) ? absint($input['internal_links_max']) : ($options['internal_links_max'] ?? 3);
         $new_input['featured_image_provider'] = isset($input['featured_image_provider']) ? sanitize_key($input['featured_image_provider']) : ($options['featured_image_provider'] ?? 'none');
         $new_input['api_monthly_limit'] = isset($input['api_monthly_limit']) ? absint($input['api_monthly_limit']) : ($options['api_monthly_limit'] ?? 0);
+        $new_input['copyscape_username'] = isset($input['copyscape_username']) ? sanitize_text_field($input['copyscape_username']) : ($options['copyscape_username'] ?? '');
+        $new_input['copyscape_api_key'] = isset($input['copyscape_api_key']) ? sanitize_text_field($input['copyscape_api_key']) : ($options['copyscape_api_key'] ?? '');
 
         return $new_input;
     }
@@ -379,6 +383,24 @@ class ACA_Admin {
     public function render_api_test_button() {
         echo '<button type="button" class="button" id="aca-test-connection">' . __('Test Connection', 'aca') . '</button>';
         echo '<span id="aca-test-status" style="margin-left: 10px;"></span>';
+    }
+
+    /**
+     * Render the Copyscape Username field.
+     */
+    public function render_copyscape_username_field() {
+        $options = get_option('aca_options');
+        $username = isset($options['copyscape_username']) ? $options['copyscape_username'] : '';
+        echo '<input type="text" name="aca_options[copyscape_username]" value="' . esc_attr($username) . '" class="regular-text">';
+    }
+
+    /**
+     * Render the Copyscape API key field.
+     */
+    public function render_copyscape_api_key_field() {
+        $options = get_option('aca_options');
+        $key = isset($options['copyscape_api_key']) ? $options['copyscape_api_key'] : '';
+        echo '<input type="password" name="aca_options[copyscape_api_key]" value="' . esc_attr($key) . '" class="regular-text">';
     }
 
     /**
@@ -484,7 +506,7 @@ class ACA_Admin {
         $categories = get_categories(['hide_empty' => 0]);
 
         echo '<div style="display: flex; gap: 20px;">';
-        echo '<div style="flex: 1;'>';
+        echo '<div style="flex: 1;">';
         echo '<strong>' . __('Include Categories', 'aca') . '</strong>';
         echo '<div style="height: 150px; overflow-y: scroll; border: 1px solid #ddd; padding: 5px; background: #fff;">';
         foreach ($categories as $category) {
@@ -494,7 +516,7 @@ class ACA_Admin {
         echo '</div>';
         echo '</div>';
 
-        echo '<div style="flex: 1;'>';
+        echo '<div style="flex: 1;">';
         echo '<strong>' . __('Exclude Categories', 'aca') . '</strong>';
         echo '<div style="height: 150px; overflow-y: scroll; border: 1px solid #ddd; padding: 5px; background: #fff;">';
         foreach ($categories as $category) {
@@ -525,17 +547,16 @@ class ACA_Admin {
         $provider = isset($options['featured_image_provider']) ? $options['featured_image_provider'] : 'none';
         $providers = [
             'none' => __('None', 'aca'),
-            'pexels' => __('Pexels (Coming Soon)', 'aca'),
-            'unsplash' => __('Unsplash (Coming Soon)', 'aca'),
+            'unsplash' => __('Unsplash', 'aca'),
         ];
 
-        echo '<select name="aca_options[featured_image_provider]" disabled>';
+        echo '<select name="aca_options[featured_image_provider]">';
         foreach ($providers as $key => $label) {
             $selected = selected($provider, $key, false);
             echo '<option value="' . esc_attr($key) . '" ' . $selected . '>' . esc_html($label) . '</option>';
         }
         echo '</select>';
-        echo '<p class="description">' . __('Automated featured image generation is planned for a future release.', 'aca') . '</p>';
+        echo '<p class="description">' . __('Select a provider for automatically fetching a featured image for each draft.', 'aca') . '</p>';
     }
 
     /**

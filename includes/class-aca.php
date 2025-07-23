@@ -143,9 +143,182 @@ class ACA_Core {
 
         self::add_log(sprintf('Successfully created draft (Post ID: %d) for idea #%d.', $post_id, $idea_id), 'success');
 
+        // Additional enrichment steps
+        self::enrich_draft($post_id, $response, $idea->idea_title);
+
         // ... (rest of the function is the same)
 
         return $post_id;
+    }
+
+    /**
+     * Enrich the generated draft with additional features.
+     */
+    public static function enrich_draft($post_id, $ai_response, $title) {
+        $parts = self::parse_ai_response($ai_response);
+
+        // Append sources if available
+        if (!empty($parts['sources'])) {
+            self::append_sources($post_id, $parts['sources']);
+        }
+
+        // Add internal links
+        $options = get_option('aca_options');
+        $max_links = $options['internal_links_max'] ?? 3;
+        self::add_internal_links($post_id, $max_links);
+
+        // Maybe set featured image
+        $provider = $options['featured_image_provider'] ?? 'none';
+        if ($provider !== 'none') {
+            self::maybe_set_featured_image($post_id, $title, $provider);
+        }
+
+        // Optional plagiarism check
+        if (!empty($parts['content'])) {
+            self::check_plagiarism($post_id, $parts['content']);
+        }
+    }
+
+    /**
+     * Parse AI response into sections.
+     */
+    public static function parse_ai_response($response) {
+        $sections = [
+            'content' => '',
+            'tags' => '',
+            'meta_description' => '',
+            'sources' => ''
+        ];
+
+        if (preg_match('/---POST CONTENT---\s*(.*?)\s*---TAGS---/s', $response, $m)) {
+            $sections['content'] = trim($m[1]);
+        }
+        if (preg_match('/---TAGS---\s*(.*?)\s*---META DESCRIPTION---/s', $response, $m)) {
+            $sections['tags'] = trim($m[1]);
+        }
+        if (preg_match('/---META DESCRIPTION---\s*(.*?)\s*---SOURCES---/s', $response, $m)) {
+            $sections['meta_description'] = trim($m[1]);
+        }
+        if (preg_match('/---SOURCES---\s*(.*)$/s', $response, $m)) {
+            $sections['sources'] = trim($m[1]);
+        }
+
+        return $sections;
+    }
+
+    /**
+     * Append sources to the end of the post content.
+     */
+    public static function append_sources($post_id, $sources) {
+        $post = get_post($post_id);
+        if (!$post) {
+            return;
+        }
+        $content = $post->post_content;
+        $content .= "\n\n<h3>Sources</h3>\n<ul>";
+        foreach (preg_split('/\n+/', $sources) as $src) {
+            $src = trim($src);
+            if (!empty($src)) {
+                $content .= '<li><a href="' . esc_url($src) . '" target="_blank" rel="nofollow">' . esc_html($src) . '</a></li>';
+            }
+        }
+        $content .= '</ul>';
+        wp_update_post([
+            'ID' => $post_id,
+            'post_content' => $content
+        ]);
+    }
+
+    /**
+     * Add internal links to the post content.
+     */
+    public static function add_internal_links($post_id, $max_links) {
+        if ($max_links <= 0) {
+            return;
+        }
+
+        $post = get_post($post_id);
+        if (!$post) {
+            return;
+        }
+
+        $content = $post->post_content;
+        $existing_posts = get_posts([
+            'numberposts' => $max_links,
+            'post_type' => 'post',
+            'post_status' => 'publish',
+            'orderby' => 'rand'
+        ]);
+
+        foreach ($existing_posts as $existing) {
+            $title = preg_quote($existing->post_title, '/');
+            if (preg_match('/\b' . $title . '\b/i', $content)) {
+                $link = get_permalink($existing->ID);
+                $content = preg_replace('/\b' . $title . '\b/i', '<a href="' . esc_url($link) . '">' . $existing->post_title . '</a>', $content, 1);
+            }
+        }
+
+        wp_update_post([
+            'ID' => $post_id,
+            'post_content' => $content
+        ]);
+    }
+
+    /**
+     * Download and set a featured image using Unsplash.
+     */
+    public static function maybe_set_featured_image($post_id, $query, $provider) {
+        if ($provider !== 'unsplash') {
+            return;
+        }
+
+        $url = 'https://source.unsplash.com/1600x900/?' . urlencode($query);
+        require_once ABSPATH . 'wp-admin/includes/file.php';
+        require_once ABSPATH . 'wp-admin/includes/media.php';
+        require_once ABSPATH . 'wp-admin/includes/image.php';
+
+        $tmp = download_url($url);
+        if (is_wp_error($tmp)) {
+            return;
+        }
+
+        $file_array = [
+            'name'     => basename($url) . '.jpg',
+            'tmp_name' => $tmp,
+        ];
+
+        $id = media_handle_sideload($file_array, $post_id);
+        if (!is_wp_error($id)) {
+            set_post_thumbnail($post_id, $id);
+        }
+        @unlink($tmp);
+    }
+
+    /**
+     * Check plagiarism via Copyscape API and store the result.
+     */
+    public static function check_plagiarism($post_id, $content) {
+        $options = get_option('aca_options');
+        $user = $options['copyscape_username'] ?? '';
+        $key  = $options['copyscape_api_key'] ?? '';
+        if (empty($user) || empty($key)) {
+            return;
+        }
+
+        $endpoint = add_query_arg([
+            'c' => 'csearch',
+            'u' => $user,
+            'k' => $key,
+            'o' => 'json',
+            't' => urlencode(wp_trim_words($content, 5000, ''))
+        ], 'https://www.copyscape.com/api/');
+
+        $response = wp_remote_get($endpoint);
+        if (is_wp_error($response)) {
+            return;
+        }
+        $body = wp_remote_retrieve_body($response);
+        update_post_meta($post_id, '_aca_plagiarism_raw', $body);
     }
 
     // ... (rest of the file is the same)

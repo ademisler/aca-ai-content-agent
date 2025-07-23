@@ -224,15 +224,15 @@ Aşağıda, `README.md` dosyasındaki bölümlere göre hangi özelliklerin ekle
 
 #### **Bölüm 4: İçerik Kalitesi, Güvenilirlik ve Zenginleştirme**
 
-Bu bölümdeki özelliklerin **hiçbiri** henüz uygulanmamıştır. Bu özellikler, eklentinin sıradan bir içerik üreticiden daha fazlası olmasını sağlayan en kritik katmanlardan biridir.
+Bu bölümdeki kritik özelliklerin bir kısmı bu sürümle birlikte eklenmiştir.
 
 *   **Güvenilirlik ve Özgünlük:**
-    *   **Otomatik İntihal Kontrolü:** Copyscape veya benzeri bir servisle entegrasyon için hiçbir kod (API çağrısı, ayar alanı vb.) bulunmuyor.
-    *   **Kaynak Göstermeli İçerik:** `write_post_draft` fonksiyonunda, AI'dan gelen `---SOURCES---` bölümündeki URL'leri ayrıştırıp yazının sonuna ekleyen bir mantık mevcut değil. Prompt'ta isteniyor ama işlenmiyor.
+    *   **Otomatik İntihal Kontrolü:** Copyscape API entegrasyonu yapıldı ve her taslak için sonuçlar meta alana kaydediliyor.
+    *   **Kaynak Göstermeli İçerik:** `write_post_draft` fonksiyonunda kaynak linkleri taslak içeriğine otomatik olarak ekleniyor.
 
 *   **İçerik Zenginleştirme:**
-    *   **Akıllı Öne Çıkan Görsel:** Pexels/Unsplash/DALL-E entegrasyonu yok. Ayarlar sayfasındaki (`class-aca-admin.php`) ilgili alan bilinçli olarak `disabled` (devre dışı) bırakılmış ve "Coming Soon" (Yakında) olarak belirtilmiş.
-    *   **Otomatik İç Linkleme:** Yeni taslaklara, sitenin eski ve ilgili yazılarına link ekleyen bir analiz veya `wp_insert_post` sonrası içerik işleme mantığı bulunmuyor. Sadece ayarı mevcut.
+    *   **Akıllı Öne Çıkan Görsel:** Unsplash entegrasyonu eklenerek, taslaklara otomatik görsel atanabiliyor.
+    *   **Otomatik İç Linkleme:** Yeni taslaklara mevcut içerikten rastgele iç linkler ekleyen temel bir mekanizma eklendi.
     *   **Veri Destekli Bölümler:** Yazıya güncel istatistik veya tablo ekleme gibi gelişmiş bir AI yeteneği kodu bulunmuyor.
 
 #### **Bölüm 5: Stratejik Planlama ve Gelişmiş Yönetim**

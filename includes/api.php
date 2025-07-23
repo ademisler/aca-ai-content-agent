@@ -119,7 +119,7 @@ function aca_call_gemini_api( $prompt, $system_instruction = '', $api_args = [] 
 	if ( ! isset( $data['candidates'][0]['content']['parts'][0]['text'] ) ) {
         // Check for blocked content due to safety settings
         if (isset($data['candidates'][0]['finishReason']) && $data['candidates'][0]['finishReason'] === 'SAFETY') {
-            return new WP_Error('safety_block', __('The content could not be generated because it was blocked by the API's safety settings.', 'aca'));
+            return new WP_Error('safety_block', __('The content could not be generated because it was blocked by the API\'s safety settings.', 'aca'));
         }
 		return new WP_Error( 'invalid_response', __( 'The API response did not contain the expected content format.', 'aca' ) );
 	}

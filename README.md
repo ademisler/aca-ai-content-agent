@@ -1,213 +1,295 @@
-### **Project Implementation Document: ACA – AI Content Agent**
+### **Proje Uygulama Belgesi: ACA – AI Content Agent**
 
-**Version:** 1.0
-**Date:** 23.07.2025
-**Project Owner:** Adem Isler (developer's personal website: ademisler.com)
+**Versiyon:** 1.0
+**Tarih:** 23.07.2025
+**Proje Sahibi:** Adem Isler (geliştiricinin kişisel websitesi: ademisler.com)
 
-### **Section 1: Project Vision and Core Philosophy**
+---
 
-#### **1.1. Project Name**
+### **Bölüm 1: Proje Vizyonu ve Temel Felsefe**
+
+#### **1.1. Proje Adı**
 ACA – AI Content Agent
 
-#### **1.2. Vision**
-To create an intelligent plugin for WordPress sites that learns the existing content tone and style to autonomously generate new, SEO-friendly, high-quality, reliable, and consistent content, acting as a "digital content strategist and editor."
+#### **1.2. Vizyon**
+WordPress siteleri için, sitenin mevcut içerik tonunu ve stilini öğrenerek; SEO uyumlu, yüksek kaliteli, güvenilir ve tutarlı yeni içerikleri otonom bir şekilde üreten; bir "dijital içerik stratejisti ve editörü" olarak görev yapan akıllı bir eklenti oluşturmak.
 
-#### **1.3. Core Philosophy: "User-Controlled Automation"**
-ACA will not be a "black box" that takes control away from the user. It will provide transparency at every step, granting the user the authority to intervene and make the final decision. ACA is designed not to replace a writer, but to be a super-assistant that saves them time and sparks their creativity.
+#### **1.3. Ana Felsefe: "Kullanıcı Kontrolünde Otomasyon"**
+ACA, kontrolü kullanıcıdan alan bir "kara kutu" olmayacaktır. Her adımda şeffaflık sağlayacak, kullanıcıya müdahale etme ve son kararı verme yetkisi tanıyacaktır. ACA, bir yazarın yerini almak için değil, ona zaman kazandıran ve yaratıcılığını tetikleyen bir süper asistan olmak için tasarlanmıştır.
 
-#### **1.4. Target Audience**
-Bloggers, content creators, SME and corporate website owners, digital marketing and SEO agencies, and content managers of e-commerce sites.
-
----
-
-### **Section 2: Basic Configuration and Setup (Admin Panel)**
-
-This is the first and most crucial step where the user customizes ACA for their own site.
-
-#### **2.1. API and Connection Settings**
-*   **Google Gemini API Key:** A secure text input field.
-*   **Connection Test:** A "Test Connection" button that checks the validity of the entered API key and whether there is access to the API.
-
-#### **2.2. Operating Mode and Automation Level**
-*   **Manual Mode:** The plugin will not perform any background processes until the user manually triggers it from the ACA Control Panel.
-*   **Semi-Automatic Mode (Idea and Approval):** The plugin only generates new blog post ideas at specified intervals. When the user approves these ideas from the panel, a draft post is created for the selected ones.
-*   **Fully Automatic Mode (Draft Creation):** The processes of finding ideas and creating draft posts are fully automated. **Critical Note:** All generated content, without exception, is always saved as a "Draft" and is never published directly.
-
-#### **2.3. Content Analysis and Learning Rules**
-*   **Analysis Targeting:** Areas where the user can select which content ACA should read to "learn the style":
-    *   **Content Types:** Posts, Pages (selectable via checkboxes).
-    *   **Categories:** Selection of categories to be scanned or excluded for style analysis.
-*   **Analysis Depth:** The number of recent posts to be used as a basis for learning the style (e.g., 10, 20, 50).
-
-#### **2.4. Content Generation Rules**
-*   **Automation Frequency:** (For automatic modes) The frequency of generating new ideas/drafts using WordPress's internal scheduler (WP-Cron) (e.g., Every day at 03:00, Once a week, Once a month).
-*   **Default Author:** Selection of the WordPress user under whose name the created drafts will be saved.
-*   **Generation Limit:** The maximum number of ideas/drafts to be generated in each automation cycle (to keep API costs under control).
+#### **1.4. Hedef Kitle**
+Blog yazarları, içerik üreticileri, KOBİ ve kurumsal web sitesi sahipleri, dijital pazarlama ve SEO ajansları, e-ticaret sitelerinin içerik yöneticileri.
 
 ---
 
-### **Section 3: Content Generation Engine: Learning, Ideation, and Writing**
+### **Bölüm 2: Temel Yapılandırma ve Kurulum (Yönetici Paneli)**
 
-This section defines the core working mechanism of the plugin.
+Kullanıcının ACA'yı kendi sitesine göre özelleştirdiği ilk ve en önemli adımdır.
 
-#### **3.1. Step 1: Style Guide Generation (Learning Phase)**
-*   **Process:** A WP-Cron task that runs in the background at specified intervals (e.g., once a week).
-*   **Operation:** The plugin retrieves the content of the last X posts according to the user's settings. It sends this content to the Gemini API with a special prompt:
-    *   *"Analyze the following texts. Create a 'Style Guide' that defines their writing tone (e.g., friendly, formal, humorous), sentence structure (short, long), paragraph length, and general formatting style (use of lists, bold text, etc.). This guide should be like an instructional text given to another writer to mimic this style."*
-*   **Output:** This "Style Guide Prompt" returned from the API is stored in the database and used as the core identity for all subsequent content generation.
+#### **2.1. API ve Bağlantı Ayarları**
+*   **Google Gemini API Anahtarı:** Güvenli bir metin giriş alanı.
+*   **Bağlantı Testi:** Girilen API anahtarının geçerliliğini ve API'ye erişimin olup olmadığını kontrol eden bir "Bağlantıyı Test Et" butonu.
 
-#### **3.2. Step 2: Idea Generation (Creativity Phase)**
-*   **Process:** Triggered during an automation cycle or manually.
-*   **Operation:** The plugin analyzes the site's recent post titles and categories. It sends the following prompt to Gemini:
-    *   *"The current blog post titles are: [...]. Suggest 5 new, SEO-friendly, and engaging blog post titles that are related to these topics but do not repeat them."*
-*   **Output:** The generated titles are saved in the "Ideas" section of the ACA Control Panel.
+#### **2.2. Çalışma Modu ve Otomasyon Seviyesi**
+*   **Manuel Mod:** Eklenti, kullanıcı ACA Kontrol Panelinden manuel olarak tetikleme yapana kadar hiçbir arka plan işlemi yapmaz.
+*   **Yarı Otomatik Mod (Fikir ve Onay):** Eklenti, belirlenen periyotlarda sadece yeni blog yazısı fikirleri üretir. Kullanıcı bu fikirleri panelden onayladığında, seçilenler için taslak yazı oluşturulur.
+*   **Tam Otomatik Mod (Taslak Oluşturma):** Fikir bulma ve taslak yazı oluşturma süreçleri tamamen otomatiktir. **Kritik Not:** Üretilen tüm içerikler, istisnasız olarak daima "Taslak" olarak kaydedilir, asla doğrudan yayınlanmaz.
 
-#### **3.3. Step 3: Content Writing (Production Phase)**
-*   **Process:** Triggered by user approval or in fully automatic mode.
-*   **Operation:** When an idea is to be converted into a post, the plugin combines the following parts to create a final, complex prompt:
-    1.  **Style Guide:** The prompt created in Section 3.1.
-    2.  **Writing Task:** *"Adhering to the style guide above, write an SEO-friendly blog post of approximately 800 words with the title '[Selected Post Idea]'. Structure the post with an introduction, a main body containing H2 and H3 subheadings, and a conclusion."*
-    3.  **Metadata and Source Request:** *"At the end of the post, add 5 tags related to the article, a 155-character meta description, and at least 2 reliable source URLs for any significant data mentioned in the article."*
-    4.  **Formatting Instruction:** *"To help me parse the output, provide it in the following format: ---ARTICLE CONTENT--- [Article] ---TAGS--- [Tags] ---META DESCRIPTION--- [Description] ---SOURCES--- [URLs]"*
-*   **Output:** The plugin receives this structured response, creates the draft using `wp_insert_post()`, and saves the metadata to the respective fields.
+#### **2.3. İçerik Analizi ve Öğrenme Kuralları**
+*   **Analiz Hedefleme:** Kullanıcının, ACA'nın "tarz öğrenmek" için hangi içerikleri okuyacağını seçebileceği alanlar:
+    *   **İçerik Türleri:** Yazılar, Sayfalar (Checkbox ile seçilebilir).
+    *   **Kategoriler:** Tarz analizi için taranacak veya hariç tutulacak kategorilerin seçimi.
+*   **Analiz Derinliği:** Stili öğrenmek için baz alınacak son yazı sayısı (Örn: 10, 20, 50).
 
----
-
-### **Section 4: Content Quality, Reliability, and Enrichment**
-
-This layer ensures that the generated content goes beyond standard text.
-
-#### **4.1. Reliability and Originality**
-*   **Sourced Content:** Links to reliable sources (e.g., .gov, .edu, scientific publications) are added to the generated articles, especially for sections containing data and statistics. These sources are listed at the end of the article.
-*   **Automatic Plagiarism Check:** Each generated draft is automatically scanned with the API of a service like Copyscape. The "Plagiarism Score" is displayed in the ACA panel to assure the user of the content's originality.
-
-#### **4.2. Content Enrichment**
-*   **Smart Featured Image:** Suggests royalty-free stock images suitable for the content via Pexels/Unsplash APIs. At an advanced level, it offers the option to generate completely original images specific to the article using APIs like DALL-E 3.
-*   **Automatic Internal Linking:** Adds SEO-friendly internal links to the site's older and relevant posts within new drafts. The maximum number of links to be added can be set in the settings panel.
-*   **Data-Driven Sections:** Increases the content's authority by finding and adding current statistics, data, or simple tables relevant to the article's topic.
+#### **2.4. İçerik Üretim Kuralları**
+*   **Otomasyon Sıklığı:** (Otomatik modlar için) WordPress'in dahili zamanlayıcısı (WP-Cron) ile yeni fikir/taslak üretme sıklığı (Örn: Her gün 03:00'da, Haftada bir, Ayda bir).
+*   **Varsayılan Yazar:** Oluşturulan taslakların hangi WordPress kullanıcısı adına kaydedileceğinin seçimi.
+*   **Üretim Limiti:** Her otomasyon döngüsünde üretilecek maksimum fikir/taslak sayısı (API maliyetlerini kontrol altında tutmak için).
 
 ---
 
-### **Section 5: Strategic Planning and Advanced Management**
+### **Bölüm 3: İçerik Üretim Motoru: Öğrenme, Fikir ve Yazım**
 
-Features that turn ACA into a "content strategist."
+Bu bölüm, eklentinin temel çalışma mekanizmasını tanımlar.
 
-#### **5.1. Strategic Planning Tools**
-*   **Content Cluster Planner:** Suggests sub-topic titles ("Cluster Content") to support a main topic ("Pillar Content") defined by the user and plans the interlinking of this content.
-*   **Content Update Assistant:** Identifies outdated posts on the site and provides concrete suggestions to update them with the latest information.
-*   **Google Search Console Integration:** Analyzes search performance to identify topics that users are searching for but are not answered on the site, and generates new content ideas accordingly.
+#### **3.1. Adım: Stil Kılavuzu Üretimi (Öğrenme Aşaması)**
+*   **Süreç:** Belirlenen periyotlarda (örn. haftada bir) arka planda çalışan bir WP-Cron görevi.
+*   **İşleyiş:** Eklenti, kullanıcının belirlediği ayarlara göre son X yazının içeriğini alır. Bu içerikleri Gemini API'sine özel bir prompt ile gönderir:
+    *   *"Aşağıdaki metinleri analiz et. Bu metinlerin yazım tonunu (samimi, resmi, esprili), cümle yapısını (kısa, uzun), paragraf uzunluğunu ve genel formatlama stilini (liste kullanımı, kalın metinler vb.) tanımlayan bir 'Stil Kılavuzu' oluştur. Bu kılavuz, başka bir yazara bu stili taklit etmesi için verilecek bir talimat metni gibi olmalı."*
+*   **Çıktı:** API'den dönen bu "Stil Kılavuzu Promtu" veritabanında saklanır ve sonraki tüm içerik üretimlerinde temel kimlik olarak kullanılır.
 
-#### **5.2. Advanced Adaptability**
-*   **"Prompt Editor" Interface:** An interface for advanced users to manually edit the base prompts used by ACA in the background (e.g., Style Guide, Content Writing).
-*   **Brand Voice Profiles:** The ability to define and save different writing styles and tones of voice for various content types (e.g., blog, technical documentation, product description).
-*   **User Feedback Loop:** "👍/👎" buttons for each generated idea/draft. This feedback is used to help the system produce more accurate results over time.
+#### **3.2. Adım: Fikir Üretimi (Yaratıcılık Aşaması)**
+*   **Süreç:** Otomasyon döngüsünde veya manuel olarak tetiklenir.
+*   **İşleyiş:** Eklenti, sitedeki son yazı başlıklarını ve kategorileri analiz eder. Gemini'ye şu prompt'u gönderir:
+    *   *"Mevcut blog yazısı başlıkları şunlar: [...]. Bu konularla alakalı, ancak bunları tekrar etmeyen, SEO dostu ve ilgi çekici 5 yeni blog yazısı başlığı öner."*
+*   **Çıktı:** Üretilen başlıklar, ACA Kontrol Paneli'ndeki "Fikirler" bölümüne kaydedilir.
 
----
-
-### **Section 6: Governance, Security, and Accessibility**
-
-#### **6.1. Management and Cost Control**
-*   **Role-Based Permissions:** Defines different permissions within the ACA panel based on WordPress user roles (Admin, Editor, Author) (e.g., an Author only sees drafts, an Editor can approve ideas, an Admin changes all settings).
-*   **API Usage Management:** An option to set a monthly API token/call limit in the settings panel and a warning system when this limit is approached. A counter in the panel displays the current month's API usage in real-time.
-
-#### **6.2. Technical Architecture and Standards**
-*   **API Communication Architecture:** All API calls are managed through a central and reusable function detailed in Section 7.
-*   **Tech Stack:** PHP 7.4+, Google Gemini API, WP-Cron. A modern JS library (React/Vue.js) or Vanilla JS for the admin panel.
-*   **Accessibility and Mobile Responsiveness:** All admin panels are designed to be responsive for easy use on mobile devices and will fully comply with accessibility (a11y) standards, such as keyboard navigation and the use of aria-labels.
+#### **3.3. Adım: İçerik Yazımı (Üretim Aşaması)**
+*   **Süreç:** Kullanıcı onayıyla veya tam otomatik modda tetiklenir.
+*   **İşleyiş:** Bir fikir yazıya dönüştürüleceği zaman, eklenti şu parçaları birleştirerek nihai, karmaşık bir prompt oluşturur:
+    1.  **Stil Kılavuzu:** Bölüm 3.1'de oluşturulan prompt.
+    2.  **Yazı Görevi:** *"Yukarıdaki stil kılavuzuna sadık kalarak, başlığı '[Seçilen Yazı Fikri]' olan, yaklaşık 800 kelimelik, SEO'ya uygun bir blog yazısı yaz. Yazıyı bir giriş, H2 ve H3 alt başlıkları içeren bir ana gövde ve bir sonuç bölümü olarak yapılandır."*
+    3.  **Meta Veri ve Kaynak Talebi:** *"Yazının sonuna, yazıyla ilgili 5 adet etiket, 155 karakterlik bir meta açıklama ve yazıda bahsettiğin önemli veriler için en az 2 adet güvenilir kaynak URL'si ekle."*
+    4.  **Formatlama Talimatı:** *"Çıktıyı ayrıştırabilmem için şu formatta ver: ---YAZI İÇERİĞİ--- [Yazı] ---ETİKETLER--- [Etiketler] ---META AÇIKLAMA--- [Açıklama] ---KAYNAKLAR--- [URL'ler]"*
+*   **Çıktı:** Eklenti, bu strukture edilmiş cevabı alır, `wp_insert_post()` ile taslağı oluşturur ve meta verileri ilgili alanlara kaydeder.
 
 ---
 
-### **Section 7: Central API Communication Architecture**
+### **Bölüm 4: İçerik Kalitesi, Güvenilirlik ve Zenginleştirme**
 
-#### **7.1. Purpose**
-To manage all Gemini API calls through a single, central function that prevents code repetition, is easy to maintain, and is reusable.
+Bu katman, üretilen içeriğin standart metnin ötesine geçmesini sağlar.
 
-#### **7.2. Function Structure: `aca_call_gemini_api( $prompt, $system_instruction = '' )`**
-This function:
-1.  Checks the API key.
-2.  Prepares the JSON `$payload` based on the given `$prompt` and optional `$system_instruction`.
-3.  Makes the API request securely using WordPress's `wp_remote_post()` function. The timeout duration is increased for potentially long-running operations like content generation (e.g., 60-120 seconds).
-4.  Comprehensively checks the response from the API: `WP_Error` check, HTTP status code check (200), and Gemini API's own error messages.
-5.  If all checks pass, it returns the generated text cleanly. Otherwise, it returns a loggable `WP_Error` object.
+#### **4.1. Güvenilirlik ve Özgünlük**
+*   **Kaynak Göstermeli İçerik:** Üretilen yazılara, özellikle veri ve istatistik içeren kısımlar için, güvenilir kaynaklara (örn: .gov, .edu, bilimsel yayınlar) link eklenir. Bu kaynaklar yazının sonunda listelenir.
+*   **Otomatik İntihal Kontrolü:** Üretilen her taslak, Copyscape veya benzeri bir servisin API'si ile otomatik olarak taranır. "İntihal Skoru" ACA panelinde gösterilerek kullanıcının içeriğin özgünlüğünden emin olması sağlanır.
 
-#### **7.3. Implementation**
-All other features of the plugin (Style Guide, Idea Generation, Content Writing, etc.) will operate by simply calling this central function, rather than repeating complex API code. This maximizes the code's readability, security, and scalability.
+#### **4.2. İçerik Zenginleştirme**
+*   **Akıllı Öne Çıkan Görsel:** Pexels/Unsplash API'leri ile içeriğe uygun, telifsiz stok görseller önerir. İleri seviyede, DALL-E 3 gibi API'lerle yazıya özel, tamamen orijinal görseller üretme seçeneği sunar.
+*   **Otomatik İç Linkleme:** Yeni taslakların içine, sitenin eski ve ilgili yazılarına SEO dostu iç linkler ekler. Ayarlar panelinden eklenecek maksimum link sayısı belirlenebilir.
+*   **Veri Destekli Bölümler:** Yazının konusuna uygun olarak güncel istatistikler, veriler veya basit tablolar bulup yazıya ekleyerek içeriğin otoritesini artırır.
 
 ---
 
-### **Section 8: User Experience (UX) and Interface (UI) Philosophy**
+### **Bölüm 5: Stratejik Planlama ve Gelişmiş Yönetim**
 
-#### **8.1. Core Interface Philosophy**
-*   **Clarity and Focus:** The interface will not overwhelm the user with unnecessary information. Each screen will have a single primary purpose (e.g., Settings, Ideas, Reports).
-*   **Guided Experience:** Especially for new users, tips, tooltips, and brief descriptions will be used to help them understand what to do.
-*   **Visual Hierarchy:** Important actions (e.g., "Create Draft") and information (e.g., "API Limit") will be visually highlighted.
+ACA'yı bir "içerik stratejisti" haline getiren özellikler.
 
-#### **8.2. Onboarding Wizard**
-When the plugin is first activated, a setup wizard runs, guiding the user step-by-step through the basic settings:
-1.  **Welcome:** A brief introduction to the project.
-2.  **API Connection:** Entering and testing the API key.
-3.  **Basic Learning Settings:** Quickly selecting which content types to analyze.
-4.  **Mode Selection:** Choosing one of the Manual, Semi-Automatic, or Fully Automatic modes.
-5.  **Completed:** Directing the user to the main ACA Control Panel.
+#### **5.1. Stratejik Planlama Araçları**
+*   **İçerik Kümesi (Content Cluster) Planlayıcısı:** Kullanıcının belirlediği bir ana konu ("Pillar Content") etrafında, bu konuyu destekleyecek alt konu başlıkları ("Cluster Content") önerir ve bu içeriklerin birbiriyle linklenmesini planlar.
+*   **İçerik Güncelleme Asistanı:** Sitedeki eski yazıların güncelliğini yitirdiğini tespit eder ve bu yazıları en son bilgilerle güncellemek için somut önerilerde bulunur.
+*   **Google Search Console Entegrasyonu:** Arama performansını analiz ederek, kullanıcıların aradığı ama sitede cevabı olmayan konuları tespit edip yeni içerik fikirleri üretir.
 
-#### **8.3. Central Dashboard**
-The main panel, located in the WordPress admin menu under "ACA," will include the following components:
-*   **Overview:** Quick stats like API usage status, number of pending ideas, and number of created drafts.
-*   **Idea Stream:** A section listing new content ideas awaiting approval, with "Approve and Write" or "Reject" buttons.
-*   **Recent Activities:** A log of recent actions like "Style guide updated," "3 new ideas generated."
-*   **Quick Actions:** Shortcut buttons like "Generate New Ideas Now," "Manually Update Style Guide."
-
-#### **8.4. Notification Center**
-Informs the user when the API key is invalid, when the API usage limit reaches 80%, when new ideas are ready for approval (optional), or when a content creation process fails.
+#### **5.2. Gelişmiş Uyarlanabilirlik**
+*   **"Prompt Editörü" Arayüzü:** Gelişmiş kullanıcıların, ACA'nın arka planda kullandığı temel prompt'ları (Stil Kılavuzu, İçerik Yazma vb.) manuel olarak düzenleyebileceği bir arayüz.
+*   **Marka Sesi Profilleri:** Farklı içerik türleri (örn: blog, teknik doküman, ürün açıklaması) için farklı yazım stilleri ve ses tonları tanımlayıp kaydetme imkanı.
+*   **Kullanıcı Geri Bildirim Döngüsü:** Üretilen her fikir/taslak için "👍/👎" butonları. Bu geri bildirimler, sistemin zamanla daha isabetli sonuçlar üretmesini sağlamak için kullanılır.
 
 ---
 
-### **Section 9: Monetization and Support Model**
+### **Bölüm 6: Yönetişim, Güvenlik ve Erişilebilirlik**
 
-#### **9.1. Licensing Model: Freemium**
-*   **ACA (Free Version):** Published on WordPress.org. Includes limitations such as 5 ideas and 2 drafts per month. Operates in manual mode. Advanced strategy and enrichment features are disabled.
-*   **ACA Pro (Premium Version):** Based on an annual subscription. Unlocks all features (automatic modes, unlimited generation, plagiarism check, strategy tools, etc.).
+#### **6.1. Yönetim ve Maliyet Kontrolü**
+*   **Rol Bazlı Yetkilendirme:** WordPress kullanıcı rollerine (Admin, Editör, Yazar) göre ACA paneli içinde farklı yetkiler tanımlama (örn: Yazar sadece taslakları görür, Editör fikirleri onaylayabilir, Admin tüm ayarları değiştirir).
+*   **API Kullanım Yönetimi:** Ayarlar panelinde aylık API token/çağrı limiti belirleme seçeneği ve bu limite yaklaşıldığında uyarı sistemi. Panelde anlık olarak ay içi API kullanımını gösteren bir sayaç.
 
-#### **9.2. Sales and Licensing Platform: Gumroad**
-*   **Platform:** The **Gumroad** platform will be used for the sale of the ACA Pro version, payment processing, and license key management.
-*   **License Key Mechanism:** Users will receive a unique, individual license key upon purchase through Gumroad. This license key will be used to unlock Pro features and receive updates by entering it into the relevant field in the plugin's WordPress admin panel.
-*   **Validation:** The plugin will have a mechanism to verify the validity of the entered license key.
-
-#### **9.3. Pricing and License Types**
-*   Single Site License
-*   3-Site License
-*   Agency License (Unlimited Sites)
-
-#### **9.4. Support and Update Policy**
-Users with an active and valid **Gumroad license key** will have access to plugin updates and technical support via a ticket system for 1 year.
+#### **6.2. Teknik Mimari ve Standartlar**
+*   **API İletişim Mimarisi:** Tüm API çağrıları, Bölüm 7'de detaylandırılan merkezi ve yeniden kullanılabilir bir fonksiyon üzerinden yönetilir.
+*   **Teknik Yığın:** PHP 7.4+, Google Gemini API, WP-Cron. Yönetici paneli için modern bir JS kütüphanesi (React/Vue.js) veya Vanilla JS.
+*   **Erişilebilirlik ve Mobil Uyum:** Tüm yönetici panelleri, mobil cihazlarda rahatça kullanılabilecek şekilde responsive olarak tasarlanır ve klavye navigasyonu, aria-label kullanımı gibi erişilebilirlik (a11y) standartlarına tam uyum sağlar.
 
 ---
 
-### **Section 10: Performance, Optimization, and Resource Management**
+### **Bölüm 7: Merkezi API İletişim Mimarisi**
 
-#### **10.1. Asynchronous Operations (Background Tasks)**
-Long-running processes such as content analysis, style guide creation, and content writing will run asynchronously in the background using WordPress's Action Scheduler library, without locking the user interface.
+#### **7.1. Amaç**
+Tüm Gemini API çağrılarını, kod tekrarını önleyen, bakımı kolay ve yeniden kullanılabilir tek bir merkezi fonksiyon üzerinden yönetmek.
 
-#### **10.2. Database Optimization**
-The plugin will create custom database tables to store its own data (settings, ideas, logs, etc.), preventing the bloating of the `wp_posts` and `wp_postmeta` tables and improving query performance.
+#### **7.2. Fonksiyon Yapısı: `aca_call_gemini_api( $prompt, $system_instruction = '' )`**
+Bu fonksiyon:
+1.  API anahtarını kontrol eder.
+2.  Verilen `$prompt` ve opsiyonel `$system_instruction`'a göre JSON `$payload`'u hazırlar.
+3.  WordPress'in `wp_remote_post()` fonksiyonunu kullanarak API isteğini güvenli bir şekilde yapar. Timeout süresi, içerik üretimi gibi uzun sürebilecek işlemler için artırılır (örn: 60-120 saniye).
+4.  API'den dönen cevabı kapsamlı bir şekilde kontrol eder: `WP_Error` kontrolü, HTTP durum kodu kontrolü (200), Gemini API'sinin kendi hata mesajları.
+5.  Tüm kontrollerden geçerse, üretilen metni temiz bir şekilde döndürür. Aksi takdirde, loglanabilir bir `WP_Error` nesnesi döndürür.
 
-#### **10.3. Smart Caching**
-Frequently accessed but rarely changing data (e.g., the Style Guide) will be temporarily cached using the WordPress Transients API. This prevents unnecessary API and database calls.
+#### **7.3. Uygulama**
+Eklentinin diğer tüm özellikleri (Stil Kılavuzu, Fikir Üretme, İçerik Yazma vb.), karmaşık API kodunu tekrar etmek yerine, sadece bu merkezi fonksiyonu çağırarak çalışacaktır. Bu, kodun okunabilirliğini, güvenliğini ve ölçeklenebilirliğini en üst düzeye çıkarır.
 
 ---
 
-### **Section 11: Security, Data Privacy, and Legal Compliance**
+### **Bölüm 8: Kullanıcı Deneyimi (UX) ve Arayüz (UI) Felsefesi**
 
-#### **11.1. Data Security**
-*   **API Key Storage:** The API key will be stored in the database in an encrypted format.
-*   **Secure API Calls:** All API calls will be made with SSL verification enabled.
-*   **Capability Checks:** All actions will be controlled according to WordPress's capability system.
+#### **8.1. Temel Arayüz Felsefesi**
+*   **Netlik ve Odaklanma:** Arayüz, kullanıcıyı gereksiz bilgilerle boğmayacak. Her ekranın tek bir ana amacı olacaktır (örn: Ayarlar, Fikirler, Raporlar).
+*   **Rehberli Deneyim:** Özellikle yeni kullanıcılar için, ne yapmaları gerektiğini anlamalarına yardımcı olacak ipuçları, araç ipuçları (tooltips) ve kısa açıklamalar kullanılacaktır.
+*   **Görsel Hiyerarşi:** Önemli eylemler (örn: "Taslak Oluştur") ve bilgiler (örn: "API Limiti") görsel olarak öne çıkarılacaktır.
 
-#### **11.2. Data Privacy (GDPR Compliance)**
-*   **Transparency:** The user is clearly informed that an external API is being used.
-*   **Data Minimization:** Only the minimum data required for the task is sent to the API.
-*   **No-Data-Retention Policy:** The full text of site content taken for analysis is not permanently stored in the plugin's database.
-*   **GDPR Tools Compliance:** The plugin will be compatible with WordPress's "Export/Erase Personal Data" tools.
+#### **8.2. Kurulum Sihirbazı (Onboarding Wizard)**
+Eklenti ilk aktive edildiğinde, kullanıcıyı adım adım temel ayarlara yönlendiren bir kurulum sihirbazı çalışır:
+1.  **Hoş Geldiniz:** Projenin kısa bir tanıtımı.
+2.  **API Bağlantısı:** API anahtarının girilmesi ve test edilmesi.
+3.  **Temel Öğrenme Ayarları:** Hangi içerik türlerinin analiz edileceğinin hızlıca seçilmesi.
+4.  **Çalışma Modu Seçimi:** Manuel, Yarı Otomatik, Tam Otomatik modlarından birinin seçilmesi.
+5.  **Tamamlandı:** Kullanıcıyı ana ACA Kontrol Paneli'ne yönlendirme.
 
-#### **11.3. Legal Disclaimer**
-It will be clearly stated in the admin panel and documentation that all generated content is a "draft" and must be checked, edited, and verified by the user before publication. It will be emphasized that the final responsibility lies with the user.
+#### **8.3. Merkezi Kontrol Paneli (Dashboard)**
+WordPress yönetici menüsünde "ACA" adıyla yer alacak ana panel, aşağıdaki bileşenleri içerir:
+*   **Genel Bakış:** API kullanım durumu, bekleyen fikir sayısı, oluşturulan taslak sayısı gibi hızlı istatistikler.
+*   **Fikir Akışı:** Onay bekleyen yeni içerik fikirlerinin listelendiği, "Onayla ve Yaz" veya "Reddet" butonlarının bulunduğu bir alan.
+*   **Son Etkinlikler:** "Stil kılavuzu güncellendi", "3 yeni fikir üretildi" gibi son işlemlerin bir kaydı.
+*   **Hızlı Eylemler:** "Şimdi Yeni Fikir Üret", "Stil Kılavuzunu Manuel Güncelle" gibi kısayol butonları.
+
+#### **8.4. Bildirim Merkezi**
+API anahtarı geçersiz olduğunda, API kullanım limiti %80'e ulaştığında, yeni fikirler onaya hazır olduğunda (isteğe bağlı) veya bir içerik oluşturma işlemi başarısız olduğunda kullanıcıyı bilgilendirir.
+
+---
+
+### **Bölüm 9: Ticarileştirme ve Destek Modeli**
+
+#### **9.1. Lisanslama Modeli: Freemium**
+*   **ACA (Ücretsiz Sürüm):** WordPress.org'da yayınlanır. Ayda 5 fikir ve 2 taslak gibi sınırlamalar içerir. Manuel modda çalışır. Gelişmiş strateji ve zenginleştirme özellikleri kapalıdır.
+*   **ACA Pro (Premium Sürüm):** Yıllık abonelik tabanlıdır. Tüm özelliklerin (otomatik modlar, sınırsız üretim, intihal kontrolü, strateji araçları vb.) kilidini açar.
+
+#### **9.2. Satış ve Lisanslama Platformu: Gumroad**
+*   **Platform:** ACA Pro sürümünün satışı, ödeme işlemleri ve lisans anahtarı yönetimi için **Gumroad** platformu kullanılacaktır.
+*   **Lisans Anahtarı Mekanizması:** Kullanıcılar, Gumroad üzerinden satın alma işlemi yaptıklarında kendilerine özel, tekil bir lisans anahtarı alacaklardır. Bu lisans anahtarı, eklentinin WordPress yönetici panelindeki ilgili alana girilerek Pro özelliklerin kilidini açmak ve güncellemeleri almak için kullanılacaktır.
+*   **Doğrulama:** Eklenti, girilen lisans anahtarının geçerliliğini doğrulamak için bir mekanizmaya sahip olacaktır.
+
+#### **9.3. Fiyatlandırma ve Lisans Türleri**
+*   Tek Site Lisansı
+*   3 Site Lisansı
+*   Ajans Lisansı (Sınırsız Site)
+
+#### **9.4. Destek ve Güncelleme Politikası**
+Aktif ve geçerli bir **Gumroad lisans anahtarına** sahip kullanıcılar, 1 yıl boyunca eklenti güncellemelerine ve ticket sistemi üzerinden teknik desteğe erişim hakkına sahip olur.
+
+---
+
+### **Bölüm 10: Performans, Optimizasyon ve Kaynak Yönetimi**
+
+#### **10.1. Asenkron İşlemler (Arka Plan Görevleri)**
+İçerik analizi, stil kılavuzu oluşturma ve içerik yazma gibi uzun süren işlemler, kullanıcı arayüzünü kilitlemeden, WordPress'in Action Scheduler kütüphanesi kullanılarak arka planda asenkron olarak çalışacaktır.
+
+#### **10.2. Veritabanı Optimizasyonu**
+Eklenti, kendi verilerini (ayarlar, fikirler, loglar vb.) depolamak için özel veritabanı tabloları oluşturarak `wp_posts` ve `wp_postmeta` tablolarının şişmesini önler ve sorgu performansını artırır.
+
+#### **10.3. Akıllı Önbellekleme (Caching)**
+Sıkça erişilen ancak nadiren değişen veriler (örn: Stil Kılavuzu) WordPress Transients API kullanılarak geçici olarak önbelleğe alınır. Bu, gereksiz API ve veritabanı çağrılarını engeller.
+
+---
+
+### **Bölüm 11: Güvenlik, Veri Gizliliği ve Yasal Uyumluluk**
+
+#### **11.1. Veri Güvenliği**
+*   **API Anahtarı Saklama:** API anahtarı, veritabanında şifrelenmiş (encrypted) olarak saklanacaktır.
+*   **Güvenli API Çağrıları:** Tüm API çağrıları SSL doğrulaması etkin şekilde yapılacaktır.
+*   **Yetki Kontrolü:** Tüm eylemler WordPress'in yetki (capability) sistemine göre kontrol edilecektir.
+
+#### **11.2. Veri Gizliliği (GDPR Uyumluluğu)**
+*   **Şeffaflık:** Kullanıcı, harici bir API kullanıldığı konusunda açıkça bilgilendirilir.
+*   **Veri Minimizasyonu:** API'ye sadece görevin gerektirdiği minimum veri gönderilir.
+*   **Veri Saklamama Politikası:** Analiz için alınan site içeriklerinin tam metni eklentinin veritabanında kalıcı olarak saklanmaz.
+*   **GDPR Araçları Uyumu:** Eklenti, WordPress'in "Kişisel Verileri Dışa Aktar/Sil" araçlarıyla uyumlu olacaktır.
+
+#### **11.3. Yasal Sorumluluk Reddi (Disclaimer)**
+Yönetim panelinde ve dokümantasyonda, üretilen tüm içeriğin bir "taslak" olduğu ve yayınlanmadan önce kullanıcı tarafından mutlaka kontrol edilmesi, düzenlenmesi ve doğrulanması gerektiği açıkça belirtilir. Nihai sorumluluğun kullanıcıya ait olduğu vurgulanır.
+
+-----------
+
+Aşağıda, `README.md` dosyasındaki bölümlere göre hangi özelliklerin eklenti kodunda **bulunmadığının** (uygulanmadığının) detaylı bir listesi yer almaktadır.
+
+---
+
+### **Uygulanmamış Özellikler**
+
+#### **Bölüm 4: İçerik Kalitesi, Güvenilirlik ve Zenginleştirme**
+
+Bu bölümdeki özelliklerin **hiçbiri** henüz uygulanmamıştır. Bu özellikler, eklentinin sıradan bir içerik üreticiden daha fazlası olmasını sağlayan en kritik katmanlardan biridir.
+
+*   **Güvenilirlik ve Özgünlük:**
+    *   **Otomatik İntihal Kontrolü:** Copyscape veya benzeri bir servisle entegrasyon için hiçbir kod (API çağrısı, ayar alanı vb.) bulunmuyor.
+    *   **Kaynak Göstermeli İçerik:** `write_post_draft` fonksiyonunda, AI'dan gelen `---SOURCES---` bölümündeki URL'leri ayrıştırıp yazının sonuna ekleyen bir mantık mevcut değil. Prompt'ta isteniyor ama işlenmiyor.
+
+*   **İçerik Zenginleştirme:**
+    *   **Akıllı Öne Çıkan Görsel:** Pexels/Unsplash/DALL-E entegrasyonu yok. Ayarlar sayfasındaki (`class-aca-admin.php`) ilgili alan bilinçli olarak `disabled` (devre dışı) bırakılmış ve "Coming Soon" (Yakında) olarak belirtilmiş.
+    *   **Otomatik İç Linkleme:** Yeni taslaklara, sitenin eski ve ilgili yazılarına link ekleyen bir analiz veya `wp_insert_post` sonrası içerik işleme mantığı bulunmuyor. Sadece ayarı mevcut.
+    *   **Veri Destekli Bölümler:** Yazıya güncel istatistik veya tablo ekleme gibi gelişmiş bir AI yeteneği kodu bulunmuyor.
+
+#### **Bölüm 5: Stratejik Planlama ve Gelişmiş Yönetim**
+
+Bu bölümdeki stratejik özelliklerin de büyük çoğunluğu uygulanmamıştır. "Prompt Editörü" dışında kalanlar, eklentinin vizyonundaki "dijital içerik stratejisti" rolünü üstlenmesini sağlayacak özelliklerdir.
+
+*   **Stratejik Planlama Araçları:**
+    *   **İçerik Kümesi (Content Cluster) Planlayıcısı:** Tamamen eksik.
+    *   **İçerik Güncelleme Asistanı:** Tamamen eksik.
+    *   **Google Search Console Entegrasyonu:** Tamamen eksik.
+
+*   **Gelişmiş Uyarlanabilirlik:**
+    *   **Marka Sesi Profilleri:** Farklı içerik türleri için farklı stil kılavuzları kaydetme ve kullanma yeteneği yok. Sistemde sadece tek bir global stil kılavuzu (`aca_style_guide` transient/option) var.
+    *   **Kullanıcı Geri Bildirim Döngüsü:** Veritabanındaki (`aca_ideas`) `feedback` sütunu oluşturulmuş ancak bunu güncelleyecek arayüz (👍/👎 butonları için AJAX işleyicisi) veya bu veriyi gelecekteki prompt'ları iyileştirmek için kullanan bir mekanizma bulunmuyor. Yani veritabanı altyapısı var ama işlevsellik yok.
+
+#### **Bölüm 9: Ticarileştirme ve Destek Modeli**
+
+Ticarileştirme mantığı henüz tam olarak entegre edilmemiştir.
+
+*   **Lisanslama Modeli (Freemium):**
+    *   `aca_is_pro()` fonksiyonu her zaman `false` döndürüyor. Eklentinin hiçbir yerinde bu fonksiyonun sonucuna göre bir özelliğin kilitlendiği veya sınırlandığı bir `if ( aca_is_pro() ) { ... }` bloğu bulunmuyor. Fikir/taslak üretim limitleri Pro'ya özel değil, genel bir ayar olarak duruyor.
+
+*   **Gumroad Entegrasyonu:**
+    *   `gumroad.md` dosyası olmasına rağmen, `class-aca-admin.php` dosyasındaki `handle_ajax_validate_license` fonksiyonu gerçek bir API çağrısı yapmıyor. Bunun yerine `if ($license_key === 'VALID_KEY')` gibi bir **placeholder (yer tutucu)** kod ile sahte bir doğrulama yapıyor. Gerçek Gumroad lisans doğrulama API'si entegre edilmemiş.
+
+---
+
+### **Kısmen Uygulanmış veya Farklı Uygulanmış Özellikler**
+
+*   **API Anahtarı Güvenliği (Bölüm 6.1 ve 11.1):**
+    *   `README.md`'de "şifrelenmiş (encrypted)" olarak saklanacağı belirtilmiş. Mevcut kodda (`class-aca-admin.php -> sanitize_and_obfuscate_api_key`) anahtar `base64_encode()` ile kodlanıyor. Bu, gerçek bir şifreleme değil, sadece bir **obfuscation (gizleme/karartma)** yöntemidir ve kolayca geri çözülebilir. Güvenlik seviyesi, belgede belirtilen beklentiden daha düşüktür.
+
+*   **Asenkron İşlemler (Bölüm 10.1):**
+    *   `README.md`'de uzun işlemler için WordPress'in Action Scheduler kütüphanesinin kullanılacağı belirtilmiş. Mevcut kod (`class-aca-cron.php`), standart **WP-Cron** kullanıyor. Bu, çoğu site için yeterli olsa da, Action Scheduler daha sağlam, ölçeklenebilir ve yönetilebilir bir arka plan görev sistemi sunar. Bu bir eksiklikten çok, farklı bir teknik tercihtir.
+
+---
+
+### **Özet ve Sonuç**
+
+Eklenti, **"Proje Uygulama Belgesi"nin yaklaşık %40-50'sini** kapsayan sağlam bir temel üzerine inşa edilmiştir.
+
+**Mevcut ve Çalışan Özellikler:**
+*   Kurulum Sihirbazı (Onboarding)
+*   Veritabanı Tablolarının Oluşturulması
+*   Yönetici Paneli ve Ayarlar Sayfası (API Anahtarı, Çalışma Modları, Analiz Kuralları vb.)
+*   Temel WP-Cron entegrasyonu
+*   Merkezi `aca_call_gemini_api` fonksiyonu
+*   "Stil Kılavuzu" ve "Fikir" üretme AJAX fonksiyonları
+*   Fikirlerden "Taslak" oluşturma mantığı
+*   Rol bazlı yetkilendirme (`add_capabilities`)
+*   API kullanım limiti ve sayacı
+*   "Prompt Editörü" arayüzü
+*   Loglama sistemi
+
+**Henüz Uygulanmamış Kritik Özellikler:**
+*   **Tüm İçerik Zenginleştirme özellikleri** (İntihal, Görsel, İç Link)
+*   **Tüm Stratejik Planlama özellikleri** (Content Cluster, Güncelleme Asistanı, GSC)
+*   **Gerçek bir Pro/Freemium sürüm ayrımı ve lisanslama mantığı** (Gumroad entegrasyonu).
+
+Proje, temel işlevleri yerine getiren bir "Minimum Viable Product" (MVP - Minimum Uygulanabilir Ürün) aşamasındadır. `README.md`'de belirtilen vizyona tam olarak ulaşması için özellikle Bölüm 4, 5 ve 9'daki özelliklerin geliştirilmesi gerekmektedir.

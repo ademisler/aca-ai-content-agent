@@ -73,6 +73,10 @@ class ACA_Admin {
     public function handle_ajax_test_connection() {
         check_ajax_referer('aca_admin_nonce', 'nonce');
 
+        if ( ! current_user_can('manage_aca_settings') ) {
+            wp_send_json_error(esc_html__('You do not have permission to do this.', 'aca'));
+        }
+
         // Use a simple prompt to test the connection
         $test_prompt = 'Hello.'; 
         $response = aca_call_gemini_api($test_prompt);
@@ -90,6 +94,10 @@ class ACA_Admin {
     public function handle_ajax_generate_style_guide() {
         check_ajax_referer('aca_admin_nonce', 'nonce');
 
+        if ( ! current_user_can('manage_aca_settings') ) {
+            wp_send_json_error(esc_html__('You do not have permission to do this.', 'aca'));
+        }
+
         $result = ACA_Core::generate_style_guide();
 
         if (is_wp_error($result)) {
@@ -104,6 +112,10 @@ class ACA_Admin {
      */
     public function handle_ajax_generate_ideas() {
         check_ajax_referer('aca_admin_nonce', 'nonce');
+
+        if ( ! current_user_can('view_aca_dashboard') ) {
+            wp_send_json_error(esc_html__('You do not have permission to do this.', 'aca'));
+        }
 
         $result = ACA_Core::generate_ideas();
 
@@ -120,6 +132,10 @@ class ACA_Admin {
      */
     public function handle_ajax_write_draft() {
         check_ajax_referer('aca_admin_nonce', 'nonce');
+
+        if ( ! current_user_can('view_aca_dashboard') ) {
+            wp_send_json_error(esc_html__('You do not have permission to do this.', 'aca'));
+        }
 
         if (!isset($_POST['id']) || !absint($_POST['id'])) {
             wp_send_json_error(esc_html__('Invalid idea ID.', 'aca'));
@@ -143,6 +159,10 @@ class ACA_Admin {
      */
     public function handle_ajax_reject_idea() {
         check_ajax_referer('aca_admin_nonce', 'nonce');
+
+        if ( ! current_user_can('view_aca_dashboard') ) {
+            wp_send_json_error(esc_html__('You do not have permission to do this.', 'aca'));
+        }
 
         if (!isset($_POST['id']) || !absint($_POST['id'])) {
             wp_send_json_error(esc_html__('Invalid idea ID.', 'aca'));
@@ -219,6 +239,10 @@ class ACA_Admin {
     public function handle_ajax_generate_cluster() {
         check_ajax_referer('aca_admin_nonce', 'nonce');
 
+        if ( ! current_user_can('manage_aca_settings') ) {
+            wp_send_json_error(esc_html__('You do not have permission to do this.', 'aca'));
+        }
+
         if (empty($_POST['topic'])) {
             wp_send_json_error(__('Topic is required.', 'aca'));
         }
@@ -239,6 +263,10 @@ class ACA_Admin {
     public function handle_ajax_submit_feedback() {
         check_ajax_referer('aca_admin_nonce', 'nonce');
 
+        if ( ! current_user_can('view_aca_dashboard') ) {
+            wp_send_json_error(esc_html__('You do not have permission to do this.', 'aca'));
+        }
+
         $idea_id = isset($_POST['id']) ? absint($_POST['id']) : 0;
         $value   = isset($_POST['value']) ? intval($_POST['value']) : 0;
 
@@ -255,6 +283,10 @@ class ACA_Admin {
      */
     public function handle_ajax_suggest_update() {
         check_ajax_referer('aca_admin_nonce', 'nonce');
+
+        if ( ! current_user_can('manage_aca_settings') ) {
+            wp_send_json_error(esc_html__('You do not have permission to do this.', 'aca'));
+        }
 
         $post_id = isset($_POST['post_id']) ? absint($_POST['post_id']) : 0;
         if (!$post_id) {
@@ -275,6 +307,10 @@ class ACA_Admin {
      */
     public function handle_ajax_fetch_gsc_data() {
         check_ajax_referer('aca_admin_nonce', 'nonce');
+
+        if ( ! current_user_can('manage_aca_settings') ) {
+            wp_send_json_error(esc_html__('You do not have permission to do this.', 'aca'));
+        }
 
         $options = get_option('aca_options');
         $site_url = $options['gsc_site_url'] ?? '';

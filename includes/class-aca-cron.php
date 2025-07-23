@@ -21,6 +21,9 @@ class ACA_Cron {
         add_action('aca_reset_api_usage_counter', [$this, 'reset_api_usage_counter']);
         add_action('aca_generate_style_guide', [$this, 'generate_style_guide']);
 
+        // Ensure custom schedules like weekly and monthly are available.
+        add_filter('cron_schedules', [$this, 'add_custom_schedules']);
+
         // Hook to reschedule events when settings are saved.
         add_action('update_option_aca_options', [$this, 'schedule_events']);
     }
@@ -122,5 +125,29 @@ class ACA_Cron {
      */
     public function generate_style_guide() {
         ACA_Core::generate_style_guide();
+    }
+
+    /**
+     * Register additional cron schedules used by the plugin.
+     *
+     * @param array $schedules Existing schedules.
+     * @return array Modified schedules array.
+     */
+    public function add_custom_schedules($schedules) {
+        if (!isset($schedules['weekly'])) {
+            $schedules['weekly'] = [
+                'interval' => WEEK_IN_SECONDS,
+                'display'  => __('Once Weekly', 'aca'),
+            ];
+        }
+
+        if (!isset($schedules['monthly'])) {
+            $schedules['monthly'] = [
+                'interval' => MONTH_IN_SECONDS,
+                'display'  => __('Once Monthly', 'aca'),
+            ];
+        }
+
+        return $schedules;
     }
 }

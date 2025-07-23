@@ -46,6 +46,17 @@ class ACA_Core {
     }
 
     /**
+     * Return the default prompt set.
+     */
+    public static function get_default_prompts() {
+        return [
+            'style_guide'      => "Analyze the following texts. Create a 'Style Guide' that defines the writing tone (e.g., friendly, formal, witty), sentence structure (short, long), paragraph length, and general formatting style (e.g., use of lists, bold text). This guide should be a set of instructions for another writer to imitate this style. The texts are:\n\n%s",
+            'idea_generation'  => "Existing blog post titles are: [%s]. Based on these topics, suggest %d new, SEO-friendly, and engaging blog post titles that are related but do not repeat these. Return only a numbered list of titles.",
+            'content_writing'  => "Task: Write a SEO-friendly blog post of approximately 800 words with the title '%s'. Structure the post with an introduction, a main body with H2 and H3 subheadings, and a conclusion.\n\n---\n\nMetadata Request: At the end of the post, provide 5 relevant tags, a meta description of 155 characters, and at least 2 reliable source URLs for any significant data mentioned.\n\n---\n\nFormatting Instruction: Provide the output in the following format, and do not add any other text outside of this structure: ---POST CONTENT--- [Post] ---TAGS--- [Tags] ---META DESCRIPTION--- [Description] ---SOURCES--- [URLs]",
+        ];
+    }
+
+    /**
      * Retrieve stored brand voice profiles.
      */
     public static function get_brand_profiles() {
@@ -81,8 +92,39 @@ class ACA_Core {
      */
     public static function generate_style_guide() {
         self::add_log('Attempting to generate style guide.');
-        $options = get_option('aca_options');
-        // ... (rest of the function is the same)
+        $options     = get_option('aca_options');
+
+        $post_types = $options['analysis_post_types'] ?? ['post'];
+        $depth      = $options['analysis_depth'] ?? 20;
+
+        $query_args = [
+            'post_type'      => $post_types,
+            'post_status'    => 'publish',
+            'posts_per_page' => $depth,
+            'orderby'        => 'date',
+            'order'          => 'DESC',
+        ];
+
+        if (!empty($options['analysis_include_categories'])) {
+            $query_args['category__in'] = array_map('intval', $options['analysis_include_categories']);
+        }
+
+        if (!empty($options['analysis_exclude_categories'])) {
+            $query_args['category__not_in'] = array_map('intval', $options['analysis_exclude_categories']);
+        }
+
+        $posts    = get_posts($query_args);
+        $contents = '';
+        foreach ($posts as $p) {
+            $contents .= "\n\n" . wp_strip_all_tags($p->post_content);
+        }
+
+        if (empty($contents)) {
+            return new WP_Error('no_content', __('No content found for analysis.', 'aca'));
+        }
+
+        $prompts = self::get_prompts();
+        $prompt  = sprintf($prompts['style_guide'], $contents);
 
         $style_guide = aca_call_gemini_api($prompt);
 
@@ -113,7 +155,23 @@ class ACA_Core {
             }
         }
 
-        // ... (rest of the function is the same)
+        $prompts    = self::get_prompts();
+        $post_types = $options['analysis_post_types'] ?? ['post'];
+        $depth      = 20;
+        $posts      = get_posts([
+            'post_type'      => $post_types,
+            'post_status'    => 'publish',
+            'posts_per_page' => $depth,
+            'orderby'        => 'date',
+            'order'          => 'DESC',
+        ]);
+        $titles = [];
+        foreach ($posts as $p) {
+            $titles[] = $p->post_title;
+        }
+        $existing_titles = implode(', ', $titles);
+        $limit  = $options['generation_limit'] ?? 5;
+        $prompt = sprintf($prompts['idea_generation'], $existing_titles, $limit);
 
         $response = aca_call_gemini_api($prompt);
 
@@ -169,7 +227,11 @@ class ACA_Core {
 
         self::add_log(sprintf('Attempting to write draft for idea #%d: "%s"', $idea_id, $idea->idea_title));
 
-        // ... (rest of the function is the same)
+        $options   = get_option('aca_options');
+        $prompts   = self::get_prompts();
+        $profile   = $options['default_profile'] ?? '';
+        $style_guide = self::get_style_guide_for_profile($profile);
+        $prompt    = sprintf($prompts['content_writing'], $idea->idea_title);
 
         $response = aca_call_gemini_api($prompt, $style_guide);
 
@@ -178,7 +240,14 @@ class ACA_Core {
             return $response;
         }
 
-        // ... (rest of the function is the same)
+        $parts = self::parse_ai_response($response);
+
+        $post_data = [
+            'post_title'  => $idea->idea_title,
+            'post_content'=> $parts['content'],
+            'post_status' => 'draft',
+            'post_author' => $options['default_author'] ?? get_current_user_id(),
+        ];
 
         $post_id = wp_insert_post($post_data);
 
@@ -202,7 +271,16 @@ class ACA_Core {
         self::add_log(sprintf('Successfully created draft (Post ID: %d) for idea #%d.', $post_id, $idea_id), 'success');
 
         // Additional enrichment steps
-        self::enrich_draft($post_id, $response, $idea->idea_title);
+        if (!is_wp_error($post_id)) {
+            if (!empty($parts['tags'])) {
+                wp_set_post_tags($post_id, $parts['tags']);
+            }
+            if (!empty($parts['meta_description'])) {
+                update_post_meta($post_id, '_aca_meta_description', $parts['meta_description']);
+            }
+
+            self::enrich_draft($post_id, $response, $idea->idea_title);
+        }
 
         // ... (rest of the function is the same)
 

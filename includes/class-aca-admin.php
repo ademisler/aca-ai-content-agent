@@ -361,6 +361,19 @@ class ACA_Admin {
         if ($limit > 0 && $usage / $limit >= 0.8) {
             echo '<div class="notice notice-warning is-dismissible"><p>' . __('ACA: You have used 80% or more of your monthly API call limit.', 'aca') . '</p></div>';
         }
+
+        global $wpdb;
+        $ideas_table = $wpdb->prefix . 'aca_ideas';
+        $pending = (int) $wpdb->get_var("SELECT COUNT(id) FROM $ideas_table WHERE status = 'pending'");
+        if ($pending > 0) {
+            echo '<div class="notice notice-info is-dismissible"><p>' . sprintf( __('ACA: %d new ideas are awaiting your review.', 'aca'), $pending ) . ' <a href="?page=aca&tab=dashboard">' . __('Open Dashboard', 'aca') . '</a></p></div>';
+        }
+
+        $logs_table = $wpdb->prefix . 'aca_logs';
+        $latest_error = $wpdb->get_row( $wpdb->prepare( "SELECT log_message FROM $logs_table WHERE log_type = %s AND created_at >= %s ORDER BY id DESC LIMIT 1", 'error', date( 'Y-m-d H:i:s', strtotime('-1 day') ) ) );
+        if ( $latest_error ) {
+            echo '<div class="notice notice-error is-dismissible"><p>' . esc_html( $latest_error->log_message ) . '</p></div>';
+        }
     }
 
     /**
@@ -383,6 +396,7 @@ class ACA_Admin {
         add_settings_field('aca_gsc_site_url', __('Search Console Site URL', 'aca'), [$this, 'render_gsc_site_url_field'], 'aca', 'aca_api_settings_section');
         add_settings_field('aca_gsc_api_key', __('Search Console API Key', 'aca'), [$this, 'render_gsc_api_key_field'], 'aca', 'aca_api_settings_section');
         add_settings_field('aca_pexels_api_key', __('Pexels API Key', 'aca'), [$this, 'render_pexels_api_key_field'], 'aca', 'aca_api_settings_section');
+        add_settings_field('aca_openai_api_key', __('OpenAI API Key', 'aca'), [$this, 'render_openai_api_key_field'], 'aca', 'aca_api_settings_section');
 
         // Automation Settings Section
         add_settings_section('aca_automation_settings_section', __('Automation Settings', 'aca'), null, 'aca');
@@ -441,6 +455,7 @@ class ACA_Admin {
         $new_input['gsc_site_url'] = isset($input['gsc_site_url']) ? esc_url_raw($input['gsc_site_url']) : ($options['gsc_site_url'] ?? '');
         $new_input['gsc_api_key'] = isset($input['gsc_api_key']) ? sanitize_text_field($input['gsc_api_key']) : ($options['gsc_api_key'] ?? '');
         $new_input['pexels_api_key'] = isset($input['pexels_api_key']) ? sanitize_text_field($input['pexels_api_key']) : ($options['pexels_api_key'] ?? '');
+        $new_input['openai_api_key'] = isset($input['openai_api_key']) ? sanitize_text_field($input['openai_api_key']) : ($options['openai_api_key'] ?? '');
         $new_input['style_guide_frequency'] = isset($input['style_guide_frequency']) ? sanitize_key($input['style_guide_frequency']) : ($options['style_guide_frequency'] ?? 'weekly');
         $new_input['api_monthly_limit'] = isset($input['api_monthly_limit']) ? absint($input['api_monthly_limit']) : ($options['api_monthly_limit'] ?? 0);
         $new_input['copyscape_username'] = isset($input['copyscape_username']) ? sanitize_text_field($input['copyscape_username']) : ($options['copyscape_username'] ?? '');
@@ -523,6 +538,15 @@ class ACA_Admin {
         $options = get_option('aca_options');
         $key = isset($options['pexels_api_key']) ? $options['pexels_api_key'] : '';
         echo '<input type="password" name="aca_options[pexels_api_key]" value="' . esc_attr($key) . '" class="regular-text">';
+    }
+
+    /**
+     * Render the OpenAI API key field.
+     */
+    public function render_openai_api_key_field() {
+        $options = get_option('aca_options');
+        $key = isset($options['openai_api_key']) ? $options['openai_api_key'] : '';
+        echo '<input type="password" name="aca_options[openai_api_key]" value="' . esc_attr($key) . '" class="regular-text">';
     }
 
     /**
@@ -715,9 +739,10 @@ class ACA_Admin {
         $options = get_option('aca_options');
         $provider = isset($options['featured_image_provider']) ? $options['featured_image_provider'] : 'none';
         $providers = [
-            'none' => __('None', 'aca'),
-            'unsplash' => __('Unsplash', 'aca'),
-            'pexels' => __('Pexels', 'aca'),
+            'none'    => __('None', 'aca'),
+            'unsplash'=> __('Unsplash', 'aca'),
+            'pexels'  => __('Pexels', 'aca'),
+            'dalle'   => __('DALL-E 3', 'aca'),
         ];
 
         echo '<select name="aca_options[featured_image_provider]">';

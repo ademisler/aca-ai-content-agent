@@ -44,7 +44,7 @@ class ACA_Onboarding {
 
             if ($step === 1 && !empty($_POST['aca_gemini_api_key'])) {
                 $api_key = sanitize_text_field($_POST['aca_gemini_api_key']);
-                update_option('aca_gemini_api_key', base64_encode($api_key));
+                update_option( 'aca_gemini_api_key', aca_encrypt( $api_key ) );
                 $this->step = 2;
             } elseif ($step === 2 && !empty($_POST['aca_options']['analysis_post_types'])) {
                 $options = get_option('aca_options', []);

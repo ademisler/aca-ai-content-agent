@@ -10,7 +10,48 @@
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly.
+        exit; // Exit if accessed directly.
+}
+
+/**
+ * Encrypt a string using the AUTH_KEY as a secret.
+ *
+ * @param string $data Plain text to encrypt.
+ * @return string Encrypted and base64-encoded string.
+ */
+function aca_encrypt( $data ) {
+    if ( empty( $data ) ) {
+        return '';
+    }
+    $key    = defined( 'AUTH_KEY' ) ? AUTH_KEY : 'aca_default_key';
+    $method = 'AES-256-CBC';
+    $iv_len = openssl_cipher_iv_length( $method );
+    $iv     = openssl_random_pseudo_bytes( $iv_len );
+    $cipher = openssl_encrypt( $data, $method, substr( hash( 'sha256', $key ), 0, 32 ), 0, $iv );
+    if ( false === $cipher ) {
+        return '';
+    }
+    return base64_encode( $iv . $cipher );
+}
+
+/**
+ * Decrypt a string that was encrypted with aca_encrypt().
+ *
+ * @param string $data Encrypted string.
+ * @return string Decrypted plain text.
+ */
+function aca_decrypt( $data ) {
+    if ( empty( $data ) ) {
+        return '';
+    }
+    $key    = defined( 'AUTH_KEY' ) ? AUTH_KEY : 'aca_default_key';
+    $method = 'AES-256-CBC';
+    $raw    = base64_decode( $data );
+    $iv_len = openssl_cipher_iv_length( $method );
+    $iv     = substr( $raw, 0, $iv_len );
+    $cipher = substr( $raw, $iv_len );
+    $plain  = openssl_decrypt( $cipher, $method, substr( hash( 'sha256', $key ), 0, 32 ), 0, $iv );
+    return $plain ?: '';
 }
 
 /**
@@ -33,8 +74,8 @@ function aca_call_gemini_api( $prompt, $system_instruction = '', $api_args = [] 
         return new WP_Error('limit_exceeded', __('The monthly API call limit has been reached.', 'aca'));
     }
 
-	$api_key_obfuscated = get_option( 'aca_gemini_api_key' );
-    $api_key = !empty($api_key_obfuscated) ? base64_decode($api_key_obfuscated) : '';
+    $api_key_encrypted = get_option( 'aca_gemini_api_key' );
+    $api_key = ! empty( $api_key_encrypted ) ? aca_decrypt( $api_key_encrypted ) : '';
 
 	if ( empty( $api_key ) ) {
 		return new WP_Error( 'api_key_missing', __( 'Google Gemini API key is not set.', 'aca' ) );

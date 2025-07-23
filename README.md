@@ -263,10 +263,10 @@ Ticarileştirme mantığı henüz tam olarak entegre edilmemiştir.
 ### **Kısmen Uygulanmış veya Farklı Uygulanmış Özellikler**
 
 *   **API Anahtarı Güvenliği (Bölüm 6.1 ve 11.1):**
-    *   `README.md`'de "şifrelenmiş (encrypted)" olarak saklanacağı belirtilmiş. Mevcut kodda (`class-aca-admin.php -> sanitize_and_obfuscate_api_key`) anahtar `base64_encode()` ile kodlanıyor. Bu, gerçek bir şifreleme değil, sadece bir **obfuscation (gizleme/karartma)** yöntemidir ve kolayca geri çözülebilir. Güvenlik seviyesi, belgede belirtilen beklentiden daha düşüktür.
+    *   API anahtarı artık `openssl` kullanılarak şifrelenmiş biçimde saklanmaktadır.
 
 *   **Asenkron İşlemler (Bölüm 10.1):**
-    *   `README.md`'de uzun işlemler için WordPress'in Action Scheduler kütüphanesinin kullanılacağı belirtilmiş. Mevcut kod (`class-aca-cron.php`), standart **WP-Cron** kullanıyor. Bu, çoğu site için yeterli olsa da, Action Scheduler daha sağlam, ölçeklenebilir ve yönetilebilir bir arka plan görev sistemi sunar. Bu bir eksiklikten çok, farklı bir teknik tercihtir.
+    *   Uzun işlemler Action Scheduler kütüphanesi ile arka planda yürütülmektedir.
 
 ---
 
@@ -278,7 +278,7 @@ Eklenti, **"Proje Uygulama Belgesi"nin yaklaşık %40-50'sini** kapsayan sağlam
 *   Kurulum Sihirbazı (Onboarding)
 *   Veritabanı Tablolarının Oluşturulması
 *   Yönetici Paneli ve Ayarlar Sayfası (API Anahtarı, Çalışma Modları, Analiz Kuralları vb.)
-*   Temel WP-Cron entegrasyonu
+*   Action Scheduler entegrasyonu
 *   Merkezi `aca_call_gemini_api` fonksiyonu
 *   "Stil Kılavuzu" ve "Fikir" üretme AJAX fonksiyonları
 *   Fikirlerden "Taslak" oluşturma mantığı

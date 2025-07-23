@@ -17,6 +17,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 define( 'ACA_VERSION', '1.0' );
 define( 'ACA_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 
+// Load Composer autoloader and Action Scheduler if available
+if ( file_exists( ACA_PLUGIN_DIR . 'vendor/autoload.php' ) ) {
+    require_once ACA_PLUGIN_DIR . 'vendor/autoload.php';
+}
+if ( file_exists( ACA_PLUGIN_DIR . 'vendor/woocommerce/action-scheduler/action-scheduler.php' ) ) {
+    require_once ACA_PLUGIN_DIR . 'vendor/woocommerce/action-scheduler/action-scheduler.php';
+}
+
 // Define Gumroad Product ID for license verification
 define( 'ACA_GUMROAD_PRODUCT_ID', 'YOUR_GUMROAD_PRODUCT_ID_HERE' ); // IMPORTANT: Replace with your actual Gumroad Product ID
 

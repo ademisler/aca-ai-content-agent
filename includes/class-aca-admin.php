@@ -220,16 +220,27 @@ class ACA_Admin {
         $body = json_decode(wp_remote_retrieve_body($response), true);
 
         if ( isset($body['success']) && $body['success'] === true ) {
-            // License is valid. You can optionally add further checks here.
-            // E.g., $body['purchase']['refunded'], $body['purchase']['chargebacked']
+            // License is valid. Optionally check for refunds or chargebacks
+            $purchase = $body['purchase'];
+
             update_option('aca_license_key', $license_key);
-            update_option('aca_is_pro_active', 'true'); // Store as string 'true' for safer comparison
-            update_option('aca_license_data', $body['purchase']); // Store purchase data
-            wp_send_json_success(esc_html__('License activated successfully!', 'aca'));
+            update_option('aca_is_pro_active', 'true');
+            update_option('aca_license_data', $purchase);
+
+            // Calculate license validity (1 year from purchase date)
+            $sale_time   = isset( $purchase['sale_timestamp'] ) ? strtotime( $purchase['sale_timestamp'] ) : time();
+            $valid_until = $sale_time + YEAR_IN_SECONDS;
+            update_option( 'aca_license_valid_until', $valid_until );
+
+            set_transient( 'aca_license_status', 'valid', WEEK_IN_SECONDS );
+
+            wp_send_json_success( esc_html__( 'License activated successfully!', 'aca' ) );
         } else {
             // License is invalid or another error occurred
             $message = isset($body['message']) ? $body['message'] : esc_html__('Invalid license key or API error.', 'aca');
             update_option('aca_is_pro_active', 'false');
+            delete_option('aca_license_valid_until');
+            set_transient( 'aca_license_status', 'invalid', WEEK_IN_SECONDS );
             wp_send_json_error($message);
         }
     }
@@ -525,13 +536,16 @@ class ACA_Admin {
      * Sanitize and obfuscate the API key before saving.
      */
     public function sanitize_and_obfuscate_api_key($input) {
-        // Sanitize the input first.
+        $existing = get_option('aca_gemini_api_key');
+
         $sanitized_key = sanitize_text_field($input);
-        // Encrypt the key for storage.
-        if ( ! empty( $sanitized_key ) ) {
-            return aca_encrypt( $sanitized_key );
+
+        if ( empty( $sanitized_key ) ) {
+            // If no new key provided, keep the existing value.
+            return $existing;
         }
-        return '';
+
+        return aca_encrypt( $sanitized_key );
     }
 
     /**

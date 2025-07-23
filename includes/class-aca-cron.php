@@ -20,6 +20,7 @@ class ACA_Cron {
         add_action('aca_run_main_automation', [$this, 'run_main_automation']);
         add_action('aca_reset_api_usage_counter', [$this, 'reset_api_usage_counter']);
         add_action('aca_generate_style_guide', [$this, 'generate_style_guide']);
+        add_action('aca_verify_license', [$this, 'verify_license']);
 
         // Ensure custom schedules like weekly and monthly are available.
         add_filter('cron_schedules', [$this, 'add_custom_schedules']);
@@ -37,10 +38,12 @@ class ACA_Cron {
             as_unschedule_all_actions( 'aca_run_main_automation' );
             as_unschedule_all_actions( 'aca_reset_api_usage_counter' );
             as_unschedule_all_actions( 'aca_generate_style_guide' );
+            as_unschedule_all_actions( 'aca_verify_license' );
         } else {
             wp_clear_scheduled_hook( 'aca_run_main_automation' );
             wp_clear_scheduled_hook( 'aca_reset_api_usage_counter' );
             wp_clear_scheduled_hook( 'aca_generate_style_guide' );
+            wp_clear_scheduled_hook( 'aca_verify_license' );
         }
 
         $options = get_option('aca_options');
@@ -72,6 +75,15 @@ class ACA_Cron {
             }
         } elseif ( ! wp_next_scheduled( 'aca_reset_api_usage_counter' ) ) {
             wp_schedule_event( time(), 'monthly', 'aca_reset_api_usage_counter' );
+        }
+
+        // Schedule weekly license verification
+        if ( function_exists( 'as_next_scheduled_action' ) ) {
+            if ( ! as_next_scheduled_action( 'aca_verify_license' ) ) {
+                as_schedule_recurring_action( time(), WEEK_IN_SECONDS, 'aca_verify_license' );
+            }
+        } elseif ( ! wp_next_scheduled( 'aca_verify_license' ) ) {
+            wp_schedule_event( time(), 'weekly', 'aca_verify_license' );
         }
 
         // Schedule style guide generation if enabled
@@ -125,6 +137,15 @@ class ACA_Cron {
      */
     public function generate_style_guide() {
         ACA_Core::generate_style_guide();
+    }
+
+    /**
+     * Verify license status in the background.
+     */
+    public function verify_license() {
+        if ( function_exists( 'aca_maybe_check_license' ) ) {
+            aca_maybe_check_license( true );
+        }
     }
 
     /**

@@ -36,9 +36,25 @@ require_once ACA_PLUGIN_DIR . 'includes/class-aca.php';
 require_once ACA_PLUGIN_DIR . 'includes/class-aca-onboarding.php';
 require_once ACA_PLUGIN_DIR . 'includes/class-aca-cron.php';
 require_once ACA_PLUGIN_DIR . 'includes/class-aca-privacy.php';
+require_once ACA_PLUGIN_DIR . 'includes/licensing.php';
 
 // Activation hook for onboarding and database setup
 register_activation_hook(__FILE__, ['ACA', 'activate']);
+register_deactivation_hook(__FILE__, 'aca_deactivate');
+
+function aca_deactivate() {
+    if ( function_exists( 'as_unschedule_all_actions' ) ) {
+        as_unschedule_all_actions( 'aca_run_main_automation' );
+        as_unschedule_all_actions( 'aca_reset_api_usage_counter' );
+        as_unschedule_all_actions( 'aca_generate_style_guide' );
+        as_unschedule_all_actions( 'aca_verify_license' );
+    } else {
+        wp_clear_scheduled_hook( 'aca_run_main_automation' );
+        wp_clear_scheduled_hook( 'aca_reset_api_usage_counter' );
+        wp_clear_scheduled_hook( 'aca_generate_style_guide' );
+        wp_clear_scheduled_hook( 'aca_verify_license' );
+    }
+}
 
 /**
  * Main ACA Class
@@ -173,9 +189,19 @@ class ACA {
  * Check if the user has a valid license.
  */
 function aca_is_pro() {
-    // get_option can return 'false' (string) or false (boolean), so we compare with 'true' (string).
-    $is_active = get_option('aca_is_pro_active') === 'true';
-    return apply_filters('aca_is_pro', $is_active);
+    // Trigger a license check if needed.
+    if ( function_exists( 'aca_maybe_check_license' ) ) {
+        aca_maybe_check_license();
+    }
+
+    $active_flag  = get_option( 'aca_is_pro_active' ) === 'true';
+    $valid_until  = intval( get_option( 'aca_license_valid_until', 0 ) );
+    $status       = get_transient( 'aca_license_status' );
+    $status_valid = ( false === $status ) ? true : ( 'valid' === $status );
+
+    $is_active = $active_flag && $status_valid && ( 0 === $valid_until || $valid_until > time() );
+
+    return apply_filters( 'aca_is_pro', $is_active );
 }
 
 // Instantiate the main class

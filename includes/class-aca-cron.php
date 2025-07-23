@@ -2,7 +2,7 @@
 /**
  * ACA - AI Content Agent
  *
- * Handles scheduled events (WP-Cron).
+ * Handles scheduled events using Action Scheduler when available.
  *
  * @package ACA
  * @version 1.0
@@ -28,23 +28,42 @@ class ACA_Cron {
      * Schedule or clear cron events based on settings.
      */
     public function schedule_events() {
-        // Clear any existing hooks to ensure we're using the latest settings.
-        wp_clear_scheduled_hook('aca_run_main_automation');
+        // Clear existing hooks to ensure we're using the latest settings.
+        if ( function_exists( 'as_unschedule_all_actions' ) ) {
+            as_unschedule_all_actions( 'aca_run_main_automation' );
+            as_unschedule_all_actions( 'aca_reset_api_usage_counter' );
+        } else {
+            wp_clear_scheduled_hook( 'aca_run_main_automation' );
+            wp_clear_scheduled_hook( 'aca_reset_api_usage_counter' );
+        }
 
         $options = get_option('aca_options');
         $working_mode = $options['working_mode'] ?? 'manual';
         $frequency = $options['automation_frequency'] ?? 'daily';
 
+        // Determine interval seconds from WP schedules.
+        $schedules = wp_get_schedules();
+        $interval  = isset( $schedules[ $frequency ] ) ? intval( $schedules[ $frequency ]['interval'] ) : DAY_IN_SECONDS;
+
         // Only schedule the main automation if the mode is not manual.
-        if ($working_mode !== 'manual') {
-            if (!wp_next_scheduled('aca_run_main_automation')) {
-                wp_schedule_event(time(), $frequency, 'aca_run_main_automation');
+        if ( $working_mode !== 'manual' ) {
+            if ( function_exists( 'as_next_scheduled_action' ) ) {
+                if ( ! as_next_scheduled_action( 'aca_run_main_automation' ) ) {
+                    as_schedule_recurring_action( time(), $interval, 'aca_run_main_automation' );
+                }
+            } elseif ( ! wp_next_scheduled( 'aca_run_main_automation' ) ) {
+                wp_schedule_event( time(), $frequency, 'aca_run_main_automation' );
             }
         }
 
         // Schedule the monthly API counter reset task, regardless of mode.
-        if (!wp_next_scheduled('aca_reset_api_usage_counter')) {
-            wp_schedule_event(time(), 'monthly', 'aca_reset_api_usage_counter');
+        $monthly_interval = MONTH_IN_SECONDS;
+        if ( function_exists( 'as_next_scheduled_action' ) ) {
+            if ( ! as_next_scheduled_action( 'aca_reset_api_usage_counter' ) ) {
+                as_schedule_recurring_action( time(), $monthly_interval, 'aca_reset_api_usage_counter' );
+            }
+        } elseif ( ! wp_next_scheduled( 'aca_reset_api_usage_counter' ) ) {
+            wp_schedule_event( time(), 'monthly', 'aca_reset_api_usage_counter' );
         }
     }
 

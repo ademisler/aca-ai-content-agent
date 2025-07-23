@@ -448,9 +448,9 @@ class ACA_Admin {
     public function sanitize_and_obfuscate_api_key($input) {
         // Sanitize the input first.
         $sanitized_key = sanitize_text_field($input);
-        // Obfuscate the key for storage.
-        if (!empty($sanitized_key)) {
-            return base64_encode($sanitized_key);
+        // Encrypt the key for storage.
+        if ( ! empty( $sanitized_key ) ) {
+            return aca_encrypt( $sanitized_key );
         }
         return '';
     }

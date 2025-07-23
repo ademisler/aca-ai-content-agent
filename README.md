@@ -209,7 +209,7 @@ Sıkça erişilen ancak nadiren değişen veriler (örn: Stil Kılavuzu) WordPre
 *   **Şeffaflık:** Kullanıcı, harici bir API kullanıldığı konusunda açıkça bilgilendirilir.
 *   **Veri Minimizasyonu:** API'ye sadece görevin gerektirdiği minimum veri gönderilir.
 *   **Veri Saklamama Politikası:** Analiz için alınan site içeriklerinin tam metni eklentinin veritabanında kalıcı olarak saklanmaz.
-*   **GDPR Araçları Uyumu:** Eklenti, WordPress'in "Kişisel Verileri Dışa Aktar/Sil" araçlarıyla uyumlu olacaktır.
+*   **GDPR Araçları Uyumu:** Eklenti, WordPress'in "Kişisel Verileri Dışa Aktar/Sil" araçlarıyla uyumludur.
 
 #### **11.3. Yasal Sorumluluk Reddi (Disclaimer)**
 Yönetim panelinde ve dokümantasyonda, üretilen tüm içeriğin bir "taslak" olduğu ve yayınlanmadan önce kullanıcı tarafından mutlaka kontrol edilmesi, düzenlenmesi ve doğrulanması gerektiği açıkça belirtilir. Nihai sorumluluğun kullanıcıya ait olduğu vurgulanır.

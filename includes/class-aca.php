@@ -105,6 +105,14 @@ class ACA_Core {
         $table_name = $wpdb->prefix . 'aca_ideas';
         self::add_log('Attempting to generate new ideas.');
 
+        // Free version monthly limit
+        if ( ! aca_is_pro() ) {
+            $count = get_option( 'aca_idea_count_current_month', 0 );
+            if ( $count >= 5 ) {
+                return new WP_Error( 'limit_reached', __( 'Monthly idea limit reached for free version.', 'aca' ) );
+            }
+        }
+
         // ... (rest of the function is the same)
 
         $response = aca_call_gemini_api($prompt);
@@ -116,10 +124,10 @@ class ACA_Core {
 
         $ideas = explode("\n", trim($response));
         $cleaned_ideas = [];
+        $inserted_ids   = [];
         foreach ($ideas as $idea) {
             $cleaned_idea = preg_replace('/^\d+\.\s*/', '', trim($idea));
             if (!empty($cleaned_idea)) {
-                $cleaned_ideas[] = $cleaned_idea;
                 $wpdb->insert(
                     $table_name,
                     [
@@ -127,10 +135,17 @@ class ACA_Core {
                         'created_at' => current_time('mysql'),
                     ]
                 );
+                $inserted_ids[] = $wpdb->insert_id;
+                $cleaned_ideas[] = $cleaned_idea;
             }
         }
-        self::add_log(sprintf('%d new ideas generated and saved.', count($cleaned_ideas)), 'success');
-        return $cleaned_ideas;
+
+        if ( ! aca_is_pro() ) {
+            $count = get_option( 'aca_idea_count_current_month', 0 );
+            update_option( 'aca_idea_count_current_month', $count + count( $inserted_ids ) );
+        }
+        self::add_log(sprintf('%d new ideas generated and saved.', count($inserted_ids)), 'success');
+        return $inserted_ids;
     }
 
     /**
@@ -143,6 +158,13 @@ class ACA_Core {
 
         if (!$idea) {
             return new WP_Error('idea_not_found', __('Idea not found.', 'aca'));
+        }
+
+        if ( ! aca_is_pro() ) {
+            $draft_count = get_option( 'aca_draft_count_current_month', 0 );
+            if ( $draft_count >= 2 ) {
+                return new WP_Error( 'limit_reached', __( 'Monthly draft limit reached for free version.', 'aca' ) );
+            }
         }
 
         self::add_log(sprintf('Attempting to write draft for idea #%d: "%s"', $idea_id, $idea->idea_title));
@@ -163,6 +185,11 @@ class ACA_Core {
         if (is_wp_error($post_id)) {
             self::add_log('Failed to insert post into database: ' . $post_id->get_error_message(), 'error');
             return $post_id;
+        }
+
+        if ( ! aca_is_pro() ) {
+            $draft_count = get_option( 'aca_draft_count_current_month', 0 );
+            update_option( 'aca_draft_count_current_month', $draft_count + 1 );
         }
 
         // Update idea status in the database

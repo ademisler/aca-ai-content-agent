@@ -1,12 +1,8 @@
----
-
 ### **Project Implementation Document: ACA – AI Content Agent**
 
 **Version:** 1.0
 **Date:** 23.07.2025
 **Project Owner:** Adem Isler (developer's personal website: ademisler.com)
-
----
 
 ### **Section 1: Project Vision and Core Philosophy**
 

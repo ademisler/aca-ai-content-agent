@@ -31,6 +31,9 @@ class ACA_Dashboard {
         // Recent Activity Section
         self::render_recent_activity_section();
 
+        // Search Console Section
+        self::render_gsc_section();
+
         echo '</div>';
     }
 
@@ -91,5 +94,11 @@ class ACA_Dashboard {
         } else {
             echo '<p>' . __( 'No recent activity.', 'aca' ) . '</p>';
         }
+    }
+
+    private static function render_gsc_section() {
+        echo '<h2>' . __( 'Top Search Queries', 'aca' ) . '</h2>';
+        echo '<button class="button" id="aca-fetch-gsc">' . __( 'Fetch Queries', 'aca' ) . '</button>';
+        echo '<div id="aca-gsc-results"></div>';
     }
 }

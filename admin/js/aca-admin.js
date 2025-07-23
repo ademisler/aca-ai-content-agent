@@ -8,6 +8,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const ideaList = document.querySelector('.aca-idea-list');
     const generateClusterButton = document.getElementById('aca-generate-cluster');
     const suggestUpdateButtons = document.querySelectorAll('.aca-suggest-update');
+    const fetchGSCButton = document.getElementById('aca-fetch-gsc');
+    const gscResults = document.getElementById('aca-gsc-results');
 
     const validateLicenseButton = document.getElementById('aca-validate-license');
     const licenseStatusSpan = document.getElementById('aca-license-status');
@@ -177,6 +179,32 @@ document.addEventListener('DOMContentLoaded', function () {
                         alert('Error: ' + result.data);
                     }
                 });
+            });
+        });
+    }
+
+    if (fetchGSCButton) {
+        fetchGSCButton.addEventListener('click', () => {
+            handleApiRequest('aca_fetch_gsc_data', {}, gscResults, fetchGSCButton)
+            .then(result => {
+                if (result.success) {
+                    const rows = result.data.rows || [];
+                    if (rows.length) {
+                        const ul = document.createElement('ul');
+                        rows.forEach(r => {
+                            const li = document.createElement('li');
+                            const query = r.keys && r.keys[0] ? r.keys[0] : '';
+                            li.textContent = query + ' (' + r.clicks + ' clicks)';
+                            ul.appendChild(li);
+                        });
+                        gscResults.innerHTML = '';
+                        gscResults.appendChild(ul);
+                    } else {
+                        gscResults.textContent = 'No data.';
+                    }
+                } else {
+                    gscResults.textContent = 'Error: ' + result.data;
+                }
             });
         });
     }

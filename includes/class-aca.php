@@ -335,6 +335,9 @@ class ACA_Core {
      * Check plagiarism via Copyscape API and store the result.
      */
     public static function check_plagiarism($post_id, $content) {
+        if (!aca_is_pro()) {
+            return; // Pro feature only
+        }
         $options = get_option('aca_options');
         $user = $options['copyscape_username'] ?? '';
         $key  = $options['copyscape_api_key'] ?? '';

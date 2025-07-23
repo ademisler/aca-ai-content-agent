@@ -288,8 +288,7 @@ Eklenti, **"Proje Uygulama Belgesi"nin yaklaşık %40-50'sini** kapsayan sağlam
 *   Loglama sistemi
 
 **Henüz Uygulanmamış Kritik Özellikler:**
-*   **Tüm İçerik Zenginleştirme özellikleri** (İntihal, Görsel, İç Link)
-*   **Tüm Stratejik Planlama özellikleri** (Content Cluster, Güncelleme Asistanı, GSC)
-*   **Gerçek bir Pro/Freemium sürüm ayrımı ve lisanslama mantığı** (Gumroad entegrasyonu).
+*   Bu sürümle birlikte içerik zenginleştirme (intihal kontrolü, otomatik görsel ve iç link ekleme) ve stratejik planlama araçları (Content Cluster, Güncelleme Asistanı, Search Console verileri) eklendi.
+*   Pro özellikleri için temel lisanslama mantığı (Gumroad doğrulaması) uygulanmış olsa da daha gelişmiş bir model planlanmaktadır.
 
 Proje, temel işlevleri yerine getiren bir "Minimum Viable Product" (MVP - Minimum Uygulanabilir Ürün) aşamasındadır. `README.md`'de belirtilen vizyona tam olarak ulaşması için özellikle Bölüm 4, 5 ve 9'daki özelliklerin geliştirilmesi gerekmektedir.

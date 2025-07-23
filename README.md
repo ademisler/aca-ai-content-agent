@@ -1,4 +1,4 @@
-### **Proje Şartname Belgesi: ACA – AI Content Agent**
+### **Proje Uygulama Belgesi: ACA – AI Content Agent**
 
 **Versiyon:** 1.0
 **Tarih:** 23.07.2025

@@ -160,7 +160,7 @@ WordPress yönetici menüsünde "ACA" adıyla yer alacak ana panel, aşağıdaki
 *   **Hızlı Eylemler:** "Şimdi Yeni Fikir Üret", "Stil Kılavuzunu Manuel Güncelle" gibi kısayol butonları.
 
 #### **8.4. Bildirim Merkezi**
-API anahtarı geçersiz olduğunda, API kullanım limiti %80'e ulaştığında, yeni fikirler onaya hazır olduğunda (isteğe bağlı) veya bir içerik oluşturma işlemi başarısız olduğunda kullanıcıyı bilgilendirir.
+API anahtarı geçersiz olduğunda, API kullanım limiti %80'e ulaştığında, yeni fikirler onaya hazır olduğunda (isteğe bağlı) veya bir içerik oluşturma işlemi başarısız olduğunda kullanıcıyı bilgilendirir. Bu sürümde, bekleyen fikir sayısı ve son hatalar için yönetici bildirimleri eklendi.
 
 ---
 
@@ -226,7 +226,7 @@ Bu bölümdeki kritik özelliklerin bir kısmı bu sürümle birlikte eklenmişt
     *   **Kaynak Göstermeli İçerik:** `write_post_draft` fonksiyonunda kaynak linkleri taslak içeriğine otomatik olarak ekleniyor.
 
 *   **İçerik Zenginleştirme:**
-    *   **Akıllı Öne Çıkan Görsel:** Unsplash entegrasyonu eklenerek, taslaklara otomatik görsel atanabiliyor.
+    *   **Akıllı Öne Çıkan Görsel:** Unsplash ve Pexels entegrasyonu eklenerek taslaklara otomatik görsel atanabiliyor. DALL-E 3 ile özel görsel üretme seçeneği de eklendi.
     *   **Otomatik İç Linkleme:** Yeni taslaklara mevcut içerikten rastgele iç linkler ekleyen temel bir mekanizma eklendi.
     *   **Veri Destekli Bölümler:** Taslak sonuna güncel istatistikler veya tablolar ekleyen özellik eklendi.
 

@@ -431,6 +431,37 @@ class ACA_Core {
                 return;
             }
             $url = $body['photos'][0]['src']['large'];
+        } elseif ($provider === 'dalle') {
+            if ( ! aca_is_pro() ) {
+                return;
+            }
+            $options = get_option('aca_options');
+            $api_key = $options['openai_api_key'] ?? '';
+            if ( empty( $api_key ) ) {
+                return;
+            }
+            $endpoint = 'https://api.openai.com/v1/images/generations';
+            $response = wp_remote_post( $endpoint, [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $api_key,
+                    'Content-Type'  => 'application/json',
+                ],
+                'body'    => wp_json_encode([
+                    'model'  => 'dall-e-3',
+                    'prompt' => $query,
+                    'n'      => 1,
+                    'size'   => '1024x1024',
+                ]),
+                'timeout' => 60,
+            ] );
+            if ( is_wp_error( $response ) ) {
+                return;
+            }
+            $body = json_decode( wp_remote_retrieve_body( $response ), true );
+            if ( empty( $body['data'][0]['url'] ) ) {
+                return;
+            }
+            $url = $body['data'][0]['url'];
         } else {
             return;
         }

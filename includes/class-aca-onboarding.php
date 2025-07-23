@@ -58,7 +58,7 @@ class ACA_Onboarding {
                 
                 // Complete onboarding
                 update_option('aca_onboarding_complete', true);
-                ACA_Core::add_log('Onboarding completed successfully.', 'success');
+                ACA_Engine::add_log('Onboarding completed successfully.', 'success');
                 wp_redirect(admin_url('admin.php?page=aca'));
                 exit;
             }

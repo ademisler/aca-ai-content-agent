@@ -107,17 +107,17 @@ class ACA_Cron {
 
         if ($working_mode === 'semi-auto') {
             // In semi-auto mode, only generate ideas.
-            ACA_Core::generate_ideas();
+            ACA_Engine::generate_ideas();
         } elseif ($working_mode === 'full-auto') {
             // In full-auto mode, generate ideas and then write drafts.
-            $idea_ids = ACA_Core::generate_ideas();
+            $idea_ids = ACA_Engine::generate_ideas();
             if (!is_wp_error($idea_ids) && !empty($idea_ids)) {
                 // Respect the generation limit.
                 $limit = $options['generation_limit'] ?? 1;
                 $ideas_to_write = array_slice($idea_ids, 0, $limit);
 
                 foreach ($ideas_to_write as $idea_id) {
-                    ACA_Core::write_post_draft($idea_id);
+                    ACA_Engine::write_post_draft($idea_id);
                 }
             }
         }
@@ -136,7 +136,7 @@ class ACA_Cron {
      * Generate style guide periodically.
      */
     public function generate_style_guide() {
-        ACA_Core::generate_style_guide();
+        ACA_Engine::generate_style_guide();
     }
 
     /**

@@ -7,6 +7,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const ideasStatus = document.getElementById('aca-ideas-status');
     const ideaList = document.querySelector('.aca-idea-list');
     const generateClusterButton = document.getElementById('aca-generate-cluster');
+    const clusterTopicInput = document.getElementById('aca-cluster-topic');
+    const clusterStatus = document.getElementById('aca-cluster-status');
     const suggestUpdateButtons = document.querySelectorAll('.aca-suggest-update');
     const fetchGSCButton = document.getElementById('aca-fetch-gsc');
     const generateGSCIdeasButton = document.getElementById('aca-generate-gsc-ideas');
@@ -32,7 +34,17 @@ document.addEventListener('DOMContentLoaded', function () {
             method: 'POST',
             body: formData
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('HTTP ' + response.status);
+            }
+            return response.json();
+        })
+        .catch(error => {
+            statusElement.textContent = 'Network error: ' + error.message;
+            statusElement.style.color = '#DC143C';
+            return { success: false, data: error.message };
+        })
         .finally(() => {
             if (buttonElement) buttonElement.disabled = false;
         });
@@ -86,16 +98,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (generateClusterButton) {
         generateClusterButton.addEventListener('click', () => {
-            const topic = prompt('Enter main topic for the cluster:');
-            if (!topic) return;
-            handleApiRequest('aca_generate_cluster', { topic: topic }, ideasStatus, generateClusterButton)
+            const topic = clusterTopicInput ? clusterTopicInput.value.trim() : '';
+            if (!topic) {
+                alert('Please enter a topic');
+                return;
+            }
+            handleApiRequest('aca_generate_cluster', { topic: topic }, clusterStatus, generateClusterButton)
             .then(result => {
                 if (result.success) {
-                    ideasStatus.textContent = 'Cluster generated.';
-                    ideasStatus.style.color = '#228B22';
+                    clusterStatus.textContent = 'Cluster generated.';
+                    clusterStatus.style.color = '#228B22';
                 } else {
-                    ideasStatus.textContent = 'Error: ' + result.data;
-                    ideasStatus.style.color = '#DC143C';
+                    clusterStatus.textContent = 'Error: ' + result.data;
+                    clusterStatus.style.color = '#DC143C';
                 }
             });
         });

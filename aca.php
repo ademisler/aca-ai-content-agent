@@ -39,7 +39,7 @@ require_once ACA_PLUGIN_DIR . 'includes/class-aca-privacy.php';
 require_once ACA_PLUGIN_DIR . 'includes/licensing.php';
 
 // Activation hook for onboarding and database setup
-register_activation_hook(__FILE__, ['ACA', 'activate']);
+register_activation_hook(__FILE__, ['ACA_Bootstrap', 'activate']);
 register_deactivation_hook(__FILE__, 'aca_deactivate');
 
 function aca_deactivate() {
@@ -57,9 +57,9 @@ function aca_deactivate() {
 }
 
 /**
- * Main ACA Class
+ * ACA Bootstrap Class
  */
-class ACA {
+class ACA_Bootstrap {
 
     /**
      * Constructor.
@@ -205,4 +205,4 @@ function aca_is_pro() {
 }
 
 // Instantiate the main class
-new ACA();
+new ACA_Bootstrap();

@@ -81,7 +81,7 @@ function aca_call_gemini_api( $prompt, $system_instruction = '', $api_args = [] 
 		return new WP_Error( 'api_key_missing', __( 'Google Gemini API key is not set.', 'aca' ) );
 	}
 
-	$api_url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=' . $api_key;
+        $api_url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' . $api_key;
 
     $contents = [
         [

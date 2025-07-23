@@ -46,6 +46,37 @@ class ACA_Core {
     }
 
     /**
+     * Retrieve stored brand voice profiles.
+     */
+    public static function get_brand_profiles() {
+        $profiles = get_option('aca_brand_profiles', []);
+        if (!is_array($profiles)) {
+            $profiles = [];
+        }
+        return $profiles;
+    }
+
+    /**
+     * Save or update a brand voice profile.
+     */
+    public static function save_brand_profile($name, $guide) {
+        $profiles = self::get_brand_profiles();
+        $profiles[sanitize_key($name)] = sanitize_textarea_field($guide);
+        update_option('aca_brand_profiles', $profiles);
+    }
+
+    /**
+     * Get style guide for a specific profile name.
+     */
+    public static function get_style_guide_for_profile($name) {
+        $profiles = self::get_brand_profiles();
+        if (isset($profiles[$name])) {
+            return $profiles[$name];
+        }
+        return get_option('aca_style_guide', '');
+    }
+
+    /**
      * Generate and update the Style Guide.
      */
     public static function generate_style_guide() {
@@ -176,6 +207,12 @@ class ACA_Core {
         // Optional plagiarism check
         if (!empty($parts['content'])) {
             self::check_plagiarism($post_id, $parts['content']);
+        }
+
+        // Optional data-backed section
+        $options = get_option('aca_options');
+        if (!empty($options['add_data_sections'])) {
+            self::add_data_section($post_id, $title);
         }
     }
 
@@ -321,5 +358,156 @@ class ACA_Core {
         update_post_meta($post_id, '_aca_plagiarism_raw', $body);
     }
 
-    // ... (rest of the file is the same)
+    /**
+     * Generate and append a data-backed section with statistics.
+     */
+    public static function add_data_section($post_id, $title) {
+        if (!aca_is_pro()) {
+            return; // Pro feature only
+        }
+
+        $prompt = sprintf(
+            "Provide a short HTML section containing recent statistics or data relevant to the article titled '%s'. Begin with <h3>Key Statistics</h3> and include a bulleted list or table with sources.",
+            $title
+        );
+
+        $response = aca_call_gemini_api($prompt);
+
+        if (is_wp_error($response)) {
+            self::add_log('Failed to generate data section: ' . $response->get_error_message(), 'error');
+            return;
+        }
+
+        $post = get_post($post_id);
+        if (!$post) {
+            return;
+        }
+
+        $content = $post->post_content . "\n\n" . $response;
+        wp_update_post([
+            'ID' => $post_id,
+            'post_content' => $content
+        ]);
+    }
+
+    /**
+     * Generate a content cluster for strategic planning.
+     */
+    public static function generate_content_cluster($topic) {
+        if (!aca_is_pro()) {
+            return new WP_Error('pro_only', __('Content clusters are available in the Pro version.', 'aca'));
+        }
+
+        global $wpdb;
+        $cluster_table = $wpdb->prefix . 'aca_clusters';
+        $item_table    = $wpdb->prefix . 'aca_cluster_items';
+
+        self::add_log('Generating content cluster for topic: ' . $topic);
+
+        $prompt = sprintf(
+            "Main topic: %s. Provide 5 related subtopics as short titles for a content cluster. Return each title on a new line without numbering.",
+            $topic
+        );
+
+        $response = aca_call_gemini_api($prompt);
+
+        if (is_wp_error($response)) {
+            self::add_log('Failed to generate content cluster: ' . $response->get_error_message(), 'error');
+            return $response;
+        }
+
+        $subtopics = array_filter(array_map('trim', explode("\n", $response)));
+
+        if (empty($subtopics)) {
+            return new WP_Error('empty_cluster', __('No subtopics were returned.', 'aca'));
+        }
+
+        $wpdb->insert($cluster_table, [
+            'topic'      => $topic,
+            'created_at' => current_time('mysql'),
+        ]);
+        $cluster_id = $wpdb->insert_id;
+
+        foreach ($subtopics as $sub) {
+            $wpdb->insert($item_table, [
+                'cluster_id'     => $cluster_id,
+                'subtopic_title' => $sub,
+                'created_at'     => current_time('mysql'),
+            ]);
+        }
+
+        return $subtopics;
+    }
+
+    /**
+     * Suggest updates for an existing post.
+     */
+    public static function suggest_content_update($post_id) {
+        if (!aca_is_pro()) {
+            return new WP_Error('pro_only', __('Update assistant is a Pro feature.', 'aca'));
+        }
+
+        $post = get_post($post_id);
+        if (!$post) {
+            return new WP_Error('post_not_found', __('Post not found.', 'aca'));
+        }
+
+        $prompt = sprintf(
+            "You are an SEO assistant. Review the following article and suggest improvements or updates in bullet points.\n\n---ARTICLE---\n%s",
+            $post->post_content
+        );
+
+        $response = aca_call_gemini_api($prompt);
+
+        if (is_wp_error($response)) {
+            self::add_log('Failed to generate update suggestions: ' . $response->get_error_message(), 'error');
+            return $response;
+        }
+
+        update_post_meta($post_id, '_aca_update_suggestions', $response);
+        return $response;
+    }
+
+    /**
+     * Record user feedback for an idea.
+     */
+    public static function record_feedback($idea_id, $value) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'aca_ideas';
+        $wpdb->update(
+            $table_name,
+            ['feedback' => intval($value)],
+            ['id' => intval($idea_id)]
+        );
+    }
+
+    /**
+     * Fetch top queries from Google Search Console.
+     */
+    public static function fetch_gsc_data($site_url, $start_date, $end_date) {
+        $options = get_option('aca_options');
+        $api_key = $options['gsc_api_key'] ?? '';
+        if (empty($api_key) || empty($site_url)) {
+            return new WP_Error('missing_credentials', __('Search Console API key or site URL is missing.', 'aca'));
+        }
+
+        $endpoint = add_query_arg('key', $api_key, 'https://www.googleapis.com/webmasters/v3/sites/' . rawurlencode($site_url) . '/searchAnalytics/query');
+        $body = [
+            'startDate'  => $start_date,
+            'endDate'    => $end_date,
+            'dimensions' => ['query'],
+            'rowLimit'   => 10,
+        ];
+
+        $response = wp_remote_post($endpoint, [
+            'headers' => ['Content-Type' => 'application/json'],
+            'body'    => wp_json_encode($body),
+        ]);
+
+        if (is_wp_error($response)) {
+            return $response;
+        }
+
+        return json_decode(wp_remote_retrieve_body($response), true);
+    }
 }

@@ -28,6 +28,9 @@ class ACA_Admin {
         add_action('wp_ajax_aca_write_draft', [$this, 'handle_ajax_write_draft']);
         add_action('wp_ajax_aca_reject_idea', [$this, 'handle_ajax_reject_idea']);
         add_action('wp_ajax_aca_validate_license', [$this, 'handle_ajax_validate_license']);
+        add_action('wp_ajax_aca_generate_cluster', [$this, 'handle_ajax_generate_cluster']);
+        add_action('wp_ajax_aca_submit_feedback', [$this, 'handle_ajax_submit_feedback']);
+        add_action('wp_ajax_aca_suggest_update', [$this, 'handle_ajax_suggest_update']);
         add_action('admin_notices', [$this, 'display_admin_notices']);
     }
 
@@ -209,6 +212,63 @@ class ACA_Admin {
     }
 
     /**
+     * Handle AJAX request for generating a content cluster.
+     */
+    public function handle_ajax_generate_cluster() {
+        check_ajax_referer('aca_admin_nonce', 'nonce');
+
+        if (empty($_POST['topic'])) {
+            wp_send_json_error(__('Topic is required.', 'aca'));
+        }
+
+        $topic = sanitize_text_field($_POST['topic']);
+        $result = ACA_Core::generate_content_cluster($topic);
+
+        if (is_wp_error($result)) {
+            wp_send_json_error($result->get_error_message());
+        } else {
+            wp_send_json_success($result);
+        }
+    }
+
+    /**
+     * Handle AJAX request for submitting user feedback on an idea.
+     */
+    public function handle_ajax_submit_feedback() {
+        check_ajax_referer('aca_admin_nonce', 'nonce');
+
+        $idea_id = isset($_POST['id']) ? absint($_POST['id']) : 0;
+        $value   = isset($_POST['value']) ? intval($_POST['value']) : 0;
+
+        if ($idea_id) {
+            ACA_Core::record_feedback($idea_id, $value);
+            wp_send_json_success();
+        } else {
+            wp_send_json_error(__('Invalid idea ID.', 'aca'));
+        }
+    }
+
+    /**
+     * Handle AJAX request for suggesting updates to a post.
+     */
+    public function handle_ajax_suggest_update() {
+        check_ajax_referer('aca_admin_nonce', 'nonce');
+
+        $post_id = isset($_POST['post_id']) ? absint($_POST['post_id']) : 0;
+        if (!$post_id) {
+            wp_send_json_error(__('Invalid post ID.', 'aca'));
+        }
+
+        $result = ACA_Core::suggest_content_update($post_id);
+
+        if (is_wp_error($result)) {
+            wp_send_json_error($result->get_error_message());
+        } else {
+            wp_send_json_success($result);
+        }
+    }
+
+    /**
      * Add the admin menu item for ACA.
      */
     public function add_admin_menu() {
@@ -298,6 +358,8 @@ class ACA_Admin {
         add_settings_field('aca_api_test', __('Connection Test', 'aca'), [$this, 'render_api_test_button'], 'aca', 'aca_api_settings_section');
         add_settings_field('aca_copyscape_username', __('Copyscape Username', 'aca'), [$this, 'render_copyscape_username_field'], 'aca', 'aca_api_settings_section');
         add_settings_field('aca_copyscape_api_key', __('Copyscape API Key', 'aca'), [$this, 'render_copyscape_api_key_field'], 'aca', 'aca_api_settings_section');
+        add_settings_field('aca_gsc_site_url', __('Search Console Site URL', 'aca'), [$this, 'render_gsc_site_url_field'], 'aca', 'aca_api_settings_section');
+        add_settings_field('aca_gsc_api_key', __('Search Console API Key', 'aca'), [$this, 'render_gsc_api_key_field'], 'aca', 'aca_api_settings_section');
 
         // Automation Settings Section
         add_settings_section('aca_automation_settings_section', __('Automation Settings', 'aca'), null, 'aca');
@@ -316,6 +378,7 @@ class ACA_Admin {
         add_settings_section('aca_enrichment_settings_section', __('Content Enrichment', 'aca'), null, 'aca');
         add_settings_field('aca_internal_links_max', __('Max Internal Links', 'aca'), [$this, 'render_internal_links_max_field'], 'aca', 'aca_enrichment_settings_section');
         add_settings_field('aca_featured_image_provider', __('Featured Image Provider', 'aca'), [$this, 'render_featured_image_provider_field'], 'aca', 'aca_enrichment_settings_section');
+        add_settings_field('aca_add_data_sections', __('Add Data Sections', 'aca'), [$this, 'render_add_data_sections_field'], 'aca', 'aca_enrichment_settings_section');
 
         // Management and Cost Control Section
         add_settings_section('aca_management_settings_section', __('Management and Cost Control', 'aca'), null, 'aca');
@@ -325,6 +388,7 @@ class ACA_Admin {
 
         // Prompts Section (for saving)
         register_setting('aca_prompts_group', 'aca_prompts', ['sanitize_callback' => [$this, 'sanitize_prompts']]);
+        register_setting('aca_prompts_group', 'aca_brand_profiles', ['sanitize_callback' => [$this, 'sanitize_brand_profiles']]);
 
         // License Section (for saving)
         register_setting('aca_license_group', 'aca_license_key', ['sanitize_callback' => 'sanitize_text_field']);
@@ -347,6 +411,9 @@ class ACA_Admin {
         $new_input['analysis_exclude_categories'] = isset($input['analysis_exclude_categories']) ? array_map('absint', $input['analysis_exclude_categories']) : ($options['analysis_exclude_categories'] ?? []);
         $new_input['internal_links_max'] = isset($input['internal_links_max']) ? absint($input['internal_links_max']) : ($options['internal_links_max'] ?? 3);
         $new_input['featured_image_provider'] = isset($input['featured_image_provider']) ? sanitize_key($input['featured_image_provider']) : ($options['featured_image_provider'] ?? 'none');
+        $new_input['add_data_sections'] = isset($input['add_data_sections']) ? 1 : ($options['add_data_sections'] ?? 0);
+        $new_input['gsc_site_url'] = isset($input['gsc_site_url']) ? esc_url_raw($input['gsc_site_url']) : ($options['gsc_site_url'] ?? '');
+        $new_input['gsc_api_key'] = isset($input['gsc_api_key']) ? sanitize_text_field($input['gsc_api_key']) : ($options['gsc_api_key'] ?? '');
         $new_input['api_monthly_limit'] = isset($input['api_monthly_limit']) ? absint($input['api_monthly_limit']) : ($options['api_monthly_limit'] ?? 0);
         $new_input['copyscape_username'] = isset($input['copyscape_username']) ? sanitize_text_field($input['copyscape_username']) : ($options['copyscape_username'] ?? '');
         $new_input['copyscape_api_key'] = isset($input['copyscape_api_key']) ? sanitize_text_field($input['copyscape_api_key']) : ($options['copyscape_api_key'] ?? '');
@@ -401,6 +468,24 @@ class ACA_Admin {
         $options = get_option('aca_options');
         $key = isset($options['copyscape_api_key']) ? $options['copyscape_api_key'] : '';
         echo '<input type="password" name="aca_options[copyscape_api_key]" value="' . esc_attr($key) . '" class="regular-text">';
+    }
+
+    /**
+     * Render the Search Console Site URL field.
+     */
+    public function render_gsc_site_url_field() {
+        $options = get_option('aca_options');
+        $url = isset($options['gsc_site_url']) ? $options['gsc_site_url'] : '';
+        echo '<input type="text" name="aca_options[gsc_site_url]" value="' . esc_attr($url) . '" class="regular-text">';
+    }
+
+    /**
+     * Render the Search Console API key field.
+     */
+    public function render_gsc_api_key_field() {
+        $options = get_option('aca_options');
+        $key = isset($options['gsc_api_key']) ? $options['gsc_api_key'] : '';
+        echo '<input type="password" name="aca_options[gsc_api_key]" value="' . esc_attr($key) . '" class="regular-text">';
     }
 
     /**
@@ -560,6 +645,15 @@ class ACA_Admin {
     }
 
     /**
+     * Render the Add Data Sections checkbox.
+     */
+    public function render_add_data_sections_field() {
+        $options = get_option('aca_options');
+        $checked = isset($options['add_data_sections']) ? (bool)$options['add_data_sections'] : false;
+        echo '<label><input type="checkbox" name="aca_options[add_data_sections]" value="1" ' . checked($checked, true, false) . '> ' . __('Append statistics section to drafts (Pro only)', 'aca') . '</label>';
+    }
+
+    /**
      * Render the API Monthly Limit input.
      */
     public function render_api_monthly_limit_field() {
@@ -587,6 +681,7 @@ class ACA_Admin {
             <?php
             settings_fields('aca_prompts_group');
             $prompts = ACA_Core::get_prompts();
+            $profiles = ACA_Core::get_brand_profiles();
             ?>
             <h3><?php esc_html_e('Style Guide Prompt', 'aca'); ?></h3>
             <textarea name="aca_prompts[style_guide]" rows="10" cols="50" class="large-text"><?php echo esc_textarea($prompts['style_guide']); ?></textarea>
@@ -601,6 +696,18 @@ class ACA_Admin {
             <p class="description"><?php esc_html_e('This prompt is used to write the full article draft. Available variables: <code>{{style_guide}}</code>, <code>{{title}}</code>', 'aca'); ?></p>
 
             <?php submit_button(esc_html__('Save Prompts', 'aca')); ?>
+            <h3><?php esc_html_e('Brand Voice Profiles', 'aca'); ?></h3>
+            <table class="widefat">
+                <thead><tr><th><?php esc_html_e('Profile Key', 'aca'); ?></th><th><?php esc_html_e('Style Guide', 'aca'); ?></th></tr></thead>
+                <tbody>
+                    <?php foreach ($profiles as $key => $guide) : ?>
+                        <tr><td><?php echo esc_html($key); ?></td><td><textarea name="aca_brand_profiles[<?php echo esc_attr($key); ?>]" rows="4" class="large-text"><?php echo esc_textarea($guide); ?></textarea></td></tr>
+                    <?php endforeach; ?>
+                    <tr><td><input type="text" name="aca_brand_profiles_new_key" placeholder="<?php esc_attr_e('new-profile', 'aca'); ?>"></td><td><textarea name="aca_brand_profiles_new_value" rows="4" class="large-text"></textarea></td></tr>
+                </tbody>
+            </table>
+            <p class="description"><?php esc_html_e('Define additional style guides for different content types.', 'aca'); ?></p>
+            <?php submit_button(esc_html__('Save Profiles', 'aca')); ?>
         </form>
         <?php
     }
@@ -620,6 +727,22 @@ class ACA_Admin {
             }
         }
         return $new_input;
+    }
+
+    /**
+     * Sanitize brand voice profiles.
+     */
+    public function sanitize_brand_profiles($input) {
+        $clean = [];
+        if (is_array($input)) {
+            foreach ($input as $key => $value) {
+                $clean[sanitize_key($key)] = sanitize_textarea_field($value);
+            }
+        }
+        if (!empty($_POST['aca_brand_profiles_new_key']) && !empty($_POST['aca_brand_profiles_new_value'])) {
+            $clean[sanitize_key($_POST['aca_brand_profiles_new_key'])] = sanitize_textarea_field($_POST['aca_brand_profiles_new_value']);
+        }
+        return $clean;
     }
 
     /**

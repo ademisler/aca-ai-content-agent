@@ -6,6 +6,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const generateIdeasButton = document.getElementById('aca-generate-ideas');
     const ideasStatus = document.getElementById('aca-ideas-status');
     const ideaList = document.querySelector('.aca-idea-list');
+    const generateClusterButton = document.getElementById('aca-generate-cluster');
+    const suggestUpdateButtons = document.querySelectorAll('.aca-suggest-update');
 
     const validateLicenseButton = document.getElementById('aca-validate-license');
     const licenseStatusSpan = document.getElementById('aca-license-status');
@@ -79,6 +81,23 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    if (generateClusterButton) {
+        generateClusterButton.addEventListener('click', () => {
+            const topic = prompt('Enter main topic for the cluster:');
+            if (!topic) return;
+            handleApiRequest('aca_generate_cluster', { topic: topic }, ideasStatus, generateClusterButton)
+            .then(result => {
+                if (result.success) {
+                    ideasStatus.textContent = 'Cluster generated.';
+                    ideasStatus.style.color = '#228B22';
+                } else {
+                    ideasStatus.textContent = 'Error: ' + result.data;
+                    ideasStatus.style.color = '#DC143C';
+                }
+            });
+        });
+    }
+
     if (ideaList) {
         ideaList.addEventListener('click', (e) => {
             const button = e.target;
@@ -117,6 +136,14 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 });
             }
+
+            if (button.classList.contains('aca-feedback-btn')) {
+                const value = button.dataset.value;
+                handleApiRequest('aca_submit_feedback', { id: ideaId, value: value }, button, button)
+                .then(() => {
+                    button.style.opacity = '0.5';
+                });
+            }
         });
     }
 
@@ -134,6 +161,22 @@ document.addEventListener('DOMContentLoaded', function () {
                     licenseStatusSpan.textContent = 'Error: ' + result.data;
                     licenseStatusSpan.style.color = '#DC143C';
                 }
+            });
+        });
+    }
+
+    if (suggestUpdateButtons.length) {
+        suggestUpdateButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const postId = btn.dataset.postId;
+                handleApiRequest('aca_suggest_update', { post_id: postId }, btn, btn)
+                .then(result => {
+                    if (result.success) {
+                        alert(result.data);
+                    } else {
+                        alert('Error: ' + result.data);
+                    }
+                });
             });
         });
     }

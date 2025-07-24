@@ -1,221 +1,224 @@
 <?php
 /**
  * Plugin Name: ACA - AI Content Agent
- * Description: An intelligent plugin that learns your content's tone and style to autonomously generate high-quality, SEO-friendly new content.
- * Version: 1.0
- * Author: Adem Isler
- * Author URI: https://ademisler.com
- * Text Domain: asa-ai-content-agent
+ * Plugin URI:  https://yourwebsite.com/aca-ai-content-agent
+ * Description: AI-powered content generation and optimization for WordPress.
+ * Version:     1.0
+ * Author:      Your Name
+ * Author URI:  https://yourwebsite.com
+ * License:     GPL2
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain: aca-ai-content-agent
  * Domain Path: /languages
- * License: GPLv2 or later
+ *
+ * @package ACA_AI_Content_Agent
  */
 
+// Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
-    exit; // Exit if accessed directly.
+	exit;
 }
 
-// Define constants
-define( 'ACA_VERSION', '1.0' );
-define( 'ACA_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+define( 'ACA_AI_CONTENT_AGENT_VERSION', '1.0' );
+define( 'ACA_AI_CONTENT_AGENT_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+define( 'ACA_AI_CONTENT_AGENT_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
-// Load Composer autoloader and Action Scheduler if available
-if ( file_exists( ACA_PLUGIN_DIR . 'vendor/autoload.php' ) ) {
-    require_once ACA_PLUGIN_DIR . 'vendor/autoload.php';
-}
-if ( file_exists( ACA_PLUGIN_DIR . 'vendor/woocommerce/action-scheduler/action-scheduler.php' ) ) {
-    require_once ACA_PLUGIN_DIR . 'vendor/woocommerce/action-scheduler/action-scheduler.php';
+// Autoload Composer dependencies
+if ( file_exists( ACA_AI_CONTENT_AGENT_PLUGIN_DIR . 'vendor/autoload.php' ) ) {
+	require_once ACA_AI_CONTENT_AGENT_PLUGIN_DIR . 'vendor/autoload.php';
 }
 
-// Define Gumroad Product ID for license verification
-define( 'ACA_GUMROAD_PRODUCT_ID', 'YOUR_GUMROAD_PRODUCT_ID_HERE' ); // IMPORTANT: Replace with your actual Gumroad Product ID
+// Load Action Scheduler if not already loaded by another plugin
+if ( ! class_exists( 'ActionScheduler_Action' ) && file_exists( ACA_AI_CONTENT_AGENT_PLUGIN_DIR . 'vendor/woocommerce/action-scheduler/action-scheduler.php' ) ) {
+	require_once ACA_AI_CONTENT_AGENT_PLUGIN_DIR . 'vendor/woocommerce/action-scheduler/action-scheduler.php';
+}
 
-// Include required files
-require_once ACA_PLUGIN_DIR . 'includes/api.php';
-require_once ACA_PLUGIN_DIR . 'includes/class-aca-admin.php';
-require_once ACA_PLUGIN_DIR . 'includes/class-aca-dashboard.php';
-require_once ACA_PLUGIN_DIR . 'includes/class-aca.php';
-require_once ACA_PLUGIN_DIR . 'includes/class-aca-onboarding.php';
-require_once ACA_PLUGIN_DIR . 'includes/class-aca-cron.php';
-require_once ACA_PLUGIN_DIR . 'includes/class-aca-privacy.php';
-require_once ACA_PLUGIN_DIR . 'includes/licensing.php';
+// Define your Gumroad Product ID
+define( 'ACA_AI_CONTENT_AGENT_GUMROAD_PRODUCT_ID', 'YOUR_GUMROAD_PRODUCT_ID_HERE' ); // IMPORTANT: Replace with your actual Gumroad Product ID
 
-// Activation hook for onboarding and database setup
+// Include core plugin files
+require_once ACA_AI_CONTENT_AGENT_PLUGIN_DIR . 'includes/api.php';
+require_once ACA_AI_CONTENT_AGENT_PLUGIN_DIR . 'includes/class-aca-admin.php';
+require_once ACA_AI_CONTENT_AGENT_PLUGIN_DIR . 'includes/class-aca-dashboard.php';
+require_once ACA_AI_CONTENT_AGENT_PLUGIN_DIR . 'includes/class-aca.php';
+require_once ACA_AI_CONTENT_AGENT_PLUGIN_DIR . 'includes/class-aca-onboarding.php';
+require_once ACA_AI_CONTENT_AGENT_PLUGIN_DIR . 'includes/class-aca-cron.php';
+require_once ACA_AI_CONTENT_AGENT_PLUGIN_DIR . 'includes/class-aca-privacy.php';
+require_once ACA_AI_CONTENT_AGENT_PLUGIN_DIR . 'includes/licensing.php';
+
+/**
+ * The code that runs during plugin activation.
+ * This action is documented in includes/class-aca-activator.php
+ */
 register_activation_hook(__FILE__, ['ACA_Bootstrap', 'activate']);
-register_deactivation_hook(__FILE__, 'aca_deactivate');
 
-function aca_deactivate() {
-    if ( function_exists( 'as_unschedule_all_actions' ) ) {
-        as_unschedule_all_actions( 'aca_run_main_automation' );
-        as_unschedule_all_actions( 'aca_reset_api_usage_counter' );
-        as_unschedule_all_actions( 'aca_generate_style_guide' );
-        as_unschedule_all_actions( 'aca_verify_license' );
-        as_unschedule_all_actions( 'aca_clean_logs' );
-    } else {
-        wp_clear_scheduled_hook( 'aca_run_main_automation' );
-        wp_clear_scheduled_hook( 'aca_reset_api_usage_counter' );
-        wp_clear_scheduled_hook( 'aca_generate_style_guide' );
-        wp_clear_scheduled_hook( 'aca_verify_license' );
-        wp_clear_scheduled_hook( 'aca_clean_logs' );
-    }
+/**
+ * The code that runs during plugin deactivation.
+ */
+function aca_ai_content_agent_deactivate() {
+    // Clear all scheduled actions for the plugin
+    as_unschedule_all_actions( 'aca_ai_content_agent_run_main_automation' );
+    as_unschedule_all_actions( 'aca_ai_content_agent_reset_api_usage_counter' );
+    as_unschedule_all_actions( 'aca_ai_content_agent_generate_style_guide' );
+    as_unschedule_all_actions( 'aca_ai_content_agent_verify_license' );
+    as_unschedule_all_actions( 'aca_ai_content_agent_clean_logs' );
 
-    $roles = [ 'administrator', 'editor', 'author' ];
-    foreach ( $roles as $role_name ) {
-        $role = get_role( $role_name );
-        if ( $role ) {
-            $role->remove_cap( 'manage_aca_settings' );
-            $role->remove_cap( 'view_aca_dashboard' );
-        }
+    // Also clear WP Cron schedules as a fallback
+    wp_clear_scheduled_hook( 'aca_ai_content_agent_run_main_automation' );
+    wp_clear_scheduled_hook( 'aca_ai_content_agent_reset_api_usage_counter' );
+    wp_clear_scheduled_hook( 'aca_ai_content_agent_generate_style_guide' );
+    wp_clear_scheduled_hook( 'aca_ai_content_agent_verify_license' );
+    wp_clear_scheduled_hook( 'aca_ai_content_agent_clean_logs' );
+
+    // Remove capabilities upon deactivation
+    $role = get_role( 'administrator' );
+    if ( $role ) {
+        $role->remove_cap( 'manage_aca_ai_content_agent_settings' );
+        $role->remove_cap( 'view_aca_ai_content_agent_dashboard' );
     }
 }
 
 /**
  * ACA Bootstrap Class
+ * Handles plugin initialization and setup.
  */
 class ACA_Bootstrap {
 
     /**
-     * Constructor.
+     * Activate the plugin.
      */
-    public function __construct() {
-        add_action('plugins_loaded', [$this, 'init']);
-    }
+    public static function activate() {
+        global $wpdb;
 
-    /**
-     * Initialize the plugin.
-     */
-    public function init() {
-        load_plugin_textdomain( 'asa-ai-content-agent', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
-        if (is_admin()) {
-            new ACA_Admin();
-            new ACA_Onboarding();
-            $this->handle_redirect();
-        }
+        // Load plugin text domain for activation messages
+        load_plugin_textdomain( 'aca-ai-content-agent', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 
-        // Initialize cron jobs
-        new ACA_Cron();
+        // Initialize classes that register hooks
+        new ACA_AI_Content_Agent_Admin();
+        new ACA_AI_Content_Agent_Onboarding();
+        // Other initializations if needed
+        new ACA_AI_Content_Agent_Cron(); // Schedule cron jobs on activation
 
-        // Register privacy hooks
-        ACA_Privacy::init();
-    }
+        // Create custom database tables if they don't exist
+        self::create_custom_tables();
 
-    /**
-     * Handle the redirect to the onboarding wizard.
-     */
-    public function handle_redirect() {
-        if (get_transient('aca_activation_redirect')) {
-            delete_transient('aca_activation_redirect');
-            if (!is_multisite()) {
-                wp_redirect(admin_url('index.php?page=aca-onboarding'));
+        // Add custom capabilities
+        self::add_custom_capabilities();
+
+        // Set a transient to redirect to the onboarding page after activation
+        if (get_transient('aca_ai_content_agent_activation_redirect')) {
+            delete_transient('aca_ai_content_agent_activation_redirect');
+            // We don't want to redirect if the user is already on the onboarding page
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+            if (!isset($_GET['page']) || $_GET['page'] !== 'aca-ai-content-agent-onboarding') {
+                wp_redirect(admin_url('index.php?page=aca-ai-content-agent-onboarding'));
                 exit;
             }
         }
-    }
+        set_transient('aca_ai_content_agent_activation_redirect', true, 30); // Redirect for 30 seconds
 
-    /**
-     * Plugin activation hook.
-     */
-    public static function activate() {
-        // Set redirect transient for onboarding
-        set_transient('aca_activation_redirect', true, 30);
-
-        // Create custom database tables
-        self::create_database_tables();
-
-        // Add custom capabilities
-        self::add_capabilities();
+        // Log activation
+        ACA_AI_Content_Agent_Engine::add_log('Plugin activated successfully.', 'success');
     }
 
     /**
      * Create custom database tables.
      */
-    public static function create_database_tables() {
+    private static function create_custom_tables() {
         global $wpdb;
         $charset_collate = $wpdb->get_charset_collate();
-        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 
-        // Table for ideas
-        $table_name_ideas = $wpdb->prefix . 'aca_ideas';
+        // Table for generated ideas
+        $table_name_ideas = $wpdb->prefix . 'aca_ai_content_agent_ideas';
         $sql_ideas = "CREATE TABLE $table_name_ideas (
             id mediumint(9) NOT NULL AUTO_INCREMENT,
-            idea_title text NOT NULL,
-            status varchar(20) NOT NULL DEFAULT 'pending', -- pending, approved, rejected, drafted
-            created_at datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
-            feedback tinyint(1) DEFAULT 0, -- -1 for downvote, 1 for upvote, 0 for no feedback
+            title tinytext NOT NULL,
+            keywords text,
+            status varchar(20) DEFAULT 'pending' NOT NULL,
+            generated_date datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+            post_id bigint(20) DEFAULT NULL,
+            feedback int(1) DEFAULT 0 NOT NULL,
             PRIMARY KEY  (id)
         ) $charset_collate;";
-        dbDelta($sql_ideas);
+        require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+        dbDelta( $sql_ideas );
 
         // Table for logs
-        $table_name_logs = $wpdb->prefix . 'aca_logs';
+        $table_name_logs = $wpdb->prefix . 'aca_ai_content_agent_logs';
         $sql_logs = "CREATE TABLE $table_name_logs (
             id mediumint(9) NOT NULL AUTO_INCREMENT,
-            log_message text NOT NULL,
-            log_type varchar(20) NOT NULL DEFAULT 'info', -- info, success, warning, error
-            created_at datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+            timestamp datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+            level varchar(20) NOT NULL,
+            message text NOT NULL,
             PRIMARY KEY  (id)
         ) $charset_collate;";
-        dbDelta($sql_logs);
+        dbDelta( $sql_logs );
 
-        // Table for content clusters (for strategic planning)
-        $table_name_clusters = $wpdb->prefix . 'aca_clusters';
+        // Table for content clusters
+        $table_name_clusters = $wpdb->prefix . 'aca_ai_content_agent_clusters';
         $sql_clusters = "CREATE TABLE $table_name_clusters (
             id mediumint(9) NOT NULL AUTO_INCREMENT,
-            topic text NOT NULL,
-            created_at datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+            topic tinytext NOT NULL,
+            status varchar(20) DEFAULT 'pending' NOT NULL,
+            generated_date datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
             PRIMARY KEY  (id)
         ) $charset_collate;";
-        dbDelta($sql_clusters);
+        dbDelta( $sql_clusters );
 
-        // Table for cluster items (sub topics)
-        $table_name_cluster_items = $wpdb->prefix . 'aca_cluster_items';
+        // Table for cluster items (subtopics)
+        $table_name_cluster_items = $wpdb->prefix . 'aca_ai_content_agent_cluster_items';
         $sql_cluster_items = "CREATE TABLE $table_name_cluster_items (
             id mediumint(9) NOT NULL AUTO_INCREMENT,
             cluster_id mediumint(9) NOT NULL,
-            subtopic_title text NOT NULL,
-            created_at datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+            subtopic tinytext NOT NULL,
+            status varchar(20) DEFAULT 'pending' NOT NULL,
+            post_id bigint(20) DEFAULT NULL,
             PRIMARY KEY  (id),
             KEY cluster_id (cluster_id)
         ) $charset_collate;";
-        dbDelta($sql_cluster_items);
+        dbDelta( $sql_cluster_items );
     }
 
     /**
      * Add custom capabilities for the plugin.
      */
-    public static function add_capabilities() {
-        $roles = ['administrator', 'editor'];
-        foreach ($roles as $role_name) {
-            $role = get_role($role_name);
-            if ($role) {
-                $role->add_cap('manage_aca_settings');
-                $role->add_cap('view_aca_dashboard');
-            }
+    private static function add_custom_capabilities() {
+        $role = get_role( 'administrator' );
+        if ( $role ) {
+            $role->add_cap( 'manage_aca_ai_content_agent_settings' );
+            $role->add_cap( 'view_aca_ai_content_agent_dashboard' );
         }
-        $author_role = get_role('author');
-        if ($author_role) {
-            $author_role->add_cap('view_aca_dashboard');
+
+        // Give authors access to view the dashboard
+        $author_role = get_role( 'author' );
+        if ( $author_role ) {
+            $author_role->add_cap( 'view_aca_ai_content_agent_dashboard' );
         }
     }
 }
 
 /**
- * Check if the user has a valid license.
+ * Check if ACA Pro is active.
+ *
+ * @return bool True if ACA Pro is active, false otherwise.
  */
-function aca_is_pro() {
-    // Trigger a license check if needed.
-    if ( function_exists( 'aca_maybe_check_license' ) ) {
-        aca_maybe_check_license();
+function aca_ai_content_agent_is_pro() {
+    // Check if the license check function exists and run it
+    if ( function_exists( 'aca_ai_content_agent_maybe_check_license' ) ) {
+        aca_ai_content_agent_maybe_check_license();
     }
 
-    $active_flag  = get_option( 'aca_is_pro_active' ) === 'true';
-    $valid_until  = intval( get_option( 'aca_license_valid_until', 0 ) );
-    $status       = get_transient( 'aca_license_status' );
-    $status_valid = ( false === $status ) ? true : ( 'valid' === $status );
+    $is_active    = false;
+    $active_flag  = get_option( 'aca_ai_content_agent_is_pro_active' ) === 'true';
+    $valid_until  = intval( get_option( 'aca_ai_content_agent_license_valid_until', 0 ) );
+    $status       = get_transient( 'aca_ai_content_agent_license_status' );
 
-    $is_active = $active_flag && $status_valid && ( 0 === $valid_until || $valid_until > time() );
+    if ( $active_flag && $valid_until > time() && $status === 'valid' ) {
+        $is_active = true;
+    }
 
-    return apply_filters( 'aca_is_pro', $is_active );
+    return apply_filters( 'aca_ai_content_agent_is_pro', $is_active );
 }
 
-// Instantiate the main class
+// Initialize the plugin
 new ACA_Bootstrap();

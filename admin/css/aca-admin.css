@@ -1,18 +1,18 @@
-.aca-dashboard .postbox {
+.aca-ai-content-agent-dashboard .postbox {
     margin-bottom: 20px;
 }
 
-.aca-dashboard h2 {
+.aca-ai-content-agent-dashboard h2 {
     margin-top: 20px;
 }
 
-.aca-idea-list {
+.aca-ai-content-agent-idea-list {
     list-style: none;
     margin: 0;
     padding: 0;
 }
 
-.aca-idea-list li {
+.aca-ai-content-agent-idea-list li {
     background: #fff;
     border: 1px solid #ddd;
     padding: 12px;
@@ -23,23 +23,23 @@
     transition: opacity 0.5s ease;
 }
 
-.aca-idea-list .idea-content {
+.aca-ai-content-agent-idea-list .idea-content {
     flex-grow: 1;
     margin-right: 15px;
 }
 
-.aca-idea-list .idea-actions .button {
+.aca-ai-content-agent-idea-list .idea-actions .button {
     margin-left: 5px;
 }
 
-.aca-draft-status {
+.aca-ai-content-agent-draft-status {
     font-style: italic;
     margin-left: 10px;
 }
 
-#aca-style-guide-status,
-#aca-ideas-status,
-#aca-test-status {
+#aca-ai-content-agent-style-guide-status,
+#aca-ai-content-agent-ideas-status,
+#aca-ai-content-agent-test-status {
     margin-left: 10px;
     font-weight: bold;
 }

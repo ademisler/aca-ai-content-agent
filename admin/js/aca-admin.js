@@ -1,21 +1,21 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const testButton = document.getElementById('aca-test-connection');
-    const statusSpan = document.getElementById('aca-test-status');
-    const styleGuideButton = document.getElementById('aca-generate-style-guide');
-    const styleGuideStatus = document.getElementById('aca-style-guide-status');
-    const generateIdeasButton = document.getElementById('aca-generate-ideas');
-    const ideasStatus = document.getElementById('aca-ideas-status');
-    const ideaList = document.querySelector('.aca-idea-list');
-    const generateClusterButton = document.getElementById('aca-generate-cluster');
-    const clusterTopicInput = document.getElementById('aca-cluster-topic');
-    const clusterStatus = document.getElementById('aca-cluster-status');
-    const suggestUpdateButtons = document.querySelectorAll('.aca-suggest-update');
-    const fetchGSCButton = document.getElementById('aca-fetch-gsc');
-    const generateGSCIdeasButton = document.getElementById('aca-generate-gsc-ideas');
-    const gscResults = document.getElementById('aca-gsc-results');
+    const testButton = document.getElementById('aca-ai-content-agent-test-connection');
+    const statusSpan = document.getElementById('aca-ai-content-agent-test-status');
+    const styleGuideButton = document.getElementById('aca-ai-content-agent-generate-style-guide');
+    const styleGuideStatus = document.getElementById('aca-ai-content-agent-style-guide-status');
+    const generateIdeasButton = document.getElementById('aca-ai-content-agent-generate-ideas');
+    const ideasStatus = document.getElementById('aca-ai-content-agent-ideas-status');
+    const ideaList = document.querySelector('.aca-ai-content-agent-idea-list');
+    const generateClusterButton = document.getElementById('aca-ai-content-agent-generate-cluster');
+    const clusterTopicInput = document.getElementById('aca-ai-content-agent-cluster-topic');
+    const clusterStatus = document.getElementById('aca-ai-content-agent-cluster-status');
+    const suggestUpdateButtons = document.querySelectorAll('.aca-ai-content-agent-suggest-update');
+    const fetchGSCButton = document.getElementById('aca-ai-content-agent-fetch-gsc');
+    const generateGSCIdeasButton = document.getElementById('aca-ai-content-agent-generate-gsc-ideas');
+    const gscResults = document.getElementById('aca-ai-content-agent-gsc-results');
 
-    const validateLicenseButton = document.getElementById('aca-validate-license');
-    const licenseStatusSpan = document.getElementById('aca-license-status');
+    const validateLicenseButton = document.getElementById('aca-ai-content-agent-validate-license');
+    const licenseStatusSpan = document.getElementById('aca-ai-content-agent-license-status');
 
     // Function to handle API requests
     const handleApiRequest = (action, data, statusElement, buttonElement) => {
@@ -25,12 +25,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const formData = new URLSearchParams();
         formData.append('action', action);
-        formData.append('nonce', aca_admin_ajax.nonce);
+        formData.append('nonce', aca_ai_content_agent_admin_ajax.nonce);
         for (const key in data) {
             formData.append(key, data[key]);
         }
 
-        return fetch(aca_admin_ajax.ajax_url, {
+        return fetch(aca_ai_content_agent_admin_ajax.ajax_url, {
             method: 'POST',
             body: formData
         })
@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (testButton) {
         testButton.addEventListener('click', () => {
-            handleApiRequest('aca_test_connection', {}, statusSpan, testButton)
+            handleApiRequest('aca_ai_content_agent_test_connection', {}, statusSpan, testButton)
             .then(result => {
                 if (result.success) {
                     statusSpan.textContent = result.data;
@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (styleGuideButton) {
         styleGuideButton.addEventListener('click', () => {
-            handleApiRequest('aca_generate_style_guide', {}, styleGuideStatus, styleGuideButton)
+            handleApiRequest('aca_ai_content_agent_generate_style_guide', {}, styleGuideStatus, styleGuideButton)
             .then(result => {
                 if (result.success) {
                     styleGuideStatus.textContent = result.data;
@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (generateIdeasButton) {
         generateIdeasButton.addEventListener('click', () => {
-            handleApiRequest('aca_generate_ideas', {}, ideasStatus, generateIdeasButton)
+            handleApiRequest('aca_ai_content_agent_generate_ideas', {}, ideasStatus, generateIdeasButton)
             .then(result => {
                 if (result.success) {
                     ideasStatus.textContent = result.data.message;
@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 alert('Please enter a topic');
                 return;
             }
-            handleApiRequest('aca_generate_cluster', { topic: topic }, clusterStatus, generateClusterButton)
+            handleApiRequest('aca_ai_content_agent_generate_cluster', { topic: topic }, clusterStatus, generateClusterButton)
             .then(result => {
                 if (result.success) {
                     clusterStatus.textContent = 'Cluster generated.';
@@ -124,15 +124,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const ideaId = listItem.dataset.id;
 
-            if (button.classList.contains('aca-write-draft')) {
-                const statusElement = listItem.querySelector('.aca-draft-status');
-                handleApiRequest('aca_write_draft', { id: ideaId }, statusElement, button)
+            if (button.classList.contains('aca-ai-content-agent-write-draft')) {
+                const statusElement = listItem.querySelector('.aca-ai-content-agent-draft-status');
+                handleApiRequest('aca_ai_content_agent_write_draft', { id: ideaId }, statusElement, button)
                 .then(result => {
                     if (result.success) {
                         statusElement.innerHTML = `Success! <a href="${result.data.edit_link}" target="_blank">Edit Draft</a>`;
                         statusElement.style.color = '#228B22';
                         button.style.display = 'none'; // Hide button after success
-                        listItem.querySelector('.aca-reject-idea').style.display = 'none';
+                        listItem.querySelector('.aca-ai-content-agent-reject-idea').style.display = 'none';
                     } else {
                         statusElement.textContent = 'Error: ' + result.data;
                         statusElement.style.color = '#DC143C';
@@ -140,9 +140,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
             }
 
-            if (button.classList.contains('aca-reject-idea')) {
-                const statusElement = listItem.querySelector('.aca-draft-status');
-                handleApiRequest('aca_reject_idea', { id: ideaId }, statusElement, button)
+            if (button.classList.contains('aca-ai-content-agent-reject-idea')) {
+                const statusElement = listItem.querySelector('.aca-ai-content-agent-draft-status');
+                handleApiRequest('aca_ai_content_agent_reject_idea', { id: ideaId }, statusElement, button)
                 .then(result => {
                     if (result.success) {
                         listItem.style.transition = 'opacity 0.5s ease';
@@ -155,9 +155,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
             }
 
-            if (button.classList.contains('aca-feedback-btn')) {
+            if (button.classList.contains('aca-ai-content-agent-feedback-btn')) {
                 const value = button.dataset.value;
-                handleApiRequest('aca_submit_feedback', { id: ideaId, value: value }, button, button)
+                handleApiRequest('aca_ai_content_agent_submit_feedback', { id: ideaId, value: value }, button, button)
                 .then(() => {
                     button.style.opacity = '0.5';
                 });
@@ -167,10 +167,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (validateLicenseButton) {
         validateLicenseButton.addEventListener('click', () => {
-            const licenseKeyInput = document.getElementById('aca_license_key');
+            const licenseKeyInput = document.getElementById('aca_ai_content_agent_license_key');
             const licenseKey = licenseKeyInput.value;
 
-            handleApiRequest('aca_validate_license', { license_key: licenseKey }, licenseStatusSpan, validateLicenseButton)
+            handleApiRequest('aca_ai_content_agent_validate_license', { license_key: licenseKey }, licenseStatusSpan, validateLicenseButton)
             .then(result => {
                 if (result.success) {
                     licenseStatusSpan.textContent = result.data;
@@ -187,7 +187,7 @@ document.addEventListener('DOMContentLoaded', function () {
         suggestUpdateButtons.forEach(btn => {
             btn.addEventListener('click', () => {
                 const postId = btn.dataset.postId;
-                handleApiRequest('aca_suggest_update', { post_id: postId }, btn, btn)
+                handleApiRequest('aca_ai_content_agent_suggest_update', { post_id: postId }, btn, btn)
                 .then(result => {
                     if (result.success) {
                         alert(result.data);
@@ -201,7 +201,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (fetchGSCButton) {
         fetchGSCButton.addEventListener('click', () => {
-            handleApiRequest('aca_fetch_gsc_data', {}, gscResults, fetchGSCButton)
+            handleApiRequest('aca_ai_content_agent_fetch_gsc_data', {}, gscResults, fetchGSCButton)
             .then(result => {
                 if (result.success) {
                     const rows = result.data.rows || [];
@@ -227,7 +227,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (generateGSCIdeasButton) {
         generateGSCIdeasButton.addEventListener('click', () => {
-            handleApiRequest('aca_generate_gsc_ideas', {}, ideasStatus, generateGSCIdeasButton)
+            handleApiRequest('aca_ai_content_agent_generate_gsc_ideas', {}, ideasStatus, generateGSCIdeasButton)
             .then(result => {
                 if (result.success) {
                     ideasStatus.textContent = result.data.message;

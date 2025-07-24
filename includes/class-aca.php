@@ -4,7 +4,7 @@
  *
  * Core Functionality
  *
- * @package ACA
+ * @package ACA_AI_Content_Agent
  * @version 1.0
  * @since   1.0
  */
@@ -13,21 +13,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-class ACA_Engine {
+class ACA_AI_Content_Agent_Engine {
 
     /**
      * Add a log entry to the database.
      */
     public static function add_log($message, $type = 'info') {
         global $wpdb;
-        $table_name = $wpdb->prefix . 'aca_logs';
+        $table_name = $wpdb->prefix . 'aca_ai_content_agent_logs';
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $wpdb->insert(
             $table_name,
             [
-                'log_message' => $message,
-                'log_type'    => $type,
-                'created_at'  => current_time('mysql'),
+                'message'   => $message,
+                'level'     => $type,
+                'timestamp' => current_time('mysql'),
             ]
         );
     }
@@ -42,7 +42,7 @@ class ACA_Engine {
             'content_writing' => "Task: Write a SEO-friendly blog post of approximately 800 words with the title '%s'. Structure the post with an introduction, a main body with H2 and H3 subheadings, and a conclusion. At the end, return the entire response as a single JSON object with the keys: postContent, tags, metaDescription, and sources.",
         ];
 
-        $custom_prompts = get_option('aca_prompts', []);
+        $custom_prompts = get_option('aca_ai_content_agent_prompts', []);
         return wp_parse_args($custom_prompts, $defaults);
     }
 
@@ -61,7 +61,7 @@ class ACA_Engine {
      * Retrieve stored brand voice profiles.
      */
     public static function get_brand_profiles() {
-        $profiles = get_option('aca_brand_profiles', []);
+        $profiles = get_option('aca_ai_content_agent_brand_profiles', []);
         if (!is_array($profiles)) {
             $profiles = [];
         }
@@ -74,7 +74,7 @@ class ACA_Engine {
     public static function save_brand_profile($name, $guide) {
         $profiles = self::get_brand_profiles();
         $profiles[sanitize_key($name)] = sanitize_textarea_field($guide);
-        update_option('aca_brand_profiles', $profiles);
+        update_option('aca_ai_content_agent_brand_profiles', $profiles);
     }
 
     /**
@@ -85,7 +85,7 @@ class ACA_Engine {
         if (isset($profiles[$name])) {
             return $profiles[$name];
         }
-        return get_option('aca_style_guide', '');
+        return get_option('aca_ai_content_agent_style_guide', '');
     }
 
     /**
@@ -93,7 +93,7 @@ class ACA_Engine {
      */
     public static function generate_style_guide() {
         self::add_log('Attempting to generate style guide.');
-        $options     = get_option('aca_options');
+        $options     = get_option('aca_ai_content_agent_options');
 
         $post_types = $options['analysis_post_types'] ?? ['post'];
         $depth      = $options['analysis_depth'] ?? 20;
@@ -121,17 +121,17 @@ class ACA_Engine {
         }
 
         if (empty($contents)) {
-            return new WP_Error('no_content', __('No content found for analysis.', 'asa-ai-content-agent'));
+            return new WP_Error('no_content', __('No content found for analysis.', 'aca-ai-content-agent'));
         }
 
         $prompts = self::get_prompts();
         $prompt  = sprintf($prompts['style_guide'], $contents);
 
-        $style_guide = aca_call_gemini_api($prompt);
+        $style_guide = aca_ai_content_agent_call_gemini_api($prompt);
 
         if (!is_wp_error($style_guide)) {
-            set_transient('aca_style_guide', $style_guide, WEEK_IN_SECONDS);
-            update_option('aca_style_guide', $style_guide);
+            set_transient('aca_ai_content_agent_style_guide', $style_guide, WEEK_IN_SECONDS);
+            update_option('aca_ai_content_agent_style_guide', $style_guide);
             self::add_log('Style guide generated and cached successfully.', 'success');
         } else {
             self::add_log('Failed to generate style guide: ' . $style_guide->get_error_message(), 'error');
@@ -145,16 +145,16 @@ class ACA_Engine {
      */
     public static function generate_ideas() {
         global $wpdb;
-        $table_name = $wpdb->prefix . 'aca_ideas';
+        $table_name = $wpdb->prefix . 'aca_ai_content_agent_ideas';
         self::add_log('Attempting to generate new ideas.');
 
-        $options = get_option('aca_options');
+        $options = get_option('aca_ai_content_agent_options');
 
         // Free version monthly limit
-        if ( ! aca_is_pro() ) {
-            $count = get_option( 'aca_idea_count_current_month', 0 );
+        if ( ! aca_ai_content_agent_is_pro() ) {
+            $count = get_option( 'aca_ai_content_agent_idea_count_current_month', 0 );
             if ( $count >= 5 ) {
-                return new WP_Error( 'limit_reached', __( 'Monthly idea limit reached for free version.', 'asa-ai-content-agent' ) );
+                return new WP_Error( 'limit_reached', __( 'Monthly idea limit reached for free version.', 'aca-ai-content-agent' ) );
             }
         }
 
@@ -176,7 +176,7 @@ class ACA_Engine {
         $limit  = $options['generation_limit'] ?? 5;
         $prompt = sprintf($prompts['idea_generation'], $existing_titles, $limit);
 
-        $response = aca_call_gemini_api($prompt);
+        $response = aca_ai_content_agent_call_gemini_api($prompt);
 
         if (is_wp_error($response)) {
             self::add_log('Failed to generate ideas: ' . $response->get_error_message(), 'error');
@@ -193,8 +193,8 @@ class ACA_Engine {
                 $wpdb->insert(
                     $table_name,
                     [
-                        'idea_title' => $cleaned_idea,
-                        'created_at' => current_time('mysql'),
+                        'title' => $cleaned_idea,
+                        'generated_date' => current_time('mysql'),
                     ]
                 );
                 $inserted_ids[] = $wpdb->insert_id;
@@ -202,9 +202,9 @@ class ACA_Engine {
             }
         }
 
-        if ( ! aca_is_pro() ) {
-            $count = get_option( 'aca_idea_count_current_month', 0 );
-            update_option( 'aca_idea_count_current_month', $count + count( $inserted_ids ) );
+        if ( ! aca_ai_content_agent_is_pro() ) {
+            $count = get_option( 'aca_ai_content_agent_idea_count_current_month', 0 );
+            update_option( 'aca_ai_content_agent_idea_count_current_month', $count + count( $inserted_ids ) );
         }
         self::add_log(sprintf('%d new ideas generated and saved.', count($inserted_ids)), 'success');
         return $inserted_ids;
@@ -215,29 +215,31 @@ class ACA_Engine {
      */
     public static function write_post_draft($idea_id) {
         global $wpdb;
-        $table_name = $wpdb->prefix . 'aca_ideas';
+        $table_name = $wpdb->prefix . 'aca_ai_content_agent_ideas';
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $idea = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table_name} WHERE id = %d", $idea_id ) );
 
         if (!$idea) {
-            return new WP_Error('idea_not_found', __('Idea not found.', 'asa-ai-content-agent'));
+            return new WP_Error('idea_not_found', __('Idea not found.', 'aca-ai-content-agent'));
         }
 
-        if ( ! aca_is_pro() ) {
-            $draft_count = get_option( 'aca_draft_count_current_month', 0 );
+        if ( ! aca_ai_content_agent_is_pro() ) {
+            $draft_count = get_option( 'aca_ai_content_agent_draft_count_current_month', 0 );
             if ( $draft_count >= 2 ) {
-                return new WP_Error( 'limit_reached', __( 'Monthly draft limit reached for free version.', 'asa-ai-content-agent' ) );
+                return new WP_Error( 'limit_reached', __( 'Monthly draft limit reached for free version.', 'aca-ai-content-agent' ) );
             }
         }
 
-        self::add_log(sprintf('Attempting to write draft for idea #%d: "%s"', $idea_id, $idea->idea_title));
+        self::add_log(sprintf('Attempting to write draft for idea #%d: "%s"', $idea_id, $idea->title));
 
-        $options   = get_option('aca_options');
+        $options   = get_option('aca_ai_content_agent_options');
         $prompts   = self::get_prompts();
         $profile   = $options['default_profile'] ?? '';
         $style_guide = self::get_style_guide_for_profile($profile);
-        $prompt    = sprintf($prompts['content_writing'], $idea->idea_title);
+        $prompt    = sprintf($prompts['content_writing'], $idea->title);
 
-        $response = aca_call_gemini_api($prompt, $style_guide);
+        $response = aca_ai_content_agent_call_gemini_api($prompt, $style_guide);
 
         if (is_wp_error($response)) {
             self::add_log('Failed to write draft: ' . $response->get_error_message(), 'error');
@@ -247,7 +249,7 @@ class ACA_Engine {
         $parts = self::parse_ai_response($response);
 
         $post_data = [
-            'post_title'  => $idea->idea_title,
+            'post_title'  => $idea->title,
             'post_content'=> $parts['content'],
             'post_status' => 'draft',
             'post_author' => $options['default_author'] ?? get_current_user_id(),
@@ -260,12 +262,14 @@ class ACA_Engine {
             return $post_id;
         }
 
-        if ( ! aca_is_pro() ) {
-            $draft_count = get_option( 'aca_draft_count_current_month', 0 );
-            update_option( 'aca_draft_count_current_month', $draft_count + 1 );
+        if ( ! aca_ai_content_agent_is_pro() ) {
+            $draft_count = get_option( 'aca_ai_content_agent_draft_count_current_month', 0 );
+            update_option( 'aca_ai_content_agent_draft_count_current_month', $draft_count + 1 );
         }
 
         // Update idea status in the database
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectDatabaseQuery.NoCaching
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectDatabaseQuery.NoCaching
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $wpdb->update(
             $table_name,
@@ -281,10 +285,10 @@ class ACA_Engine {
                 wp_set_post_tags($post_id, $parts['tags']);
             }
             if (!empty($parts['meta_description'])) {
-                update_post_meta($post_id, '_aca_meta_description', $parts['meta_description']);
+                update_post_meta($post_id, '_aca_ai_content_agent_meta_description', $parts['meta_description']);
             }
 
-            self::enrich_draft($post_id, $response, $idea->idea_title);
+            self::enrich_draft($post_id, $response, $idea->title);
         }
 
         // ... (rest of the function is the same)
@@ -304,7 +308,7 @@ class ACA_Engine {
         }
 
         // Add internal links
-        $options = get_option('aca_options');
+        $options = get_option('aca_ai_content_agent_options');
         $max_links = $options['internal_links_max'] ?? 3;
         self::add_internal_links($post_id, $max_links);
 
@@ -320,7 +324,7 @@ class ACA_Engine {
         }
 
         // Optional data-backed section
-        $options = get_option('aca_options');
+        $options = get_option('aca_ai_content_agent_options');
         if (!empty($options['add_data_sections'])) {
             self::add_data_section($post_id, $title);
         }
@@ -408,17 +412,20 @@ class ACA_Engine {
         $likes = [];
         foreach ($keywords as $kw) {
             $like = '%' . $wpdb->esc_like($kw) . '%';
-            $likes[] = $wpdb->prepare('(post_title LIKE %s OR post_content LIKE %s)', $like, $like);
+            $likes[] = $wpdb->prepare('(post_title LIKE %s)', $like); // Sadece post_title'da arama
         }
 
-        if (!empty($likes)) {
-            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-            $sql = $wpdb->prepare(
-                "SELECT ID, post_title, post_content FROM {$wpdb->posts} WHERE post_status='publish' AND post_type='post' AND ID != %d AND (" . implode(' OR ', $likes) . ")",
-                $post_id
-            );
-            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-            $targets = $wpdb->get_results($sql);
+        if (!empty($keywords)) {
+            $where_conditions = [];
+            $sql_values = [$post_id];
+            foreach ($keywords as $kw) {
+                $where_conditions[] = '(post_title LIKE %s)'; // Sadece post_title'da arama
+                $sql_values[] = '%' . $wpdb->esc_like($kw) . '%';
+            }
+
+            $where_clause = implode(' OR ', $where_conditions);
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $targets = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, post_content FROM {$wpdb->posts} WHERE post_status='publish' AND post_type='post' AND ID != %d AND ({$where_clause})", ...$sql_values));
 
             foreach ($keywords as $keyword) {
                 foreach ($targets as $t) {
@@ -449,7 +456,7 @@ class ACA_Engine {
      */
     private static function extract_keywords($text, $limit = 10) {
         $text  = strtolower($text);
-        $words = preg_split('/[^a-zA-Z0-9ğüşöçıİĞÜŞÖÇ]+/', $text);
+        $words = preg_split('/[^a-zA-Z0-9]+/', $text);
         $stop  = ['the','and','for','with','that','this','have','from','your','you','about','into','will','been','them','then','than'];
         $keywords = [];
         foreach ($words as $w) {
@@ -470,9 +477,9 @@ class ACA_Engine {
         if ($provider === 'unsplash') {
             $url = 'https://source.unsplash.com/1600x900/?' . urlencode($query);
         } elseif ($provider === 'pexels') {
-            $options     = get_option('aca_options');
+            $options     = get_option('aca_ai_content_agent_options');
             $api_key_enc = $options['pexels_api_key'] ?? '';
-            $api_key     = aca_safe_decrypt( $api_key_enc );
+            $api_key     = aca_ai_content_agent_safe_decrypt( $api_key_enc );
             if (empty($api_key)) {
                 return;
             }
@@ -491,12 +498,12 @@ class ACA_Engine {
             }
             $url = $body['photos'][0]['src']['large'];
         } elseif ($provider === 'dalle') {
-            if ( ! aca_is_pro() ) {
+            if ( ! aca_ai_content_agent_is_pro() ) {
                 return;
             }
-            $options     = get_option('aca_options');
+            $options     = get_option('aca_ai_content_agent_options');
             $api_key_enc = $options['openai_api_key'] ?? '';
-            $api_key     = aca_safe_decrypt( $api_key_enc );
+            $api_key     = aca_ai_content_agent_safe_decrypt( $api_key_enc );
             if ( empty( $api_key ) ) {
                 return;
             }
@@ -570,13 +577,13 @@ class ACA_Engine {
      * Check plagiarism via Copyscape API and store the result.
      */
     public static function check_plagiarism($post_id, $content) {
-        if (!aca_is_pro()) {
+        if (!aca_ai_content_agent_is_pro()) {
             return; // Pro feature only
         }
-        $options   = get_option('aca_options');
+        $options   = get_option('aca_ai_content_agent_options');
         $user      = $options['copyscape_username'] ?? '';
         $key_enc   = $options['copyscape_api_key'] ?? '';
-        $key       = aca_safe_decrypt( $key_enc );
+        $key       = aca_ai_content_agent_safe_decrypt( $key_enc );
         if (empty($user) || empty($key)) {
             return;
         }
@@ -594,14 +601,14 @@ class ACA_Engine {
             return;
         }
         $body = wp_remote_retrieve_body($response);
-        update_post_meta($post_id, '_aca_plagiarism_raw', $body);
+        update_post_meta($post_id, '_aca_ai_content_agent_plagiarism_raw', $body);
     }
 
     /**
      * Generate and append a data-backed section with statistics.
      */
     public static function add_data_section($post_id, $title) {
-        if (!aca_is_pro()) {
+        if (!aca_ai_content_agent_is_pro()) {
             return; // Pro feature only
         }
 
@@ -610,7 +617,7 @@ class ACA_Engine {
             $title
         );
 
-        $response = aca_call_gemini_api($prompt);
+        $response = aca_ai_content_agent_call_gemini_api($prompt);
 
         if (is_wp_error($response)) {
             self::add_log('Failed to generate data section: ' . $response->get_error_message(), 'error');
@@ -633,13 +640,13 @@ class ACA_Engine {
      * Generate a content cluster for strategic planning.
      */
     public static function generate_content_cluster($topic) {
-        if (!aca_is_pro()) {
-            return new WP_Error('pro_only', __('Content clusters are available in the Pro version.', 'asa-ai-content-agent'));
+        if (!aca_ai_content_agent_is_pro()) {
+            return new WP_Error('pro_only', __('Content clusters are available in the Pro version.', 'aca-ai-content-agent'));
         }
 
         global $wpdb;
-        $cluster_table = $wpdb->prefix . 'aca_clusters';
-        $item_table    = $wpdb->prefix . 'aca_cluster_items';
+        $cluster_table = $wpdb->prefix . 'aca_ai_content_agent_clusters';
+        $item_table    = $wpdb->prefix . 'aca_ai_content_agent_cluster_items';
 
         self::add_log('Generating content cluster for topic: ' . $topic);
 
@@ -648,7 +655,7 @@ class ACA_Engine {
             $topic
         );
 
-        $response = aca_call_gemini_api($prompt);
+        $response = aca_ai_content_agent_call_gemini_api($prompt);
 
         if (is_wp_error($response)) {
             self::add_log('Failed to generate content cluster: ' . $response->get_error_message(), 'error');
@@ -658,22 +665,22 @@ class ACA_Engine {
         $subtopics = array_filter(array_map('trim', explode("\n", $response)));
 
         if (empty($subtopics)) {
-            return new WP_Error('empty_cluster', __('No subtopics were returned.', 'asa-ai-content-agent'));
+            return new WP_Error('empty_cluster', __('No subtopics were returned.', 'aca-ai-content-agent'));
         }
 
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $wpdb->insert($cluster_table, [
             'topic'      => $topic,
-            'created_at' => current_time('mysql'),
+            'generated_date' => current_time('mysql'),
         ]);
         $cluster_id = $wpdb->insert_id;
 
         foreach ($subtopics as $sub) {
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->insert($item_table, [
                 'cluster_id'     => $cluster_id,
-                'subtopic_title' => $sub,
-                'created_at'     => current_time('mysql'),
+                'subtopic' => $sub,
             ]);
         }
 
@@ -684,13 +691,13 @@ class ACA_Engine {
      * Suggest updates for an existing post.
      */
     public static function suggest_content_update($post_id) {
-        if (!aca_is_pro()) {
-            return new WP_Error('pro_only', __('Update assistant is a Pro feature.', 'asa-ai-content-agent'));
+        if (!aca_ai_content_agent_is_pro()) {
+            return new WP_Error('pro_only', __('Update assistant is a Pro feature.', 'aca-ai-content-agent'));
         }
 
         $post = get_post($post_id);
         if (!$post) {
-            return new WP_Error('post_not_found', __('Post not found.', 'asa-ai-content-agent'));
+            return new WP_Error('post_not_found', __('Post not found.', 'aca-ai-content-agent'));
         }
 
         $prompt = sprintf(
@@ -698,14 +705,14 @@ class ACA_Engine {
             $post->post_content
         );
 
-        $response = aca_call_gemini_api($prompt);
+        $response = aca_ai_content_agent_call_gemini_api($prompt);
 
         if (is_wp_error($response)) {
             self::add_log('Failed to generate update suggestions: ' . $response->get_error_message(), 'error');
             return $response;
         }
 
-        update_post_meta($post_id, '_aca_update_suggestions', $response);
+        update_post_meta($post_id, '_aca_ai_content_agent_update_suggestions', $response);
         return $response;
     }
 
@@ -714,7 +721,7 @@ class ACA_Engine {
      */
     public static function record_feedback($idea_id, $value) {
         global $wpdb;
-        $table_name = $wpdb->prefix . 'aca_ideas';
+        $table_name = $wpdb->prefix . 'aca_ai_content_agent_ideas';
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $wpdb->update(
             $table_name,
@@ -727,11 +734,11 @@ class ACA_Engine {
      * Fetch top queries from Google Search Console.
      */
     public static function fetch_gsc_data($site_url, $start_date, $end_date) {
-        $options      = get_option('aca_options');
+        $options      = get_option('aca_ai_content_agent_options');
         $api_key_enc  = $options['gsc_api_key'] ?? '';
-        $api_key      = aca_safe_decrypt( $api_key_enc );
+        $api_key      = aca_ai_content_agent_safe_decrypt( $api_key_enc );
         if (empty($api_key) || empty($site_url)) {
-            return new WP_Error('missing_credentials', __('Search Console API key or site URL is missing.', 'asa-ai-content-agent'));
+            return new WP_Error('missing_credentials', __('Search Console API key or site URL is missing.', 'aca-ai-content-agent'));
         }
 
         $endpoint = add_query_arg('key', $api_key, 'https://www.googleapis.com/webmasters/v3/sites/' . rawurlencode($site_url) . '/searchAnalytics/query');
@@ -765,13 +772,13 @@ class ACA_Engine {
     public static function generate_ideas_from_gsc() {
         global $wpdb;
 
-        $options     = get_option('aca_options');
+        $options     = get_option('aca_ai_content_agent_options');
         $site_url    = $options['gsc_site_url'] ?? '';
         $api_key_enc = $options['gsc_api_key'] ?? '';
-        $api_key     = aca_safe_decrypt( $api_key_enc );
+        $api_key     = aca_ai_content_agent_safe_decrypt( $api_key_enc );
 
-        if (empty($site_url) || empty($api_key)) {
-            return new WP_Error('missing_credentials', __('Search Console credentials are missing.', 'asa-ai-content-agent'));
+        if (empty($api_key) || empty($site_url)) {
+            return new WP_Error('missing_credentials', __('Search Console API key or site URL is missing.', 'aca-ai-content-agent'));
         }
 
         $end   = current_time( 'Y-m-d' );
@@ -803,7 +810,7 @@ class ACA_Engine {
         }
 
         if (empty($queries)) {
-            return new WP_Error('no_queries', __('No new query opportunities found.', 'asa-ai-content-agent'));
+            return new WP_Error('no_queries', __('No new query opportunities found.', 'aca-ai-content-agent'));
         }
 
         $limit  = $options['generation_limit'] ?? 5;
@@ -813,7 +820,7 @@ class ACA_Engine {
             $limit
         );
 
-        $response = aca_call_gemini_api($prompt);
+        $response = aca_ai_content_agent_call_gemini_api($prompt);
 
         if (is_wp_error($response)) {
             self::add_log('Failed to generate GSC ideas: ' . $response->get_error_message(), 'error');
@@ -822,17 +829,18 @@ class ACA_Engine {
 
         $ideas = array_filter(array_map('trim', explode("\n", $response)));
         $inserted_ids = [];
-        $table_name   = $wpdb->prefix . 'aca_ideas';
+        $table_name   = $wpdb->prefix . 'aca_ai_content_agent_ideas';
 
         foreach ($ideas as $idea) {
             $clean = preg_replace('/^\d+\.\s*/', '', $idea);
             if ($clean) {
                 // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                 $wpdb->insert(
                     $table_name,
                     [
-                        'idea_title' => $clean,
-                        'created_at' => current_time('mysql'),
+                        'title' => $clean,
+                        'generated_date' => current_time('mysql'),
                     ]
                 );
                 $inserted_ids[] = $wpdb->insert_id;

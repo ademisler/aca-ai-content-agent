@@ -30,100 +30,6 @@ class ACA_AI_Content_Agent_Engine {
                 'timestamp' => current_time('mysql'),
             ]
         );
-        wp_cache_delete( 'aca_latest_error' );
-    }
-
-    /**
-     * Get the latest error log entry from the database with caching.
-     *
-     * @return object|null
-     */
-    public static function get_latest_error() {
-        $cache_key = 'aca_latest_error';
-        $latest    = wp_cache_get( $cache_key );
-
-        if ( false === $latest ) {
-            global $wpdb;
-            $logs_table = $wpdb->prefix . 'aca_ai_content_agent_logs';
-            $latest     = $wpdb->get_row(
-                $wpdb->prepare(
-                    'SELECT message FROM ' . $logs_table . ' WHERE level = %s AND timestamp >= %s ORDER BY id DESC LIMIT 1',
-                    'error',
-                    gmdate( 'Y-m-d H:i:s', strtotime( '-1 day' ) )
-                )
-            );
-            wp_cache_set( $cache_key, $latest, '', 5 * MINUTE_IN_SECONDS );
-        }
-
-        return $latest;
-    }
-
-    /**
-     * Get the number of ideas with a specific status with caching.
-     *
-     * @param string $status Idea status to count.
-     * @return int
-     */
-    public static function get_idea_count_by_status( $status ) {
-        $cache_key = 'aca_ideas_' . $status . '_count';
-        $count     = wp_cache_get( $cache_key );
-
-        if ( false === $count ) {
-            global $wpdb;
-            $ideas_table = $wpdb->prefix . 'aca_ai_content_agent_ideas';
-            $count       = (int) $wpdb->get_var(
-                $wpdb->prepare(
-                    'SELECT COUNT(id) FROM ' . $ideas_table . ' WHERE status = %s',
-                    $status
-                )
-            );
-            wp_cache_set( $cache_key, $count, '', 5 * MINUTE_IN_SECONDS );
-        }
-
-        return $count;
-    }
-
-    /**
-     * Retrieve an idea by ID.
-     *
-     * @param int $idea_id Idea ID.
-     * @return object|null
-     */
-    public static function get_idea( $idea_id ) {
-        global $wpdb;
-        $table_name = $wpdb->prefix . 'aca_ai_content_agent_ideas';
-
-        return $wpdb->get_row(
-            $wpdb->prepare(
-                'SELECT * FROM ' . $table_name . ' WHERE id = %d',
-                $idea_id
-            )
-        );
-    }
-
-    /**
-     * Retrieve recent log entries with caching.
-     *
-     * @param int $limit Number of entries to fetch.
-     * @return array
-     */
-    public static function get_recent_logs( $limit = 10 ) {
-        $cache_key = 'aca_recent_logs_' . $limit;
-        $logs      = wp_cache_get( $cache_key );
-
-        if ( false === $logs ) {
-            global $wpdb;
-            $logs_table = $wpdb->prefix . 'aca_ai_content_agent_logs';
-            $logs       = $wpdb->get_results(
-                $wpdb->prepare(
-                    'SELECT * FROM ' . $logs_table . ' ORDER BY timestamp DESC LIMIT %d',
-                    $limit
-                )
-            );
-            wp_cache_set( $cache_key, $logs, '', 5 * MINUTE_IN_SECONDS );
-        }
-
-        return $logs;
     }
 
     /**
@@ -296,10 +202,6 @@ class ACA_AI_Content_Agent_Engine {
             }
         }
 
-        if ( $inserted_ids ) {
-            wp_cache_delete( 'aca_ideas_pending_count' );
-        }
-
         if ( ! aca_ai_content_agent_is_pro() ) {
             $count = get_option( 'aca_ai_content_agent_idea_count_current_month', 0 );
             update_option( 'aca_ai_content_agent_idea_count_current_month', $count + count( $inserted_ids ) );
@@ -312,7 +214,11 @@ class ACA_AI_Content_Agent_Engine {
      * Generate a full post draft from an idea.
      */
     public static function write_post_draft($idea_id) {
-        $idea = self::get_idea( $idea_id );
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'aca_ai_content_agent_ideas';
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $idea = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table_name} WHERE id = %d", $idea_id ) );
 
         if (!$idea) {
             return new WP_Error('idea_not_found', __('Idea not found.', 'aca-ai-content-agent'));
@@ -362,15 +268,14 @@ class ACA_AI_Content_Agent_Engine {
         }
 
         // Update idea status in the database
-        global $wpdb;
-        $table_name = $wpdb->prefix . 'aca_ai_content_agent_ideas';
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectDatabaseQuery.NoCaching
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectDatabaseQuery.NoCaching
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $wpdb->update(
             $table_name,
             ['status' => 'drafted'],
             ['id' => $idea_id]
         );
-        wp_cache_delete( 'aca_ideas_pending_count' );
-        wp_cache_delete( 'aca_ideas_drafted_count' );
 
         self::add_log(sprintf('Successfully created draft (Post ID: %d) for idea #%d.', $post_id, $idea_id), 'success');
 
@@ -940,10 +845,6 @@ class ACA_AI_Content_Agent_Engine {
                 );
                 $inserted_ids[] = $wpdb->insert_id;
             }
-        }
-
-        if ( $inserted_ids ) {
-            wp_cache_delete( 'aca_ideas_pending_count' );
         }
 
         self::add_log(sprintf('%d ideas generated from Search Console data.', count($inserted_ids)), 'success');

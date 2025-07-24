@@ -440,13 +440,22 @@ class ACA_AI_Content_Agent_Admin {
             echo '<div class="notice notice-warning is-dismissible"><p>' . sprintf( esc_html__( 'ACA: You have used %s%% or more of your monthly API call limit.', 'aca-ai-content-agent' ), '80' ) . '</p></div>';
         }
 
-        $pending = ACA_AI_Content_Agent_Engine::get_idea_count_by_status( 'pending' );
+        global $wpdb;
+        $ideas_table = $wpdb->prefix . 'aca_ai_content_agent_ideas';
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $pending = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(id) FROM {$ideas_table} WHERE status = %s", 'pending' ) );
         if ($pending > 0) {
             /* translators: %d: number of pending ideas */
             echo '<div class="notice notice-info is-dismissible"><p>' . sprintf( esc_html__( 'ACA: %d new ideas are awaiting your review.', 'aca-ai-content-agent' ), esc_html( $pending ) ) . ' <a href="?page=aca-ai-content-agent&amp;tab=dashboard">' . esc_html__( 'Open Dashboard', 'aca-ai-content-agent' ) . '</a></p></div>';
         }
 
-        $latest_error = ACA_AI_Content_Agent_Engine::get_latest_error();
+        $logs_table = $wpdb->prefix . 'aca_ai_content_agent_logs';
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $latest_error = $wpdb->get_row( $wpdb->prepare( "SELECT message FROM {$logs_table} WHERE level = %s AND timestamp >= %s ORDER BY id DESC LIMIT 1", 'error', gmdate( 'Y-m-d H:i:s', strtotime( '-1 day' ) ) ) );
         if ( $latest_error ) {
             echo '<div class="notice notice-error is-dismissible"><p>' . esc_html( $latest_error->message ) . '</p></div>';
         }

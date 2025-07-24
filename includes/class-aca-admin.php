@@ -492,6 +492,8 @@ class ACA_Admin {
         add_settings_section('aca_management_settings_section', __('Management and Cost Control', 'aca'), null, 'aca');
         add_settings_field('aca_api_monthly_limit', __('Monthly API Limit', 'aca'), [$this, 'render_api_monthly_limit_field'], 'aca', 'aca_management_settings_section');
         add_settings_field('aca_api_usage_display', __('Current API Usage', 'aca'), [$this, 'render_api_usage_display_field'], 'aca', 'aca_management_settings_section');
+        add_settings_field('aca_log_cleanup_enabled', __('Enable Log Cleanup', 'aca'), [$this, 'render_log_cleanup_enabled_field'], 'aca', 'aca_management_settings_section');
+        add_settings_field('aca_log_retention_days', __('Log Retention (days)', 'aca'), [$this, 'render_log_retention_days_field'], 'aca', 'aca_management_settings_section');
 
 
         // Prompts Section (for saving)
@@ -548,6 +550,8 @@ class ACA_Admin {
         } else {
             $new_input['copyscape_api_key'] = $options['copyscape_api_key'] ?? '';
         }
+        $new_input['log_cleanup_enabled'] = isset($input['log_cleanup_enabled']) ? 1 : ($options['log_cleanup_enabled'] ?? 0);
+        $new_input['log_retention_days'] = isset($input['log_retention_days']) ? absint($input['log_retention_days']) : ($options['log_retention_days'] ?? 60);
 
         return $new_input;
     }
@@ -890,6 +894,25 @@ class ACA_Admin {
         $usage = get_option('aca_api_usage_current_month', 0);
         echo '<span>' . sprintf(__('%d calls this month.', 'aca'), $usage) . '</span>';
         echo '<p class="description">' . __('This counter resets on the first day of each month.', 'aca') . '</p>';
+    }
+
+    /**
+     * Render the log cleanup enable checkbox.
+     */
+    public function render_log_cleanup_enabled_field() {
+        $options = get_option('aca_options');
+        $checked = ! empty( $options['log_cleanup_enabled'] );
+        echo '<label><input type="checkbox" name="aca_options[log_cleanup_enabled]" value="1" ' . checked( $checked, true, false ) . '> ' . __('Delete old log entries automatically', 'aca') . '</label>';
+    }
+
+    /**
+     * Render the log retention days field.
+     */
+    public function render_log_retention_days_field() {
+        $options = get_option('aca_options');
+        $days = isset( $options['log_retention_days'] ) ? $options['log_retention_days'] : 60;
+        echo '<input type="number" name="aca_options[log_retention_days]" value="' . esc_attr( $days ) . '" class="small-text" min="1">';
+        echo '<p class="description">' . __('Remove logs older than this number of days.', 'aca') . '</p>';
     }
 
     /**

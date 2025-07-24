@@ -147,6 +147,8 @@ class ACA_Engine {
         $table_name = $wpdb->prefix . 'aca_ideas';
         self::add_log('Attempting to generate new ideas.');
 
+        $options = get_option('aca_options');
+
         // Free version monthly limit
         if ( ! aca_is_pro() ) {
             $count = get_option( 'aca_idea_count_current_month', 0 );
@@ -399,25 +401,35 @@ class ACA_Engine {
         $keywords = self::extract_keywords($post->post_title . ' ' . wp_strip_all_tags($content), 10);
         $inserted = 0;
 
-        foreach ($keywords as $keyword) {
-            $query = new WP_Query([
-                's'              => $keyword,
-                'post_type'      => 'post',
-                'post_status'    => 'publish',
-                'posts_per_page' => 1,
-                'post__not_in'   => [$post_id],
-            ]);
+        global $wpdb;
+        $likes = [];
+        foreach ($keywords as $kw) {
+            $like = '%' . $wpdb->esc_like($kw) . '%';
+            $likes[] = $wpdb->prepare('(post_title LIKE %s OR post_content LIKE %s)', $like, $like);
+        }
 
-            if ($query->have_posts() && preg_match('/(' . preg_quote($keyword, '/') . ')/i', $content, $match)) {
-                $link = get_permalink($query->posts[0]->ID);
-                $content = preg_replace('/' . preg_quote($match[1], '/') . '/i', '<a href="' . esc_url($link) . '">' . $match[1] . '</a>', $content, 1);
-                $inserted++;
-            }
+        if (!empty($likes)) {
+            $sql = $wpdb->prepare(
+                "SELECT ID, post_title, post_content FROM {$wpdb->posts} WHERE post_status='publish' AND post_type='post' AND ID != %d AND (" . implode(' OR ', $likes) . ")",
+                $post_id
+            );
+            $targets = $wpdb->get_results($sql);
 
-            wp_reset_postdata();
+            foreach ($keywords as $keyword) {
+                foreach ($targets as $t) {
+                    if (stripos($t->post_content, $keyword) !== false || stripos($t->post_title, $keyword) !== false) {
+                        if (preg_match('/(' . preg_quote($keyword, '/') . ')/i', $content, $match)) {
+                            $link = get_permalink($t->ID);
+                            $content = preg_replace('/' . preg_quote($match[1], '/') . '/i', '<a href="' . esc_url($link) . '">' . $match[1] . '</a>', $content, 1);
+                            $inserted++;
+                            break;
+                        }
+                    }
+                }
 
-            if ($inserted >= $max_links) {
-                break;
+                if ($inserted >= $max_links) {
+                    break;
+                }
             }
         }
 
@@ -465,6 +477,7 @@ class ACA_Engine {
                 'timeout' => 15,
             ]);
             if (is_wp_error($response)) {
+                self::add_log('Pexels request failed: ' . $response->get_error_message(), 'error');
                 return;
             }
             $body = json_decode(wp_remote_retrieve_body($response), true);
@@ -497,6 +510,7 @@ class ACA_Engine {
                 'timeout' => 60,
             ] );
             if ( is_wp_error( $response ) ) {
+                self::add_log( 'DALL-E request failed: ' . $response->get_error_message(), 'error' );
                 return;
             }
             $body = json_decode( wp_remote_retrieve_body( $response ), true );
@@ -513,6 +527,23 @@ class ACA_Engine {
 
         $tmp = download_url($url);
         if (is_wp_error($tmp)) {
+            self::add_log('Image download failed: ' . $tmp->get_error_message(), 'error');
+            return;
+        }
+
+        $type = wp_check_filetype($url);
+        if (function_exists('getimagesize')) {
+            $info = @getimagesize($tmp);
+            if ($info && ! empty($info['mime'])) {
+                $type['type'] = $info['mime'];
+            }
+        }
+
+        $size = filesize($tmp);
+        $allowed_types = ['image/jpeg', 'image/png'];
+        if ($size === false || $size > 2 * MB_IN_BYTES || empty($type['type']) || ! in_array($type['type'], $allowed_types, true)) {
+            self::add_log('Downloaded image rejected due to size or type.', 'error');
+            @unlink($tmp);
             return;
         }
 
@@ -522,7 +553,9 @@ class ACA_Engine {
         ];
 
         $id = media_handle_sideload($file_array, $post_id);
-        if (!is_wp_error($id)) {
+        if (is_wp_error($id)) {
+            self::add_log('Failed to sideload image: ' . $id->get_error_message(), 'error');
+        } else {
             set_post_thumbnail($post_id, $id);
         }
         @unlink($tmp);

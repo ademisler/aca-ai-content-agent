@@ -48,11 +48,13 @@ function aca_deactivate() {
         as_unschedule_all_actions( 'aca_reset_api_usage_counter' );
         as_unschedule_all_actions( 'aca_generate_style_guide' );
         as_unschedule_all_actions( 'aca_verify_license' );
+        as_unschedule_all_actions( 'aca_clean_logs' );
     } else {
         wp_clear_scheduled_hook( 'aca_run_main_automation' );
         wp_clear_scheduled_hook( 'aca_reset_api_usage_counter' );
         wp_clear_scheduled_hook( 'aca_generate_style_guide' );
         wp_clear_scheduled_hook( 'aca_verify_license' );
+        wp_clear_scheduled_hook( 'aca_clean_logs' );
     }
 
     $roles = [ 'administrator', 'editor', 'author' ];

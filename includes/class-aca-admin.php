@@ -42,7 +42,7 @@ class ACA_Admin {
      * Enqueue admin scripts and styles.
      */
     public function enqueue_scripts($hook) {
-        if (strpos($hook, 'page_aca-ai-content-agent') === false && $hook !== 'edit.php') {
+        if (strpos($hook, 'page_asa-ai-content-agent') === false && $hook !== 'edit.php') {
             return;
         }
 
@@ -76,7 +76,7 @@ class ACA_Admin {
         check_ajax_referer('aca_admin_nonce', 'nonce');
 
         if ( ! current_user_can('manage_aca_settings') ) {
-            wp_send_json_error(esc_html__('You do not have permission to do this.', 'aca-ai-content-agent'));
+            wp_send_json_error(esc_html__('You do not have permission to do this.', 'asa-ai-content-agent'));
         }
 
         // Use a simple prompt to test the connection
@@ -86,7 +86,7 @@ class ACA_Admin {
         if (is_wp_error($response)) {
             wp_send_json_error($response->get_error_message());
         } else {
-            wp_send_json_success(esc_html__('Connection successful! API is working correctly.', 'aca-ai-content-agent'));
+            wp_send_json_success(esc_html__('Connection successful! API is working correctly.', 'asa-ai-content-agent'));
         }
     }
 
@@ -97,7 +97,7 @@ class ACA_Admin {
         check_ajax_referer('aca_admin_nonce', 'nonce');
 
         if ( ! current_user_can('manage_aca_settings') ) {
-            wp_send_json_error(esc_html__('You do not have permission to do this.', 'aca-ai-content-agent'));
+            wp_send_json_error(esc_html__('You do not have permission to do this.', 'asa-ai-content-agent'));
         }
 
         $result = ACA_Engine::generate_style_guide();
@@ -105,7 +105,7 @@ class ACA_Admin {
         if (is_wp_error($result)) {
             wp_send_json_error($result->get_error_message());
         } else {
-            wp_send_json_success(esc_html__('Style guide updated successfully based on the latest content.', 'aca-ai-content-agent'));
+            wp_send_json_success(esc_html__('Style guide updated successfully based on the latest content.', 'asa-ai-content-agent'));
         }
     }
 
@@ -116,7 +116,7 @@ class ACA_Admin {
         check_ajax_referer('aca_admin_nonce', 'nonce');
 
         if ( ! current_user_can('view_aca_dashboard') ) {
-            wp_send_json_error(esc_html__('You do not have permission to do this.', 'aca-ai-content-agent'));
+            wp_send_json_error(esc_html__('You do not have permission to do this.', 'asa-ai-content-agent'));
         }
 
         $result = ACA_Engine::generate_ideas();
@@ -125,7 +125,7 @@ class ACA_Admin {
             wp_send_json_error($result->get_error_message());
         } else {
             /* translators: %d: number of ideas */
-            $message = sprintf(esc_html(_n('%d new idea generated.', '%d new ideas generated.', count($result), 'aca-ai-content-agent')), count($result));
+            $message = sprintf(esc_html(_n('%d new idea generated.', '%d new ideas generated.', count($result), 'asa-ai-content-agent')), count($result));
             wp_send_json_success(['message' => $message]);
         }
     }
@@ -137,11 +137,11 @@ class ACA_Admin {
         check_ajax_referer('aca_admin_nonce', 'nonce');
 
         if ( ! current_user_can('view_aca_dashboard') ) {
-            wp_send_json_error(esc_html__('You do not have permission to do this.', 'aca-ai-content-agent'));
+            wp_send_json_error(esc_html__('You do not have permission to do this.', 'asa-ai-content-agent'));
         }
 
         if (!isset($_POST['id']) || !absint($_POST['id'])) {
-            wp_send_json_error(esc_html__('Invalid idea ID.', 'aca-ai-content-agent'));
+            wp_send_json_error(esc_html__('Invalid idea ID.', 'asa-ai-content-agent'));
         }
 
         $idea_id = absint($_POST['id']);
@@ -151,7 +151,7 @@ class ACA_Admin {
             wp_send_json_error($result->get_error_message());
         } else {
             wp_send_json_success([
-                'message' => esc_html__('Draft created successfully.', 'aca-ai-content-agent'),
+                'message' => esc_html__('Draft created successfully.', 'asa-ai-content-agent'),
                 'edit_link' => get_edit_post_link($result, 'raw'),
             ]);
         }
@@ -164,17 +164,18 @@ class ACA_Admin {
         check_ajax_referer('aca_admin_nonce', 'nonce');
 
         if ( ! current_user_can('view_aca_dashboard') ) {
-            wp_send_json_error(esc_html__('You do not have permission to do this.', 'aca-ai-content-agent'));
+            wp_send_json_error(esc_html__('You do not have permission to do this.', 'asa-ai-content-agent'));
         }
 
         if (!isset($_POST['id']) || !absint($_POST['id'])) {
-            wp_send_json_error(esc_html__('Invalid idea ID.', 'aca-ai-content-agent'));
+            wp_send_json_error(esc_html__('Invalid idea ID.', 'asa-ai-content-agent'));
         }
 
         global $wpdb;
         $table_name = $wpdb->prefix . 'aca_ideas';
         $idea_id = absint($_POST['id']);
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $wpdb->update(
             $table_name,
             ['status' => 'rejected'],
@@ -184,8 +185,8 @@ class ACA_Admin {
         );
 
         /* translators: %d: idea ID */
-        ACA_Engine::add_log(sprintf(esc_html__('Idea #%d rejected by user.', 'aca-ai-content-agent'), $idea_id));
-        wp_send_json_success(esc_html__('Idea rejected.', 'aca-ai-content-agent'));
+        ACA_Engine::add_log(sprintf(esc_html__('Idea #%d rejected by user.', 'asa-ai-content-agent'), $idea_id));
+        wp_send_json_success(esc_html__('Idea rejected.', 'asa-ai-content-agent'));
     }
 
     /**
@@ -195,15 +196,15 @@ class ACA_Admin {
         check_ajax_referer('aca_admin_nonce', 'nonce');
 
         if ( ! current_user_can('manage_aca_settings') ) {
-            wp_send_json_error(esc_html__('You do not have permission to do this.', 'aca-ai-content-agent'));
+            wp_send_json_error(esc_html__('You do not have permission to do this.', 'asa-ai-content-agent'));
         }
 
         if ( ! defined('ACA_GUMROAD_PRODUCT_ID') || empty(ACA_GUMROAD_PRODUCT_ID) ) {
-            wp_send_json_error(esc_html__('Product ID is not configured in the plugin.', 'aca-ai-content-agent'));
+            wp_send_json_error(esc_html__('Product ID is not configured in the plugin.', 'asa-ai-content-agent'));
         }
 
                         if ( ! isset( $_POST['license_key'] ) ) {
-            wp_send_json_error( esc_html__( 'License key cannot be empty.', 'aca-ai-content-agent' ) );
+            wp_send_json_error( esc_html__( 'License key cannot be empty.', 'asa-ai-content-agent' ) );
         }
 
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -240,10 +241,10 @@ class ACA_Admin {
 
             set_transient( 'aca_license_status', 'valid', WEEK_IN_SECONDS );
 
-            wp_send_json_success( esc_html__( 'License activated successfully!', 'aca-ai-content-agent' ) );
+            wp_send_json_success( esc_html__( 'License activated successfully!', 'asa-ai-content-agent' ) );
         } else {
             // License is invalid or another error occurred
-            $message = isset($body['message']) ? $body['message'] : esc_html__('Invalid license key or API error.', 'aca-ai-content-agent');
+            $message = isset($body['message']) ? $body['message'] : esc_html__('Invalid license key or API error.', 'asa-ai-content-agent');
             update_option('aca_is_pro_active', 'false');
             delete_option('aca_license_valid_until');
             set_transient( 'aca_license_status', 'invalid', WEEK_IN_SECONDS );
@@ -258,11 +259,11 @@ class ACA_Admin {
         check_ajax_referer('aca_admin_nonce', 'nonce');
 
         if ( ! current_user_can('manage_aca_settings') ) {
-            wp_send_json_error(esc_html__('You do not have permission to do this.', 'aca-ai-content-agent'));
+            wp_send_json_error(esc_html__('You do not have permission to do this.', 'asa-ai-content-agent'));
         }
 
         if ( empty( $_POST['topic'] ) ) {
-            wp_send_json_error( __( 'Topic is required.', 'aca-ai-content-agent' ) );
+            wp_send_json_error( __( 'Topic is required.', 'asa-ai-content-agent' ) );
         }
 
         $topic = sanitize_text_field( wp_unslash( $_POST['topic'] ) );
@@ -282,7 +283,7 @@ class ACA_Admin {
         check_ajax_referer('aca_admin_nonce', 'nonce');
 
         if ( ! current_user_can('view_aca_dashboard') ) {
-            wp_send_json_error(esc_html__('You do not have permission to do this.', 'aca-ai-content-agent'));
+            wp_send_json_error(esc_html__('You do not have permission to do this.', 'asa-ai-content-agent'));
         }
 
         $idea_id = isset( $_POST['id'] ) ? absint( wp_unslash( $_POST['id'] ) ) : 0;
@@ -292,7 +293,7 @@ class ACA_Admin {
             ACA_Engine::record_feedback($idea_id, $value);
             wp_send_json_success();
         } else {
-            wp_send_json_error(__('Invalid idea ID.', 'aca-ai-content-agent'));
+            wp_send_json_error(__('Invalid idea ID.', 'asa-ai-content-agent'));
         }
     }
 
@@ -303,12 +304,12 @@ class ACA_Admin {
         check_ajax_referer('aca_admin_nonce', 'nonce');
 
         if ( ! current_user_can('manage_aca_settings') ) {
-            wp_send_json_error(esc_html__('You do not have permission to do this.', 'aca-ai-content-agent'));
+            wp_send_json_error(esc_html__('You do not have permission to do this.', 'asa-ai-content-agent'));
         }
 
         $post_id = isset($_POST['post_id']) ? absint($_POST['post_id']) : 0;
         if (!$post_id) {
-            wp_send_json_error(__('Invalid post ID.', 'aca-ai-content-agent'));
+            wp_send_json_error(__('Invalid post ID.', 'asa-ai-content-agent'));
         }
 
         $result = ACA_Engine::suggest_content_update($post_id);
@@ -327,7 +328,7 @@ class ACA_Admin {
         check_ajax_referer('aca_admin_nonce', 'nonce');
 
         if ( ! current_user_can('manage_aca_settings') ) {
-            wp_send_json_error(esc_html__('You do not have permission to do this.', 'aca-ai-content-agent'));
+            wp_send_json_error(esc_html__('You do not have permission to do this.', 'asa-ai-content-agent'));
         }
 
         $options = get_option('aca_options');
@@ -351,7 +352,7 @@ class ACA_Admin {
         check_ajax_referer('aca_admin_nonce', 'nonce');
 
         if ( ! current_user_can('manage_aca_settings') ) {
-            wp_send_json_error(esc_html__('You do not have permission to do this.', 'aca-ai-content-agent'));
+            wp_send_json_error(esc_html__('You do not have permission to do this.', 'asa-ai-content-agent'));
         }
 
         $result = ACA_Engine::generate_ideas_from_gsc();
@@ -360,7 +361,7 @@ class ACA_Admin {
             wp_send_json_error($result->get_error_message());
         } else {
             /* translators: %d: number of ideas */
-            $message = sprintf(esc_html(_n('%d new idea generated.', '%d new ideas generated.', count($result), 'aca-ai-content-agent')), count($result));
+            $message = sprintf(esc_html(_n('%d new idea generated.', '%d new ideas generated.', count($result), 'asa-ai-content-agent')), count($result));
             wp_send_json_success(['message' => $message]);
         }
     }
@@ -370,10 +371,10 @@ class ACA_Admin {
      */
     public function add_admin_menu() {
         add_menu_page(
-            esc_html__( 'ACA - AI Content Agent', 'aca-ai-content-agent' ),
-            esc_html__( 'ACA', 'aca-ai-content-agent' ),
+            esc_html__( 'ACA - AI Content Agent', 'asa-ai-content-agent' ),
+            esc_html__( 'ACA', 'asa-ai-content-agent' ),
             'view_aca_dashboard',
-            'aca-ai-content-agent',
+            'asa-ai-content-agent',
             [ $this, 'render_settings_page' ],
             'dashicons-robot'
         );
@@ -383,15 +384,16 @@ class ACA_Admin {
      * Render the main settings page with tabs.
      */
     public function render_settings_page() {
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         $active_tab = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'dashboard';
         ?>
         <div class="wrap">
             <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
             <h2 class="nav-tab-wrapper">
-                <a href="?page=aca-ai-content-agent&amp;tab=dashboard" class="nav-tab <?php echo esc_attr( $active_tab === 'dashboard' ? 'nav-tab-active' : '' ); ?>"><?php esc_html_e( 'Dashboard', 'aca-ai-content-agent'); ?></a>
-                <a href="?page=aca-ai-content-agent&amp;tab=settings" class="nav-tab <?php echo esc_attr( $active_tab === 'settings' ? 'nav-tab-active' : '' ); ?>"><?php esc_html_e( 'Settings', 'aca-ai-content-agent'); ?></a>
-                <a href="?page=aca-ai-content-agent&amp;tab=prompts" class="nav-tab <?php echo esc_attr( $active_tab === 'prompts' ? 'nav-tab-active' : '' ); ?>"><?php esc_html_e( 'Prompt Editor', 'aca-ai-content-agent'); ?></a>
-                <a href="?page=aca-ai-content-agent&amp;tab=license" class="nav-tab <?php echo esc_attr( $active_tab === 'license' ? 'nav-tab-active' : '' ); ?>"><?php esc_html_e( 'License', 'aca-ai-content-agent'); ?></a>
+                <a href="?page=asa-ai-content-agent&amp;tab=dashboard" class="nav-tab <?php echo esc_attr( $active_tab === 'dashboard' ? 'nav-tab-active' : '' ); ?>"><?php esc_html_e( 'Dashboard', 'asa-ai-content-agent'); ?></a>
+                <a href="?page=asa-ai-content-agent&amp;tab=settings" class="nav-tab <?php echo esc_attr( $active_tab === 'settings' ? 'nav-tab-active' : '' ); ?>"><?php esc_html_e( 'Settings', 'asa-ai-content-agent'); ?></a>
+                <a href="?page=asa-ai-content-agent&amp;tab=prompts" class="nav-tab <?php echo esc_attr( $active_tab === 'prompts' ? 'nav-tab-active' : '' ); ?>"><?php esc_html_e( 'Prompt Editor', 'asa-ai-content-agent'); ?></a>
+                <a href="?page=asa-ai-content-agent&amp;tab=license" class="nav-tab <?php echo esc_attr( $active_tab === 'license' ? 'nav-tab-active' : '' ); ?>"><?php esc_html_e( 'License', 'asa-ai-content-agent'); ?></a>
             </h2>
 
             <?php
@@ -402,13 +404,13 @@ class ACA_Admin {
                 <form action="options.php" method="post">
                     <?php
                     settings_fields('aca_settings_group');
-                    do_settings_sections('aca-ai-content-agent');
-                    submit_button(esc_html__('Save Settings', 'aca-ai-content-agent'));
+                    do_settings_sections('asa-ai-content-agent');
+                    submit_button(esc_html__('Save Settings', 'asa-ai-content-agent'));
                     ?>
                 </form>
                 <div class="aca-disclaimer">
-                    <h3><?php esc_html_e( 'Legal Disclaimer', 'aca-ai-content-agent'); ?></h3>
-                    <p><?php esc_html_e( 'All content generated by ACA is a "draft". It is essential that you review, edit, and verify all content before publishing. The final responsibility for the published content belongs to you.', 'aca-ai-content-agent'); ?></p>
+                    <h3><?php esc_html_e( 'Legal Disclaimer', 'asa-ai-content-agent'); ?></h3>
+                    <p><?php esc_html_e( 'All content generated by ACA is a "draft". It is essential that you review, edit, and verify all content before publishing. The final responsibility for the published content belongs to you.', 'asa-ai-content-agent'); ?></p>
                 </div>
                 <?php
             } elseif ($active_tab === 'prompts') {
@@ -426,7 +428,7 @@ class ACA_Admin {
      */
     public function display_admin_notices() {
         if ( empty( get_option( 'aca_gemini_api_key' ) ) ) {
-            echo '<div class="notice notice-warning is-dismissible"><p>' . esc_html__( 'ACA: API key is not set. Please set it in the', 'aca-ai-content-agent' ) . ' <a href="?page=aca-ai-content-agent&amp;tab=settings">' . esc_html__( 'settings', 'aca-ai-content-agent' ) . '</a>.</p></div>';
+            echo '<div class="notice notice-warning is-dismissible"><p>' . esc_html__( 'ACA: API key is not set. Please set it in the', 'asa-ai-content-agent' ) . ' <a href="?page=asa-ai-content-agent&amp;tab=settings">' . esc_html__( 'settings', 'asa-ai-content-agent' ) . '</a>.</p></div>';
         }
 
         $options = get_option('aca_options');
@@ -435,7 +437,7 @@ class ACA_Admin {
 
         if ( $limit > 0 && $usage / $limit >= 0.8 ) {
             /* translators: %s: percentage of usage */
-            echo '<div class="notice notice-warning is-dismissible"><p>' . sprintf( esc_html__( 'ACA: You have used %s%% or more of your monthly API call limit.', 'aca-ai-content-agent' ), '80' ) . '</p></div>';
+            echo '<div class="notice notice-warning is-dismissible"><p>' . sprintf( esc_html__( 'ACA: You have used %s%% or more of your monthly API call limit.', 'asa-ai-content-agent' ), '80' ) . '</p></div>';
         }
 
         global $wpdb;
@@ -444,7 +446,7 @@ class ACA_Admin {
         $pending = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(id) FROM `{$ideas_table}` WHERE status = %s", 'pending' ) );
         if ($pending > 0) {
             /* translators: %d: number of pending ideas */
-            echo '<div class="notice notice-info is-dismissible"><p>' . sprintf( esc_html__( 'ACA: %d new ideas are awaiting your review.', 'aca-ai-content-agent' ), esc_html( $pending ) ) . ' <a href="?page=aca-ai-content-agent&amp;tab=dashboard">' . esc_html__( 'Open Dashboard', 'aca-ai-content-agent' ) . '</a></p></div>';
+            echo '<div class="notice notice-info is-dismissible"><p>' . sprintf( esc_html__( 'ACA: %d new ideas are awaiting your review.', 'asa-ai-content-agent' ), esc_html( $pending ) ) . ' <a href="?page=asa-ai-content-agent&amp;tab=dashboard">' . esc_html__( 'Open Dashboard', 'asa-ai-content-agent' ) . '</a></p></div>';
         }
 
         $logs_table = $wpdb->prefix . 'aca_logs';
@@ -467,43 +469,43 @@ class ACA_Admin {
         register_setting($group, 'aca_options', ['sanitize_callback' => [$this, 'sanitize_options']]);
 
         // API Settings Section
-        add_settings_section('aca_api_settings_section', esc_html__('API and Connection Settings', 'aca-ai-content-agent'), null, 'aca-ai-content-agent');
-        add_settings_field('aca_gemini_api_key', esc_html__('Google Gemini API Key', 'aca-ai-content-agent'), [$this, 'render_api_key_field'], 'aca-ai-content-agent', 'aca_api_settings_section');
-        add_settings_field('aca_api_test', esc_html__('Connection Test', 'aca-ai-content-agent'), [$this, 'render_api_test_button'], 'aca-ai-content-agent', 'aca_api_settings_section');
-        add_settings_field('aca_copyscape_username', esc_html__('Copyscape Username', 'aca-ai-content-agent'), [$this, 'render_copyscape_username_field'], 'aca-ai-content-agent', 'aca_api_settings_section');
-        add_settings_field('aca_copyscape_api_key', esc_html__('Copyscape API Key', 'aca-ai-content-agent'), [$this, 'render_copyscape_api_key_field'], 'aca-ai-content-agent', 'aca_api_settings_section');
-        add_settings_field('aca_gsc_site_url', esc_html__('Search Console Site URL', 'aca-ai-content-agent'), [$this, 'render_gsc_site_url_field'], 'aca-ai-content-agent', 'aca_api_settings_section');
-        add_settings_field('aca_gsc_api_key', esc_html__('Search Console API Key', 'aca-ai-content-agent'), [$this, 'render_gsc_api_key_field'], 'aca-ai-content-agent', 'aca_api_settings_section');
-        add_settings_field('aca_pexels_api_key', esc_html__('Pexels API Key', 'aca-ai-content-agent'), [$this, 'render_pexels_api_key_field'], 'aca-ai-content-agent', 'aca_api_settings_section');
-        add_settings_field('aca_openai_api_key', esc_html__('OpenAI API Key', 'aca-ai-content-agent'), [$this, 'render_openai_api_key_field'], 'aca-ai-content-agent', 'aca_api_settings_section');
+        add_settings_section('aca_api_settings_section', esc_html__('API and Connection Settings', 'asa-ai-content-agent'), null, 'asa-ai-content-agent');
+        add_settings_field('aca_gemini_api_key', esc_html__('Google Gemini API Key', 'asa-ai-content-agent'), [$this, 'render_api_key_field'], 'asa-ai-content-agent', 'aca_api_settings_section');
+        add_settings_field('aca_api_test', esc_html__('Connection Test', 'asa-ai-content-agent'), [$this, 'render_api_test_button'], 'asa-ai-content-agent', 'aca_api_settings_section');
+        add_settings_field('aca_copyscape_username', esc_html__('Copyscape Username', 'asa-ai-content-agent'), [$this, 'render_copyscape_username_field'], 'asa-ai-content-agent', 'aca_api_settings_section');
+        add_settings_field('aca_copyscape_api_key', esc_html__('Copyscape API Key', 'asa-ai-content-agent'), [$this, 'render_copyscape_api_key_field'], 'asa-ai-content-agent', 'aca_api_settings_section');
+        add_settings_field('aca_gsc_site_url', esc_html__('Search Console Site URL', 'asa-ai-content-agent'), [$this, 'render_gsc_site_url_field'], 'asa-ai-content-agent', 'aca_api_settings_section');
+        add_settings_field('aca_gsc_api_key', esc_html__('Search Console API Key', 'asa-ai-content-agent'), [$this, 'render_gsc_api_key_field'], 'asa-ai-content-agent', 'aca_api_settings_section');
+        add_settings_field('aca_pexels_api_key', esc_html__('Pexels API Key', 'asa-ai-content-agent'), [$this, 'render_pexels_api_key_field'], 'asa-ai-content-agent', 'aca_api_settings_section');
+        add_settings_field('aca_openai_api_key', esc_html__('OpenAI API Key', 'asa-ai-content-agent'), [$this, 'render_openai_api_key_field'], 'asa-ai-content-agent', 'aca_api_settings_section');
 
         // Automation Settings Section
-        add_settings_section('aca_automation_settings_section', esc_html__('Automation Settings', 'aca-ai-content-agent'), null, 'aca-ai-content-agent');
-        add_settings_field('aca_working_mode', esc_html__('Working Mode', 'aca-ai-content-agent'), [$this, 'render_working_mode_field'], 'aca-ai-content-agent', 'aca_automation_settings_section');
-        add_settings_field('aca_automation_frequency', esc_html__('Automation Frequency', 'aca-ai-content-agent'), [$this, 'render_automation_frequency_field'], 'aca-ai-content-agent', 'aca_automation_settings_section');
-        add_settings_field('aca_generation_limit', esc_html__('Generation Limit', 'aca-ai-content-agent'), [$this, 'render_generation_limit_field'], 'aca-ai-content-agent', 'aca_automation_settings_section');
-        add_settings_field('aca_default_author', esc_html__('Default Author', 'aca-ai-content-agent'), [$this, 'render_default_author_field'], 'aca-ai-content-agent', 'aca_automation_settings_section');
-        add_settings_field('aca_default_profile', esc_html__('Brand Voice Profile', 'aca-ai-content-agent'), [$this, 'render_default_profile_field'], 'aca-ai-content-agent', 'aca_automation_settings_section');
+        add_settings_section('aca_automation_settings_section', esc_html__('Automation Settings', 'asa-ai-content-agent'), null, 'asa-ai-content-agent');
+        add_settings_field('aca_working_mode', esc_html__('Working Mode', 'asa-ai-content-agent'), [$this, 'render_working_mode_field'], 'asa-ai-content-agent', 'aca_automation_settings_section');
+        add_settings_field('aca_automation_frequency', esc_html__('Automation Frequency', 'asa-ai-content-agent'), [$this, 'render_automation_frequency_field'], 'asa-ai-content-agent', 'aca_automation_settings_section');
+        add_settings_field('aca_generation_limit', esc_html__('Generation Limit', 'asa-ai-content-agent'), [$this, 'render_generation_limit_field'], 'asa-ai-content-agent', 'aca_automation_settings_section');
+        add_settings_field('aca_default_author', esc_html__('Default Author', 'asa-ai-content-agent'), [$this, 'render_default_author_field'], 'asa-ai-content-agent', 'aca_automation_settings_section');
+        add_settings_field('aca_default_profile', esc_html__('Brand Voice Profile', 'asa-ai-content-agent'), [$this, 'render_default_profile_field'], 'asa-ai-content-agent', 'aca_automation_settings_section');
 
         // Content Analysis Section
-        add_settings_section('aca_analysis_settings_section', esc_html__('Content Analysis & Learning Rules', 'aca-ai-content-agent'), null, 'aca-ai-content-agent');
-        add_settings_field('aca_analysis_post_types', esc_html__('Analyze Content Types', 'aca-ai-content-agent'), [$this, 'render_analysis_post_types_field'], 'aca-ai-content-agent', 'aca_analysis_settings_section');
-        add_settings_field('aca_analysis_depth', esc_html__('Analysis Depth', 'aca-ai-content-agent'), [$this, 'render_analysis_depth_field'], 'aca-ai-content-agent', 'aca_analysis_settings_section');
-        add_settings_field('aca_analysis_categories', esc_html__('Analysis Categories', 'aca-ai-content-agent'), [$this, 'render_analysis_categories_field'], 'aca-ai-content-agent', 'aca_analysis_settings_section');
-        add_settings_field('aca_style_guide_frequency', esc_html__('Style Guide Refresh', 'aca-ai-content-agent'), [$this, 'render_style_guide_frequency_field'], 'aca-ai-content-agent', 'aca_analysis_settings_section');
+        add_settings_section('aca_analysis_settings_section', esc_html__('Content Analysis & Learning Rules', 'asa-ai-content-agent'), null, 'asa-ai-content-agent');
+        add_settings_field('aca_analysis_post_types', esc_html__('Analyze Content Types', 'asa-ai-content-agent'), [$this, 'render_analysis_post_types_field'], 'asa-ai-content-agent', 'aca_analysis_settings_section');
+        add_settings_field('aca_analysis_depth', esc_html__('Analysis Depth', 'asa-ai-content-agent'), [$this, 'render_analysis_depth_field'], 'asa-ai-content-agent', 'aca_analysis_settings_section');
+        add_settings_field('aca_analysis_categories', esc_html__('Analysis Categories', 'asa-ai-content-agent'), [$this, 'render_analysis_categories_field'], 'asa-ai-content-agent', 'aca_analysis_settings_section');
+        add_settings_field('aca_style_guide_frequency', esc_html__('Style Guide Refresh', 'asa-ai-content-agent'), [$this, 'render_style_guide_frequency_field'], 'asa-ai-content-agent', 'aca_analysis_settings_section');
 
         // Content Enrichment Section
-        add_settings_section('aca_enrichment_settings_section', esc_html__('Content Enrichment', 'aca-ai-content-agent'), null, 'aca-ai-content-agent');
-        add_settings_field('aca_internal_links_max', esc_html__('Max Internal Links', 'aca-ai-content-agent'), [$this, 'render_internal_links_max_field'], 'aca-ai-content-agent', 'aca_enrichment_settings_section');
-        add_settings_field('aca_featured_image_provider', esc_html__('Featured Image Provider', 'aca-ai-content-agent'), [$this, 'render_featured_image_provider_field'], 'aca-ai-content-agent', 'aca_enrichment_settings_section');
-        add_settings_field('aca_add_data_sections', esc_html__('Add Data Sections', 'aca-ai-content-agent'), [$this, 'render_add_data_sections_field'], 'aca-ai-content-agent', 'aca_enrichment_settings_section');
+        add_settings_section('aca_enrichment_settings_section', esc_html__('Content Enrichment', 'asa-ai-content-agent'), null, 'asa-ai-content-agent');
+        add_settings_field('aca_internal_links_max', esc_html__('Max Internal Links', 'asa-ai-content-agent'), [$this, 'render_internal_links_max_field'], 'asa-ai-content-agent', 'aca_enrichment_settings_section');
+        add_settings_field('aca_featured_image_provider', esc_html__('Featured Image Provider', 'asa-ai-content-agent'), [$this, 'render_featured_image_provider_field'], 'asa-ai-content-agent', 'aca_enrichment_settings_section');
+        add_settings_field('aca_add_data_sections', esc_html__('Add Data Sections', 'asa-ai-content-agent'), [$this, 'render_add_data_sections_field'], 'asa-ai-content-agent', 'aca_enrichment_settings_section');
 
         // Management and Cost Control Section
-        add_settings_section('aca_management_settings_section', esc_html__('Management and Cost Control', 'aca-ai-content-agent'), null, 'aca-ai-content-agent');
-        add_settings_field('aca_api_monthly_limit', esc_html__('Monthly API Limit', 'aca-ai-content-agent'), [$this, 'render_api_monthly_limit_field'], 'aca-ai-content-agent', 'aca_management_settings_section');
-        add_settings_field('aca_api_usage_display', esc_html__('Current API Usage', 'aca-ai-content-agent'), [$this, 'render_api_usage_display_field'], 'aca-ai-content-agent', 'aca_management_settings_section');
-        add_settings_field('aca_log_cleanup_enabled', esc_html__('Enable Log Cleanup', 'aca-ai-content-agent'), [$this, 'render_log_cleanup_enabled_field'], 'aca-ai-content-agent', 'aca_management_settings_section');
-        add_settings_field('aca_log_retention_days', esc_html__('Log Retention (days)', 'aca-ai-content-agent'), [$this, 'render_log_retention_days_field'], 'aca-ai-content-agent', 'aca_management_settings_section');
+        add_settings_section('aca_management_settings_section', esc_html__('Management and Cost Control', 'asa-ai-content-agent'), null, 'asa-ai-content-agent');
+        add_settings_field('aca_api_monthly_limit', esc_html__('Monthly API Limit', 'asa-ai-content-agent'), [$this, 'render_api_monthly_limit_field'], 'asa-ai-content-agent', 'aca_management_settings_section');
+        add_settings_field('aca_api_usage_display', esc_html__('Current API Usage', 'asa-ai-content-agent'), [$this, 'render_api_usage_display_field'], 'asa-ai-content-agent', 'aca_management_settings_section');
+        add_settings_field('aca_log_cleanup_enabled', esc_html__('Enable Log Cleanup', 'asa-ai-content-agent'), [$this, 'render_log_cleanup_enabled_field'], 'asa-ai-content-agent', 'aca_management_settings_section');
+        add_settings_field('aca_log_retention_days', esc_html__('Log Retention (days)', 'asa-ai-content-agent'), [$this, 'render_log_retention_days_field'], 'asa-ai-content-agent', 'aca_management_settings_section');
 
 
         // Prompts Section (for saving)
@@ -602,16 +604,16 @@ class ACA_Admin {
      */
     public function render_api_key_field() {
         $api_key = get_option('aca_gemini_api_key');
-        $placeholder = !empty($api_key) ? esc_html__('***************** (already saved)', 'aca-ai-content-agent') : '';
+        $placeholder = !empty($api_key) ? esc_html__('***************** (already saved)', 'asa-ai-content-agent') : '';
         echo '<input type="password" id="aca_gemini_api_key" name="aca_gemini_api_key" value="" placeholder="' . esc_attr($placeholder) . '" class="regular-text">';
-        echo '<p class="description">' . esc_html__('Enter your Google Gemini API key. Your key is obfuscated for security.', 'aca-ai-content-agent') . '</p>';
+        echo '<p class="description">' . esc_html__('Enter your Google Gemini API key. Your key is obfuscated for security.', 'asa-ai-content-agent') . '</p>';
     }
 
     /**
      * Render the API Test button.
      */
     public function render_api_test_button() {
-        echo '<button type="button" class="button" id="aca-test-connection">' . esc_html__('Test Connection', 'aca-ai-content-agent') . '</button>';
+        echo '<button type="button" class="button" id="aca-test-connection">' . esc_html__('Test Connection', 'asa-ai-content-agent') . '</button>';
         echo '<span id="aca-test-status" style="margin-left: 10px;"></span>';
     }
 
@@ -630,7 +632,7 @@ class ACA_Admin {
     public function render_copyscape_api_key_field() {
         $options     = get_option('aca_options');
         $key         = $options['copyscape_api_key'] ?? '';
-        $placeholder = ! empty( $key ) ? esc_html__('***************** (already saved)', 'aca-ai-content-agent') : '';
+        $placeholder = ! empty( $key ) ? esc_html__('***************** (already saved)', 'asa-ai-content-agent') : '';
         echo '<input type="password" name="aca_options[copyscape_api_key]" value="" placeholder="' . esc_attr( $placeholder ) . '" class="regular-text">';
     }
 
@@ -649,7 +651,7 @@ class ACA_Admin {
     public function render_gsc_api_key_field() {
         $options     = get_option('aca_options');
         $key         = $options['gsc_api_key'] ?? '';
-        $placeholder = ! empty( $key ) ? esc_html__('***************** (already saved)', 'aca-ai-content-agent') : '';
+        $placeholder = ! empty( $key ) ? esc_html__('***************** (already saved)', 'asa-ai-content-agent') : '';
         echo '<input type="password" name="aca_options[gsc_api_key]" value="" placeholder="' . esc_attr( $placeholder ) . '" class="regular-text">';
     }
 
@@ -659,7 +661,7 @@ class ACA_Admin {
     public function render_pexels_api_key_field() {
         $options     = get_option('aca_options');
         $key         = $options['pexels_api_key'] ?? '';
-        $placeholder = ! empty( $key ) ? esc_html__('***************** (already saved)', 'aca-ai-content-agent') : '';
+        $placeholder = ! empty( $key ) ? esc_html__('***************** (already saved)', 'asa-ai-content-agent') : '';
         echo '<input type="password" name="aca_options[pexels_api_key]" value="" placeholder="' . esc_attr( $placeholder ) . '" class="regular-text">';
     }
 
@@ -669,7 +671,7 @@ class ACA_Admin {
     public function render_openai_api_key_field() {
         $options     = get_option('aca_options');
         $key         = $options['openai_api_key'] ?? '';
-        $placeholder = ! empty( $key ) ? esc_html__('***************** (already saved)', 'aca-ai-content-agent') : '';
+        $placeholder = ! empty( $key ) ? esc_html__('***************** (already saved)', 'asa-ai-content-agent') : '';
         echo '<input type="password" name="aca_options[openai_api_key]" value="" placeholder="' . esc_attr( $placeholder ) . '" class="regular-text">';
     }
 
@@ -681,17 +683,17 @@ class ACA_Admin {
         $current_mode = isset($options['working_mode']) ? $options['working_mode'] : 'manual';
         if ( ! aca_is_pro() ) {
             echo '<select name="aca_options[working_mode]" disabled>';
-            echo '<option value="manual" selected>' . esc_html__( 'Manual Mode', 'aca-ai-content-agent' ) . '</option>';
+            echo '<option value="manual" selected>' . esc_html__( 'Manual Mode', 'asa-ai-content-agent' ) . '</option>';
             echo '</select>';
-            echo '<p class="description">' . esc_html__( 'Automation modes require ACA Pro.', 'aca-ai-content-agent' ) . '</p>';
+            echo '<p class="description">' . esc_html__( 'Automation modes require ACA Pro.', 'asa-ai-content-agent' ) . '</p>';
             echo '<input type="hidden" name="aca_options[working_mode]" value="manual">';
             return;
         }
 
         $modes = [
-            'manual'    => esc_html__('Manual Mode', 'aca-ai-content-agent'),
-            'semi-auto' => esc_html__('Semi-Automatic (Ideas & Approval)', 'aca-ai-content-agent'),
-            'full-auto' => esc_html__('Fully Automatic (Draft Creation)', 'aca-ai-content-agent'),
+            'manual'    => esc_html__('Manual Mode', 'asa-ai-content-agent'),
+            'semi-auto' => esc_html__('Semi-Automatic (Ideas & Approval)', 'asa-ai-content-agent'),
+            'full-auto' => esc_html__('Fully Automatic (Draft Creation)', 'asa-ai-content-agent'),
         ];
 
         echo '<select name="aca_options[working_mode]">';
@@ -700,7 +702,7 @@ class ACA_Admin {
             echo '<option value="' . esc_attr($key) . '" ' . esc_attr( $selected ) . '>' . esc_html($label) . '</option>';
         }
         echo '</select>';
-        echo '<p class="description">' . esc_html__('Choose how ACA operates. Note: All content is always saved as a draft.', 'aca-ai-content-agent') . '</p>';
+        echo '<p class="description">' . esc_html__('Choose how ACA operates. Note: All content is always saved as a draft.', 'asa-ai-content-agent') . '</p>';
     }
 
     /**
@@ -721,7 +723,7 @@ class ACA_Admin {
             echo '<option value="' . esc_attr($key) . '" ' . esc_attr( $selected ) . '>' . esc_html($label) . '</option>';
         }
         echo '</select>';
-        echo '<p class="description">' . esc_html__('How often the automatic tasks should run.', 'aca-ai-content-agent') . '</p>';
+        echo '<p class="description">' . esc_html__('How often the automatic tasks should run.', 'asa-ai-content-agent') . '</p>';
     }
 
     /**
@@ -731,7 +733,7 @@ class ACA_Admin {
         $options = get_option('aca_options');
         $limit = isset($options['generation_limit']) ? $options['generation_limit'] : 5;
         echo '<input type="number" name="aca_options[generation_limit]" value="' . esc_attr($limit) . '" class="small-text" min="1">';
-        echo '<p class="description">' . esc_html__('Max number of ideas/drafts per cycle to control API costs.', 'aca-ai-content-agent') . '</p>';
+        echo '<p class="description">' . esc_html__('Max number of ideas/drafts per cycle to control API costs.', 'asa-ai-content-agent') . '</p>';
     }
 
     /**
@@ -743,7 +745,7 @@ class ACA_Admin {
         wp_dropdown_users([
             'name' => 'aca_options[default_author]',
             'selected' => $selected_author,
-            'show_option_none' => esc_html__('Select an Author', 'aca-ai-content-agent'),
+            'show_option_none' => esc_html__('Select an Author', 'asa-ai-content-agent'),
         ]);
     }
 
@@ -756,13 +758,13 @@ class ACA_Admin {
         $current  = $options['default_profile'] ?? '';
 
         echo '<select name="aca_options[default_profile]">';
-        echo '<option value="">' . esc_html__('Default', 'aca-ai-content-agent') . '</option>';
+        echo '<option value="">' . esc_html__('Default', 'asa-ai-content-agent') . '</option>';
         foreach ($profiles as $key => $label) {
             $selected = selected($current, $key, false);
             echo '<option value="' . esc_attr($key) . '" ' . esc_attr( $selected ) . '>' . esc_html($key) . '</option>';
         }
         echo '</select>';
-        echo '<p class="description">' . esc_html__('Select which brand voice profile to use for new drafts.', 'aca-ai-content-agent') . '</p>';
+        echo '<p class="description">' . esc_html__('Select which brand voice profile to use for new drafts.', 'asa-ai-content-agent') . '</p>';
     }
 
     /**
@@ -780,7 +782,7 @@ class ACA_Admin {
             $checked = in_array($post_type->name, $checked_post_types) ? 'checked' : '';
             echo '<label><input type="checkbox" name="aca_options[analysis_post_types][]" value="' . esc_attr($post_type->name) . '" ' . esc_attr( $checked ) . '> ' . esc_html($post_type->label) . '</label><br>';
         }
-        echo '<p class="description">' . esc_html__('Select the content types ACA should analyze to learn the writing style.', 'aca-ai-content-agent') . '</p>';
+        echo '<p class="description">' . esc_html__('Select the content types ACA should analyze to learn the writing style.', 'asa-ai-content-agent') . '</p>';
     }
 
     /**
@@ -790,7 +792,7 @@ class ACA_Admin {
         $options = get_option('aca_options');
         $depth = isset($options['analysis_depth']) ? $options['analysis_depth'] : 20;
         echo '<input type="number" name="aca_options[analysis_depth]" value="' . esc_attr($depth) . '" class="small-text" min="5" max="100">';
-        echo '<p class="description">' . esc_html__('Number of recent posts (5-100) to analyze for learning the writing style.', 'aca-ai-content-agent') . '</p>';
+        echo '<p class="description">' . esc_html__('Number of recent posts (5-100) to analyze for learning the writing style.', 'asa-ai-content-agent') . '</p>';
     }
 
     /**
@@ -804,7 +806,7 @@ class ACA_Admin {
 
         echo '<div style="display: flex; gap: 20px;">';
         echo '<div style="flex: 1;">';
-        echo '<strong>' . esc_html__('Include Categories', 'aca-ai-content-agent') . '</strong>';
+        echo '<strong>' . esc_html__('Include Categories', 'asa-ai-content-agent') . '</strong>';
         echo '<div style="height: 150px; overflow-y: scroll; border: 1px solid #ddd; padding: 5px; background: #fff;">';
         foreach ($categories as $category) {
             $checked = in_array($category->term_id, $include_categories) ? 'checked' : '';
@@ -814,7 +816,7 @@ class ACA_Admin {
         echo '</div>';
 
         echo '<div style="flex: 1;">';
-        echo '<strong>' . esc_html__('Exclude Categories', 'aca-ai-content-agent') . '</strong>';
+        echo '<strong>' . esc_html__('Exclude Categories', 'asa-ai-content-agent') . '</strong>';
         echo '<div style="height: 150px; overflow-y: scroll; border: 1px solid #ddd; padding: 5px; background: #fff;">';
         foreach ($categories as $category) {
             $checked = in_array($category->term_id, $exclude_categories) ? 'checked' : '';
@@ -823,7 +825,7 @@ class ACA_Admin {
         echo '</div>';
         echo '</div>';
         echo '</div>';
-        echo '<p class="description">' . esc_html__('Fine-tune the style analysis by including or excluding specific categories. If any category is included, only posts from those categories will be analyzed.', 'aca-ai-content-agent') . '</p>';
+        echo '<p class="description">' . esc_html__('Fine-tune the style analysis by including or excluding specific categories. If any category is included, only posts from those categories will be analyzed.', 'asa-ai-content-agent') . '</p>';
     }
 
     /**
@@ -833,13 +835,13 @@ class ACA_Admin {
         $options = get_option('aca_options');
         $current = isset($options['style_guide_frequency']) ? $options['style_guide_frequency'] : 'weekly';
         $schedules = wp_get_schedules();
-        $frequencies = ['manual' => esc_html__('Manual', 'aca-ai-content-agent')];
+        $frequencies = ['manual' => esc_html__('Manual', 'asa-ai-content-agent')];
         foreach ($schedules as $key => $label) {
             $selected = selected($current, $key, false);
             echo '<option value="' . esc_attr($key) . '" ' . esc_attr( $selected ) . '>' . esc_html($label) . '</option>';
         }
         echo '</select>';
-        echo '<p class="description">' . esc_html__('How often ACA should regenerate the style guide automatically.', 'aca-ai-content-agent') . '</p>';
+        echo '<p class="description">' . esc_html__('How often ACA should regenerate the style guide automatically.', 'asa-ai-content-agent') . '</p>';
     }
 
     /**
@@ -849,7 +851,7 @@ class ACA_Admin {
         $options = get_option('aca_options');
         $max = isset($options['internal_links_max']) ? $options['internal_links_max'] : 3;
         echo '<input type="number" name="aca_options[internal_links_max]" value="' . esc_attr($max) . '" class="small-text" min="0" max="10">';
-        echo '<p class="description">' . esc_html__('Maximum number of internal links (0-10) to add to each new draft.', 'aca-ai-content-agent') . '</p>';
+        echo '<p class="description">' . esc_html__('Maximum number of internal links (0-10) to add to each new draft.', 'asa-ai-content-agent') . '</p>';
     }
 
     /**
@@ -859,10 +861,10 @@ class ACA_Admin {
         $options = get_option('aca_options');
         $provider = isset($options['featured_image_provider']) ? $options['featured_image_provider'] : 'none';
         $providers = [
-            'none'    => esc_html__('None', 'aca-ai-content-agent'),
-            'unsplash'=> esc_html__('Unsplash', 'aca-ai-content-agent'),
-            'pexels'  => esc_html__('Pexels', 'aca-ai-content-agent'),
-            'dalle'   => esc_html__('DALL-E 3', 'aca-ai-content-agent'),
+            'none'    => esc_html__('None', 'asa-ai-content-agent'),
+            'unsplash'=> esc_html__('Unsplash', 'asa-ai-content-agent'),
+            'pexels'  => esc_html__('Pexels', 'asa-ai-content-agent'),
+            'dalle'   => esc_html__('DALL-E 3', 'asa-ai-content-agent'),
         ];
 
         echo '<select name="aca_options[featured_image_provider]">';
@@ -871,7 +873,7 @@ class ACA_Admin {
             echo '<option value="' . esc_attr($key) . '" ' . esc_attr( $selected ) . '>' . esc_html($label) . '</option>';
         }
         echo '</select>';
-        echo '<p class="description">' . esc_html__('Select a provider for automatically fetching a featured image for each draft.', 'aca-ai-content-agent') . '</p>';
+        echo '<p class="description">' . esc_html__('Select a provider for automatically fetching a featured image for each draft.', 'asa-ai-content-agent') . '</p>';
     }
 
     /**
@@ -880,7 +882,7 @@ class ACA_Admin {
     public function render_add_data_sections_field() {
         $options = get_option('aca_options');
         $checked = isset($options['add_data_sections']) ? (bool)$options['add_data_sections'] : false;
-        echo '<label><input type="checkbox" name="aca_options[add_data_sections]" value="1" ' . checked($checked, true, false) . '> ' . esc_html__('Append statistics section to drafts (Pro only)', 'aca-ai-content-agent') . '</label>';
+        echo '<label><input type="checkbox" name="aca_options[add_data_sections]" value="1" ' . checked($checked, true, false) . '> ' . esc_html__('Append statistics section to drafts (Pro only)', 'asa-ai-content-agent') . '</label>';
     }
 
     /**
@@ -890,7 +892,7 @@ class ACA_Admin {
         $options = get_option('aca_options');
         $limit = isset($options['api_monthly_limit']) ? $options['api_monthly_limit'] : 0;
         echo '<input type="number" name="aca_options[api_monthly_limit]" value="' . esc_attr($limit) . '" class="small-text" min="0">';
-        echo '<p class="description">' . esc_html__('Set a monthly API call limit to control costs. Set to 0 for no limit.', 'aca-ai-content-agent') . '</p>';
+        echo '<p class="description">' . esc_html__('Set a monthly API call limit to control costs. Set to 0 for no limit.', 'asa-ai-content-agent') . '</p>';
     }
 
     /**
@@ -899,8 +901,8 @@ class ACA_Admin {
     public function render_api_usage_display_field() {
         $usage = get_option('aca_api_usage_current_month', 0);
         /* translators: %d: number of API calls */
-        echo '<span>' . sprintf(esc_html__('%d calls this month.', 'aca-ai-content-agent'), esc_html( $usage )) . '</span>';
-        echo '<p class="description">' . esc_html__('This counter resets on the first day of each month.', 'aca-ai-content-agent') . '</p>';
+        echo '<span>' . sprintf(esc_html__('%d calls this month.', 'asa-ai-content-agent'), esc_html( $usage )) . '</span>';
+        echo '<p class="description">' . esc_html__('This counter resets on the first day of each month.', 'asa-ai-content-agent') . '</p>';
     }
 
     /**
@@ -909,7 +911,7 @@ class ACA_Admin {
     public function render_log_cleanup_enabled_field() {
         $options = get_option('aca_options');
         $checked = ! empty( $options['log_cleanup_enabled'] );
-        echo '<label><input type="checkbox" name="aca_options[log_cleanup_enabled]" value="1" ' . checked( $checked, true, false ) . '> ' . esc_html__('Delete old log entries automatically', 'aca-ai-content-agent') . '</label>';
+        echo '<label><input type="checkbox" name="aca_options[log_cleanup_enabled]" value="1" ' . checked( $checked, true, false ) . '> ' . esc_html__('Delete old log entries automatically', 'asa-ai-content-agent') . '</label>';
     }
 
     /**
@@ -919,7 +921,7 @@ class ACA_Admin {
         $options = get_option('aca_options');
         $days = isset( $options['log_retention_days'] ) ? $options['log_retention_days'] : 60;
         echo '<input type="number" name="aca_options[log_retention_days]" value="' . esc_attr( $days ) . '" class="small-text" min="1">';
-        echo '<p class="description">' . esc_html__('Remove logs older than this number of days.', 'aca-ai-content-agent') . '</p>';
+        echo '<p class="description">' . esc_html__('Remove logs older than this number of days.', 'asa-ai-content-agent') . '</p>';
     }
 
     /**
@@ -936,31 +938,31 @@ class ACA_Admin {
             $prompts = ACA_Engine::get_prompts();
             $profiles = ACA_Engine::get_brand_profiles();
             ?>
-            <h3><?php esc_html_e('Style Guide Prompt', 'aca-ai-content-agent'); ?></h3>
+            <h3><?php esc_html_e('Style Guide Prompt', 'asa-ai-content-agent'); ?></h3>
             <textarea name="aca_prompts[style_guide]" rows="10" cols="50" class="large-text"><?php echo esc_textarea($prompts['style_guide']); ?></textarea>
-            <p class="description"><?php esc_html_e('This prompt is used to create the style guide from your existing content. Available variables: <code>{{content_corpus}}</code>', 'aca-ai-content-agent'); ?></p>
+            <p class="description"><?php esc_html_e('This prompt is used to create the style guide from your existing content. Available variables: <code>{{content_corpus}}</code>', 'asa-ai-content-agent'); ?></p>
 
-            <h3><?php esc_html_e('Idea Generation Prompt', 'aca-ai-content-agent'); ?></h3>
+            <h3><?php esc_html_e('Idea Generation Prompt', 'asa-ai-content-agent'); ?></h3>
             <textarea name="aca_prompts[idea_generation]" rows="10" cols="50" class="large-text"><?php echo esc_textarea($prompts['idea_generation']); ?></textarea>
-            <p class="description"><?php esc_html_e('This prompt is used to generate new article ideas. Available variables: <code>{{existing_titles}}</code>, <code>{{limit}}</code>', 'aca-ai-content-agent'); ?></p>
+            <p class="description"><?php esc_html_e('This prompt is used to generate new article ideas. Available variables: <code>{{existing_titles}}</code>, <code>{{limit}}</code>', 'asa-ai-content-agent'); ?></p>
 
-            <h3><?php esc_html_e('Content Writing Prompt', 'aca-ai-content-agent'); ?></h3>
+            <h3><?php esc_html_e('Content Writing Prompt', 'asa-ai-content-agent'); ?></h3>
             <textarea name="aca_prompts[content_writing]" rows="10" cols="50" class="large-text"><?php echo esc_textarea($prompts['content_writing']); ?></textarea>
-            <p class="description"><?php esc_html_e('This prompt is used to write the full article draft. Available variables: <code>{{style_guide}}</code>, <code>{{title}}</code>', 'aca-ai-content-agent'); ?></p>
+            <p class="description"><?php esc_html_e('This prompt is used to write the full article draft. Available variables: <code>{{style_guide}}</code>, <code>{{title}}</code>', 'asa-ai-content-agent'); ?></p>
 
-            <?php submit_button(esc_html__('Save Prompts', 'aca-ai-content-agent')); ?>
-            <h3><?php esc_html_e('Brand Voice Profiles', 'aca-ai-content-agent'); ?></h3>
+            <?php submit_button(esc_html__('Save Prompts', 'asa-ai-content-agent')); ?>
+            <h3><?php esc_html_e('Brand Voice Profiles', 'asa-ai-content-agent'); ?></h3>
             <table class="widefat">
-                <thead><tr><th><?php esc_html_e('Profile Key', 'aca-ai-content-agent'); ?></th><th><?php esc_html_e('Style Guide', 'aca-ai-content-agent'); ?></th></tr></thead>
+                <thead><tr><th><?php esc_html_e('Profile Key', 'asa-ai-content-agent'); ?></th><th><?php esc_html_e('Style Guide', 'asa-ai-content-agent'); ?></th></tr></thead>
                 <tbody>
                     <?php foreach ($profiles as $key => $guide) : ?>
                         <tr><td><?php echo esc_html($key); ?></td><td><textarea name="aca_brand_profiles[<?php echo esc_attr($key); ?>]" rows="4" class="large-text"><?php echo esc_textarea($guide); ?></textarea></td></tr>
                     <?php endforeach; ?>
-                    <tr><td><input type="text" name="aca_brand_profiles_new_key" placeholder="<?php esc_attr_e('new-profile', 'aca-ai-content-agent'); ?>"></td><td><textarea name="aca_brand_profiles_new_value" rows="4" class="large-text"></textarea></td></tr>
+                    <tr><td><input type="text" name="aca_brand_profiles_new_key" placeholder="<?php esc_attr_e('new-profile', 'asa-ai-content-agent'); ?>"></td><td><textarea name="aca_brand_profiles_new_value" rows="4" class="large-text"></textarea></td></tr>
                 </tbody>
             </table>
-            <p class="description">' . esc_html__('Define additional style guides for different content types.', 'aca-ai-content-agent') . '</p>
-            <?php submit_button(esc_html__('Save Profiles', 'aca-ai-content-agent')); ?>
+            <p class="description">' . esc_html__('Define additional style guides for different content types.', 'asa-ai-content-agent') . '</p>
+            <?php submit_button(esc_html__('Save Profiles', 'asa-ai-content-agent')); ?>
         </form>
         <?php
     }
@@ -1008,14 +1010,14 @@ class ACA_Admin {
             <?php
             settings_fields('aca_license_group');
             ?>
-            <h3><?php esc_html_e('ACA Pro License', 'aca-ai-content-agent'); ?></h3>
-            <p><?php esc_html_e('Enter your license key to unlock all features and receive updates.', 'aca-ai-content-agent'); ?></p>
+            <h3><?php esc_html_e('ACA Pro License', 'asa-ai-content-agent'); ?></h3>
+            <p><?php esc_html_e('Enter your license key to unlock all features and receive updates.', 'asa-ai-content-agent'); ?></p>
             <?php $lic_key = get_option('aca_license_key'); ?>
-            <?php $placeholder = ! empty( $lic_key ) ? esc_html__('***************** (already saved)', 'aca-ai-content-agent') : ''; ?>
+            <?php $placeholder = ! empty( $lic_key ) ? esc_html__('***************** (already saved)', 'asa-ai-content-agent') : ''; ?>
             <input type="text" id="aca_license_key" name="aca_license_key" value="" placeholder="' . esc_attr( $placeholder ) . '" class="regular-text">
-            <button type="button" class="button" id="aca-validate-license"><?php esc_html_e('Validate License', 'aca-ai-content-agent'); ?></button>
+            <button type="button" class="button" id="aca-validate-license"><?php esc_html_e('Validate License', 'asa-ai-content-agent'); ?></button>
             <span id="aca-license-status" style="margin-left: 10px;"></span>
-            <?php submit_button(esc_html__('Activate License', 'aca-ai-content-agent')); ?>
+            <?php submit_button(esc_html__('Activate License', 'asa-ai-content-agent')); ?>
         </form>
         <?php
     }
@@ -1024,7 +1026,7 @@ class ACA_Admin {
      * Add plagiarism meta box on post edit screen.
      */
     public function add_plagiarism_metabox() {
-        add_meta_box('aca_plagiarism', esc_html__('Plagiarism Check', 'aca-ai-content-agent'), [$this, 'render_plagiarism_metabox'], 'post', 'side');
+        add_meta_box('aca_plagiarism', esc_html__('Plagiarism Check', 'asa-ai-content-agent'), [$this, 'render_plagiarism_metabox'], 'post', 'side');
     }
 
     /**
@@ -1033,13 +1035,13 @@ class ACA_Admin {
     public function render_plagiarism_metabox($post) {
         $raw = get_post_meta($post->ID, '_aca_plagiarism_raw', true);
         if (empty($raw)) {
-            echo '<p>' . esc_html__('No plagiarism data available.', 'aca-ai-content-agent') . '</p>';
+            echo '<p>' . esc_html__('No plagiarism data available.', 'asa-ai-content-agent') . '</p>';
             return;
         }
         $data = json_decode($raw, true);
         if (isset($data['count'])) {
             /* translators: %d: number of matches */
-            echo '<p>' . sprintf(esc_html__('Matches found: %d', 'aca-ai-content-agent'), intval($data['count'])) . '</p>';
+            echo '<p>' . sprintf(esc_html__('Matches found: %d', 'asa-ai-content-agent'), intval($data['count'])) . '</p>';
             return;
         }
         echo '<pre style="overflow:auto; max-height:150px;">' . esc_html($raw) . '</pre>';
@@ -1050,7 +1052,7 @@ class ACA_Admin {
      */
     public function add_update_link($actions, $post) {
         if ($post->post_type === 'post' && $post->post_status === 'publish' && current_user_can('manage_aca_settings')) {
-            $actions['aca_update'] = '<a href="#" class="aca-suggest-update" data-post-id="' . $post->ID . '">' . esc_html__( 'ACA ile Güncelleme Önerisi Al', 'aca-ai-content-agent' ) . '</a>';
+            $actions['aca_update'] = '<a href="#" class="aca-suggest-update" data-post-id="' . $post->ID . '">' . esc_html__( 'ACA ile Güncelleme Önerisi Al', 'asa-ai-content-agent' ) . '</a>';
         }
         return $actions;
     }

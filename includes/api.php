@@ -87,14 +87,14 @@ function aca_call_gemini_api( $prompt, $system_instruction = '', $api_args = [] 
     $current_usage = get_option('aca_api_usage_current_month', 0);
 
     if ($monthly_limit > 0 && $current_usage >= $monthly_limit) {
-        return new WP_Error('limit_exceeded', __('The monthly API call limit has been reached.', 'aca-ai-content-agent'));
+        return new WP_Error('limit_exceeded', __('The monthly API call limit has been reached.', 'asa-ai-content-agent'));
     }
 
     $api_key_encrypted = get_option( 'aca_gemini_api_key' );
     $api_key = ! empty( $api_key_encrypted ) ? aca_decrypt( $api_key_encrypted ) : '';
 
 	if ( empty( $api_key ) ) {
-		        return new WP_Error( 'api_key_missing', __( 'Google Gemini API key is not set.', 'aca-ai-content-agent' ) );
+		        return new WP_Error( 'api_key_missing', __( 'Google Gemini API key is not set.', 'asa-ai-content-agent' ) );
 	}
 
         $api_url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' . $api_key;
@@ -169,18 +169,18 @@ function aca_call_gemini_api( $prompt, $system_instruction = '', $api_args = [] 
     $data = json_decode( $response_body, true );
 
 	if ( $response_code !== 200 ) {
-        $error_message = isset($data['error']['message']) ? $data['error']['message'] : __( 'An unknown API error occurred.', 'aca-ai-content-agent' );
+        $error_message = isset($data['error']['message']) ? $data['error']['message'] : __( 'An unknown API error occurred.', 'asa-ai-content-agent' );
         /* translators: 1: HTTP status code, 2: API error message */
         /* translators: 1: HTTP status code, 2: API error message */
-        return new WP_Error( 'api_error', sprintf( __( 'API request failed with status code %1$d: %2$s', 'aca-ai-content-agent' ), $response_code, $error_message ), [ 'status' => $response_code ] );
+        return new WP_Error( 'api_error', sprintf( __( 'API request failed with status code %1$d: %2$s', 'asa-ai-content-agent' ), $response_code, $error_message ), [ 'status' => $response_code ] );
 	}
 
 	if ( ! isset( $data['candidates'][0]['content']['parts'][0]['text'] ) ) {
         // Check for blocked content due to safety settings
         if (isset($data['candidates'][0]['finishReason']) && $data['candidates'][0]['finishReason'] === 'SAFETY') {
-            return new WP_Error('safety_block', __('The content could not be generated because it was blocked by the API\'s safety settings.', 'aca-ai-content-agent'));
+            return new WP_Error('safety_block', __('The content could not be generated because it was blocked by the API\'s safety settings.', 'asa-ai-content-agent'));
         }
-		return new WP_Error( 'invalid_response', __( 'The API response did not contain the expected content format.', 'aca-ai-content-agent' ) );
+		return new WP_Error( 'invalid_response', __( 'The API response did not contain the expected content format.', 'asa-ai-content-agent' ) );
 	}
 
     // Increment usage counter on successful call

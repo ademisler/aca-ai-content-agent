@@ -187,14 +187,14 @@ class ACA_Cron {
         if (!isset($schedules['weekly'])) {
             $schedules['weekly'] = [
                 'interval' => WEEK_IN_SECONDS,
-                'display'  => __('Once Weekly', 'aca-ai-content-agent'),
+                'display'  => __('Once Weekly', 'asa-ai-content-agent'),
             ];
         }
 
         if (!isset($schedules['monthly'])) {
             $schedules['monthly'] = [
                 'interval' => MONTH_IN_SECONDS,
-                'display'  => __('Once Monthly', 'aca-ai-content-agent'),
+                'display'  => __('Once Monthly', 'asa-ai-content-agent'),
             ];
         }
 

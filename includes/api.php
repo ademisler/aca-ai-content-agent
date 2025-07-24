@@ -170,7 +170,8 @@ function aca_call_gemini_api( $prompt, $system_instruction = '', $api_args = [] 
 
 	if ( $response_code !== 200 ) {
         $error_message = isset($data['error']['message']) ? $data['error']['message'] : __( 'An unknown API error occurred.', 'aca' );
-		return new WP_Error( 'api_error', sprintf( __( 'API request failed with status code %d: %s', 'aca' ), $response_code, $error_message ), [ 'status' => $response_code ] );
+        /* translators: 1: HTTP status code, 2: API error message */
+        return new WP_Error( 'api_error', sprintf( __( 'API request failed with status code %1$d: %2$s', 'aca' ), $response_code, $error_message ), [ 'status' => $response_code ] );
 	}
 
 	if ( ! isset( $data['candidates'][0]['content']['parts'][0]['text'] ) ) {

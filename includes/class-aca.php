@@ -543,7 +543,7 @@ class ACA_Engine {
         $allowed_types = ['image/jpeg', 'image/png'];
         if ($size === false || $size > 2 * MB_IN_BYTES || empty($type['type']) || ! in_array($type['type'], $allowed_types, true)) {
             self::add_log('Downloaded image rejected due to size or type.', 'error');
-            @unlink($tmp);
+            wp_delete_file( $tmp );
             return;
         }
 
@@ -558,7 +558,7 @@ class ACA_Engine {
         } else {
             set_post_thumbnail($post_id, $id);
         }
-        @unlink($tmp);
+        wp_delete_file( $tmp );
     }
 
     /**
@@ -766,8 +766,8 @@ class ACA_Engine {
             return new WP_Error('missing_credentials', __('Search Console credentials are missing.', 'aca'));
         }
 
-        $end   = current_time('Y-m-d');
-        $start = date('Y-m-d', strtotime('-30 days', strtotime($end)));
+        $end   = current_time( 'Y-m-d' );
+        $start = gmdate( 'Y-m-d', strtotime( '-30 days', strtotime( $end ) ) );
         $data  = self::fetch_gsc_data($site_url, $start, $end);
 
         if (is_wp_error($data)) {

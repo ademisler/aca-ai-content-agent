@@ -13,7 +13,8 @@ $tables = [
 ];
 
 foreach ( $tables as $table ) {
-    $wpdb->query( "DROP TABLE IF EXISTS {$table}" );
+    $table_esc = esc_sql( $table );
+    $wpdb->query( "DROP TABLE IF EXISTS `{$table_esc}`" );
 }
 
 if ( function_exists( 'as_unschedule_all_actions' ) ) {

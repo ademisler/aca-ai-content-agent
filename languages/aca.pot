@@ -1,0 +1,1359 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-07-24 09:23+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: includes/class-aca-cron.php:161
+msgid "Once Weekly"
+msgstr ""
+
+#: includes/class-aca-cron.php:168
+msgid "Once Monthly"
+msgstr ""
+
+#: includes/class-aca-dashboard.php:23
+msgid "ACA Dashboard"
+msgstr ""
+
+#: includes/class-aca-dashboard.php:51
+msgid "Overview"
+msgstr ""
+
+#: includes/class-aca-dashboard.php:52
+#, php-format
+msgid "API Usage: %d / %d calls this month."
+msgstr ""
+
+#: includes/class-aca-dashboard.php:53
+#, php-format
+msgid "Pending Ideas: %d"
+msgstr ""
+
+#: includes/class-aca-dashboard.php:54
+#, php-format
+msgid "Drafted Posts: %d"
+msgstr ""
+
+#: includes/class-aca-dashboard.php:62
+msgid "Idea Stream"
+msgstr ""
+
+#: includes/class-aca-dashboard.php:68
+msgid "Write Draft"
+msgstr ""
+
+#: includes/class-aca-dashboard.php:70
+msgid "Reject"
+msgstr ""
+
+#: includes/class-aca-dashboard.php:77
+msgid "No new ideas yet. Generate some!"
+msgstr ""
+
+#: includes/class-aca-dashboard.php:80
+msgid "Generate New Ideas Manually"
+msgstr ""
+
+#: includes/class-aca-dashboard.php:85
+msgid "Content Cluster Planner"
+msgstr ""
+
+#: includes/class-aca-dashboard.php:87
+msgid "Generate Cluster Ideas"
+msgstr ""
+
+#: includes/class-aca-dashboard.php:96
+msgid "Quick Actions"
+msgstr ""
+
+#: includes/class-aca-dashboard.php:97
+msgid "Update Style Guide Manually"
+msgstr ""
+
+#: includes/class-aca-dashboard.php:100
+msgid "Recent Activities"
+msgstr ""
+
+#: includes/class-aca-dashboard.php:108
+msgid "No recent activity."
+msgstr ""
+
+#: includes/class-aca-dashboard.php:113
+msgid "Top Search Queries"
+msgstr ""
+
+#: includes/class-aca-dashboard.php:114
+msgid "Fetch Queries"
+msgstr ""
+
+#: includes/class-aca-dashboard.php:115
+msgid "Generate Ideas"
+msgstr ""
+
+#: includes/class-aca-onboarding.php:27
+msgid "Welcome to ACA"
+msgstr ""
+
+#: includes/class-aca-onboarding.php:71
+msgid "Welcome to ACA - AI Content Agent"
+msgstr ""
+
+#: includes/class-aca-onboarding.php:72
+msgid "Let's get you set up in just a few steps."
+msgstr ""
+
+#: includes/class-aca-onboarding.php:79
+msgid "Step 1: Connect to Google Gemini"
+msgstr ""
+
+#: includes/class-aca-onboarding.php:80
+msgid ""
+"Enter your Google Gemini API key. You can get one from Google AI Studio."
+msgstr ""
+
+#: includes/class-aca-onboarding.php:81
+msgid "Enter your API Key"
+msgstr ""
+
+#: includes/class-aca-onboarding.php:82 includes/class-aca-onboarding.php:93
+msgid "Next Step"
+msgstr ""
+
+#: includes/class-aca-onboarding.php:84
+msgid "Step 2: Choose Content for Analysis"
+msgstr ""
+
+#: includes/class-aca-onboarding.php:85
+msgid ""
+"Select the content types ACA should analyze to learn your writing style."
+msgstr ""
+
+#: includes/class-aca-onboarding.php:95
+msgid "Step 3: Choose Your Working Mode"
+msgstr ""
+
+#: includes/class-aca-onboarding.php:97 includes/class-aca-admin.php:670
+#: includes/class-aca-admin.php:678
+msgid "Manual Mode"
+msgstr ""
+
+#: includes/class-aca-onboarding.php:98 includes/class-aca-admin.php:679
+msgid "Semi-Automatic (Ideas & Approval)"
+msgstr ""
+
+#: includes/class-aca-onboarding.php:99 includes/class-aca-admin.php:680
+msgid "Fully Automatic (Draft Creation)"
+msgstr ""
+
+#: includes/class-aca-onboarding.php:101
+msgid "Complete Setup"
+msgstr ""
+
+#: includes/api.php:90
+msgid "The monthly API call limit has been reached."
+msgstr ""
+
+#: includes/api.php:97
+msgid "Google Gemini API key is not set."
+msgstr ""
+
+#: includes/api.php:172
+msgid "An unknown API error occurred."
+msgstr ""
+
+#: includes/api.php:173
+#, php-format
+msgid "API request failed with status code %d: %s"
+msgstr ""
+
+#: includes/api.php:179
+msgid ""
+"The content could not be generated because it was blocked by the API's "
+"safety settings."
+msgstr ""
+
+#: includes/api.php:181
+msgid "The API response did not contain the expected content format."
+msgstr ""
+
+#: includes/class-aca.php:123
+msgid "No content found for analysis."
+msgstr ""
+
+#: includes/class-aca.php:154
+msgid "Monthly idea limit reached for free version."
+msgstr ""
+
+#: includes/class-aca.php:218
+msgid "Idea not found."
+msgstr ""
+
+#: includes/class-aca.php:224
+msgid "Monthly draft limit reached for free version."
+msgstr ""
+
+#: includes/class-aca.php:599
+msgid "Content clusters are available in the Pro version."
+msgstr ""
+
+#: includes/class-aca.php:623
+msgid "No subtopics were returned."
+msgstr ""
+
+#: includes/class-aca.php:648
+msgid "Update assistant is a Pro feature."
+msgstr ""
+
+#: includes/class-aca.php:653
+msgid "Post not found."
+msgstr ""
+
+#: includes/class-aca.php:693
+msgid "Search Console API key or site URL is missing."
+msgstr ""
+
+#: includes/class-aca.php:733
+msgid "Search Console credentials are missing."
+msgstr ""
+
+#: includes/class-aca.php:765
+msgid "No new query opportunities found."
+msgstr ""
+
+#: includes/class-aca-privacy.php:14 includes/class-aca-privacy.php:47
+msgid "ACA Settings"
+msgstr ""
+
+#: includes/class-aca-privacy.php:29
+msgid "ACA Options"
+msgstr ""
+
+#: includes/class-aca-privacy.php:33
+msgid "License Key"
+msgstr ""
+
+#: includes/class-aca-privacy.php:36
+msgid "Encrypted API Key"
+msgstr ""
+
+#: includes/class-aca-admin.php:79 includes/class-aca-admin.php:100
+#: includes/class-aca-admin.php:119 includes/class-aca-admin.php:139
+#: includes/class-aca-admin.php:166 includes/class-aca-admin.php:194
+#: includes/class-aca-admin.php:256 includes/class-aca-admin.php:280
+#: includes/class-aca-admin.php:301 includes/class-aca-admin.php:325
+#: includes/class-aca-admin.php:349
+msgid "You do not have permission to do this."
+msgstr ""
+
+#: includes/class-aca-admin.php:89
+msgid "Connection successful! API is working correctly."
+msgstr ""
+
+#: includes/class-aca-admin.php:108
+msgid "Style guide updated successfully based on the latest content."
+msgstr ""
+
+#: includes/class-aca-admin.php:143 includes/class-aca-admin.php:170
+#: includes/class-aca-admin.php:290
+msgid "Invalid idea ID."
+msgstr ""
+
+#: includes/class-aca-admin.php:153
+msgid "Draft created successfully."
+msgstr ""
+
+#: includes/class-aca-admin.php:183
+#, php-format
+msgid "Idea #%d rejected by user."
+msgstr ""
+
+#: includes/class-aca-admin.php:184
+msgid "Idea rejected."
+msgstr ""
+
+#: includes/class-aca-admin.php:198
+msgid "Product ID is not configured in the plugin."
+msgstr ""
+
+#: includes/class-aca-admin.php:202
+msgid "License key cannot be empty."
+msgstr ""
+
+#: includes/class-aca-admin.php:238
+msgid "License activated successfully!"
+msgstr ""
+
+#: includes/class-aca-admin.php:241
+msgid "Invalid license key or API error."
+msgstr ""
+
+#: includes/class-aca-admin.php:260
+msgid "Topic is required."
+msgstr ""
+
+#: includes/class-aca-admin.php:306
+msgid "Invalid post ID."
+msgstr ""
+
+#: includes/class-aca-admin.php:367
+msgid "ACA - AI Content Agent"
+msgstr ""
+
+#: includes/class-aca-admin.php:368
+msgid "ACA"
+msgstr ""
+
+#: includes/class-aca-admin.php:385
+msgid "Dashboard"
+msgstr ""
+
+#: includes/class-aca-admin.php:386
+msgid "Settings"
+msgstr ""
+
+#: includes/class-aca-admin.php:387
+msgid "Prompt Editor"
+msgstr ""
+
+#: includes/class-aca-admin.php:388
+msgid "License"
+msgstr ""
+
+#: includes/class-aca-admin.php:400
+msgid "Save Settings"
+msgstr ""
+
+#: includes/class-aca-admin.php:404
+msgid "Legal Disclaimer"
+msgstr ""
+
+#: includes/class-aca-admin.php:405
+msgid ""
+"All content generated by ACA is a \"draft\". It is essential that you "
+"review, edit, and verify all content before publishing. The final "
+"responsibility for the published content belongs to you."
+msgstr ""
+
+#: includes/class-aca-admin.php:423
+msgid ""
+"ACA: API key is not set. Please set it in the <a href=\"?"
+"page=aca&tab=settings\">settings</a>."
+msgstr ""
+
+#: includes/class-aca-admin.php:431
+#, php-format
+msgid "ACA: You have used 80% or more of your monthly API call limit."
+msgstr ""
+
+#: includes/class-aca-admin.php:438
+#, php-format
+msgid "ACA: %d new ideas are awaiting your review."
+msgstr ""
+
+#: includes/class-aca-admin.php:438
+msgid "Open Dashboard"
+msgstr ""
+
+#: includes/class-aca-admin.php:460
+msgid "API and Connection Settings"
+msgstr ""
+
+#: includes/class-aca-admin.php:461
+msgid "Google Gemini API Key"
+msgstr ""
+
+#: includes/class-aca-admin.php:462
+msgid "Connection Test"
+msgstr ""
+
+#: includes/class-aca-admin.php:463
+msgid "Copyscape Username"
+msgstr ""
+
+#: includes/class-aca-admin.php:464
+msgid "Copyscape API Key"
+msgstr ""
+
+#: includes/class-aca-admin.php:465
+msgid "Search Console Site URL"
+msgstr ""
+
+#: includes/class-aca-admin.php:466
+msgid "Search Console API Key"
+msgstr ""
+
+#: includes/class-aca-admin.php:467
+msgid "Pexels API Key"
+msgstr ""
+
+#: includes/class-aca-admin.php:468
+msgid "OpenAI API Key"
+msgstr ""
+
+#: includes/class-aca-admin.php:471
+msgid "Automation Settings"
+msgstr ""
+
+#: includes/class-aca-admin.php:472
+msgid "Working Mode"
+msgstr ""
+
+#: includes/class-aca-admin.php:473
+msgid "Automation Frequency"
+msgstr ""
+
+#: includes/class-aca-admin.php:474
+msgid "Generation Limit"
+msgstr ""
+
+#: includes/class-aca-admin.php:475
+msgid "Default Author"
+msgstr ""
+
+#: includes/class-aca-admin.php:476
+msgid "Brand Voice Profile"
+msgstr ""
+
+#: includes/class-aca-admin.php:479
+msgid "Content Analysis & Learning Rules"
+msgstr ""
+
+#: includes/class-aca-admin.php:480
+msgid "Analyze Content Types"
+msgstr ""
+
+#: includes/class-aca-admin.php:481
+msgid "Analysis Depth"
+msgstr ""
+
+#: includes/class-aca-admin.php:482
+msgid "Analysis Categories"
+msgstr ""
+
+#: includes/class-aca-admin.php:483
+msgid "Style Guide Refresh"
+msgstr ""
+
+#: includes/class-aca-admin.php:486
+msgid "Content Enrichment"
+msgstr ""
+
+#: includes/class-aca-admin.php:487
+msgid "Max Internal Links"
+msgstr ""
+
+#: includes/class-aca-admin.php:488
+msgid "Featured Image Provider"
+msgstr ""
+
+#: includes/class-aca-admin.php:489
+msgid "Add Data Sections"
+msgstr ""
+
+#: includes/class-aca-admin.php:492
+msgid "Management and Cost Control"
+msgstr ""
+
+#: includes/class-aca-admin.php:493
+msgid "Monthly API Limit"
+msgstr ""
+
+#: includes/class-aca-admin.php:494
+msgid "Current API Usage"
+msgstr ""
+
+#: includes/class-aca-admin.php:591 includes/class-aca-admin.php:619
+#: includes/class-aca-admin.php:638 includes/class-aca-admin.php:648
+#: includes/class-aca-admin.php:658 includes/class-aca-admin.php:980
+msgid "***************** (already saved)"
+msgstr ""
+
+#: includes/class-aca-admin.php:593
+msgid "Enter your Google Gemini API key. Your key is obfuscated for security."
+msgstr ""
+
+#: includes/class-aca-admin.php:600
+msgid "Test Connection"
+msgstr ""
+
+#: includes/class-aca-admin.php:672
+msgid "Automation modes require ACA Pro."
+msgstr ""
+
+#: includes/class-aca-admin.php:689
+msgid "Choose how ACA operates. Note: All content is always saved as a draft."
+msgstr ""
+
+#: includes/class-aca-admin.php:710
+msgid "How often the automatic tasks should run."
+msgstr ""
+
+#: includes/class-aca-admin.php:720
+msgid "Max number of ideas/drafts per cycle to control API costs."
+msgstr ""
+
+#: includes/class-aca-admin.php:732
+msgid "Select an Author"
+msgstr ""
+
+#: includes/class-aca-admin.php:745
+msgid "Default"
+msgstr ""
+
+#: includes/class-aca-admin.php:751
+msgid "Select which brand voice profile to use for new drafts."
+msgstr ""
+
+#: includes/class-aca-admin.php:769
+msgid "Select the content types ACA should analyze to learn the writing style."
+msgstr ""
+
+#: includes/class-aca-admin.php:779
+msgid ""
+"Number of recent posts (5-100) to analyze for learning the writing style."
+msgstr ""
+
+#: includes/class-aca-admin.php:793
+msgid "Include Categories"
+msgstr ""
+
+#: includes/class-aca-admin.php:803
+msgid "Exclude Categories"
+msgstr ""
+
+#: includes/class-aca-admin.php:812
+msgid ""
+"Fine-tune the style analysis by including or excluding specific categories. "
+"If any category is included, only posts from those categories will be "
+"analyzed."
+msgstr ""
+
+#: includes/class-aca-admin.php:822
+msgid "Manual"
+msgstr ""
+
+#: includes/class-aca-admin.php:832
+msgid "How often ACA should regenerate the style guide automatically."
+msgstr ""
+
+#: includes/class-aca-admin.php:842
+msgid "Maximum number of internal links (0-10) to add to each new draft."
+msgstr ""
+
+#: includes/class-aca-admin.php:852
+msgid "None"
+msgstr ""
+
+#: includes/class-aca-admin.php:853
+msgid "Unsplash"
+msgstr ""
+
+#: includes/class-aca-admin.php:854
+msgid "Pexels"
+msgstr ""
+
+#: includes/class-aca-admin.php:855
+msgid "DALL-E 3"
+msgstr ""
+
+#: includes/class-aca-admin.php:864
+msgid ""
+"Select a provider for automatically fetching a featured image for each draft."
+msgstr ""
+
+#: includes/class-aca-admin.php:873
+msgid "Append statistics section to drafts (Pro only)"
+msgstr ""
+
+#: includes/class-aca-admin.php:883
+msgid "Set a monthly API call limit to control costs. Set to 0 for no limit."
+msgstr ""
+
+#: includes/class-aca-admin.php:891
+#, php-format
+msgid "%d calls this month."
+msgstr ""
+
+#: includes/class-aca-admin.php:892
+msgid "This counter resets on the first day of each month."
+msgstr ""
+
+#: includes/class-aca-admin.php:918
+msgid "Save Prompts"
+msgstr ""
+
+#: includes/class-aca-admin.php:930
+msgid "Save Profiles"
+msgstr ""
+
+#: includes/class-aca-admin.php:984
+msgid "Activate License"
+msgstr ""
+
+#: includes/class-aca-admin.php:993
+msgid "Plagiarism Check"
+msgstr ""
+
+#: includes/class-aca-admin.php:1002
+msgid "No plagiarism data available."
+msgstr ""
+
+#: includes/class-aca-admin.php:1007
+#, php-format
+msgid "Matches found: %d"
+msgstr ""
+
+#: includes/class-aca-admin.php:1018
+msgid "ACA ile Güncelleme Önerisi Al"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/functions.php:137
+#, php-format
+msgid "An integer was expected but \"%1$s\" (%2$s) was received."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/functions.php:292
+#, php-format
+msgid "Caught exception while cancelling action \"%1$s\": %2$s"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/WP_CLI/ActionScheduler_WPCLI_Scheduler_command.php:30
+#, php-format
+msgid "Registered schema for %s"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/WP_CLI/ActionScheduler_WPCLI_Scheduler_command.php:182
+#, php-format
+msgid "There was an error running the action scheduler: %s"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/WP_CLI/ProgressBar.php:67
+#: vendor/woocommerce/action-scheduler/classes/WP_CLI/ActionScheduler_WPCLI_QueueRunner.php:45
+#: vendor/woocommerce/action-scheduler/classes/abstracts/ActionScheduler_WPCLI_Command.php:34
+#, php-format
+msgid "The %s class can only be run within WP CLI."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/WP_CLI/System_Command.php:167
+msgid ""
+"Detailed information about registered sources is not currently available."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/WP_CLI/Action/Get_Command.php:23
+#, php-format
+msgid "Unable to retrieve action %d."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/WP_CLI/Action/Create_Command.php:110
+msgid "Unable to create a scheduled action."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/WP_CLI/Action/Create_Command.php:129
+#, php-format
+msgid "%1$s action (%2$d) scheduled."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/WP_CLI/Action/Create_Command.php:147
+#: vendor/woocommerce/action-scheduler/classes/WP_CLI/Action/Generate_Command.php:115
+#, php-format
+msgid "There was an error creating the scheduled action: %s"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/WP_CLI/Action/Cancel_Command.php:49
+msgid "Please specify hook of action to cancel."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/WP_CLI/Action/Cancel_Command.php:59
+msgid "Unable to cancel scheduled action: check the logs."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/WP_CLI/Action/Cancel_Command.php:76
+msgid "Please specify hook and/or group of actions to cancel."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/WP_CLI/Action/Cancel_Command.php:89
+msgid "Request to cancel scheduled actions completed."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/WP_CLI/Action/Cancel_Command.php:98
+msgid "Scheduled action cancelled."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/WP_CLI/Action/Cancel_Command.php:113
+#, php-format
+msgid "There was an error cancelling the %1$s: %2$s"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/WP_CLI/Action/Cancel_Command.php:114
+msgid "scheduled actions"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/WP_CLI/Action/Cancel_Command.php:114
+msgid "scheduled action"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/WP_CLI/ActionScheduler_WPCLI_QueueRunner.php:69
+msgid ""
+"There are too many concurrent batches, but the run is forced to continue."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/WP_CLI/ActionScheduler_WPCLI_QueueRunner.php:71
+msgid "There are too many concurrent batches."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/WP_CLI/ActionScheduler_WPCLI_QueueRunner.php:117
+msgid "The claim has been lost. Aborting current batch."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/WP_CLI/ActionScheduler_WPCLI_QueueRunner.php:140
+#, php-format
+msgid "Started processing action %s"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/WP_CLI/ActionScheduler_WPCLI_QueueRunner.php:155
+#, php-format
+msgid "Completed processing action %1$s with hook: %2$s"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/WP_CLI/ActionScheduler_WPCLI_QueueRunner.php:168
+#, php-format
+msgid "Error processing action %1$s: %2$s"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/WP_CLI/ActionScheduler_WPCLI_Clean_Command.php:103
+#, php-format
+msgid "There was an error deleting an action: %s"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_wcSystemStatus.php:110
+msgid "This section shows details of Action Scheduler."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_ActionFactory.php:233
+msgid "Invalid action - must be a recurring action."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_ActionFactory.php:326
+#, php-format
+msgid "Caught exception while enqueuing action \"%1$s\": %2$s"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_QueueCleaner.php:70
+#, php-format
+msgid "It was not possible to determine a valid cut-off time: %s."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_AdminView.php:82
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_AdminView.php:97
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_AdminView.php:98
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_ListTable.php:89
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_wpPostStore_PostTypeRegistrar.php:23
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_wpPostStore_PostTypeRegistrar.php:34
+msgid "Scheduled Actions"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_AdminView.php:270
+msgid "About"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_AdminView.php:273
+#, php-format
+msgid "About Action Scheduler %s"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_AdminView.php:275
+msgid ""
+"Action Scheduler is a scalable, traceable job queue for background "
+"processing large sets of actions. Action Scheduler works by triggering an "
+"action hook to run at some time in the future. Scheduled actions can also be "
+"scheduled to run on a recurring schedule."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_AdminView.php:277
+msgid "Source"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_AdminView.php:279
+msgid ""
+"Action Scheduler is currently being loaded from the following location. This "
+"can be useful when debugging, or if requested by the support team."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_AdminView.php:282
+msgid "WP CLI"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_AdminView.php:286
+#, php-format
+msgid ""
+"WP CLI commands are available: execute %1$s for a list of available commands."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_AdminView.php:296
+msgid "Columns"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_AdminView.php:298
+msgid "Scheduled Action Columns"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_AdminView.php:300
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_ListTable.php:96
+msgid "Hook"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_AdminView.php:300
+msgid "Name of the action hook that will be triggered."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_AdminView.php:301
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_ListTable.php:97
+msgid "Status"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_AdminView.php:301
+msgid "Action statuses are Pending, Complete, Canceled, Failed"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_AdminView.php:302
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_ListTable.php:98
+msgid "Arguments"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_AdminView.php:302
+msgid "Optional data array passed to the action hook."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_AdminView.php:303
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_ListTable.php:99
+msgid "Group"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_AdminView.php:303
+msgid "Optional action group."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_AdminView.php:304
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_ListTable.php:100
+msgid "Recurrence"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_AdminView.php:304
+msgid "The action's schedule frequency."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_AdminView.php:305
+msgid "Scheduled"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_AdminView.php:305
+msgid "The date/time the action is/was scheduled to run."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_AdminView.php:306
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_ListTable.php:102
+msgid "Log"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_AdminView.php:306
+msgid "Activity log for the action."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/actions/ActionScheduler_Action.php:80
+#, php-format
+msgid ""
+"Scheduled action for %1$s will not be executed as no callbacks are "
+"registered."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/migration/Runner.php:141
+#, php-format
+msgid "Migrated action with ID %1$d in %2$s to ID %3$d in %4$s"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/migration/ActionScheduler_DBStoreMigrator.php:49
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_DBStore.php:138
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_wpPostStore.php:49
+#, php-format
+msgid "Error saving action: %s"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/migration/Controller.php:183
+msgid ""
+"Action Scheduler migration in progress. The list of scheduled actions may be "
+"incomplete."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/migration/Config.php:77
+msgid "Source store must be configured before running a migration"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/migration/Config.php:100
+msgid "Source logger must be configured before running a migration"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/migration/Config.php:123
+msgid "Destination store must be configured before running a migration"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/migration/Config.php:146
+msgid "Destination logger must be configured before running a migration"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/migration/ActionMigrator.php:109
+#, php-format
+msgid "Unable to remove source migrated action %s"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_ListTable.php:92
+msgid "Delete"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_ListTable.php:101
+msgid "Scheduled Date"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_ListTable.php:122
+msgid "Claim ID"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_ListTable.php:129
+msgid "Run"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_ListTable.php:130
+msgid "Process the action now as if it were run as part of a queue"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_ListTable.php:133
+msgid "Cancel"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_ListTable.php:134
+msgid "Cancel the action now to avoid it being run in future"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_ListTable.php:224
+msgid "Now!"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_ListTable.php:261
+#, php-format
+msgid "Every %s"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_ListTable.php:267
+msgid "Non-repeating"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_ListTable.php:365
+msgid ""
+"It appears one or more database tables were missing. Attempting to re-create "
+"the missing table(s)."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_ListTable.php:398
+#, php-format
+msgid ""
+"A new queue has begun processing. <a href=\"%s\">View actions in-progress "
+"&raquo;</a>"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_ListTable.php:401
+#, php-format
+msgid "The next queue will begin processing in approximately %d seconds."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_ListTable.php:423
+#, php-format
+msgid "Successfully executed action: %s"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_ListTable.php:427
+#, php-format
+msgid "Successfully canceled action: %s"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_ListTable.php:431
+#, php-format
+msgid "Successfully processed change for action: %s"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_ListTable.php:437
+#, php-format
+msgid "Could not process change for action: \"%1$s\" (ID: %2$d). Error: %3$s"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_ListTable.php:473
+msgid "async"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_ListTable.php:487
+#, php-format
+msgid " (%s ago)"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_ListTable.php:490
+#, php-format
+msgid " (%s)"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_ListTable.php:516
+#, php-format
+msgid "Action Scheduler was unable to delete action %1$d. Reason: %2$s"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_ListTable.php:666
+msgid "Search hook, args and claim ID"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_InvalidActionException.php:22
+#, php-format
+msgid "Action [%1$s] has an invalid schedule: %2$s"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_InvalidActionException.php:40
+#, php-format
+msgid ""
+"Action [%1$s] has invalid arguments. It cannot be JSON decoded to an array. "
+"$args = %2$s"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_wpPostStore_PostTypeRegistrar.php:24
+msgid "Scheduled actions are hooks triggered on a certain date and time."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_wpPostStore_PostTypeRegistrar.php:35
+msgid "Scheduled Action"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_wpPostStore_PostTypeRegistrar.php:37
+msgid "Add"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_wpPostStore_PostTypeRegistrar.php:38
+msgid "Add New Scheduled Action"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_wpPostStore_PostTypeRegistrar.php:39
+msgid "Edit"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_wpPostStore_PostTypeRegistrar.php:40
+msgid "Edit Scheduled Action"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_wpPostStore_PostTypeRegistrar.php:41
+msgid "New Scheduled Action"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_wpPostStore_PostTypeRegistrar.php:42
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_wpPostStore_PostTypeRegistrar.php:43
+msgid "View Action"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_wpPostStore_PostTypeRegistrar.php:44
+msgid "Search Scheduled Actions"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_wpPostStore_PostTypeRegistrar.php:45
+msgid "No actions found"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_wpPostStore_PostTypeRegistrar.php:46
+msgid "No actions found in trash"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_DBStore.php:130
+msgid "Database error."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_DBStore.php:425
+msgid "Invalid value for select or count parameter. Cannot query actions."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_DBStore.php:490
+msgid ""
+"JSON partial matching not supported in your environment. Please check your "
+"MySQL/MariaDB version."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_DBStore.php:508
+#, php-format
+msgid ""
+"The value type for the JSON partial matching is not supported. Must be "
+"either integer, boolean, double or string. %s type provided."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_DBStore.php:530
+msgid "Unknown partial args matching value."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_DBStore.php:699
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_wpPostStore.php:515
+#, php-format
+msgid ""
+"Unidentified action %s: we were unable to cancel this action. It may may "
+"have been deleted by another process."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_DBStore.php:801
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_wpPostStore.php:534
+#, php-format
+msgid ""
+"Unidentified action %s: we were unable to delete this action. It may may "
+"have been deleted by another process."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_DBStore.php:838
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_wpPostStore.php:564
+#, php-format
+msgid ""
+"Unidentified action %s: we were unable to determine the date of this action. "
+"It may may have been deleted by another process."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_DBStore.php:1022
+#, php-format
+msgid "Unable to claim actions. Database error: %s."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_DBStore.php:1178
+#, php-format
+msgid "Unable to release actions from claim id %d."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_DBStore.php:1232
+#, php-format
+msgid ""
+"Unidentified action %s: we were unable to mark this action as having failed. "
+"It may may have been deleted by another process."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_DBStore.php:1263
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_wpPostStore.php:984
+#, php-format
+msgid "Unable to update the status of action %1$d to %2$s."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_DBStore.php:1300
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_wpPostStore.php:1004
+#, php-format
+msgid ""
+"Unidentified action %s: we were unable to mark this action as having "
+"completed. It may may have been deleted by another process."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_DBStore.php:1335
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_wpPostStore.php:921
+msgid "Invalid action ID. No status found."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_DBStore.php:1337
+msgid "Unknown status found for action."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_DBLogger.php:142
+#: vendor/woocommerce/action-scheduler/classes/abstracts/ActionScheduler_Logger.php:109
+msgid "action canceled"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_wpPostStore_TaxonomyRegistrar.php:22
+msgid "Action Group"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_wpPostStore.php:101
+msgid "Unable to save action."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_wpPostStore.php:318
+msgid "Invalid schedule. Cannot save action."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_wpPostStore.php:696
+msgid "Unable to claim actions. Database error."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_wpPostStore.php:717
+#, php-format
+msgid "The group \"%s\" does not exist."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_wpPostStore.php:841
+#, php-format
+msgid "Unable to unlock claim %s. Database error."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_wpPostStore.php:869
+#, php-format
+msgid "Unable to unlock claim on action %s. Database error."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_wpPostStore.php:895
+#, php-format
+msgid "Unable to mark failure on action %s. Database error."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/data-stores/ActionScheduler_wpPostStore.php:1085
+#, php-format
+msgid ""
+"%s Support for strings longer than this will be removed in a future version."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_WPCommentCleaner.php:121
+#, php-format
+msgid "This data will be deleted in %s."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_WPCommentCleaner.php:126
+#, php-format
+msgid ""
+"Action Scheduler has migrated data to custom tables; however, orphaned log "
+"entries exist in the WordPress Comments table. %1$s <a href=\"%2$s\">Learn "
+"more &raquo;</a>"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_QueueRunner.php:249
+msgid "Every minute"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/ActionScheduler_DataController.php:149
+msgid "Attempting to reduce used memory..."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/abstracts/ActionScheduler_Logger.php:100
+msgid "action created"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/abstracts/ActionScheduler_Logger.php:121
+#, php-format
+msgid "action started via %s"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/abstracts/ActionScheduler_Logger.php:123
+msgid "action started"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/abstracts/ActionScheduler_Logger.php:138
+#, php-format
+msgid "action complete via %s"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/abstracts/ActionScheduler_Logger.php:140
+msgid "action complete"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/abstracts/ActionScheduler_Logger.php:155
+#, php-format
+msgid "action failed via %1$s: %2$s"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/abstracts/ActionScheduler_Logger.php:158
+#, php-format
+msgid "action failed: %s"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/abstracts/ActionScheduler_Logger.php:171
+#, php-format
+msgid ""
+"action marked as failed after %s seconds. Unknown error occurred. Check "
+"server, PHP and database error logs to diagnose cause."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/abstracts/ActionScheduler_Logger.php:183
+#, php-format
+msgid "unexpected shutdown: PHP Fatal error %1$s in %2$s on line %3$s"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/abstracts/ActionScheduler_Logger.php:193
+msgid "action reset"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/abstracts/ActionScheduler_Logger.php:205
+#, php-format
+msgid "action ignored via %s"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/abstracts/ActionScheduler_Logger.php:207
+msgid "action ignored"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/abstracts/ActionScheduler_Logger.php:222
+#, php-format
+msgid "There was a failure fetching this action: %s"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/abstracts/ActionScheduler_Logger.php:224
+msgid "There was a failure fetching this action"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/abstracts/ActionScheduler_Logger.php:238
+#, php-format
+msgid "There was a failure scheduling the next instance of this action: %s"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/abstracts/ActionScheduler.php:274
+#, php-format
+msgid "%s() was called before the Action Scheduler data store was initialized"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/abstracts/ActionScheduler_Abstract_ListTable.php:541
+msgid "Filter"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/abstracts/ActionScheduler_Abstract_ListTable.php:668
+#, php-format
+msgid "Search results for \"%s\""
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/abstracts/ActionScheduler_Abstract_ListTable.php:786
+msgid "Search"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/abstracts/ActionScheduler_Abstract_QueueRunner.php:170
+msgid ""
+"This action appears to be consistently failing. A new instance will not be "
+"scheduled."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/abstracts/ActionScheduler_Store.php:377
+#, php-format
+msgid ""
+"ActionScheduler_Action::$args too long. To ensure the args column can be "
+"indexed, action args should not be more than %d characters when encoded as "
+"JSON."
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/abstracts/ActionScheduler_Store.php:455
+msgid "Complete"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/abstracts/ActionScheduler_Store.php:456
+msgid "Pending"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/abstracts/ActionScheduler_Store.php:457
+msgid "In-progress"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/abstracts/ActionScheduler_Store.php:458
+msgid "Failed"
+msgstr ""
+
+#: vendor/woocommerce/action-scheduler/classes/abstracts/ActionScheduler_Store.php:459
+msgid "Canceled"
+msgstr ""

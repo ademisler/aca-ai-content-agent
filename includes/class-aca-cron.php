@@ -21,6 +21,7 @@ class ACA_Cron {
         add_action('aca_reset_api_usage_counter', [$this, 'reset_api_usage_counter']);
         add_action('aca_generate_style_guide', [$this, 'generate_style_guide']);
         add_action('aca_verify_license', [$this, 'verify_license']);
+        add_action('aca_clean_logs', [$this, 'clean_logs']);
 
         // Ensure custom schedules like weekly and monthly are available.
         add_filter('cron_schedules', [$this, 'add_custom_schedules']);
@@ -39,17 +40,21 @@ class ACA_Cron {
             as_unschedule_all_actions( 'aca_reset_api_usage_counter' );
             as_unschedule_all_actions( 'aca_generate_style_guide' );
             as_unschedule_all_actions( 'aca_verify_license' );
+            as_unschedule_all_actions( 'aca_clean_logs' );
         } else {
             wp_clear_scheduled_hook( 'aca_run_main_automation' );
             wp_clear_scheduled_hook( 'aca_reset_api_usage_counter' );
             wp_clear_scheduled_hook( 'aca_generate_style_guide' );
             wp_clear_scheduled_hook( 'aca_verify_license' );
+            wp_clear_scheduled_hook( 'aca_clean_logs' );
         }
 
         $options = get_option('aca_options');
         $working_mode = $options['working_mode'] ?? 'manual';
         $frequency = $options['automation_frequency'] ?? 'daily';
         $style_freq = $options['style_guide_frequency'] ?? 'weekly';
+        $cleanup_enabled = ! empty( $options['log_cleanup_enabled'] );
+        $retention = isset( $options['log_retention_days'] ) ? absint( $options['log_retention_days'] ) : 60;
 
         // Determine interval seconds from WP schedules.
         $schedules = wp_get_schedules();
@@ -94,6 +99,17 @@ class ACA_Cron {
                 }
             } elseif ( ! wp_next_scheduled( 'aca_generate_style_guide' ) ) {
                 wp_schedule_event( time(), $style_freq, 'aca_generate_style_guide' );
+            }
+        }
+
+        // Schedule log cleanup if enabled
+        if ( $cleanup_enabled ) {
+            if ( function_exists( 'as_next_scheduled_action' ) ) {
+                if ( ! as_next_scheduled_action( 'aca_clean_logs' ) ) {
+                    as_schedule_recurring_action( time(), WEEK_IN_SECONDS, 'aca_clean_logs', [ $retention ] );
+                }
+            } elseif ( ! wp_next_scheduled( 'aca_clean_logs' ) ) {
+                wp_schedule_event( time(), 'weekly', 'aca_clean_logs', [ $retention ] );
             }
         }
     }
@@ -146,6 +162,18 @@ class ACA_Cron {
         if ( function_exists( 'aca_maybe_check_license' ) ) {
             aca_maybe_check_license( true );
         }
+    }
+
+    /**
+     * Clean old log entries from the database.
+     *
+     * @param int $retention_days Number of days to keep logs.
+     */
+    public function clean_logs( $retention_days = 60 ) {
+        global $wpdb;
+        $table = $wpdb->prefix . 'aca_logs';
+        $cutoff = date( 'Y-m-d H:i:s', strtotime( '-' . absint( $retention_days ) . ' days' ) );
+        $wpdb->query( $wpdb->prepare( "DELETE FROM $table WHERE created_at < %s", $cutoff ) );
     }
 
     /**

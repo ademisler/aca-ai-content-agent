@@ -21,6 +21,7 @@ if ( function_exists( 'as_unschedule_all_actions' ) ) {
     as_unschedule_all_actions( 'aca_reset_api_usage_counter' );
     as_unschedule_all_actions( 'aca_generate_style_guide' );
     as_unschedule_all_actions( 'aca_verify_license' );
+    as_unschedule_all_actions( 'aca_clean_logs' );
 }
 
 $wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s", 'aca_%' ) );

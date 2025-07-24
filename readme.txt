@@ -1,3 +1,6 @@
+---
+
+```
 === ACA - AI Content Agent ===
 Contributors: ademisler
 Tags: ai, content, generator, automation, content writer
@@ -102,3 +105,5 @@ Action Scheduler is a library used to reliably run background tasks in WordPress
 
 = 1.0 =
 *   Initial release.
+
+```

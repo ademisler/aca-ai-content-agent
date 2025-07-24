@@ -11,7 +11,7 @@ class ACA_Privacy {
 
     public static function register_exporter( $exporters ) {
         $exporters['aca-data'] = [
-            'exporter_friendly_name' => __( 'ACA Settings', 'aca' ),
+            'exporter_friendly_name' => __( 'ACA Settings', 'aca-ai-content-agent' ),
             'callback'               => [ __CLASS__, 'export' ],
         ];
         return $exporters;
@@ -26,14 +26,14 @@ class ACA_Privacy {
             $license  = $license ? aca_safe_decrypt( $license ) : '';
             $api_key  = get_option( 'aca_gemini_api_key', '' );
             $data[] = [
-                'name'  => __( 'ACA Options', 'aca' ),
+                'name'  => __( 'ACA Options', 'aca-ai-content-agent' ),
                 'value' => wp_json_encode( $options ),
             ];
             if ( $license ) {
-                $data[] = [ 'name' => __( 'License Key', 'aca' ), 'value' => $license ];
+                $data[] = [ 'name' => __( 'License Key', 'aca-ai-content-agent' ), 'value' => $license ];
             }
             if ( $api_key ) {
-                $data[] = [ 'name' => __( 'Encrypted API Key', 'aca' ), 'value' => $api_key ];
+                $data[] = [ 'name' => __( 'Encrypted API Key', 'aca-ai-content-agent' ), 'value' => $api_key ];
             }
         }
         return [
@@ -44,7 +44,7 @@ class ACA_Privacy {
 
     public static function register_eraser( $erasers ) {
         $erasers['aca-data'] = [
-            'eraser_friendly_name' => __( 'ACA Settings', 'aca' ),
+            'eraser_friendly_name' => __( 'ACA Settings', 'aca-ai-content-agent' ),
             'callback'             => [ __CLASS__, 'erase' ],
         ];
         return $erasers;

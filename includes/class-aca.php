@@ -120,7 +120,7 @@ class ACA_Engine {
         }
 
         if (empty($contents)) {
-            return new WP_Error('no_content', __('No content found for analysis.', 'aca'));
+            return new WP_Error('no_content', __('No content found for analysis.', 'aca-ai-content-agent'));
         }
 
         $prompts = self::get_prompts();
@@ -153,7 +153,7 @@ class ACA_Engine {
         if ( ! aca_is_pro() ) {
             $count = get_option( 'aca_idea_count_current_month', 0 );
             if ( $count >= 5 ) {
-                return new WP_Error( 'limit_reached', __( 'Monthly idea limit reached for free version.', 'aca' ) );
+                return new WP_Error( 'limit_reached', __( 'Monthly idea limit reached for free version.', 'aca-ai-content-agent' ) );
             }
         }
 
@@ -217,13 +217,13 @@ class ACA_Engine {
         $idea = $wpdb->get_row($wpdb->prepare("SELECT * FROM $table_name WHERE id = %d", $idea_id));
 
         if (!$idea) {
-            return new WP_Error('idea_not_found', __('Idea not found.', 'aca'));
+            return new WP_Error('idea_not_found', __('Idea not found.', 'aca-ai-content-agent'));
         }
 
         if ( ! aca_is_pro() ) {
             $draft_count = get_option( 'aca_draft_count_current_month', 0 );
             if ( $draft_count >= 2 ) {
-                return new WP_Error( 'limit_reached', __( 'Monthly draft limit reached for free version.', 'aca' ) );
+                return new WP_Error( 'limit_reached', __( 'Monthly draft limit reached for free version.', 'aca-ai-content-agent' ) );
             }
         }
 
@@ -629,7 +629,7 @@ class ACA_Engine {
      */
     public static function generate_content_cluster($topic) {
         if (!aca_is_pro()) {
-            return new WP_Error('pro_only', __('Content clusters are available in the Pro version.', 'aca'));
+            return new WP_Error('pro_only', __('Content clusters are available in the Pro version.', 'aca-ai-content-agent'));
         }
 
         global $wpdb;
@@ -653,7 +653,7 @@ class ACA_Engine {
         $subtopics = array_filter(array_map('trim', explode("\n", $response)));
 
         if (empty($subtopics)) {
-            return new WP_Error('empty_cluster', __('No subtopics were returned.', 'aca'));
+            return new WP_Error('empty_cluster', __('No subtopics were returned.', 'aca-ai-content-agent'));
         }
 
         $wpdb->insert($cluster_table, [
@@ -678,12 +678,12 @@ class ACA_Engine {
      */
     public static function suggest_content_update($post_id) {
         if (!aca_is_pro()) {
-            return new WP_Error('pro_only', __('Update assistant is a Pro feature.', 'aca'));
+            return new WP_Error('pro_only', __('Update assistant is a Pro feature.', 'aca-ai-content-agent'));
         }
 
         $post = get_post($post_id);
         if (!$post) {
-            return new WP_Error('post_not_found', __('Post not found.', 'aca'));
+            return new WP_Error('post_not_found', __('Post not found.', 'aca-ai-content-agent'));
         }
 
         $prompt = sprintf(
@@ -723,7 +723,7 @@ class ACA_Engine {
         $api_key_enc  = $options['gsc_api_key'] ?? '';
         $api_key      = aca_safe_decrypt( $api_key_enc );
         if (empty($api_key) || empty($site_url)) {
-            return new WP_Error('missing_credentials', __('Search Console API key or site URL is missing.', 'aca'));
+            return new WP_Error('missing_credentials', __('Search Console API key or site URL is missing.', 'aca-ai-content-agent'));
         }
 
         $endpoint = add_query_arg('key', $api_key, 'https://www.googleapis.com/webmasters/v3/sites/' . rawurlencode($site_url) . '/searchAnalytics/query');
@@ -763,7 +763,7 @@ class ACA_Engine {
         $api_key     = aca_safe_decrypt( $api_key_enc );
 
         if (empty($site_url) || empty($api_key)) {
-            return new WP_Error('missing_credentials', __('Search Console credentials are missing.', 'aca'));
+            return new WP_Error('missing_credentials', __('Search Console credentials are missing.', 'aca-ai-content-agent'));
         }
 
         $end   = current_time( 'Y-m-d' );
@@ -795,7 +795,7 @@ class ACA_Engine {
         }
 
         if (empty($queries)) {
-            return new WP_Error('no_queries', __('No new query opportunities found.', 'aca'));
+            return new WP_Error('no_queries', __('No new query opportunities found.', 'aca-ai-content-agent'));
         }
 
         $limit  = $options['generation_limit'] ?? 5;

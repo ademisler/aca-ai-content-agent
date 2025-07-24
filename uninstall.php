@@ -13,8 +13,8 @@ $tables = [
 ];
 
 foreach ( $tables as $table ) {
-    $table_esc = esc_sql( $table );
-    $wpdb->query( "DROP TABLE IF EXISTS `{$table_esc}`" );
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+    $wpdb->query( "DROP TABLE IF EXISTS `{$table}`" );
 }
 
 if ( function_exists( 'as_unschedule_all_actions' ) ) {
@@ -25,6 +25,7 @@ if ( function_exists( 'as_unschedule_all_actions' ) ) {
     as_unschedule_all_actions( 'aca_clean_logs' );
 }
 
+// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 $wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s", 'aca_%' ) );
 
 $roles = [ 'administrator', 'editor', 'author' ];

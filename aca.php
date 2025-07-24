@@ -5,7 +5,7 @@
  * Version: 1.0
  * Author: Adem Isler
  * Author URI: https://ademisler.com
- * Text Domain: aca
+ * Text Domain: aca-ai-content-agent
  * Domain Path: /languages
  * License: GPLv2 or later
  */
@@ -84,7 +84,7 @@ class ACA_Bootstrap {
      * Initialize the plugin.
      */
     public function init() {
-        load_plugin_textdomain( 'aca', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+        load_plugin_textdomain( 'aca-ai-content-agent', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
         if (is_admin()) {
             new ACA_Admin();
             new ACA_Onboarding();

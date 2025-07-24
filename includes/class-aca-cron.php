@@ -173,7 +173,8 @@ class ACA_Cron {
         global $wpdb;
         $table = $wpdb->prefix . 'aca_logs';
         $cutoff = gmdate( 'Y-m-d H:i:s', strtotime( '-' . absint( $retention_days ) . ' days' ) );
-        $wpdb->query( $wpdb->prepare( "DELETE FROM $table WHERE created_at < %s", $cutoff ) );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $wpdb->query( $wpdb->prepare( "DELETE FROM `{$table}` WHERE created_at < %s", $cutoff ) );
     }
 
     /**
@@ -186,14 +187,14 @@ class ACA_Cron {
         if (!isset($schedules['weekly'])) {
             $schedules['weekly'] = [
                 'interval' => WEEK_IN_SECONDS,
-                'display'  => __('Once Weekly', 'aca'),
+                'display'  => __('Once Weekly', 'aca-ai-content-agent'),
             ];
         }
 
         if (!isset($schedules['monthly'])) {
             $schedules['monthly'] = [
                 'interval' => MONTH_IN_SECONDS,
-                'display'  => __('Once Monthly', 'aca'),
+                'display'  => __('Once Monthly', 'aca-ai-content-agent'),
             ];
         }
 

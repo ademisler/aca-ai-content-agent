@@ -54,6 +54,15 @@ function aca_deactivate() {
         wp_clear_scheduled_hook( 'aca_generate_style_guide' );
         wp_clear_scheduled_hook( 'aca_verify_license' );
     }
+
+    $roles = [ 'administrator', 'editor', 'author' ];
+    foreach ( $roles as $role_name ) {
+        $role = get_role( $role_name );
+        if ( $role ) {
+            $role->remove_cap( 'manage_aca_settings' );
+            $role->remove_cap( 'view_aca_dashboard' );
+        }
+    }
 }
 
 /**
@@ -72,6 +81,7 @@ class ACA_Bootstrap {
      * Initialize the plugin.
      */
     public function init() {
+        load_plugin_textdomain( 'aca', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
         if (is_admin()) {
             new ACA_Admin();
             new ACA_Onboarding();

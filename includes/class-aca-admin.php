@@ -366,7 +366,7 @@ class ACA_Admin {
         add_menu_page(
             __( 'ACA - AI Content Agent', 'aca' ),
             __( 'ACA', 'aca' ),
-            'manage_options',
+            'view_aca_dashboard',
             'aca',
             [ $this, 'render_settings_page' ],
             'dashicons-robot'

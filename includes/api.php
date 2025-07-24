@@ -26,7 +26,7 @@ function aca_encrypt( $data ) {
     $key    = defined( 'AUTH_KEY' ) ? AUTH_KEY : 'aca_default_key';
     $method = 'AES-256-CBC';
     $iv_len = openssl_cipher_iv_length( $method );
-    $iv     = openssl_random_pseudo_bytes( $iv_len );
+    $iv     = random_bytes( $iv_len );
     $cipher = openssl_encrypt( $data, $method, substr( hash( 'sha256', $key ), 0, 32 ), 0, $iv );
     if ( false === $cipher ) {
         return '';
@@ -52,6 +52,22 @@ function aca_decrypt( $data ) {
     $cipher = substr( $raw, $iv_len );
     $plain  = openssl_decrypt( $cipher, $method, substr( hash( 'sha256', $key ), 0, 32 ), 0, $iv );
     return $plain ?: '';
+}
+
+/**
+ * Attempt to decrypt a value, falling back to the raw string if decryption
+ * fails. This helps maintain compatibility with previously stored plain text
+ * values.
+ *
+ * @param string $data Encrypted or plain text value.
+ * @return string Decrypted value or original string on failure.
+ */
+function aca_safe_decrypt( $data ) {
+    if ( empty( $data ) ) {
+        return '';
+    }
+    $decrypted = aca_decrypt( $data );
+    return '' === $decrypted ? $data : $decrypted;
 }
 
 /**

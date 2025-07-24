@@ -453,8 +453,9 @@ class ACA_Engine {
         if ($provider === 'unsplash') {
             $url = 'https://source.unsplash.com/1600x900/?' . urlencode($query);
         } elseif ($provider === 'pexels') {
-            $options = get_option('aca_options');
-            $api_key = $options['pexels_api_key'] ?? '';
+            $options     = get_option('aca_options');
+            $api_key_enc = $options['pexels_api_key'] ?? '';
+            $api_key     = aca_safe_decrypt( $api_key_enc );
             if (empty($api_key)) {
                 return;
             }
@@ -475,8 +476,9 @@ class ACA_Engine {
             if ( ! aca_is_pro() ) {
                 return;
             }
-            $options = get_option('aca_options');
-            $api_key = $options['openai_api_key'] ?? '';
+            $options     = get_option('aca_options');
+            $api_key_enc = $options['openai_api_key'] ?? '';
+            $api_key     = aca_safe_decrypt( $api_key_enc );
             if ( empty( $api_key ) ) {
                 return;
             }
@@ -533,9 +535,10 @@ class ACA_Engine {
         if (!aca_is_pro()) {
             return; // Pro feature only
         }
-        $options = get_option('aca_options');
-        $user = $options['copyscape_username'] ?? '';
-        $key  = $options['copyscape_api_key'] ?? '';
+        $options   = get_option('aca_options');
+        $user      = $options['copyscape_username'] ?? '';
+        $key_enc   = $options['copyscape_api_key'] ?? '';
+        $key       = aca_safe_decrypt( $key_enc );
         if (empty($user) || empty($key)) {
             return;
         }
@@ -683,8 +686,9 @@ class ACA_Engine {
      * Fetch top queries from Google Search Console.
      */
     public static function fetch_gsc_data($site_url, $start_date, $end_date) {
-        $options = get_option('aca_options');
-        $api_key = $options['gsc_api_key'] ?? '';
+        $options      = get_option('aca_options');
+        $api_key_enc  = $options['gsc_api_key'] ?? '';
+        $api_key      = aca_safe_decrypt( $api_key_enc );
         if (empty($api_key) || empty($site_url)) {
             return new WP_Error('missing_credentials', __('Search Console API key or site URL is missing.', 'aca'));
         }
@@ -720,9 +724,10 @@ class ACA_Engine {
     public static function generate_ideas_from_gsc() {
         global $wpdb;
 
-        $options  = get_option('aca_options');
-        $site_url = $options['gsc_site_url'] ?? '';
-        $api_key  = $options['gsc_api_key'] ?? '';
+        $options     = get_option('aca_options');
+        $site_url    = $options['gsc_site_url'] ?? '';
+        $api_key_enc = $options['gsc_api_key'] ?? '';
+        $api_key     = aca_safe_decrypt( $api_key_enc );
 
         if (empty($site_url) || empty($api_key)) {
             return new WP_Error('missing_credentials', __('Search Console credentials are missing.', 'aca'));

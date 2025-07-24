@@ -224,7 +224,7 @@ class ACA_Admin {
             // License is valid. Optionally check for refunds or chargebacks
             $purchase = $body['purchase'];
 
-            update_option('aca_license_key', $license_key);
+            update_option('aca_license_key', aca_encrypt( $license_key ));
             update_option('aca_is_pro_active', 'true');
             update_option('aca_license_data', $purchase);
 
@@ -499,7 +499,7 @@ class ACA_Admin {
         register_setting('aca_prompts_group', 'aca_brand_profiles', ['sanitize_callback' => [$this, 'sanitize_brand_profiles']]);
 
         // License Section (for saving)
-        register_setting('aca_license_group', 'aca_license_key', ['sanitize_callback' => 'sanitize_text_field']);
+        register_setting('aca_license_group', 'aca_license_key', ['sanitize_callback' => [$this, 'sanitize_license_key']]);
     }
 
     /**
@@ -522,13 +522,32 @@ class ACA_Admin {
         $new_input['featured_image_provider'] = isset($input['featured_image_provider']) ? sanitize_key($input['featured_image_provider']) : ($options['featured_image_provider'] ?? 'none');
         $new_input['add_data_sections'] = isset($input['add_data_sections']) ? 1 : ($options['add_data_sections'] ?? 0);
         $new_input['gsc_site_url'] = isset($input['gsc_site_url']) ? esc_url_raw($input['gsc_site_url']) : ($options['gsc_site_url'] ?? '');
-        $new_input['gsc_api_key'] = isset($input['gsc_api_key']) ? sanitize_text_field($input['gsc_api_key']) : ($options['gsc_api_key'] ?? '');
-        $new_input['pexels_api_key'] = isset($input['pexels_api_key']) ? sanitize_text_field($input['pexels_api_key']) : ($options['pexels_api_key'] ?? '');
-        $new_input['openai_api_key'] = isset($input['openai_api_key']) ? sanitize_text_field($input['openai_api_key']) : ($options['openai_api_key'] ?? '');
+        // Encrypt API keys if new values are provided; otherwise keep existing encrypted values.
+        if ( isset( $input['gsc_api_key'] ) && '' !== trim( $input['gsc_api_key'] ) ) {
+            $new_input['gsc_api_key'] = aca_encrypt( sanitize_text_field( $input['gsc_api_key'] ) );
+        } else {
+            $new_input['gsc_api_key'] = $options['gsc_api_key'] ?? '';
+        }
+
+        if ( isset( $input['pexels_api_key'] ) && '' !== trim( $input['pexels_api_key'] ) ) {
+            $new_input['pexels_api_key'] = aca_encrypt( sanitize_text_field( $input['pexels_api_key'] ) );
+        } else {
+            $new_input['pexels_api_key'] = $options['pexels_api_key'] ?? '';
+        }
+
+        if ( isset( $input['openai_api_key'] ) && '' !== trim( $input['openai_api_key'] ) ) {
+            $new_input['openai_api_key'] = aca_encrypt( sanitize_text_field( $input['openai_api_key'] ) );
+        } else {
+            $new_input['openai_api_key'] = $options['openai_api_key'] ?? '';
+        }
         $new_input['style_guide_frequency'] = isset($input['style_guide_frequency']) ? sanitize_key($input['style_guide_frequency']) : ($options['style_guide_frequency'] ?? 'weekly');
         $new_input['api_monthly_limit'] = isset($input['api_monthly_limit']) ? absint($input['api_monthly_limit']) : ($options['api_monthly_limit'] ?? 0);
         $new_input['copyscape_username'] = isset($input['copyscape_username']) ? sanitize_text_field($input['copyscape_username']) : ($options['copyscape_username'] ?? '');
-        $new_input['copyscape_api_key'] = isset($input['copyscape_api_key']) ? sanitize_text_field($input['copyscape_api_key']) : ($options['copyscape_api_key'] ?? '');
+        if ( isset( $input['copyscape_api_key'] ) && '' !== trim( $input['copyscape_api_key'] ) ) {
+            $new_input['copyscape_api_key'] = aca_encrypt( sanitize_text_field( $input['copyscape_api_key'] ) );
+        } else {
+            $new_input['copyscape_api_key'] = $options['copyscape_api_key'] ?? '';
+        }
 
         return $new_input;
     }
@@ -539,12 +558,27 @@ class ACA_Admin {
     public function sanitize_and_obfuscate_api_key($input) {
         $existing = get_option('aca_gemini_api_key');
 
-        $sanitized_key = sanitize_text_field($input);
-
-        if ( empty( $sanitized_key ) ) {
-            // If no new key provided, keep the existing value.
+        if ( ! isset( $input ) || '' === trim( $input ) ) {
+            // Keep existing value when no new key is supplied.
             return $existing;
         }
+
+        $sanitized_key = sanitize_text_field( $input );
+
+        return aca_encrypt( $sanitized_key );
+    }
+
+    /**
+     * Sanitize and encrypt the license key before saving.
+     */
+    public function sanitize_license_key( $input ) {
+        $existing = get_option( 'aca_license_key' );
+
+        if ( ! isset( $input ) || '' === trim( $input ) ) {
+            return $existing;
+        }
+
+        $sanitized_key = sanitize_text_field( $input );
 
         return aca_encrypt( $sanitized_key );
     }
@@ -580,9 +614,10 @@ class ACA_Admin {
      * Render the Copyscape API key field.
      */
     public function render_copyscape_api_key_field() {
-        $options = get_option('aca_options');
-        $key = isset($options['copyscape_api_key']) ? $options['copyscape_api_key'] : '';
-        echo '<input type="password" name="aca_options[copyscape_api_key]" value="' . esc_attr($key) . '" class="regular-text">';
+        $options     = get_option('aca_options');
+        $key         = $options['copyscape_api_key'] ?? '';
+        $placeholder = ! empty( $key ) ? __('***************** (already saved)', 'aca') : '';
+        echo '<input type="password" name="aca_options[copyscape_api_key]" value="" placeholder="' . esc_attr( $placeholder ) . '" class="regular-text">';
     }
 
     /**
@@ -598,27 +633,30 @@ class ACA_Admin {
      * Render the Search Console API key field.
      */
     public function render_gsc_api_key_field() {
-        $options = get_option('aca_options');
-        $key = isset($options['gsc_api_key']) ? $options['gsc_api_key'] : '';
-        echo '<input type="password" name="aca_options[gsc_api_key]" value="' . esc_attr($key) . '" class="regular-text">';
+        $options     = get_option('aca_options');
+        $key         = $options['gsc_api_key'] ?? '';
+        $placeholder = ! empty( $key ) ? __('***************** (already saved)', 'aca') : '';
+        echo '<input type="password" name="aca_options[gsc_api_key]" value="" placeholder="' . esc_attr( $placeholder ) . '" class="regular-text">';
     }
 
     /**
      * Render the Pexels API key field.
      */
     public function render_pexels_api_key_field() {
-        $options = get_option('aca_options');
-        $key = isset($options['pexels_api_key']) ? $options['pexels_api_key'] : '';
-        echo '<input type="password" name="aca_options[pexels_api_key]" value="' . esc_attr($key) . '" class="regular-text">';
+        $options     = get_option('aca_options');
+        $key         = $options['pexels_api_key'] ?? '';
+        $placeholder = ! empty( $key ) ? __('***************** (already saved)', 'aca') : '';
+        echo '<input type="password" name="aca_options[pexels_api_key]" value="" placeholder="' . esc_attr( $placeholder ) . '" class="regular-text">';
     }
 
     /**
      * Render the OpenAI API key field.
      */
     public function render_openai_api_key_field() {
-        $options = get_option('aca_options');
-        $key = isset($options['openai_api_key']) ? $options['openai_api_key'] : '';
-        echo '<input type="password" name="aca_options[openai_api_key]" value="' . esc_attr($key) . '" class="regular-text">';
+        $options     = get_option('aca_options');
+        $key         = $options['openai_api_key'] ?? '';
+        $placeholder = ! empty( $key ) ? __('***************** (already saved)', 'aca') : '';
+        echo '<input type="password" name="aca_options[openai_api_key]" value="" placeholder="' . esc_attr( $placeholder ) . '" class="regular-text">';
     }
 
     /**
@@ -938,7 +976,9 @@ class ACA_Admin {
             ?>
             <h3><?php esc_html_e('ACA Pro License', 'aca'); ?></h3>
             <p><?php esc_html_e('Enter your license key to unlock all features and receive updates.', 'aca'); ?></p>
-            <input type="text" id="aca_license_key" name="aca_license_key" value="<?php echo esc_attr(get_option('aca_license_key')); ?>" class="regular-text">
+            <?php $lic_key = get_option('aca_license_key'); ?>
+            <?php $placeholder = ! empty( $lic_key ) ? __('***************** (already saved)', 'aca') : ''; ?>
+            <input type="text" id="aca_license_key" name="aca_license_key" value="" placeholder="<?php echo esc_attr( $placeholder ); ?>" class="regular-text">
             <button type="button" class="button" id="aca-validate-license"><?php esc_html_e('Validate License', 'aca'); ?></button>
             <span id="aca-license-status" style="margin-left: 10px;"></span>
             <?php submit_button(esc_html__('Activate License', 'aca')); ?>

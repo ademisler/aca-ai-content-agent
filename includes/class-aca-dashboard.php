@@ -41,20 +41,11 @@ class ACA_AI_Content_Agent_Dashboard {
     }
 
     private static function render_overview_section() {
-        global $wpdb;
-        $ideas_table = $wpdb->prefix . 'aca_ai_content_agent_ideas';
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        $pending_ideas = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(id) FROM {$ideas_table} WHERE status = %s", 'pending' ) );
+        $pending_ideas = ACA_AI_Content_Agent_Engine::get_idea_count_by_status( 'pending' );
         $api_usage = get_option('aca_ai_content_agent_api_usage_current_month', 0);
         $api_limit = get_option('aca_ai_content_agent_options', [])['api_monthly_limit'] ?? 0;
 
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        $drafted_posts = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(id) FROM {$ideas_table} WHERE status = %s", 'drafted' ) );
+        $drafted_posts = ACA_AI_Content_Agent_Engine::get_idea_count_by_status( 'drafted' );
 
         echo '<h2>' . esc_html__( 'Overview', 'aca-ai-content-agent' ) . '</h2>';
         /* translators: 1: current API usage, 2: API limit */
@@ -68,10 +59,12 @@ class ACA_AI_Content_Agent_Dashboard {
     private static function render_idea_stream_section() {
         global $wpdb;
         $ideas_table = $wpdb->prefix . 'aca_ai_content_agent_ideas';
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectDatabaseQuery.NoCaching
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectDatabaseQuery.NoCaching
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        $ideas = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$ideas_table} WHERE status = %s ORDER BY generated_date DESC", 'pending' ) );
+        $ideas       = $wpdb->get_results(
+            $wpdb->prepare(
+                'SELECT * FROM ' . $ideas_table . ' WHERE status = %s ORDER BY generated_date DESC',
+                'pending'
+            )
+        );
 
         echo '<h2>' . esc_html__( 'Idea Stream', 'aca-ai-content-agent' ) . '</h2>';
 
@@ -103,12 +96,7 @@ class ACA_AI_Content_Agent_Dashboard {
     }
 
     private static function render_recent_activity_section() {
-        global $wpdb;
-        $logs_table = $wpdb->prefix . 'aca_ai_content_agent_logs';
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectDatabaseQuery.NoCaching
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectDatabaseQuery.NoCaching
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        $logs = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$logs_table} ORDER BY timestamp DESC LIMIT %d", 10 ) );
+        $logs = ACA_AI_Content_Agent_Engine::get_recent_logs( 10 );
 
         echo '<h2>' . esc_html__( 'Quick Actions', 'aca-ai-content-agent' ) . '</h2>';
         echo '<button class="button" id="aca-ai-content-agent-generate-style-guide">' . esc_html__( 'Update Style Guide Manually', 'aca-ai-content-agent' ) . '</button>';

@@ -171,11 +171,15 @@ class ACA_AI_Content_Agent_Cron {
      */
     public function clean_logs( $retention_days = 60 ) {
         global $wpdb;
-        $table = $wpdb->prefix . 'aca_ai_content_agent_logs';
+        $table  = $wpdb->prefix . 'aca_ai_content_agent_logs';
         $cutoff = gmdate( 'Y-m-d H:i:s', strtotime( '-' . absint( $retention_days ) . ' days' ) );
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        $wpdb->query( $wpdb->prepare( "DELETE FROM {$table} WHERE timestamp < %s", $cutoff ) );
+        $wpdb->query(
+            $wpdb->prepare(
+                'DELETE FROM ' . $table . ' WHERE timestamp < %s',
+                $cutoff
+            )
+        );
+        wp_cache_delete( 'aca_latest_error' );
     }
 
     /**

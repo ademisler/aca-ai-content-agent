@@ -25,9 +25,9 @@ class ACA_AI_Content_Agent_Engine {
         $wpdb->insert(
             $table_name,
             [
-                'message'   => $message,
-                'level'     => $type,
-                'timestamp' => current_time('mysql'),
+                'log_message'   => $message,
+                'log_type'     => $type,
+                'created_at' => current_time('mysql'),
             ]
         );
     }
@@ -193,8 +193,8 @@ class ACA_AI_Content_Agent_Engine {
                 $wpdb->insert(
                     $table_name,
                     [
-                        'title' => $cleaned_idea,
-                        'generated_date' => current_time('mysql'),
+                        'idea_title' => $cleaned_idea,
+                    'created_at' => current_time('mysql'),
                     ]
                 );
                 $inserted_ids[] = $wpdb->insert_id;
@@ -231,7 +231,7 @@ class ACA_AI_Content_Agent_Engine {
             }
         }
 
-        self::add_log(sprintf('Attempting to write draft for idea #%d: "%s"', $idea_id, $idea->title));
+        self::add_log(sprintf('Attempting to write draft for idea #%d: "%s"', $idea_id, $idea->idea_title));
 
         $options   = get_option('aca_ai_content_agent_options');
         $prompts   = self::get_prompts();
@@ -249,7 +249,7 @@ class ACA_AI_Content_Agent_Engine {
         $parts = self::parse_ai_response($response);
 
         $post_data = [
-            'post_title'  => $idea->title,
+            'post_title'  => $idea->idea_title,
             'post_content'=> $parts['content'],
             'post_status' => 'draft',
             'post_author' => $options['default_author'] ?? get_current_user_id(),
@@ -671,7 +671,7 @@ class ACA_AI_Content_Agent_Engine {
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $wpdb->insert($cluster_table, [
             'topic'      => $topic,
-            'generated_date' => current_time('mysql'),
+            'created_at' => current_time('mysql'),
         ]);
         $cluster_id = $wpdb->insert_id;
 
@@ -680,7 +680,7 @@ class ACA_AI_Content_Agent_Engine {
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->insert($item_table, [
                 'cluster_id'     => $cluster_id,
-                'subtopic' => $sub,
+                'subtopic_title' => $sub,
             ]);
         }
 
@@ -840,7 +840,7 @@ class ACA_AI_Content_Agent_Engine {
                     $table_name,
                     [
                         'title' => $clean,
-                        'generated_date' => current_time('mysql'),
+                        'created_at' => current_time('mysql'),
                     ]
                 );
                 $inserted_ids[] = $wpdb->insert_id;

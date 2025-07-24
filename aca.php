@@ -125,7 +125,7 @@ class ACA_Bootstrap {
         $sql_ideas = "CREATE TABLE $table_name_ideas (
             id mediumint(9) NOT NULL AUTO_INCREMENT,
             idea_title text NOT NULL,
-            status varchar(20) NOT NULL DEFAULT 'pending', // pending, approved, rejected, drafted
+            status varchar(20) NOT NULL DEFAULT 'pending', -- pending, approved, rejected, drafted
             created_at datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
             feedback tinyint(1) DEFAULT 0, -- -1 for downvote, 1 for upvote, 0 for no feedback
             PRIMARY KEY  (id)
@@ -137,7 +137,7 @@ class ACA_Bootstrap {
         $sql_logs = "CREATE TABLE $table_name_logs (
             id mediumint(9) NOT NULL AUTO_INCREMENT,
             log_message text NOT NULL,
-            log_type varchar(20) NOT NULL DEFAULT 'info', // info, success, warning, error
+            log_type varchar(20) NOT NULL DEFAULT 'info', -- info, success, warning, error
             created_at datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
             PRIMARY KEY  (id)
         ) $charset_collate;";

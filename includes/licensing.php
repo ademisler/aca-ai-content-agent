@@ -15,7 +15,8 @@ function aca_maybe_check_license( $force = false ) {
         return $cached === 'valid';
     }
 
-    $license_key = get_option( 'aca_license_key' );
+    $license_key_enc = get_option( 'aca_license_key' );
+    $license_key     = ! empty( $license_key_enc ) ? aca_safe_decrypt( $license_key_enc ) : '';
     if ( empty( $license_key ) ) {
         set_transient( 'aca_license_status', 'invalid', WEEK_IN_SECONDS );
         update_option( 'aca_is_pro_active', 'false' );

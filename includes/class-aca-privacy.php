@@ -23,6 +23,7 @@ class ACA_Privacy {
         if ( $user && user_can( $user, 'manage_aca_settings' ) ) {
             $options  = get_option( 'aca_options', [] );
             $license  = get_option( 'aca_license_key', '' );
+            $license  = $license ? aca_safe_decrypt( $license ) : '';
             $api_key  = get_option( 'aca_gemini_api_key', '' );
             $data[] = [
                 'name'  => __( 'ACA Options', 'aca' ),

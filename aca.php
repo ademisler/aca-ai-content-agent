@@ -7,6 +7,7 @@
  * Author URI: https://ademisler.com
  * Text Domain: aca
  * Domain Path: /languages
+ * License: GPLv2 or later
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

@@ -172,7 +172,7 @@ class ACA_Cron {
     public function clean_logs( $retention_days = 60 ) {
         global $wpdb;
         $table = $wpdb->prefix . 'aca_logs';
-        $cutoff = date( 'Y-m-d H:i:s', strtotime( '-' . absint( $retention_days ) . ' days' ) );
+        $cutoff = gmdate( 'Y-m-d H:i:s', strtotime( '-' . absint( $retention_days ) . ' days' ) );
         $wpdb->query( $wpdb->prepare( "DELETE FROM $table WHERE created_at < %s", $cutoff ) );
     }
 

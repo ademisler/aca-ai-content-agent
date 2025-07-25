@@ -26,7 +26,7 @@ class ACA_Onboarding {
         add_dashboard_page(
             esc_html__('Welcome to ACA', 'aca-ai-content-agent'),
             null, // Hide from menu
-            'manage_options',
+            'manage_aca_ai_content_agent_settings',
             'aca-ai-content-agent-onboarding',
             [$this, 'render_onboarding_page']
         );

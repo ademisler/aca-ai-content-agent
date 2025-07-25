@@ -25,9 +25,9 @@ class ACA_AI_Content_Agent_Engine {
         $wpdb->insert(
             $table_name,
             [
-                'log_message'   => $message,
-                'log_type'     => $type,
-                'created_at' => current_time('mysql'),
+                'message'   => $message,
+                'level'     => $type,
+                'timestamp' => current_time('mysql'),
             ]
         );
     }
@@ -193,8 +193,8 @@ class ACA_AI_Content_Agent_Engine {
                 $wpdb->insert(
                     $table_name,
                     [
-                        'idea_title' => $cleaned_idea,
-                    'created_at' => current_time('mysql'),
+                        'title' => $cleaned_idea,
+                    'generated_date' => current_time('mysql'),
                     ]
                 );
                 $inserted_ids[] = $wpdb->insert_id;
@@ -231,7 +231,7 @@ class ACA_AI_Content_Agent_Engine {
             }
         }
 
-        self::add_log(sprintf('Attempting to write draft for idea #%d: "%s"', $idea_id, $idea->idea_title));
+        self::add_log(sprintf('Attempting to write draft for idea #%d: "%s"', $idea_id, $idea->title));
 
         $options   = get_option('aca_ai_content_agent_options');
         $prompts   = self::get_prompts();
@@ -248,16 +248,19 @@ class ACA_AI_Content_Agent_Engine {
 
         $parts = self::parse_ai_response($response);
 
+        $wpdb->query('START TRANSACTION');
+
         $post_data = [
-            'post_title'  => $idea->idea_title,
+            'post_title'  => $idea->title,
             'post_content'=> $parts['content'],
             'post_status' => 'draft',
             'post_author' => $options['default_author'] ?? get_current_user_id(),
         ];
 
-        $post_id = wp_insert_post($post_data);
+        $post_id = wp_insert_post($post_data, true);
 
         if (is_wp_error($post_id)) {
+            $wpdb->query('ROLLBACK');
             self::add_log('Failed to insert post into database: ' . $post_id->get_error_message(), 'error');
             return $post_id;
         }
@@ -271,27 +274,20 @@ class ACA_AI_Content_Agent_Engine {
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectDatabaseQuery.NoCaching
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectDatabaseQuery.NoCaching
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-        $wpdb->update(
+        $updated = $wpdb->update(
             $table_name,
-            ['status' => 'drafted'],
+            ['status' => 'drafted', 'post_id' => $post_id],
             ['id' => $idea_id]
         );
 
-        self::add_log(sprintf('Successfully created draft (Post ID: %d) for idea #%d.', $post_id, $idea_id), 'success');
-
-        // Additional enrichment steps
-        if (!is_wp_error($post_id)) {
-            if (!empty($parts['tags'])) {
-                wp_set_post_tags($post_id, $parts['tags']);
-            }
-            if (!empty($parts['meta_description'])) {
-                update_post_meta($post_id, '_aca_ai_content_agent_meta_description', $parts['meta_description']);
-            }
-
-            self::enrich_draft($post_id, $response, $idea->title);
+        if (false === $updated) {
+            $wpdb->query('ROLLBACK');
+            $error_message = 'Failed to update idea status in the database.';
+            self::add_log($error_message, 'error');
+            return new WP_Error('database_error', $error_message);
         }
 
-        // ... (rest of the function is the same)
+        $wpdb->query('COMMIT');
 
         return $post_id;
     }
@@ -408,24 +404,11 @@ class ACA_AI_Content_Agent_Engine {
         $keywords = self::extract_keywords($post->post_title . ' ' . wp_strip_all_tags($content), 10);
         $inserted = 0;
 
-        global $wpdb;
-        $likes = [];
-        foreach ($keywords as $kw) {
-            $like = '%' . $wpdb->esc_like($kw) . '%';
-            $likes[] = $wpdb->prepare('(post_title LIKE %s)', $like); // Sadece post_title'da arama
-        }
-
         if (!empty($keywords)) {
-            $where_conditions = [];
-            $sql_values = [$post_id];
-            foreach ($keywords as $kw) {
-                $where_conditions[] = '(post_title LIKE %s)'; // Sadece post_title'da arama
-                $sql_values[] = '%' . $wpdb->esc_like($kw) . '%';
-            }
-
-            $where_clause = implode(' OR ', $where_conditions);
+            global $wpdb;
+            $regexp = implode('|', array_map([$wpdb, 'esc_like'], $keywords));
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        $targets = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, post_content FROM {$wpdb->posts} WHERE post_status='publish' AND post_type='post' AND ID != %d AND ({$where_clause})", ...$sql_values));
+            $targets = $wpdb->get_results($wpdb->prepare("SELECT ID, post_title, post_content FROM {$wpdb->posts} WHERE post_status='publish' AND post_type='post' AND ID != %d AND (post_title REGEXP %s OR post_content REGEXP %s)", $post_id, $regexp, $regexp));
 
             foreach ($keywords as $keyword) {
                 foreach ($targets as $t) {
@@ -543,7 +526,7 @@ class ACA_AI_Content_Agent_Engine {
             return;
         }
 
-        $type = wp_check_filetype($url);
+        $type = wp_check_filetype($tmp);
         if (function_exists('getimagesize')) {
             $info = @getimagesize($tmp);
             if ($info && ! empty($info['mime'])) {
@@ -671,7 +654,7 @@ class ACA_AI_Content_Agent_Engine {
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $wpdb->insert($cluster_table, [
             'topic'      => $topic,
-            'created_at' => current_time('mysql'),
+            'generated_date' => current_time('mysql'),
         ]);
         $cluster_id = $wpdb->insert_id;
 
@@ -840,7 +823,7 @@ class ACA_AI_Content_Agent_Engine {
                     $table_name,
                     [
                         'title' => $clean,
-                        'created_at' => current_time('mysql'),
+                        'generated_date' => current_time('mysql'),
                     ]
                 );
                 $inserted_ids[] = $wpdb->insert_id;

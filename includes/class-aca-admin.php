@@ -124,9 +124,27 @@ class ACA_AI_Content_Agent_Admin {
         if (is_wp_error($result)) {
             wp_send_json_error($result->get_error_message());
         } else {
+            global $wpdb;
+            $ideas_table = $wpdb->prefix . 'aca_ai_content_agent_ideas';
+            $ideas_html = '';
+            if ( ! empty( $result ) ) {
+                foreach ($result as $idea_id) {
+                    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                    $idea = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$ideas_table} WHERE id = %d", $idea_id ) );
+                    if ($idea) {
+                        $ideas_html .= '<li data-id="' . esc_attr( $idea->id ) . '">' . esc_html( $idea->title ) .
+                             ' <button class="button-primary aca-ai-content-agent-write-draft" data-id="' . esc_attr( $idea->id ) . '">' . esc_html__( 'Write Draft', 'aca-ai-content-agent' ) . '</button>' .
+                             ' <span class="aca-ai-content-agent-draft-status"></span>' .
+                             ' <button class="button-secondary aca-ai-content-agent-reject-idea" data-id="' . esc_attr( $idea->id ) . '">' . esc_html__( 'Reject', 'aca-ai-content-agent' ) . '</button>' .
+                             ' <button class="button aca-ai-content-agent-feedback-btn" data-value="1">👍</button>' .
+                             ' <button class="button aca-ai-content-agent-feedback-btn" data-value="-1">👎</button>' .
+                             '</li>';
+                    }
+                }
+            }
             /* translators: %d: number of ideas */
             $message = sprintf(esc_html(_n('%d new idea generated.', '%d new ideas generated.', count($result), 'aca-ai-content-agent')), count($result));
-            wp_send_json_success(['message' => $message]);
+            wp_send_json_success(['message' => $message, 'ideas_html' => $ideas_html]);
         }
     }
 
@@ -203,11 +221,10 @@ class ACA_AI_Content_Agent_Admin {
             wp_send_json_error(esc_html__('Product ID is not configured in the plugin.', 'aca-ai-content-agent'));
         }
 
-                        if ( ! isset( $_POST['license_key'] ) ) {
+                        if ( ! isset( $_POST['license_key'] ) || empty( trim( $_POST['license_key'] ) ) ) {
             wp_send_json_error( esc_html__( 'License key cannot be empty.', 'aca-ai-content-agent' ) );
         }
 
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         $license_key = sanitize_text_field( wp_unslash( $_POST['license_key'] ) );
         $api_url = 'https://api.gumroad.com/v2/licenses/verify';
 
@@ -360,9 +377,27 @@ class ACA_AI_Content_Agent_Admin {
         if (is_wp_error($result)) {
             wp_send_json_error($result->get_error_message());
         } else {
+            global $wpdb;
+            $ideas_table = $wpdb->prefix . 'aca_ai_content_agent_ideas';
+            $ideas_html = '';
+            if ( ! empty( $result ) ) {
+                foreach ($result as $idea_id) {
+                    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                    $idea = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$ideas_table} WHERE id = %d", $idea_id ) );
+                    if ($idea) {
+                        $ideas_html .= '<li data-id="' . esc_attr( $idea->id ) . '">' . esc_html( $idea->title ) .
+                             ' <button class="button-primary aca-ai-content-agent-write-draft" data-id="' . esc_attr( $idea->id ) . '">' . esc_html__( 'Write Draft', 'aca-ai-content-agent' ) . '</button>' .
+                             ' <span class="aca-ai-content-agent-draft-status"></span>' .
+                             ' <button class="button-secondary aca-ai-content-agent-reject-idea" data-id="' . esc_attr( $idea->id ) . '">' . esc_html__( 'Reject', 'aca-ai-content-agent' ) . '</button>' .
+                             ' <button class="button aca-ai-content-agent-feedback-btn" data-value="1">👍</button>' .
+                             ' <button class="button aca-ai-content-agent-feedback-btn" data-value="-1">👎</button>' .
+                             '</li>';
+                    }
+                }
+            }
             /* translators: %d: number of ideas */
             $message = sprintf(esc_html(_n('%d new idea generated.', '%d new ideas generated.', count($result), 'aca-ai-content-agent')), count($result));
-            wp_send_json_success(['message' => $message]);
+            wp_send_json_success(['message' => $message, 'ideas_html' => $ideas_html]);
         }
     }
 
@@ -427,37 +462,56 @@ class ACA_AI_Content_Agent_Admin {
      * Display admin notices.
      */
     public function display_admin_notices() {
-        if ( empty( get_option( 'aca_ai_content_agent_gemini_api_key' ) ) ) {
+        if ( false === ( $api_key_notice = get_transient( 'aca_admin_notice_api_key' ) ) ) {
+            $api_key_notice = empty( get_option( 'aca_ai_content_agent_gemini_api_key' ) );
+            set_transient( 'aca_admin_notice_api_key', $api_key_notice, 5 * MINUTE_IN_SECONDS );
+        }
+        if ( $api_key_notice ) {
             echo '<div class="notice notice-warning is-dismissible"><p>' . esc_html__( 'ACA: API key is not set. Please set it in the', 'aca-ai-content-agent' ) . ' <a href="?page=aca-ai-content-agent&amp;tab=settings">' . esc_html__( 'settings', 'aca-ai-content-agent' ) . '</a>.</p></div>';
         }
 
-        $options = get_option('aca_ai_content_agent_options');
-        $limit = $options['api_monthly_limit'] ?? 0;
-        $usage = get_option('aca_ai_content_agent_api_usage_current_month', 0);
+        if ( false === ( $usage_notice = get_transient( 'aca_admin_notice_usage' ) ) ) {
+            $options = get_option('aca_ai_content_agent_options');
+            $limit = $options['api_monthly_limit'] ?? 0;
+            $usage = get_option('aca_ai_content_agent_api_usage_current_month', 0);
+            $usage_notice = ( $limit > 0 && $usage / $limit >= 0.8 );
+            set_transient( 'aca_admin_notice_usage', $usage_notice, 5 * MINUTE_IN_SECONDS );
+        }
 
-        if ( $limit > 0 && $usage / $limit >= 0.8 ) {
+        if ( $usage_notice ) {
             /* translators: %s: percentage of usage */
             echo '<div class="notice notice-warning is-dismissible"><p>' . sprintf( esc_html__( 'ACA: You have used %s%% or more of your monthly API call limit.', 'aca-ai-content-agent' ), '80' ) . '</p></div>';
         }
 
-        global $wpdb;
-        $ideas_table = $wpdb->prefix . 'aca_ai_content_agent_ideas';
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        $pending = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(id) FROM {$ideas_table} WHERE status = %s", 'pending' ) );
-        if ($pending > 0) {
-            /* translators: %d: number of pending ideas */
-            echo '<div class="notice notice-info is-dismissible"><p>' . sprintf( esc_html__( 'ACA: %d new ideas are awaiting your review.', 'aca-ai-content-agent' ), esc_html( $pending ) ) . ' <a href="?page=aca-ai-content-agent&amp;tab=dashboard">' . esc_html__( 'Open Dashboard', 'aca-ai-content-agent' ) . '</a></p></div>';
+        if ( false === ( $pending_ideas_notice = get_transient( 'aca_admin_notice_pending_ideas' ) ) ) {
+            global $wpdb;
+            $ideas_table = $wpdb->prefix . 'aca_ai_content_agent_ideas';
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            $pending = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(id) FROM {$ideas_table} WHERE status = %s", 'pending' ) );
+            $pending_ideas_notice = $pending;
+            set_transient( 'aca_admin_notice_pending_ideas', $pending_ideas_notice, 5 * MINUTE_IN_SECONDS );
         }
 
-        $logs_table = $wpdb->prefix . 'aca_ai_content_agent_logs';
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-        $latest_error = $wpdb->get_row( $wpdb->prepare( "SELECT message FROM {$logs_table} WHERE level = %s AND timestamp >= %s ORDER BY id DESC LIMIT 1", 'error', gmdate( 'Y-m-d H:i:s', strtotime( '-1 day' ) ) ) );
-        if ( $latest_error ) {
-            echo '<div class="notice notice-error is-dismissible"><p>' . esc_html( $latest_error->message ) . '</p></div>';
+        if ($pending_ideas_notice > 0) {
+            /* translators: %d: number of pending ideas */
+            echo '<div class="notice notice-info is-dismissible"><p>' . sprintf( esc_html__( 'ACA: %d new ideas are awaiting your review.', 'aca-ai-content-agent' ), esc_html( $pending_ideas_notice ) ) . ' <a href="?page=aca-ai-content-agent&amp;tab=dashboard">' . esc_html__( 'Open Dashboard', 'aca-ai-content-agent' ) . '</a></p></div>';
+        }
+
+        if ( false === ( $latest_error_notice = get_transient( 'aca_admin_notice_latest_error' ) ) ) {
+            global $wpdb;
+            $logs_table = $wpdb->prefix . 'aca_ai_content_agent_logs';
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            $latest_error = $wpdb->get_row( $wpdb->prepare( "SELECT message FROM {$logs_table} WHERE level = %s AND timestamp >= %s ORDER BY id DESC LIMIT 1", 'error', gmdate( 'Y-m-d H:i:s', strtotime( '-1 day' ) ) ) );
+            $latest_error_notice = $latest_error;
+            set_transient( 'aca_admin_notice_latest_error', $latest_error_notice, 5 * MINUTE_IN_SECONDS );
+        }
+
+        if ( $latest_error_notice ) {
+            echo '<div class="notice notice-error is-dismissible"><p>' . esc_html( $latest_error_notice->message ) . '</p></div>';
         }
     }
 
@@ -1055,7 +1109,7 @@ class ACA_AI_Content_Agent_Admin {
      * Add update suggestion link on post list rows.
      */
     public function add_update_link($actions, $post) {
-        if ($post->post_type === 'post' && $post->post_status === 'publish' && current_user_can('manage_aca_settings')) {
+        if ($post->post_type === 'post' && $post->post_status === 'publish' && current_user_can('manage_aca_ai_content_agent_settings')) {
             $actions['aca_ai_content_agent_update'] = '<a href="#" class="aca-ai-content-agent-suggest-update" data-post-id="' . $post->ID . '">' . esc_html__( 'Get Update Suggestion with ACA', 'aca-ai-content-agent' ) . '</a>';
         }
         return $actions;

@@ -1,6 +1,6 @@
 # AGENT.md - ACA - AI Content Agent (Definitive Developer's Guide)
 
-**Version: 1.1**
+**Version: 1.2**
 **Last Updated:** 2025-07-25
 
 This document provides a definitive, highly-detailed technical overview of the "ACA - AI Content Agent" WordPress plugin. It is structured to guide developers and AI tools from high-level concepts down to specific implementation details, workflows, and known issues.
@@ -94,43 +94,58 @@ This workflow runs in the background for semi-automatic and fully-automatic mode
 4.  **Logic**: It checks the `working_mode` option. If not `manual`, it calls `ACA_AI_Content_Agent_Engine::generate_ideas()`.
 5.  **Engine**: The engine gets existing post titles, builds a prompt, calls the Gemini API via the gateway, parses the response, and inserts the new ideas into the `..._ideas` table with a `pending` status.
 
-## 5. Critical Code Analysis & Known Issues
+## 5. Code Analysis & Known Issues
 
--   **Database Column Mismatch (CRITICAL BUG)**:
-    -   **Location**: `includes/class-aca.php` in methods `add_log`, `generate_ideas`, `generate_content_cluster`.
-    -   **Issue**: The `$wpdb->insert` calls use incorrect, non-existent keys in their data arrays (e.g., `idea_title` instead of `title`, `created_at` instead of `generated_date`).
-    -   **Impact**: The code only functions due to a loose MySQL mode that maps values sequentially. This is extremely brittle and will break if the database schema or column order changes. **This is the highest priority bug to fix.**
-
--   **Non-Existent Capability Check (BUG)**:
-    -   **Location**: `includes/class-aca-admin.php` in method `add_update_link`.
-    -   **Issue**: The code checks for `current_user_can('manage_aca_settings')`. However, the plugin registers the capability `manage_aca_ai_content_agent_settings` in `aca.php`. 
-    -   **Impact**: The capability check will always fail, meaning the "Get Update Suggestion with ACA" link will never appear on the post list for any user. The correct capability must be used.
-
--   **Uncached Admin Queries (Performance Concern)**:
-    -   **Location**: `includes/class-aca-admin.php` in method `display_admin_notices`.
-    -   **Issue**: This method runs three separate database queries (`get_option`, `$wpdb->get_var`, `$wpdb->get_row`) on **every single admin page load** to generate potential notices. These queries are not cached.
-    -   **Impact**: On sites with very large `..._ideas` or `..._logs` tables, this can add unnecessary database load and slow down the entire WordPress admin experience. These queries should be cached using transients, similar to how the dashboard widgets are.
-
--   **Inefficient Internal Linking (Performance & Quality Concern)**:
-    -   **Location**: `includes/class-aca.php` in method `add_internal_links`.
-    -   **Issue**: The function queries the entire `wp_posts` table using multiple `LIKE` conditions, which is one of the most inefficient query types in SQL, especially on large tables. The keyword extraction is also very basic.
-    -   **Impact**: This can cause significant performance degradation when creating a draft on a site with a large amount of content. The quality of the links may also be poor as it just links the first keyword occurrence it finds.
-
--   **Lack of Transactional Integrity (Robustness Concern)**:
+-   **Incomplete Data Cleanup on Uninstall (FIXED)**:
+    -   **Location**: `uninstall.php`.
+    -   **Issue**: The uninstall script was deleting plugin-specific options from the `wp_options` table but was not deleting the transients (temporary cached data) created by the plugin, leaving orphaned data in the database.
+    -   **Status**: **Fixed**. The script now includes additional queries to properly remove all related transients upon uninstallation.
+-   **Missing Deactivation Hook (FIXED)**:
+    -   **Location**: `aca.php`.
+    -   **Issue**: The plugin had a deactivation function (`aca_ai_content_agent_deactivate`) but it was never registered with `register_deactivation_hook`. This meant that scheduled actions and custom capabilities were not being cleaned up when the plugin was deactivated.
+    -   **Status**: **Fixed**. The deactivation hook has been correctly registered.
+-   **Insecure Activation Redirect (FIXED)**:
+    -   **Location**: `aca.php` in `ACA_Bootstrap::activate`.
+    -   **Issue**: The post-activation redirect logic was handled directly within the activation hook and checked a `$_GET` variable without a nonce, creating a minor open redirect vulnerability.
+    -   **Status**: **Fixed**. The redirect logic was moved to a new handler hooked into `admin_init`, which is a safer and more standard way to handle post-activation redirects.
+-   **DB Schema Mismatch in Clusters (FIXED)**:
+    -   **Location**: `aca.php` in `ACA_Bootstrap::create_custom_tables`.
+    -   **Issue**: The `..._cluster_items` database table was created with a column named `subtopic`, but the rest of the code expected this column to be `subtopic_title`.
+    -   **Status**: **Fixed**. The table schema has been corrected to use `subtopic_title`.
+-   **CSRF Vulnerability in License Handling (FIXED)**:
+    -   **Location**: `includes/class-aca-admin.php` in method `handle_ajax_validate_license`.
+    -   **Issue**: The method was suppressing a `WordPress.Security.NonceVerification.Recommended` warning, potentially allowing a Cross-Site Request Forgery (CSRF) attack. An attacker could have tricked an administrator into activating a different license key.
+    -   **Status**: **Fixed**. The unnecessary `phpcs:ignore` has been removed, and proper nonce verification is now enforced for all AJAX requests, including license validation.
+-   **Incomplete Transaction Rollback (FIXED)**:
     -   **Location**: `includes/class-aca.php` in method `write_post_draft`.
-    -   **Issue**: The method performs several distinct operations: API call, `wp_insert_post`, `wpdb->update` on the idea status. If a later step fails (e.g., the final `wpdb->update`), the system is left in an inconsistent state (e.g., a draft exists but the idea is still marked as `pending`).
-    -   **Impact**: This can lead to duplicate drafts being created from a single idea and a confusing user experience.
-
--   **Broad Author Capability Grant (Design Concern)**:
-    -   **Location**: `aca.php` in method `ACA_Bootstrap::add_custom_capabilities`.
-    -   **Issue**: The `author` role is granted the `view_aca_ai_content_agent_dashboard` capability.
-    -   **Impact**: This means regular authors can see the ideas and activities of all other users, including administrators, which may not be desirable from a privacy or workflow perspective.
+    -   **Issue**: If updating the idea's status failed in the database, the transaction was rolled back, but the function proceeded to the enrichment steps instead of stopping.
+    -   **Status**: **Fixed**. The function now correctly exits after a failed database update and rollback.
+-   **Incorrect File Type Check (FIXED)**:
+    -   **Location**: `includes/class-aca.php` in method `maybe_set_featured_image`.
+    -   **Issue**: The `wp_check_filetype` function was incorrectly called with a URL (`$url`) instead of the local temporary file path (`$tmp`), causing the file type validation to fail.
+    -   **Status**: **Fixed**. The function now correctly uses the temporary file path for validation.
+-   **Faulty Cron Rescheduling (FIXED)**:
+    -   **Location**: `includes/class-aca-cron.php` in method `schedule_events`.
+    -   **Issue**: The method cleared and rescheduled all cron jobs every time any plugin setting was updated. This caused scheduled tasks like the monthly API counter reset to be postponed incorrectly.
+    -   **Status**: **Fixed**. The logic has been updated to only unschedule or reschedule jobs when their specific controlling setting (e.g., frequency, mode) is changed, preventing unintended shifts in schedule.
+-   **Redundant Logic in Automation (FIXED)**:
+    -   **Location**: `includes/class-aca-cron.php` in method `run_main_automation`.
+    -   **Issue**: In `full-auto` mode, the code was unnecessarily using `array_slice` to limit the number of ideas to process, even though the `generate_ideas` function already respects this limit.
+    -   **Status**: **Fixed**. The redundant `array_slice` call has been removed to simplify the code.
+-   **Disruptive Page Reload on Idea Generation (FIXED)**:
+    -   **Location**: `admin/js/aca-admin.js`.
+    -   **Issue**: After generating new ideas, the page would automatically reload, causing a poor user experience by losing the user's scroll position and context.
+    -   **Status**: **Fixed**. The `location.reload()` call was removed. The AJAX handler now returns the HTML for the new ideas, which are dynamically inserted into the list on the frontend.
+-   **Unclear Feedback State in UI (FIXED)**:
+    -   **Location**: `admin/js/aca-admin.js`.
+    -   **Issue**: Clicking a feedback button (👍/👎) only changed its opacity, which did not clearly indicate that the action was successfully processed and that no further action was needed.
+    -   **Status**: **Fixed**. After clicking, both feedback buttons for an idea are now disabled and styled with reduced opacity to provide clear visual confirmation.
 
 ## 6. How to Extend the Plugin
 
 ### Adding a New Setting
 1.  **Add the Field**: In `class-aca-admin.php::register_settings()`, add a new `add_settings_field()` call and a corresponding `render_*_field()` method to display the HTML.
-2.  **Sanitize the Input**: In `class-aca-admin.php::sanitize_options()`, add the new setting's key to the ` from the `$input` array and applying the correct sanitization function (e.g., `sanitize_text_field`, `absint`).
+2.  **Sanitize the Input**: In `class-aca-admin.php::sanitize_options()`, add the new setting's key to the `$new_input` array from the `$input` array and applying the correct sanitization function (e.g., `sanitize_text_field`, `absint`).
 3.  **Use the Setting**: Access the new setting from the global options array: `$options = get_option('aca_ai_content_agent_options'); $my_setting = $options['new_setting_key'];`
 
 ### Adding a New Enrichment Step

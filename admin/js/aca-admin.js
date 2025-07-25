@@ -87,7 +87,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (result.success) {
                     ideasStatus.textContent = result.data.message;
                     ideasStatus.style.color = '#228B22';
-                    setTimeout(() => location.reload(), 1000); // Refresh to show new ideas
+                    if (result.data.ideas_html) {
+                        ideaList.insertAdjacentHTML('afterbegin', result.data.ideas_html);
+                    }
                 } else {
                     ideasStatus.textContent = 'Error: ' + result.data;
                     ideasStatus.style.color = '#DC143C';
@@ -157,9 +159,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (button.classList.contains('aca-ai-content-agent-feedback-btn')) {
                 const value = button.dataset.value;
+                const feedbackButtons = listItem.querySelectorAll('.aca-ai-content-agent-feedback-btn');
                 handleApiRequest('aca_ai_content_agent_submit_feedback', { id: ideaId, value: value }, button, button)
                 .then(() => {
-                    button.style.opacity = '0.5';
+                    feedbackButtons.forEach(btn => {
+                        btn.disabled = true;
+                        btn.style.opacity = '0.5';
+                    });
                 });
             }
         });
@@ -232,7 +238,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (result.success) {
                     ideasStatus.textContent = result.data.message;
                     ideasStatus.style.color = '#228B22';
-                    setTimeout(() => location.reload(), 1000);
+                    if (result.data.ideas_html) {
+                        ideaList.insertAdjacentHTML('afterbegin', result.data.ideas_html);
+                    }
                 } else {
                     ideasStatus.textContent = 'Error: ' + result.data;
                     ideasStatus.style.color = '#DC143C';

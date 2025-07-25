@@ -34,21 +34,6 @@ class ACA_AI_Content_Agent_Cron {
      * Schedule or clear cron events based on settings.
      */
     public function schedule_events() {
-        // Clear existing hooks to ensure we're using the latest settings.
-        if ( function_exists( 'as_unschedule_all_actions' ) ) {
-            as_unschedule_all_actions( 'aca_ai_content_agent_run_main_automation' );
-            as_unschedule_all_actions( 'aca_ai_content_agent_reset_api_usage_counter' );
-            as_unschedule_all_actions( 'aca_ai_content_agent_generate_style_guide' );
-            as_unschedule_all_actions( 'aca_ai_content_agent_verify_license' );
-            as_unschedule_all_actions( 'aca_ai_content_agent_clean_logs' );
-        } else {
-            wp_clear_scheduled_hook( 'aca_ai_content_agent_run_main_automation' );
-            wp_clear_scheduled_hook( 'aca_ai_content_agent_reset_api_usage_counter' );
-            wp_clear_scheduled_hook( 'aca_ai_content_agent_generate_style_guide' );
-            wp_clear_scheduled_hook( 'aca_ai_content_agent_verify_license' );
-            wp_clear_scheduled_hook( 'aca_ai_content_agent_clean_logs' );
-        }
-
         $options = get_option('aca_ai_content_agent_options');
         $working_mode = $options['working_mode'] ?? 'manual';
         $frequency = $options['automation_frequency'] ?? 'daily';
@@ -70,16 +55,21 @@ class ACA_AI_Content_Agent_Cron {
             } elseif ( ! wp_next_scheduled( 'aca_ai_content_agent_run_main_automation' ) ) {
                 wp_schedule_event( time(), $frequency, 'aca_ai_content_agent_run_main_automation' );
             }
+        } else {
+            if ( function_exists( 'as_unschedule_all_actions' ) ) {
+                as_unschedule_all_actions( 'aca_ai_content_agent_run_main_automation' );
+            } else {
+                wp_clear_scheduled_hook( 'aca_ai_content_agent_run_main_automation' );
+            }
         }
 
         // Schedule the monthly API counter reset task, regardless of mode.
-        $monthly_interval = MONTH_IN_SECONDS;
         if ( function_exists( 'as_next_scheduled_action' ) ) {
             if ( ! as_next_scheduled_action( 'aca_ai_content_agent_reset_api_usage_counter' ) ) {
-                as_schedule_recurring_action( time(), $monthly_interval, 'aca_ai_content_agent_reset_api_usage_counter' );
+                as_schedule_recurring_action( strtotime( 'first day of next month' ), MONTH_IN_SECONDS, 'aca_ai_content_agent_reset_api_usage_counter' );
             }
         } elseif ( ! wp_next_scheduled( 'aca_ai_content_agent_reset_api_usage_counter' ) ) {
-            wp_schedule_event( time(), 'monthly', 'aca_ai_content_agent_reset_api_usage_counter' );
+            wp_schedule_event( strtotime( 'first day of next month' ), 'monthly', 'aca_ai_content_agent_reset_api_usage_counter' );
         }
 
         // Schedule weekly license verification
@@ -100,6 +90,12 @@ class ACA_AI_Content_Agent_Cron {
             } elseif ( ! wp_next_scheduled( 'aca_ai_content_agent_generate_style_guide' ) ) {
                 wp_schedule_event( time(), $style_freq, 'aca_ai_content_agent_generate_style_guide' );
             }
+        } else {
+            if ( function_exists( 'as_unschedule_all_actions' ) ) {
+                as_unschedule_all_actions( 'aca_ai_content_agent_generate_style_guide' );
+            } else {
+                wp_clear_scheduled_hook( 'aca_ai_content_agent_generate_style_guide' );
+            }
         }
 
         // Schedule log cleanup if enabled
@@ -110,6 +106,12 @@ class ACA_AI_Content_Agent_Cron {
                 }
             } elseif ( ! wp_next_scheduled( 'aca_ai_content_agent_clean_logs' ) ) {
                 wp_schedule_event( time(), 'weekly', 'aca_ai_content_agent_clean_logs', [ $retention ] );
+            }
+        } else {
+            if ( function_exists( 'as_unschedule_all_actions' ) ) {
+                as_unschedule_all_actions( 'aca_ai_content_agent_clean_logs' );
+            } else {
+                wp_clear_scheduled_hook( 'aca_ai_content_agent_clean_logs' );
             }
         }
     }
@@ -128,11 +130,7 @@ class ACA_AI_Content_Agent_Cron {
             // In full-auto mode, generate ideas and then write drafts.
             $idea_ids = ACA_AI_Content_Agent_Engine::generate_ideas();
             if (!is_wp_error($idea_ids) && !empty($idea_ids)) {
-                // Respect the generation limit.
-                $limit = $options['generation_limit'] ?? 1;
-                $ideas_to_write = array_slice($idea_ids, 0, $limit);
-
-                foreach ($ideas_to_write as $idea_id) {
+                foreach ($idea_ids as $idea_id) {
                     ACA_AI_Content_Agent_Engine::write_post_draft($idea_id);
                 }
             }

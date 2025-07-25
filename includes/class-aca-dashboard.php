@@ -80,7 +80,7 @@ class ACA_AI_Content_Agent_Dashboard {
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectDatabaseQuery.NoCaching
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectDatabaseQuery.NoCaching
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        $ideas = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$ideas_table} WHERE status = %s ORDER BY created_at DESC", 'pending' ) );
+        $ideas = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$ideas_table} WHERE status = %s ORDER BY generated_date DESC", 'pending' ) );
 
         echo '<h2>' . esc_html__( 'Idea Stream', 'aca-ai-content-agent' ) . '</h2>';
 
@@ -117,7 +117,7 @@ class ACA_AI_Content_Agent_Dashboard {
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectDatabaseQuery.NoCaching
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectDatabaseQuery.NoCaching
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        $logs = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$logs_table} ORDER BY created_at DESC LIMIT %d", 10 ) );
+        $logs = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$logs_table} ORDER BY timestamp DESC LIMIT %d", 10 ) );
 
         echo '<h2>' . esc_html__( 'Quick Actions', 'aca-ai-content-agent' ) . '</h2>';
         echo '<button class="button" id="aca-ai-content-agent-generate-style-guide">' . esc_html__( 'Update Style Guide Manually', 'aca-ai-content-agent' ) . '</button>';
@@ -127,7 +127,7 @@ class ACA_AI_Content_Agent_Dashboard {
         if (!empty($logs)) {
             echo '<ul class="aca-ai-content-agent-log-list">';
             foreach ($logs as $log) {
-                echo '<li class="log-' . esc_attr($log->log_type) . '">[' . esc_html($log->created_at) . '] ' . esc_html($log->message) . '</li>';
+                echo '<li class="log-' . esc_attr($log->log_type) . '">[' . esc_html($log->timestamp) . '] ' . esc_html($log->message) . '</li>';
             }
             echo '</ul>';
         } else {

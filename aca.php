@@ -51,6 +51,7 @@ require_once ACA_AI_CONTENT_AGENT_PLUGIN_DIR . 'includes/licensing.php';
  * This action is documented in includes/class-aca-activator.php
  */
 register_activation_hook(__FILE__, ['ACA_Bootstrap', 'activate']);
+register_deactivation_hook(__FILE__, 'aca_ai_content_agent_deactivate');
 
 /**
  * The code that runs during plugin deactivation.
@@ -84,6 +85,24 @@ function aca_ai_content_agent_deactivate() {
  */
 class ACA_Bootstrap {
 
+    public function __construct() {
+        add_action('admin_init', [$this, 'handle_activation_redirect']);
+    }
+
+    /**
+     * Handle the redirect to onboarding after activation.
+     */
+    public function handle_activation_redirect() {
+        if (get_transient('aca_ai_content_agent_activation_redirect')) {
+            delete_transient('aca_ai_content_agent_activation_redirect');
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+            if (!isset($_GET['page']) || $_GET['page'] !== 'aca-ai-content-agent-onboarding') {
+                wp_safe_redirect(admin_url('index.php?page=aca-ai-content-agent-onboarding'));
+                exit;
+            }
+        }
+    }
+
     /**
      * Activate the plugin.
      */
@@ -106,16 +125,7 @@ class ACA_Bootstrap {
         self::add_custom_capabilities();
 
         // Set a transient to redirect to the onboarding page after activation
-        if (get_transient('aca_ai_content_agent_activation_redirect')) {
-            delete_transient('aca_ai_content_agent_activation_redirect');
-            // We don't want to redirect if the user is already on the onboarding page
-            // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-            if (!isset($_GET['page']) || $_GET['page'] !== 'aca-ai-content-agent-onboarding') {
-                wp_redirect(admin_url('index.php?page=aca-ai-content-agent-onboarding'));
-                exit;
-            }
-        }
-        set_transient('aca_ai_content_agent_activation_redirect', true, 30); // Redirect for 30 seconds
+        set_transient('aca_ai_content_agent_activation_redirect', true, 30);
 
         // Log activation
         ACA_AI_Content_Agent_Engine::add_log('Plugin activated successfully.', 'success');
@@ -170,7 +180,7 @@ class ACA_Bootstrap {
         $sql_cluster_items = "CREATE TABLE $table_name_cluster_items (
             id mediumint(9) NOT NULL AUTO_INCREMENT,
             cluster_id mediumint(9) NOT NULL,
-            subtopic tinytext NOT NULL,
+            subtopic_title tinytext NOT NULL,
             status varchar(20) DEFAULT 'pending' NOT NULL,
             post_id bigint(20) DEFAULT NULL,
             PRIMARY KEY  (id),
@@ -187,12 +197,6 @@ class ACA_Bootstrap {
         if ( $role ) {
             $role->add_cap( 'manage_aca_ai_content_agent_settings' );
             $role->add_cap( 'view_aca_ai_content_agent_dashboard' );
-        }
-
-        // Give authors access to view the dashboard
-        $author_role = get_role( 'author' );
-        if ( $author_role ) {
-            $author_role->add_cap( 'view_aca_ai_content_agent_dashboard' );
         }
     }
 }

@@ -1,10 +1,10 @@
 === ACA - AI Content Agent ===
 Contributors: ademisler
-Tags: ai, content, generator, automation, content writer
+Tags: ai, content, generator, automation, content writer,
 Requires at least: 5.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.0.7
+Stable tag: 1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -37,6 +37,11 @@ With manual, semi-automatic, and fully automatic working modes, you are in compl
 *   **Comprehensive Dashboard:** Manage pending ideas, generated drafts, API usage, and recent activities from a single screen.
 *   **Customizable Prompts:** Edit the AI prompts used for idea generation, style guide creation, and content writing to fit your specific needs.
 *   **Multiple Brand Voice Profiles:** Create and assign different style guides for various categories or authors.
+*   **Onboarding Wizard:** A quick setup process to get you started with the essential settings right after activation.
+*   **API Cost Control:** Track your monthly API calls and set a hard limit to manage your budget effectively.
+*   **Activity Logging:** View a log of all major actions taken by the plugin for full transparency.
+*   **User Roles:** Assign the "ACA Content Manager" role to users who need to manage content generation without accessing full admin settings.
+*   **Data Privacy:** Integrates with WordPress's core tools for exporting and erasing personal data.
 
 = ACA Pro Features =
 
@@ -75,7 +80,7 @@ After activating the plugin, you will be guided through a quick onboarding wizar
 == Frequently Asked Questions ==
 
 = What do I need to use this plugin? =
-You need a Google Gemini API key for the plugin to function. You can get a free API key from the Google AI Studio.
+You need a Google Gemini API key for the plugin to function. You can get a free API key from the Google AI Studio. Other features require their own API keys (e.g., Pexels, OpenAI, Copyscape), which you can add in the settings.
 
 = Is the plugin free? =
 Yes, the core features of ACA (manual idea and draft generation, style analysis, GSC integration, etc.) are completely free. For advanced features like the Content Cluster Planner, DALL-E 3 image generation, plagiarism checks, and full automation, you will need to upgrade to ACA Pro.
@@ -88,6 +93,9 @@ It analyzes your most recently published content from the post types you specify
 
 = What is Action Scheduler? =
 Action Scheduler is a library used to reliably run background tasks in WordPress. ACA uses it to handle scheduled tasks like automatic idea generation and draft writing, ensuring they run smoothly without impacting your site's performance.
+
+= Where does the plugin store its data? =
+ACA stores its data in custom database tables (`wp_aca_ai_content_agent_ideas`, `_logs`, `_clusters`, `_cluster_items`) and in the standard WordPress options table. When you uninstall the plugin, it will completely remove all of its tables and options, leaving your database clean.
 
 == Screenshots ==
 
@@ -102,3 +110,4 @@ Action Scheduler is a library used to reliably run background tasks in WordPress
 
 = 1.0 =
 *   Initial release.
+

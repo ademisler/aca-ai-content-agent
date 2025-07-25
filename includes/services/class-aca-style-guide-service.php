@@ -95,6 +95,20 @@ class ACA_Style_Guide_Service {
         return $profiles;
     }
 
+    /**
+     * Retrieve stored prompts, falling back to defaults when not set.
+     *
+     * @return array Associative array of prompt templates.
+     */
+    public static function get_prompts() {
+        $defaults = self::get_default_prompts();
+        $stored   = get_option( 'aca_ai_content_agent_prompts', [] );
+        if ( is_array( $stored ) ) {
+            return array_merge( $defaults, array_intersect_key( $stored, $defaults ) );
+        }
+        return $defaults;
+    }
+
     public static function get_default_prompts() {
         return [
             'style_guide'      => "Analyze the following texts. Create a 'Style Guide' that defines the writing tone (e.g., friendly, formal, witty), sentence structure (short, long), paragraph length, and general formatting style (e.g., use of lists, bold text). This guide should be a set of instructions for another writer to imitate this style. The texts are:\n\n%s",

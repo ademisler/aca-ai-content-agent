@@ -58,3 +58,45 @@ function aca_ai_content_agent() {
 
 // Global for backwards compatibility.
 $GLOBALS['aca_ai_content_agent'] = aca_ai_content_agent();
+
+/**
+ * Wrapper function to encrypt data using the plugin's utility class.
+ *
+ * This maintains backwards compatibility with earlier versions that
+ * relied on global helper functions.
+ *
+ * @param string $data Plain text data.
+ * @return string Encrypted string.
+ */
+function aca_ai_content_agent_encrypt( $data ) {
+    return ACA_Encryption_Util::encrypt( $data );
+}
+
+/**
+ * Wrapper function to decrypt data.
+ *
+ * @param string $data Encrypted string.
+ * @return string Decrypted value.
+ */
+function aca_ai_content_agent_decrypt( $data ) {
+    return ACA_Encryption_Util::decrypt( $data );
+}
+
+/**
+ * Wrapper to safely decrypt data, falling back to the raw value on failure.
+ *
+ * @param string $data Encrypted or plain string.
+ * @return string Decrypted value or original input.
+ */
+function aca_ai_content_agent_safe_decrypt( $data ) {
+    return ACA_Encryption_Util::safe_decrypt( $data );
+}
+
+/**
+ * Determine if ACA Pro is active.
+ *
+ * @return bool True when the Pro license is valid.
+ */
+function aca_ai_content_agent_is_pro() {
+    return ACA_Helper::is_pro();
+}

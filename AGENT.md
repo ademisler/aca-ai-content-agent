@@ -96,50 +96,15 @@ This workflow runs in the background for semi-automatic and fully-automatic mode
 
 ## 5. Code Analysis & Known Issues
 
--   **Incomplete Data Cleanup on Uninstall (FIXED)**:
-    -   **Location**: `uninstall.php`.
-    -   **Issue**: The uninstall script was deleting plugin-specific options from the `wp_options` table but was not deleting the transients (temporary cached data) created by the plugin, leaving orphaned data in the database.
-    -   **Status**: **Fixed**. The script now includes additional queries to properly remove all related transients upon uninstallation.
--   **Missing Deactivation Hook (FIXED)**:
-    -   **Location**: `aca.php`.
-    -   **Issue**: The plugin had a deactivation function (`aca_ai_content_agent_deactivate`) but it was never registered with `register_deactivation_hook`. This meant that scheduled actions and custom capabilities were not being cleaned up when the plugin was deactivated.
-    -   **Status**: **Fixed**. The deactivation hook has been correctly registered.
--   **Insecure Activation Redirect (FIXED)**:
-    -   **Location**: `aca.php` in `ACA_Bootstrap::activate`.
-    -   **Issue**: The post-activation redirect logic was handled directly within the activation hook and checked a `$_GET` variable without a nonce, creating a minor open redirect vulnerability.
-    -   **Status**: **Fixed**. The redirect logic was moved to a new handler hooked into `admin_init`, which is a safer and more standard way to handle post-activation redirects.
--   **DB Schema Mismatch in Clusters (FIXED)**:
-    -   **Location**: `aca.php` in `ACA_Bootstrap::create_custom_tables`.
-    -   **Issue**: The `..._cluster_items` database table was created with a column named `subtopic`, but the rest of the code expected this column to be `subtopic_title`.
-    -   **Status**: **Fixed**. The table schema has been corrected to use `subtopic_title`.
--   **CSRF Vulnerability in License Handling (FIXED)**:
-    -   **Location**: `includes/class-aca-admin.php` in method `handle_ajax_validate_license`.
-    -   **Issue**: The method was suppressing a `WordPress.Security.NonceVerification.Recommended` warning, potentially allowing a Cross-Site Request Forgery (CSRF) attack. An attacker could have tricked an administrator into activating a different license key.
-    -   **Status**: **Fixed**. The unnecessary `phpcs:ignore` has been removed, and proper nonce verification is now enforced for all AJAX requests, including license validation.
--   **Incomplete Transaction Rollback (FIXED)**:
-    -   **Location**: `includes/class-aca.php` in method `write_post_draft`.
-    -   **Issue**: If updating the idea's status failed in the database, the transaction was rolled back, but the function proceeded to the enrichment steps instead of stopping.
-    -   **Status**: **Fixed**. The function now correctly exits after a failed database update and rollback.
--   **Incorrect File Type Check (FIXED)**:
+-   **Invalid Featured Image Filename**:
     -   **Location**: `includes/class-aca.php` in method `maybe_set_featured_image`.
-    -   **Issue**: The `wp_check_filetype` function was incorrectly called with a URL (`$url`) instead of the local temporary file path (`$tmp`), causing the file type validation to fail.
-    -   **Status**: **Fixed**. The function now correctly uses the temporary file path for validation.
--   **Faulty Cron Rescheduling (FIXED)**:
-    -   **Location**: `includes/class-aca-cron.php` in method `schedule_events`.
-    -   **Issue**: The method cleared and rescheduled all cron jobs every time any plugin setting was updated. This caused scheduled tasks like the monthly API counter reset to be postponed incorrectly.
-    -   **Status**: **Fixed**. The logic has been updated to only unschedule or reschedule jobs when their specific controlling setting (e.g., frequency, mode) is changed, preventing unintended shifts in schedule.
--   **Redundant Logic in Automation (FIXED)**:
-    -   **Location**: `includes/class-aca-cron.php` in method `run_main_automation`.
-    -   **Issue**: In `full-auto` mode, the code was unnecessarily using `array_slice` to limit the number of ideas to process, even though the `generate_ideas` function already respects this limit.
-    -   **Status**: **Fixed**. The redundant `array_slice` call has been removed to simplify the code.
--   **Disruptive Page Reload on Idea Generation (FIXED)**:
-    -   **Location**: `admin/js/aca-admin.js`.
-    -   **Issue**: After generating new ideas, the page would automatically reload, causing a poor user experience by losing the user's scroll position and context.
-    -   **Status**: **Fixed**. The `location.reload()` call was removed. The AJAX handler now returns the HTML for the new ideas, which are dynamically inserted into the list on the frontend.
--   **Unclear Feedback State in UI (FIXED)**:
-    -   **Location**: `admin/js/aca-admin.js`.
-    -   **Issue**: Clicking a feedback button (👍/👎) only changed its opacity, which did not clearly indicate that the action was successfully processed and that no further action was needed.
-    -   **Status**: **Fixed**. After clicking, both feedback buttons for an idea are now disabled and styled with reduced opacity to provide clear visual confirmation.
+    -   **Issue**: The file array for `media_handle_sideload()` uses `basename($url)` even when the URL contains query strings or no filename. This can create names like `?cats.jpg`, causing uploads to fail or be stored with incorrect filenames.
+    -   **Status**: **Open**.
+
+-   **Double Encoding in Copyscape Requests**:
+    -   **Location**: `includes/class-aca.php` in method `check_plagiarism`.
+    -   **Issue**: The text parameter is `urlencode()`d before being passed to `add_query_arg()`, which encodes it again. This results in malformed API requests and may prevent plagiarism checks from working.
+    -   **Status**: **Open**.
 
 ## 6. How to Extend the Plugin
 

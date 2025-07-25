@@ -399,6 +399,36 @@ class ACA_Draft_Service {
     }
 
     /**
+     * Provide AI-powered update suggestions for an existing post.
+     */
+    public static function suggest_content_update($post_id) {
+        if ( ! aca_ai_content_agent_is_pro() ) {
+            return new WP_Error('pro_feature', __('This feature is available in the Pro version.', 'aca-ai-content-agent'));
+        }
+
+        $post = get_post( $post_id );
+        if ( ! $post ) {
+            return new WP_Error( 'post_not_found', __('Post not found.', 'aca-ai-content-agent') );
+        }
+
+        $content = wp_strip_all_tags( $post->post_content );
+        $prompt  = sprintf(
+            "Suggest concise improvements to refresh and optimize the following blog post for SEO. Return a bullet list only.\n\nTitle: %s\n\n%s",
+            $post->post_title,
+            $content
+        );
+
+        $response = ACA_Gemini_Api::call( $prompt );
+
+        if ( is_wp_error( $response ) ) {
+            ACA_Log_Service::add( 'Failed to generate update suggestions: ' . $response->get_error_message(), 'error' );
+            return $response;
+        }
+
+        return $response;
+    }
+
+    /**
      * Generate and append a data-backed section with statistics.
      */
     public static function add_data_section($post_id, $title) {

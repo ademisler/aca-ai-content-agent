@@ -99,7 +99,7 @@ class ACA_Plugin {
         // Init classes
         new ACA_Admin_Init();
         new ACA_Ajax_Handler();
-        new ACA_Cron();
+        new ACA_AI_Content_Agent_Cron();
         new ACA_Privacy();
         new ACA_Onboarding();
     }

@@ -194,26 +194,6 @@ class ACA_Idea_Service {
         );
     }
 
-    public static function reject_idea($idea_id) {
-        global $wpdb;
-        $table_name = $wpdb->prefix . 'aca_ai_content_agent_ideas';
-
-        $result = $wpdb->update(
-            $table_name,
-            ['status' => 'rejected'],
-            ['id' => $idea_id],
-            ['%s'],
-            ['%d']
-        );
-
-        if (false === $result) {
-            return new WP_Error('database_error', 'Failed to reject idea in the database.');
-        }
-
-        ACA_Log_Service::add(sprintf('Idea #%d rejected by user.', $idea_id));
-
-        return true;
-    }
 
     public static function reject_idea($idea_id) {
         global $wpdb;
@@ -268,6 +248,65 @@ class ACA_Idea_Service {
     }
 
     public static function generate_content_cluster($topic) {
-        return new WP_Error('not_implemented', __('This feature is not yet implemented.', 'aca-ai-content-agent'));
+        if ( ! aca_ai_content_agent_is_pro() ) {
+            return new WP_Error('pro_feature', __('This feature is available in the Pro version.', 'aca-ai-content-agent'));
+        }
+
+        $topic = sanitize_text_field( $topic );
+        if ( empty( $topic ) ) {
+            return new WP_Error('invalid_topic', __('Topic is required.', 'aca-ai-content-agent'));
+        }
+
+        global $wpdb;
+        $clusters_table = $wpdb->prefix . 'aca_ai_content_agent_clusters';
+        $items_table    = $wpdb->prefix . 'aca_ai_content_agent_cluster_items';
+
+        // Insert the main cluster record.
+        $wpdb->insert(
+            $clusters_table,
+            [
+                'topic'         => $topic,
+                'status'        => 'generated',
+                'generated_date'=> current_time('mysql'),
+            ]
+        );
+        $cluster_id = $wpdb->insert_id;
+
+        $prompt = sprintf(
+            'Create a list of 5 related blog post titles that would form a content cluster around the topic "%s". Return only the list.',
+            $topic
+        );
+
+        $response = ACA_Gemini_Api::call( $prompt );
+
+        if ( is_wp_error( $response ) ) {
+            // Mark cluster as failed and return the error.
+            $wpdb->update( $clusters_table, [ 'status' => 'failed' ], [ 'id' => $cluster_id ] );
+            return $response;
+        }
+
+        $lines = array_filter( array_map( 'trim', explode( "\n", $response ) ) );
+        $subtopics = [];
+        foreach ( $lines as $line ) {
+            $title = preg_replace( '/^\d+\.\s*/', '', $line );
+            if ( ! empty( $title ) ) {
+                $wpdb->insert(
+                    $items_table,
+                    [
+                        'cluster_id'    => $cluster_id,
+                        'subtopic_title'=> $title,
+                        'status'        => 'suggested',
+                    ]
+                );
+                $subtopics[] = $title;
+            }
+        }
+
+        ACA_Log_Service::add( sprintf( 'Content cluster generated for topic "%s".', $topic ) );
+
+        return [
+            'cluster_id' => $cluster_id,
+            'subtopics'  => $subtopics,
+        ];
     }
 }

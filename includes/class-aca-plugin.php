@@ -80,9 +80,6 @@ class ACA_Plugin {
         require_once plugin_dir_path( __FILE__ ) . '/utils/class-aca-helper.php';
         require_once plugin_dir_path( __FILE__ ) . '/utils/class-aca-log-service.php';
 
-        // Error management
-        require_once ACA_AI_CONTENT_AGENT_PLUGIN_DIR . 'error-management/class-aca-error-manager.php';
-
         // Cron
         require_once plugin_dir_path( __FILE__ ) . '/class-aca-cron.php';
     }
@@ -106,7 +103,5 @@ class ACA_Plugin {
         new ACA_Privacy();
         new ACA_Onboarding();
 
-        // Start error management
-        ACA_Error_Manager::init();
     }
 }

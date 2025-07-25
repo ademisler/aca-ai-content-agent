@@ -5,15 +5,15 @@
  * Onboarding Wizard
  *
  * @package ACA_AI_Content_Agent
- * @version 1.0
- * @since   1.0
+ * @version 1.2
+ * @since   1.2
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-class ACA_AI_Content_Agent_Onboarding {
+class ACA_Onboarding {
 
     private $step = 1;
 
@@ -44,7 +44,7 @@ class ACA_AI_Content_Agent_Onboarding {
 
             if ($step === 1 && !empty($_POST['aca_ai_content_agent_gemini_api_key'])) {
                 $api_key = sanitize_text_field(wp_unslash($_POST['aca_ai_content_agent_gemini_api_key']));
-                update_option( 'aca_ai_content_agent_gemini_api_key', aca_ai_content_agent_encrypt( $api_key ) );
+                update_option( 'aca_ai_content_agent_gemini_api_key', ACA_Encryption_Util::encrypt( $api_key ) );
                 $this->step = 2;
             } elseif ($step === 2 && !empty($_POST['aca_ai_content_agent_options']['analysis_post_types'])) {
                 $options = get_option('aca_ai_content_agent_options', []);
@@ -58,7 +58,6 @@ class ACA_AI_Content_Agent_Onboarding {
                 
                 // Complete onboarding
                 update_option('aca_ai_content_agent_onboarding_complete', true);
-                ACA_AI_Content_Agent_Engine::add_log('Onboarding completed successfully.', 'success');
                 wp_redirect(admin_url('admin.php?page=aca-ai-content-agent'));
                 exit;
             }
@@ -68,7 +67,8 @@ class ACA_AI_Content_Agent_Onboarding {
     public function render_onboarding_page() {
         ?>
         <div class="wrap aca-ai-content-agent-onboarding">
-            <h1><?php esc_html_e('Welcome to ACA - AI Content Agent', 'aca-ai-content-agent'); ?></h1>            <p><?php esc_html_e('Let\'s get you set up in just a few steps.', 'aca-ai-content-agent'); ?></p>
+            <h1><?php esc_html_e('Welcome to ACA - AI Content Agent', 'aca-ai-content-agent'); ?></h1>
+            <p><?php esc_html_e('Let\'s get you set up in just a few steps.', 'aca-ai-content-agent'); ?></p>
 
             <form method="post">
                 <?php wp_nonce_field('aca_ai_content_agent_onboarding_nonce'); ?>
@@ -104,5 +104,3 @@ class ACA_AI_Content_Agent_Onboarding {
         <?php
     }
 }
-
-new ACA_AI_Content_Agent_Onboarding();

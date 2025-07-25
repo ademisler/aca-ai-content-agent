@@ -2,18 +2,18 @@
 /**
  * ACA - AI Content Agent
  *
- * Admin Settings Page
+ * Admin Initialization
  *
  * @package ACA_AI_Content_Agent
- * @version 1.0
- * @since   1.0
+ * @version 1.2
+ * @since   1.2
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-class ACA_AI_Content_Agent_Admin {
+class ACA_Admin_Init {
 
     /**
      * Constructor.
@@ -23,19 +23,11 @@ class ACA_AI_Content_Agent_Admin {
         add_action('admin_init', [$this, 'register_settings']);
         add_action('admin_enqueue_scripts', [$this, 'enqueue_scripts']);
         add_filter('post_row_actions', [$this, 'add_update_link'], 10, 2);
-        add_action('wp_ajax_aca_ai_content_agent_test_connection', [$this, 'handle_ajax_test_connection']);
-        add_action('wp_ajax_aca_ai_content_agent_generate_style_guide', [$this, 'handle_ajax_generate_style_guide']);
-        add_action('wp_ajax_aca_ai_content_agent_generate_ideas', [$this, 'handle_ajax_generate_ideas']);
-        add_action('wp_ajax_aca_ai_content_agent_write_draft', [$this, 'handle_ajax_write_draft']);
-        add_action('wp_ajax_aca_ai_content_agent_reject_idea', [$this, 'handle_ajax_reject_idea']);
-        add_action('wp_ajax_aca_ai_content_agent_validate_license', [$this, 'handle_ajax_validate_license']);
-        add_action('wp_ajax_aca_ai_content_agent_generate_cluster', [$this, 'handle_ajax_generate_cluster']);
-        add_action('wp_ajax_aca_ai_content_agent_submit_feedback', [$this, 'handle_ajax_submit_feedback']);
-        add_action('wp_ajax_aca_ai_content_agent_suggest_update', [$this, 'handle_ajax_suggest_update']);
-        add_action('wp_ajax_aca_ai_content_agent_fetch_gsc_data', [$this, 'handle_ajax_fetch_gsc_data']);
-        add_action('wp_ajax_aca_ai_content_agent_generate_gsc_ideas', [$this, 'handle_ajax_generate_gsc_ideas']);
         add_action('admin_notices', [$this, 'display_admin_notices']);
         add_action('add_meta_boxes', [$this, 'add_plagiarism_metabox']);
+
+        $post_hooks = new ACA_Post_Hooks();
+        $post_hooks->init();
     }
 
     /**
@@ -49,7 +41,7 @@ class ACA_AI_Content_Agent_Admin {
         // Enqueue CSS
         wp_enqueue_style(
             'aca-ai-content-agent-admin-css',
-            plugin_dir_url(__FILE__) . '../admin/css/aca-admin.css',
+            plugin_dir_url(__FILE__) . '../../admin/css/aca-admin.css',
             [],
             ACA_AI_CONTENT_AGENT_VERSION
         );
@@ -57,7 +49,7 @@ class ACA_AI_Content_Agent_Admin {
         // Enqueue JS
         wp_enqueue_script(
             'aca-ai-content-agent-admin-js',
-            plugin_dir_url(__FILE__) . '../admin/js/aca-admin.js',
+            plugin_dir_url(__FILE__) . '../../admin/js/aca-admin.js',
             ['jquery'], // Add jquery dependency if needed
             ACA_AI_CONTENT_AGENT_VERSION,
             true
@@ -68,339 +60,7 @@ class ACA_AI_Content_Agent_Admin {
             'nonce'    => wp_create_nonce('aca_ai_content_agent_admin_nonce'),
         ]);
     }
-
-    /**
-     * Handle the AJAX request for testing the API connection.
-     */
-    public function handle_ajax_test_connection() {
-        check_ajax_referer('aca_ai_content_agent_admin_nonce', 'nonce');
-
-        if ( ! current_user_can('manage_aca_ai_content_agent_settings') ) {
-            wp_send_json_error(esc_html__('You do not have permission to do this.', 'aca-ai-content-agent'));
-        }
-
-        // Use a simple prompt to test the connection
-        $test_prompt = 'Hello.'; 
-        $response = aca_ai_content_agent_call_gemini_api($test_prompt);
-
-        if (is_wp_error($response)) {
-            wp_send_json_error($response->get_error_message());
-        } else {
-            wp_send_json_success(esc_html__('Connection successful! API is working correctly.', 'aca-ai-content-agent'));
-        }
-    }
-
-    /**
-     * Handle the AJAX request for generating the style guide.
-     */
-    public function handle_ajax_generate_style_guide() {
-        check_ajax_referer('aca_ai_content_agent_admin_nonce', 'nonce');
-
-        if ( ! current_user_can('manage_aca_ai_content_agent_settings') ) {
-            wp_send_json_error(esc_html__('You do not have permission to do this.', 'aca-ai-content-agent'));
-        }
-
-        $result = ACA_AI_Content_Agent_Engine::generate_style_guide();
-
-        if (is_wp_error($result)) {
-            wp_send_json_error($result->get_error_message());
-        } else {
-            wp_send_json_success(esc_html__('Style guide updated successfully based on the latest content.', 'aca-ai-content-agent'));
-        }
-    }
-
-    /**
-     * Handle the AJAX request for generating ideas.
-     */
-    public function handle_ajax_generate_ideas() {
-        check_ajax_referer('aca_ai_content_agent_admin_nonce', 'nonce');
-
-        if ( ! current_user_can('view_aca_ai_content_agent_dashboard') ) {
-            wp_send_json_error(esc_html__('You do not have permission to do this.', 'aca-ai-content-agent'));
-        }
-
-        $result = ACA_AI_Content_Agent_Engine::generate_ideas();
-
-        if (is_wp_error($result)) {
-            wp_send_json_error($result->get_error_message());
-        } else {
-            global $wpdb;
-            $ideas_table = $wpdb->prefix . 'aca_ai_content_agent_ideas';
-            $ideas_html = '';
-            if ( ! empty( $result ) ) {
-                foreach ($result as $idea_id) {
-                    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-                    $idea = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$ideas_table} WHERE id = %d", $idea_id ) );
-                    if ($idea) {
-                        $ideas_html .= '<li data-id="' . esc_attr( $idea->id ) . '">' . esc_html( $idea->title ) .
-                             ' <button class="button-primary aca-ai-content-agent-write-draft" data-id="' . esc_attr( $idea->id ) . '">' . esc_html__( 'Write Draft', 'aca-ai-content-agent' ) . '</button>' .
-                             ' <span class="aca-ai-content-agent-draft-status"></span>' .
-                             ' <button class="button-secondary aca-ai-content-agent-reject-idea" data-id="' . esc_attr( $idea->id ) . '">' . esc_html__( 'Reject', 'aca-ai-content-agent' ) . '</button>' .
-                             ' <button class="button aca-ai-content-agent-feedback-btn" data-value="1">👍</button>' .
-                             ' <button class="button aca-ai-content-agent-feedback-btn" data-value="-1">👎</button>' .
-                             '</li>';
-                    }
-                }
-            }
-            /* translators: %d: number of ideas */
-            $message = sprintf(esc_html(_n('%d new idea generated.', '%d new ideas generated.', count($result), 'aca-ai-content-agent')), count($result));
-            wp_send_json_success(['message' => $message, 'ideas_html' => $ideas_html]);
-        }
-    }
-
-    /**
-     * Handle the AJAX request for writing a post draft.
-     */
-    public function handle_ajax_write_draft() {
-        check_ajax_referer('aca_ai_content_agent_admin_nonce', 'nonce');
-
-        if ( ! current_user_can('view_aca_ai_content_agent_dashboard') ) {
-            wp_send_json_error(esc_html__('You do not have permission to do this.', 'aca-ai-content-agent'));
-        }
-
-        if (!isset($_POST['id']) || !absint($_POST['id'])) {
-            wp_send_json_error(esc_html__('Invalid idea ID.', 'aca-ai-content-agent'));
-        }
-
-        $idea_id = absint($_POST['id']);
-        $result = ACA_AI_Content_Agent_Engine::write_post_draft($idea_id);
-
-        if (is_wp_error($result)) {
-            wp_send_json_error($result->get_error_message());
-        } else {
-            wp_send_json_success([
-                'message' => esc_html__('Draft created successfully.', 'aca-ai-content-agent'),
-                'edit_link' => get_edit_post_link($result, 'raw'),
-            ]);
-        }
-    }
-
-    /**
-     * Handle the AJAX request for rejecting an idea.
-     */
-    public function handle_ajax_reject_idea() {
-        check_ajax_referer('aca_ai_content_agent_admin_nonce', 'nonce');
-
-        if ( ! current_user_can('view_aca_ai_content_agent_dashboard') ) {
-            wp_send_json_error(esc_html__('You do not have permission to do this.', 'aca-ai-content-agent'));
-        }
-
-        if (!isset($_POST['id']) || !absint($_POST['id'])) {
-            wp_send_json_error(esc_html__('Invalid idea ID.', 'aca-ai-content-agent'));
-        }
-
-        global $wpdb;
-        $table_name = $wpdb->prefix . 'aca_ai_content_agent_ideas';
-        $idea_id = absint($_POST['id']);
-
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-        $wpdb->update(
-            $table_name,
-            ['status' => 'rejected'],
-            ['id' => $idea_id],
-            ['%s'],
-            ['%d']
-        );
-
-        /* translators: %d: idea ID */
-        ACA_AI_Content_Agent_Engine::add_log(sprintf(esc_html__('Idea #%d rejected by user.', 'aca-ai-content-agent'), $idea_id));
-        wp_send_json_success(esc_html__('Idea rejected.', 'aca-ai-content-agent'));
-    }
-
-    /**
-     * Handle the AJAX request for validating the license key.
-     */
-    public function handle_ajax_validate_license() {
-        check_ajax_referer('aca_ai_content_agent_admin_nonce', 'nonce');
-
-        if ( ! current_user_can('manage_aca_ai_content_agent_settings') ) {
-            wp_send_json_error(esc_html__('You do not have permission to do this.', 'aca-ai-content-agent'));
-        }
-
-        if ( ! defined('ACA_AI_CONTENT_AGENT_GUMROAD_PRODUCT_ID') || empty(ACA_AI_CONTENT_AGENT_GUMROAD_PRODUCT_ID) ) {
-            wp_send_json_error(esc_html__('Product ID is not configured in the plugin.', 'aca-ai-content-agent'));
-        }
-
-                        if ( ! isset( $_POST['license_key'] ) || empty( trim( $_POST['license_key'] ) ) ) {
-            wp_send_json_error( esc_html__( 'License key cannot be empty.', 'aca-ai-content-agent' ) );
-        }
-
-        $license_key = sanitize_text_field( wp_unslash( $_POST['license_key'] ) );
-        $api_url = 'https://api.gumroad.com/v2/licenses/verify';
-
-        $response = wp_remote_post($api_url, [
-            'method'    => 'POST',
-            'timeout'   => 15,
-            'body'      => [
-                'product_id'  => ACA_AI_CONTENT_AGENT_GUMROAD_PRODUCT_ID,
-                'license_key' => $license_key,
-            ],
-        ]);
-
-        if ( is_wp_error($response) ) {
-            wp_send_json_error($response->get_error_message());
-        }
-
-        $body = json_decode(wp_remote_retrieve_body($response), true);
-
-        if ( isset($body['success']) && $body['success'] === true ) {
-            // License is valid. Optionally check for refunds or chargebacks
-            $purchase = $body['purchase'];
-
-            update_option('aca_ai_content_agent_license_key', aca_ai_content_agent_encrypt( $license_key ));
-            update_option('aca_ai_content_agent_is_pro_active', 'true');
-            update_option('aca_ai_content_agent_license_data', $purchase);
-
-            // Calculate license validity (1 year from purchase date)
-            $sale_time   = isset( $purchase['sale_timestamp'] ) ? strtotime( $purchase['sale_timestamp'] ) : time();
-            $valid_until = $sale_time + YEAR_IN_SECONDS;
-            update_option( 'aca_ai_content_agent_license_valid_until', $valid_until );
-
-            set_transient( 'aca_ai_content_agent_license_status', 'valid', WEEK_IN_SECONDS );
-
-            wp_send_json_success( esc_html__( 'License activated successfully!', 'aca-ai-content-agent' ) );
-        } else {
-            // License is invalid or another error occurred
-            $message = isset($body['message']) ? $body['message'] : esc_html__('Invalid license key or API error.', 'aca-ai-content-agent');
-            update_option('aca_ai_content_agent_is_pro_active', 'false');
-            delete_option('aca_ai_content_agent_license_valid_until');
-            set_transient( 'aca_ai_content_agent_license_status', 'invalid', WEEK_IN_SECONDS );
-            wp_send_json_error($message);
-        }
-    }
-
-    /**
-     * Handle AJAX request for generating a content cluster.
-     */
-    public function handle_ajax_generate_cluster() {
-        check_ajax_referer('aca_ai_content_agent_admin_nonce', 'nonce');
-
-        if ( ! current_user_can('manage_aca_ai_content_agent_settings') ) {
-            wp_send_json_error(esc_html__('You do not have permission to do this.', 'aca-ai-content-agent'));
-        }
-
-        if ( empty( $_POST['topic'] ) ) {
-            wp_send_json_error( __( 'Topic is required.', 'aca-ai-content-agent' ) );
-        }
-
-        $topic = sanitize_text_field( wp_unslash( $_POST['topic'] ) );
-        $result = ACA_AI_Content_Agent_Engine::generate_content_cluster($topic);
-
-        if (is_wp_error($result)) {
-            wp_send_json_error($result->get_error_message());
-        } else {
-            wp_send_json_success($result);
-        }
-    }
-
-    /**
-     * Handle AJAX request for submitting user feedback on an idea.
-     */
-    public function handle_ajax_submit_feedback() {
-        check_ajax_referer('aca_ai_content_agent_admin_nonce', 'nonce');
-
-        if ( ! current_user_can('view_aca_ai_content_agent_dashboard') ) {
-            wp_send_json_error(esc_html__('You do not have permission to do this.', 'aca-ai-content-agent'));
-        }
-
-        $idea_id = isset( $_POST['id'] ) ? absint( wp_unslash( $_POST['id'] ) ) : 0;
-        $value   = isset( $_POST['value'] ) ? intval( wp_unslash( $_POST['value'] ) ) : 0;
-
-        if ($idea_id) {
-            ACA_AI_Content_Agent_Engine::record_feedback($idea_id, $value);
-            wp_send_json_success();
-        } else {
-            wp_send_json_error(__('Invalid idea ID.', 'aca-ai-content-agent'));
-        }
-    }
-
-    /**
-     * Handle AJAX request for suggesting updates to a post.
-     */
-    public function handle_ajax_suggest_update() {
-        check_ajax_referer('aca_ai_content_agent_admin_nonce', 'nonce');
-
-        if ( ! current_user_can('manage_aca_ai_content_agent_settings') ) {
-            wp_send_json_error(esc_html__('You do not have permission to do this.', 'aca-ai-content-agent'));
-        }
-
-        $post_id = isset($_POST['post_id']) ? absint($_POST['post_id']) : 0;
-        if (!$post_id) {
-            wp_send_json_error(__('Invalid post ID.', 'aca-ai-content-agent'));
-        }
-
-        $result = ACA_AI_Content_Agent_Engine::suggest_content_update($post_id);
-
-        if (is_wp_error($result)) {
-            wp_send_json_error($result->get_error_message());
-        } else {
-            wp_send_json_success($result);
-        }
-    }
-
-    /**
-     * Handle AJAX request for fetching Search Console data.
-     */
-    public function handle_ajax_fetch_gsc_data() {
-        check_ajax_referer('aca_ai_content_agent_admin_nonce', 'nonce');
-
-        if ( ! current_user_can('manage_aca_ai_content_agent_settings') ) {
-            wp_send_json_error(esc_html__('You do not have permission to do this.', 'aca-ai-content-agent'));
-        }
-
-        $options = get_option('aca_ai_content_agent_options');
-        $site_url = $options['gsc_site_url'] ?? '';
-        $end      = current_time( 'Y-m-d' );
-        $start    = gmdate( 'Y-m-d', strtotime( '-7 days', strtotime( $end ) ) );
-
-        $result = ACA_AI_Content_Agent_Engine::fetch_gsc_data($site_url, $start, $end);
-
-        if (is_wp_error($result)) {
-            wp_send_json_error($result->get_error_message());
-        } else {
-            wp_send_json_success($result);
-        }
-    }
-
-    /**
-     * Generate ideas based on Search Console queries.
-     */
-    public function handle_ajax_generate_gsc_ideas() {
-        check_ajax_referer('aca_ai_content_agent_admin_nonce', 'nonce');
-
-        if ( ! current_user_can('manage_aca_ai_content_agent_settings') ) {
-            wp_send_json_error(esc_html__('You do not have permission to do this.', 'aca-ai-content-agent'));
-        }
-
-        $result = ACA_AI_Content_Agent_Engine::generate_ideas_from_gsc();
-
-        if (is_wp_error($result)) {
-            wp_send_json_error($result->get_error_message());
-        } else {
-            global $wpdb;
-            $ideas_table = $wpdb->prefix . 'aca_ai_content_agent_ideas';
-            $ideas_html = '';
-            if ( ! empty( $result ) ) {
-                foreach ($result as $idea_id) {
-                    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-                    $idea = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$ideas_table} WHERE id = %d", $idea_id ) );
-                    if ($idea) {
-                        $ideas_html .= '<li data-id="' . esc_attr( $idea->id ) . '">' . esc_html( $idea->title ) .
-                             ' <button class="button-primary aca-ai-content-agent-write-draft" data-id="' . esc_attr( $idea->id ) . '">' . esc_html__( 'Write Draft', 'aca-ai-content-agent' ) . '</button>' .
-                             ' <span class="aca-ai-content-agent-draft-status"></span>' .
-                             ' <button class="button-secondary aca-ai-content-agent-reject-idea" data-id="' . esc_attr( $idea->id ) . '">' . esc_html__( 'Reject', 'aca-ai-content-agent' ) . '</button>' .
-                             ' <button class="button aca-ai-content-agent-feedback-btn" data-value="1">👍</button>' .
-                             ' <button class="button aca-ai-content-agent-feedback-btn" data-value="-1">👎</button>' .
-                             '</li>';
-                    }
-                }
-            }
-            /* translators: %d: number of ideas */
-            $message = sprintf(esc_html(_n('%d new idea generated.', '%d new ideas generated.', count($result), 'aca-ai-content-agent')), count($result));
-            wp_send_json_success(['message' => $message, 'ideas_html' => $ideas_html]);
-        }
-    }
-
+    
     /**
      * Add the admin menu item for ACA.
      */
@@ -596,19 +256,19 @@ class ACA_AI_Content_Agent_Admin {
         $new_input['gsc_site_url'] = isset($input['gsc_site_url']) ? esc_url_raw($input['gsc_site_url']) : ($options['gsc_site_url'] ?? '');
         // Encrypt API keys if new values are provided; otherwise keep existing encrypted values.
         if ( isset( $input['gsc_api_key'] ) && '' !== trim( $input['gsc_api_key'] ) ) {
-            $new_input['gsc_api_key'] = aca_ai_content_agent_encrypt( sanitize_text_field( $input['gsc_api_key'] ) );
+            $new_input['gsc_api_key'] = ACA_Encryption_Util::encrypt( sanitize_text_field( $input['gsc_api_key'] ) );
         } else {
             $new_input['gsc_api_key'] = $options['gsc_api_key'] ?? '';
         }
 
         if ( isset( $input['pexels_api_key'] ) && '' !== trim( $input['pexels_api_key'] ) ) {
-            $new_input['pexels_api_key'] = aca_ai_content_agent_encrypt( sanitize_text_field( $input['pexels_api_key'] ) );
+            $new_input['pexels_api_key'] = ACA_Encryption_Util::encrypt( sanitize_text_field( $input['pexels_api_key'] ) );
         } else {
             $new_input['pexels_api_key'] = $options['pexels_api_key'] ?? '';
         }
 
         if ( isset( $input['openai_api_key'] ) && '' !== trim( $input['openai_api_key'] ) ) {
-            $new_input['openai_api_key'] = aca_ai_content_agent_encrypt( sanitize_text_field( $input['openai_api_key'] ) );
+            $new_input['openai_api_key'] = ACA_Encryption_Util::encrypt( sanitize_text_field( $input['openai_api_key'] ) );
         } else {
             $new_input['openai_api_key'] = $options['openai_api_key'] ?? '';
         }
@@ -616,7 +276,7 @@ class ACA_AI_Content_Agent_Admin {
         $new_input['api_monthly_limit'] = isset($input['api_monthly_limit']) ? absint($input['api_monthly_limit']) : ($options['api_monthly_limit'] ?? 0);
         $new_input['copyscape_username'] = isset($input['copyscape_username']) ? sanitize_text_field($input['copyscape_username']) : ($options['copyscape_username'] ?? '');
         if ( isset( $input['copyscape_api_key'] ) && '' !== trim( $input['copyscape_api_key'] ) ) {
-            $new_input['copyscape_api_key'] = aca_ai_content_agent_encrypt( sanitize_text_field( $input['copyscape_api_key'] ) );
+            $new_input['copyscape_api_key'] = ACA_Encryption_Util::encrypt( sanitize_text_field( $input['copyscape_api_key'] ) );
         } else {
             $new_input['copyscape_api_key'] = $options['copyscape_api_key'] ?? '';
         }
@@ -739,7 +399,7 @@ class ACA_AI_Content_Agent_Admin {
     public function render_working_mode_field() {
         $options = get_option('aca_ai_content_agent_options');
         $current_mode = isset($options['working_mode']) ? $options['working_mode'] : 'manual';
-        if ( ! aca_ai_content_agent_is_pro() ) {
+        if ( ! ACA_Helper::is_pro() ) {
             echo '<select name="aca_ai_content_agent_options[working_mode]" disabled>';
             echo '<option value="manual" selected>' . esc_html__( 'Manual Mode', 'aca-ai-content-agent' ) . '</option>';
             echo '</select>';
@@ -812,7 +472,7 @@ class ACA_AI_Content_Agent_Admin {
      */
     public function render_default_profile_field() {
         $options  = get_option('aca_ai_content_agent_options');
-        $profiles = ACA_AI_Content_Agent_Engine::get_brand_profiles();
+        $profiles = ACA_Style_Guide_Service::get_brand_profiles();
         $current  = $options['default_profile'] ?? '';
 
         echo '<select name="aca_ai_content_agent_options[default_profile]">';
@@ -993,8 +653,8 @@ class ACA_AI_Content_Agent_Admin {
         <form action="options.php" method="post">
             <?php
             settings_fields('aca_ai_content_agent_prompts_group');
-            $prompts = ACA_AI_Content_Agent_Engine::get_prompts();
-            $profiles = ACA_AI_Content_Agent_Engine::get_brand_profiles();
+            $prompts = ACA_Style_Guide_Service::get_default_prompts();
+            $profiles = ACA_Style_Guide_Service::get_brand_profiles();
             ?>
             <h3><?php esc_html_e('Style Guide Prompt', 'aca-ai-content-agent'); ?></h3>
             <textarea name="aca_ai_content_agent_prompts[style_guide]" rows="10" cols="50" class="large-text"><?php echo esc_textarea($prompts['style_guide']); ?></textarea>
@@ -1030,7 +690,7 @@ class ACA_AI_Content_Agent_Admin {
      */
     public function sanitize_prompts($input) {
         $new_input = [];
-        $default_prompts = ACA_AI_Content_Agent_Engine::get_default_prompts();
+        $default_prompts = ACA_Style_Guide_Service::get_default_prompts();
 
         foreach ($default_prompts as $key => $value) {
             if (isset($input[$key]) && !empty(trim($input[$key]))) {
@@ -1115,5 +775,3 @@ class ACA_AI_Content_Agent_Admin {
         return $actions;
     }
 }
-
-new ACA_AI_Content_Agent_Admin();

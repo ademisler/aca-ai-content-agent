@@ -23,7 +23,7 @@ class ACA_AI_Content_Agent_Privacy {
         if ( $user && user_can( $user, 'manage_aca_ai_content_agent_settings' ) ) {
             $options  = get_option( 'aca_ai_content_agent_options', [] );
             $license  = get_option( 'aca_ai_content_agent_license_key', '' );
-            $license  = $license ? aca_ai_content_agent_safe_decrypt( $license ) : '';
+            $license  = $license ? ACA_Encryption_Util::safe_decrypt( $license ) : '';
             $api_key  = get_option( 'aca_ai_content_agent_gemini_api_key', '' );
             $data[] = [
                 'name'  => __( 'ACA Options', 'aca-ai-content-agent' ),

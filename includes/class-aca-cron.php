@@ -125,13 +125,13 @@ class ACA_AI_Content_Agent_Cron {
 
         if ($working_mode === 'semi-auto') {
             // In semi-auto mode, only generate ideas.
-            ACA_AI_Content_Agent_Engine::generate_ideas();
+            ACA_Idea_Service::generate_ideas();
         } elseif ($working_mode === 'full-auto') {
             // In full-auto mode, generate ideas and then write drafts.
-            $idea_ids = ACA_AI_Content_Agent_Engine::generate_ideas();
+            $idea_ids = ACA_Idea_Service::generate_ideas();
             if (!is_wp_error($idea_ids) && !empty($idea_ids)) {
                 foreach ($idea_ids as $idea_id) {
-                    ACA_AI_Content_Agent_Engine::write_post_draft($idea_id);
+                    ACA_Draft_Service::write_post_draft($idea_id);
                 }
             }
         }
@@ -150,15 +150,15 @@ class ACA_AI_Content_Agent_Cron {
      * Generate style guide periodically.
      */
     public function generate_style_guide() {
-        ACA_AI_Content_Agent_Engine::generate_style_guide();
+        ACA_Style_Guide_Service::generate_style_guide();
     }
 
     /**
      * Verify license status in the background.
      */
     public function verify_license() {
-        if ( function_exists( 'aca_ai_content_agent_maybe_check_license' ) ) {
-            aca_ai_content_agent_maybe_check_license( true );
+        if ( function_exists( 'ACA_Helper::maybe_check_license' ) ) {
+            ACA_Helper::maybe_check_license( true );
         }
     }
 

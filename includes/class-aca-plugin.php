@@ -59,7 +59,7 @@ class ACA_Plugin {
         require_once plugin_dir_path( __FILE__ ) . '/core/class-aca-deactivator.php';
 
         if (is_admin()) {
-            require_once plugin_dir_path( __FILE__ ) . '/admin/class-aca-admin-init.php';
+            require_once plugin_dir_path( __FILE__ ) . '/admin/class-aca-admin.php';
             require_once plugin_dir_path( __FILE__ ) . '/admin/class-aca-ajax-handler.php';
             require_once plugin_dir_path( __FILE__ ) . '/admin/class-aca-dashboard.php';
             require_once plugin_dir_path( __FILE__ ) . '/admin/class-aca-onboarding.php';

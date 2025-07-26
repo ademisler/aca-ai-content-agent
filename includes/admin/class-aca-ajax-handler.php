@@ -9,7 +9,7 @@
  * managing ideas, and handling user interactions.
  *
  * @package ACA_AI_Content_Agent
- * @version 1.2
+ * @version 1.3
  * @since   1.2
  */
 
@@ -88,7 +88,7 @@ class ACA_Ajax_Handler {
      * @since 1.2.0
      */
     public function handle_ajax_test_connection() {
-        $this->verify_nonce_and_capability('manage_aca_ai_content_agent_settings');
+        $this->verify_nonce_and_capability('manage_options');
 
         $test_prompt = 'Hello.';
         $response = ACA_Gemini_Api::call($test_prompt);
@@ -108,7 +108,7 @@ class ACA_Ajax_Handler {
      * @since 1.2.0
      */
     public function handle_ajax_generate_style_guide() {
-        $this->verify_nonce_and_capability('manage_aca_ai_content_agent_settings');
+        $this->verify_nonce_and_capability('edit_posts');
 
         $result = ACA_Style_Guide_Service::generate_style_guide();
 
@@ -127,7 +127,7 @@ class ACA_Ajax_Handler {
      * @since 1.2.0
      */
     public function handle_ajax_generate_ideas() {
-        $this->verify_nonce_and_capability('view_aca_ai_content_agent_dashboard');
+        $this->verify_nonce_and_capability('edit_posts');
 
         if ($this->is_rate_limited()) {
             wp_send_json_error(esc_html__('Please wait a moment before generating new ideas.', 'aca-ai-content-agent'));
@@ -153,7 +153,7 @@ class ACA_Ajax_Handler {
      * @since 1.2.0
      */
     public function handle_ajax_write_draft() {
-        $this->verify_nonce_and_capability('view_aca_ai_content_agent_dashboard');
+        $this->verify_nonce_and_capability('edit_posts');
 
         $idea_id = $this->validate_idea_id();
         if (is_wp_error($idea_id)) {
@@ -180,7 +180,7 @@ class ACA_Ajax_Handler {
      * @since 1.2.0
      */
     public function handle_ajax_reject_idea() {
-        $this->verify_nonce_and_capability('view_aca_ai_content_agent_dashboard');
+        $this->verify_nonce_and_capability('edit_posts');
 
         $idea_id = $this->validate_idea_id();
         if (is_wp_error($idea_id)) {
@@ -204,7 +204,7 @@ class ACA_Ajax_Handler {
      * @since 1.2.0
      */
     public function handle_ajax_validate_license() {
-        $this->verify_nonce_and_capability('manage_aca_ai_content_agent_settings');
+        $this->verify_nonce_and_capability('manage_options');
 
         $license_key = sanitize_text_field(wp_unslash($_POST['license_key']));
         
@@ -242,7 +242,7 @@ class ACA_Ajax_Handler {
      * @since 1.2.0
      */
     public function handle_ajax_generate_cluster() {
-        $this->verify_nonce_and_capability('manage_aca_ai_content_agent_settings');
+        $this->verify_nonce_and_capability('edit_posts');
 
         $topic = $this->validate_topic();
         if (is_wp_error($topic)) {
@@ -266,7 +266,7 @@ class ACA_Ajax_Handler {
      * @since 1.2.0
      */
     public function handle_ajax_submit_feedback() {
-        $this->verify_nonce_and_capability('view_aca_ai_content_agent_dashboard');
+        $this->verify_nonce_and_capability('edit_posts');
 
         $feedback_data = $this->validate_feedback_data();
         if (is_wp_error($feedback_data)) {
@@ -290,7 +290,7 @@ class ACA_Ajax_Handler {
      * @since 1.2.0
      */
     public function handle_ajax_suggest_update() {
-        $this->verify_nonce_and_capability('manage_aca_ai_content_agent_settings');
+        $this->verify_nonce_and_capability('edit_posts');
 
         $post_id = $this->validate_post_id();
         if (is_wp_error($post_id)) {
@@ -314,7 +314,7 @@ class ACA_Ajax_Handler {
      * @since 1.2.0
      */
     public function handle_ajax_fetch_gsc_data() {
-        $this->verify_nonce_and_capability('manage_aca_ai_content_agent_settings');
+        $this->verify_nonce_and_capability('edit_posts');
 
         $gsc_params = $this->get_gsc_date_range();
         $result = ACA_Idea_Service::fetch_gsc_data($gsc_params['site_url'], $gsc_params['start'], $gsc_params['end']);
@@ -334,7 +334,7 @@ class ACA_Ajax_Handler {
      * @since 1.2.0
      */
     public function handle_ajax_generate_gsc_ideas() {
-        $this->verify_nonce_and_capability('manage_aca_ai_content_agent_settings');
+        $this->verify_nonce_and_capability('edit_posts');
 
         $result = ACA_Idea_Service::generate_ideas_from_gsc();
 
@@ -354,7 +354,7 @@ class ACA_Ajax_Handler {
      * @since 1.2.0
      */
     public function handle_ajax_reset_settings() {
-        $this->verify_nonce_and_capability('manage_aca_ai_content_agent_settings');
+        $this->verify_nonce_and_capability('manage_options');
 
         $this->delete_all_plugin_options();
         wp_send_json_success(esc_html__('All settings have been reset to their default values.', 'aca-ai-content-agent'));

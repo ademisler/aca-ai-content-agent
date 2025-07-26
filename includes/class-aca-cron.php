@@ -7,8 +7,8 @@
  * license verification, log cleanup, and style guide updates.
  *
  * @package ACA_AI_Content_Agent
- * @version 1.2
- * @since   1.2
+ * @version 1.3
+ * @since   1.3
  */
 
 if (!defined('ABSPATH')) {
@@ -33,7 +33,7 @@ if (!defined('ABSPATH')) {
  *
  * @since 1.2.0
  */
-class ACA_AI_Content_Agent_Cron {
+class ACA_Cron {
 
     /**
      * Default log retention days.
@@ -78,6 +78,22 @@ class ACA_AI_Content_Agent_Cron {
      * @since 1.2.0
      */
     public function schedule_events() {
+        // Check if Action Scheduler is available
+        if (!class_exists('ActionScheduler')) {
+            // Fallback to WordPress cron
+            $this->schedule_wordpress_cron_events();
+        } else {
+            // Use Action Scheduler for better reliability
+            $this->schedule_action_scheduler_events();
+        }
+    }
+
+    /**
+     * Schedule events using WordPress cron (fallback).
+     *
+     * @since 1.3.0
+     */
+    private function schedule_wordpress_cron_events() {
         $options = $this->get_scheduling_options();
         $intervals = $this->calculate_intervals($options);
 
@@ -95,6 +111,31 @@ class ACA_AI_Content_Agent_Cron {
 
         // Schedule log cleanup
         $this->schedule_log_cleanup($options['auto_cleanup_logs'], $options['log_retention_days']);
+    }
+
+    /**
+     * Schedule events using Action Scheduler.
+     *
+     * @since 1.3.0
+     */
+    private function schedule_action_scheduler_events() {
+        $options = $this->get_scheduling_options();
+        $intervals = $this->calculate_intervals($options);
+
+        // Schedule main automation
+        $this->schedule_action_scheduler_main_automation($options['working_mode'], $intervals['main_automation']);
+
+        // Schedule API counter reset
+        $this->schedule_action_scheduler_api_counter_reset();
+
+        // Schedule license verification
+        $this->schedule_action_scheduler_license_verification();
+
+        // Schedule style guide generation
+        $this->schedule_action_scheduler_style_guide_generation($options['style_guide_frequency'], $intervals['style_guide']);
+
+        // Schedule log cleanup
+        $this->schedule_action_scheduler_log_cleanup($options['auto_cleanup_logs'], $options['log_retention_days']);
     }
 
     /**
@@ -335,7 +376,9 @@ class ACA_AI_Content_Agent_Cron {
         delete_transient('aca_ai_content_agent_hourly_api_calls');
         delete_transient('aca_ai_content_agent_minute_api_calls');
         
-        ACA_Log_Service::info('API usage counters reset for new month');
+        if (class_exists('ACA_Log_Service')) {
+            ACA_Log_Service::info('API usage counters reset for new month');
+        }
     }
 
     /**
@@ -377,7 +420,7 @@ class ACA_AI_Content_Agent_Cron {
             $cutoff_date
         ));
         
-        if ($deleted !== false) {
+        if ($deleted !== false && class_exists('ACA_Log_Service')) {
             ACA_Log_Service::info("Cleaned {$deleted} old log entries");
         }
     }
@@ -401,6 +444,141 @@ class ACA_AI_Content_Agent_Cron {
         ];
         
         return $schedules;
+    }
+
+    /**
+     * Schedule main automation using Action Scheduler.
+     *
+     * @since 1.3.0
+     * @param string $working_mode Working mode.
+     * @param int $interval Interval in seconds.
+     */
+    private function schedule_action_scheduler_main_automation($working_mode, $interval) {
+        if (!class_exists('ActionScheduler')) {
+            return;
+        }
+
+        $hook = 'aca_ai_content_agent_main_automation';
+        $args = array('working_mode' => $working_mode);
+        
+        // Clear existing actions
+        ActionScheduler::unschedule_all_actions($hook, $args);
+        
+        // Schedule new action
+        ActionScheduler::schedule_recurring_action(
+            time(),
+            $interval,
+            $hook,
+            $args,
+            'aca-ai-content-agent'
+        );
+    }
+
+    /**
+     * Schedule API counter reset using Action Scheduler.
+     *
+     * @since 1.3.0
+     */
+    private function schedule_action_scheduler_api_counter_reset() {
+        if (!class_exists('ActionScheduler')) {
+            return;
+        }
+
+        $hook = 'aca_ai_content_agent_reset_api_usage';
+        
+        // Clear existing actions
+        ActionScheduler::unschedule_all_actions($hook);
+        
+        // Schedule for first day of each month
+        $next_month = strtotime('first day of next month 00:00:00');
+        ActionScheduler::schedule_single_action(
+            $next_month,
+            $hook,
+            array(),
+            'aca-ai-content-agent'
+        );
+    }
+
+    /**
+     * Schedule license verification using Action Scheduler.
+     *
+     * @since 1.3.0
+     */
+    private function schedule_action_scheduler_license_verification() {
+        if (!class_exists('ActionScheduler')) {
+            return;
+        }
+
+        $hook = 'aca_ai_content_agent_verify_license';
+        
+        // Clear existing actions
+        ActionScheduler::unschedule_all_actions($hook);
+        
+        // Schedule daily
+        ActionScheduler::schedule_recurring_action(
+            time(),
+            DAY_IN_SECONDS,
+            $hook,
+            array(),
+            'aca-ai-content-agent'
+        );
+    }
+
+    /**
+     * Schedule style guide generation using Action Scheduler.
+     *
+     * @since 1.3.0
+     * @param string $frequency Frequency setting.
+     * @param int $interval Interval in seconds.
+     */
+    private function schedule_action_scheduler_style_guide_generation($frequency, $interval) {
+        if (!class_exists('ActionScheduler')) {
+            return;
+        }
+
+        $hook = 'aca_ai_content_agent_generate_style_guide';
+        
+        // Clear existing actions
+        ActionScheduler::unschedule_all_actions($hook);
+        
+        if ($frequency !== 'never') {
+            ActionScheduler::schedule_recurring_action(
+                time(),
+                $interval,
+                $hook,
+                array(),
+                'aca-ai-content-agent'
+            );
+        }
+    }
+
+    /**
+     * Schedule log cleanup using Action Scheduler.
+     *
+     * @since 1.3.0
+     * @param bool $cleanup_enabled Whether cleanup is enabled.
+     * @param int $retention_days Retention period in days.
+     */
+    private function schedule_action_scheduler_log_cleanup($cleanup_enabled, $retention_days) {
+        if (!class_exists('ActionScheduler')) {
+            return;
+        }
+
+        $hook = 'aca_ai_content_agent_clean_logs';
+        $args = array('retention_days' => $retention_days);
+        
+        // Clear existing actions
+        ActionScheduler::unschedule_all_actions($hook, $args);
+        
+        if ($cleanup_enabled) {
+            ActionScheduler::schedule_recurring_action(
+                time(),
+                WEEK_IN_SECONDS,
+                $hook,
+                $args,
+                'aca-ai-content-agent'
+            );
+        }
     }
 
     /**

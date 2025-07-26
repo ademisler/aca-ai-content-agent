@@ -30,9 +30,30 @@ class ACA_Activator {
 	 * @return void
 	 */
 	public static function activate() {
-        self::create_custom_tables();
-        self::add_custom_capabilities();
-        set_transient('aca_ai_content_agent_activation_redirect', true, 30);
+        try {
+            // Create database tables
+            self::create_custom_tables();
+            
+            // Add custom capabilities
+            self::add_custom_capabilities();
+            
+            // Set activation redirect
+            set_transient('aca_ai_content_agent_activation_redirect', true, 30);
+            
+            // Log successful activation
+            if (class_exists('ACA_Log_Service')) {
+                ACA_Log_Service::info('Plugin activated successfully');
+            }
+            
+        } catch (Exception $e) {
+            // Log activation error
+            if (class_exists('ACA_Log_Service')) {
+                ACA_Log_Service::error('Plugin activation failed: ' . $e->getMessage());
+            }
+            
+            // Re-throw the exception to show error to user
+            throw $e;
+        }
 	}
 
     /**
@@ -46,7 +67,13 @@ class ACA_Activator {
      */
     private static function create_custom_tables() {
         global $wpdb;
-        $charset_collate = $wpdb->get_charset_collate();
+        
+        // Check if we can access the database
+        if (!$wpdb) {
+            throw new Exception('Database connection not available');
+        }
+        
+        $charset_collate = method_exists($wpdb, 'get_charset_collate') ? $wpdb->get_charset_collate() : 'DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci';
 
         // Table for generated ideas
         $table_name_ideas = $wpdb->prefix . 'aca_ai_content_agent_ideas';
@@ -65,8 +92,16 @@ class ACA_Activator {
             KEY generated_date (generated_date),
             KEY user_id (user_id)
         ) $charset_collate;";
-        require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-        dbDelta( $sql_ideas );
+        
+        // Include upgrade.php for dbDelta function
+        if (!function_exists('dbDelta')) {
+            require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+        }
+        
+        $result = dbDelta( $sql_ideas );
+        if (!empty($wpdb->last_error)) {
+            throw new Exception('Failed to create ideas table: ' . $wpdb->last_error);
+        }
 
         // Table for logs - ENHANCED with new fields
         $table_name_logs = $wpdb->prefix . 'aca_ai_content_agent_logs';
@@ -83,7 +118,11 @@ class ACA_Activator {
             KEY timestamp (timestamp),
             KEY user_id (user_id)
         ) $charset_collate;";
-        dbDelta( $sql_logs );
+        
+        $result = dbDelta( $sql_logs );
+        if (!empty($wpdb->last_error)) {
+            throw new Exception('Failed to create logs table: ' . $wpdb->last_error);
+        }
 
         // Table for content clusters
         $table_name_clusters = $wpdb->prefix . 'aca_ai_content_agent_clusters';
@@ -97,7 +136,11 @@ class ACA_Activator {
             KEY status (status),
             KEY generated_date (generated_date)
         ) $charset_collate;";
-        dbDelta( $sql_clusters );
+        
+        $result = dbDelta( $sql_clusters );
+        if (!empty($wpdb->last_error)) {
+            throw new Exception('Failed to create clusters table: ' . $wpdb->last_error);
+        }
 
         // Table for cluster items (subtopics)
         $table_name_cluster_items = $wpdb->prefix . 'aca_ai_content_agent_cluster_items';
@@ -111,7 +154,11 @@ class ACA_Activator {
             KEY cluster_id (cluster_id),
             KEY status (status)
         ) $charset_collate;";
-        dbDelta( $sql_cluster_items );
+        
+        $result = dbDelta( $sql_cluster_items );
+        if (!empty($wpdb->last_error)) {
+            throw new Exception('Failed to create cluster items table: ' . $wpdb->last_error);
+        }
 
         // SECURITY FIX: Add indexes for better performance
         self::add_database_indexes();
@@ -143,7 +190,9 @@ class ACA_Activator {
 
         foreach ($indexes as $table => $table_indexes) {
             foreach ($table_indexes as $index_name => $columns) {
-                $wpdb->query("CREATE INDEX IF NOT EXISTS {$index_name} ON {$table} ({$columns})");
+                if (method_exists($wpdb, 'query')) {
+                    $wpdb->query("CREATE INDEX IF NOT EXISTS {$index_name} ON {$table} ({$columns})");
+                }
             }
         }
     }
@@ -158,18 +207,38 @@ class ACA_Activator {
      * @return void
      */
     private static function add_custom_capabilities() {
-        $capabilities = [
-            'manage_aca_ai_content_agent_settings' => true,
-            'view_aca_ai_content_agent_dashboard'  => true,
-        ];
+        try {
+            $capabilities = [
+                'manage_aca_ai_content_agent_settings' => true,
+                'view_aca_ai_content_agent_dashboard'  => true,
+            ];
 
-        add_role('aca_content_manager', __('ACA Content Manager', 'aca-ai-content-agent'), $capabilities);
+            // Create custom role
+            add_role('aca_content_manager', __('ACA Content Manager', 'aca-ai-content-agent'), $capabilities);
 
-        $admin_role = get_role('administrator');
-        if ($admin_role) {
-            foreach ($capabilities as $cap => $grant) {
-                $admin_role->add_cap($cap);
+            // Add capabilities to all existing roles that should have access
+            $roles_to_update = ['administrator', 'editor', 'author'];
+            
+            foreach ($roles_to_update as $role_name) {
+                $role = get_role($role_name);
+                if ($role) {
+                    foreach ($capabilities as $cap => $grant) {
+                        $role->add_cap($cap);
+                    }
+                }
             }
+            
+            // Also add to current user if they don't have the capability
+            $current_user = wp_get_current_user();
+            if ($current_user->exists()) {
+                foreach ($capabilities as $cap => $grant) {
+                    if (!$current_user->has_cap($cap)) {
+                        $current_user->add_cap($cap);
+                    }
+                }
+            }
+        } catch (Exception $e) {
+            throw new Exception('Failed to add custom capabilities: ' . $e->getMessage());
         }
     }
 }

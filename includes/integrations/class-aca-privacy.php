@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.2.0
  */
-class ACA_AI_Content_Agent_Privacy {
+class ACA_Privacy {
 
     /**
      * Initialize privacy functionality.
@@ -31,8 +31,8 @@ class ACA_AI_Content_Agent_Privacy {
      * @return void
      */
     public static function init() {
-        add_filter( 'wp_privacy_personal_data_exporters', [ 'ACA_AI_Content_Agent_Privacy', 'register_exporter' ] );
-        add_filter( 'wp_privacy_personal_data_erasers', [ 'ACA_AI_Content_Agent_Privacy', 'register_eraser' ] );
+        add_filter( 'wp_privacy_personal_data_exporters', [ 'ACA_Privacy', 'register_exporter' ] );
+        add_filter( 'wp_privacy_personal_data_erasers', [ 'ACA_Privacy', 'register_eraser' ] );
     }
 
     /**
@@ -45,7 +45,7 @@ class ACA_AI_Content_Agent_Privacy {
     public static function register_exporter( $exporters ) {
         $exporters['aca-ai-content-agent-data'] = [
             'exporter_friendly_name' => __( 'ACA Settings', 'aca-ai-content-agent' ),
-            'callback'               => [ 'ACA_AI_Content_Agent_Privacy', 'export' ],
+            'callback'               => [ 'ACA_Privacy', 'export' ],
         ];
         return $exporters;
     }
@@ -93,7 +93,7 @@ class ACA_AI_Content_Agent_Privacy {
     public static function register_eraser( $erasers ) {
         $erasers['aca-ai-content-agent-data'] = [
             'eraser_friendly_name' => __( 'ACA Settings', 'aca-ai-content-agent' ),
-            'callback'             => [ 'ACA_AI_Content_Agent_Privacy', 'erase' ],
+            'callback'             => [ 'ACA_Privacy', 'erase' ],
         ];
         return $erasers;
     }

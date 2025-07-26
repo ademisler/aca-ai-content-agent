@@ -5,7 +5,7 @@
  * API Settings
  *
  * @package ACA_AI_Content_Agent
- * @version 1.2
+ * @version 1.3
  * @since   1.2
  */
 
@@ -115,10 +115,21 @@ class ACA_Settings_Api {
      * @since 1.2.0
      */
     public function render_api_key_field() {
-        $api_key = get_option( 'aca_ai_content_agent_gemini_api_key' );
-        $placeholder = ! empty( $api_key ) ? esc_html__( '***************** (already saved)', 'aca-ai-content-agent' ) : '';
-        echo '<input type="password" id="aca_ai_content_agent_gemini_api_key" name="aca_ai_content_agent_gemini_api_key" value="" placeholder="' . esc_attr( $placeholder ) . '" class="regular-text">';
-        echo '<p class="description">' . esc_html__( 'Enter your Google Gemini API key. Your key is obfuscated for security.', 'aca-ai-content-agent' ) . '</p>';
+        $encrypted_api_key = get_option( 'aca_ai_content_agent_gemini_api_key' );
+        $api_key = '';
+        
+        // Decrypt the API key if it exists
+        if ( ! empty( $encrypted_api_key ) ) {
+            $api_key = ACA_Encryption_Util::safe_decrypt( $encrypted_api_key );
+        }
+        
+        $placeholder = ! empty( $api_key ) ? esc_html__( '***************** (already saved)', 'aca-ai-content-agent' ) : esc_html__( 'Enter your Google Gemini API key', 'aca-ai-content-agent' );
+        
+        echo '<div class="aca-form-row">';
+        echo '<input type="password" id="aca_ai_content_agent_gemini_api_key" name="aca_ai_content_agent_gemini_api_key" value="" placeholder="' . esc_attr( $placeholder ) . '" class="regular-text aca-form-input">';
+        echo '<p class="description">' . esc_html__( 'Enter your Google Gemini API key. Your key is encrypted and stored securely.', 'aca-ai-content-agent' ) . '</p>';
+        echo '<p class="description"><a href="https://makersuite.google.com/app/apikey" target="_blank">' . esc_html__( 'Get your API key from Google AI Studio', 'aca-ai-content-agent' ) . '</a></p>';
+        echo '</div>';
     }
 
     /**
@@ -127,8 +138,13 @@ class ACA_Settings_Api {
      * @since 1.2.0
      */
     public function render_api_test_button() {
-        echo '<button type="button" class="button" id="aca-ai-content-agent-test-connection">' . esc_html__( 'Test Connection', 'aca-ai-content-agent' ) . '</button>';
-        echo '<span id="aca-ai-content-agent-test-status" style="margin-left: 10px;"></span>';
+        echo '<div class="aca-form-row">';
+        echo '<button type="button" class="aca-action-button" id="aca-ai-content-agent-test-connection">';
+        echo '<span class="dashicons dashicons-admin-network"></span> ' . esc_html__( 'Test Connection', 'aca-ai-content-agent' );
+        echo '</button>';
+        echo '<span id="aca-ai-content-agent-test-status" class="aca-status" style="margin-left: 10px;"></span>';
+        echo '<p class="description">' . esc_html__( 'Test your API connection to ensure everything is working correctly.', 'aca-ai-content-agent' ) . '</p>';
+        echo '</div>';
     }
 
     /**
@@ -137,9 +153,13 @@ class ACA_Settings_Api {
      * @since 1.2.0
      */
     public function render_copyscape_username_field() {
-        $options = get_option( 'aca_ai_content_agent_options' );
+        $options = get_option( 'aca_ai_content_agent_options', [] );
         $username = isset( $options['copyscape_username'] ) ? $options['copyscape_username'] : '';
-        echo '<input type="text" name="aca_ai_content_agent_options[copyscape_username]" value="' . esc_attr( $username ) . '" class="regular-text">';
+        
+        echo '<div class="aca-form-row">';
+        echo '<input type="text" name="aca_ai_content_agent_options[copyscape_username]" value="' . esc_attr( $username ) . '" class="regular-text aca-form-input" placeholder="' . esc_attr__( 'Enter your Copyscape username', 'aca-ai-content-agent' ) . '">';
+        echo '<p class="description">' . esc_html__( 'Your Copyscape account username for plagiarism checking.', 'aca-ai-content-agent' ) . '</p>';
+        echo '</div>';
     }
 
     /**
@@ -148,10 +168,21 @@ class ACA_Settings_Api {
      * @since 1.2.0
      */
     public function render_copyscape_api_key_field() {
-        $options     = get_option( 'aca_ai_content_agent_options' );
-        $key         = $options['copyscape_api_key'] ?? '';
-        $placeholder = ! empty( $key ) ? esc_html__( '***************** (already saved)', 'aca-ai-content-agent' ) : '';
-        echo '<input type="password" name="aca_ai_content_agent_options[copyscape_api_key]" value="" placeholder="' . esc_attr( $placeholder ) . '" class="regular-text">';
+        $options = get_option( 'aca_ai_content_agent_options', [] );
+        $encrypted_key = $options['copyscape_api_key'] ?? '';
+        $key = '';
+        
+        // Decrypt the API key if it exists
+        if ( ! empty( $encrypted_key ) ) {
+            $key = ACA_Encryption_Util::safe_decrypt( $encrypted_key );
+        }
+        
+        $placeholder = ! empty( $key ) ? esc_html__( '***************** (already saved)', 'aca-ai-content-agent' ) : esc_html__( 'Enter your Copyscape API key', 'aca-ai-content-agent' );
+        
+        echo '<div class="aca-form-row">';
+        echo '<input type="password" name="aca_ai_content_agent_options[copyscape_api_key]" value="" placeholder="' . esc_attr( $placeholder ) . '" class="regular-text aca-form-input">';
+        echo '<p class="description">' . esc_html__( 'Your Copyscape API key for plagiarism checking. Leave empty to keep existing key.', 'aca-ai-content-agent' ) . '</p>';
+        echo '</div>';
     }
 
     /**
@@ -160,9 +191,13 @@ class ACA_Settings_Api {
      * @since 1.2.0
      */
     public function render_gsc_site_url_field() {
-        $options = get_option( 'aca_ai_content_agent_options' );
+        $options = get_option( 'aca_ai_content_agent_options', [] );
         $url = isset( $options['gsc_site_url'] ) ? $options['gsc_site_url'] : '';
-        echo '<input type="text" name="aca_ai_content_agent_options[gsc_site_url]" value="' . esc_attr( $url ) . '" class="regular-text">';
+        
+        echo '<div class="aca-form-row">';
+        echo '<input type="url" name="aca_ai_content_agent_options[gsc_site_url]" value="' . esc_attr( $url ) . '" class="regular-text aca-form-input" placeholder="https://example.com">';
+        echo '<p class="description">' . esc_html__( 'Your website URL as registered in Google Search Console.', 'aca-ai-content-agent' ) . '</p>';
+        echo '</div>';
     }
 
     /**
@@ -171,10 +206,21 @@ class ACA_Settings_Api {
      * @since 1.2.0
      */
     public function render_gsc_api_key_field() {
-        $options     = get_option( 'aca_ai_content_agent_options' );
-        $key         = $options['gsc_api_key'] ?? '';
-        $placeholder = ! empty( $key ) ? esc_html__( '***************** (already saved)', 'aca-ai-content-agent' ) : '';
-        echo '<input type="password" name="aca_ai_content_agent_options[gsc_api_key]" value="" placeholder="' . esc_attr( $placeholder ) . '" class="regular-text">';
+        $options = get_option( 'aca_ai_content_agent_options', [] );
+        $encrypted_key = $options['gsc_api_key'] ?? '';
+        $key = '';
+        
+        // Decrypt the API key if it exists
+        if ( ! empty( $encrypted_key ) ) {
+            $key = ACA_Encryption_Util::safe_decrypt( $encrypted_key );
+        }
+        
+        $placeholder = ! empty( $key ) ? esc_html__( '***************** (already saved)', 'aca-ai-content-agent' ) : esc_html__( 'Enter your Search Console API key', 'aca-ai-content-agent' );
+        
+        echo '<div class="aca-form-row">';
+        echo '<input type="password" name="aca_ai_content_agent_options[gsc_api_key]" value="" placeholder="' . esc_attr( $placeholder ) . '" class="regular-text aca-form-input">';
+        echo '<p class="description">' . esc_html__( 'Your Google Search Console API key. Leave empty to keep existing key.', 'aca-ai-content-agent' ) . '</p>';
+        echo '</div>';
     }
 
     /**
@@ -183,10 +229,21 @@ class ACA_Settings_Api {
      * @since 1.2.0
      */
     public function render_pexels_api_key_field() {
-        $options     = get_option( 'aca_ai_content_agent_options' );
-        $key         = $options['pexels_api_key'] ?? '';
-        $placeholder = ! empty( $key ) ? esc_html__( '***************** (already saved)', 'aca-ai-content-agent' ) : '';
-        echo '<input type="password" name="aca_ai_content_agent_options[pexels_api_key]" value="" placeholder="' . esc_attr( $placeholder ) . '" class="regular-text">';
+        $options = get_option( 'aca_ai_content_agent_options', [] );
+        $encrypted_key = $options['pexels_api_key'] ?? '';
+        $key = '';
+        
+        // Decrypt the API key if it exists
+        if ( ! empty( $encrypted_key ) ) {
+            $key = ACA_Encryption_Util::safe_decrypt( $encrypted_key );
+        }
+        
+        $placeholder = ! empty( $key ) ? esc_html__( '***************** (already saved)', 'aca-ai-content-agent' ) : esc_html__( 'Enter your Pexels API key', 'aca-ai-content-agent' );
+        
+        echo '<div class="aca-form-row">';
+        echo '<input type="password" name="aca_ai_content_agent_options[pexels_api_key]" value="" placeholder="' . esc_attr( $placeholder ) . '" class="regular-text aca-form-input">';
+        echo '<p class="description">' . esc_html__( 'Your Pexels API key for image suggestions. Leave empty to keep existing key.', 'aca-ai-content-agent' ) . '</p>';
+        echo '</div>';
     }
 
     /**
@@ -195,9 +252,20 @@ class ACA_Settings_Api {
      * @since 1.2.0
      */
     public function render_openai_api_key_field() {
-        $options     = get_option( 'aca_ai_content_agent_options' );
-        $key         = $options['openai_api_key'] ?? '';
-        $placeholder = ! empty( $key ) ? esc_html__( '***************** (already saved)', 'aca-ai-content-agent' ) : '';
-        echo '<input type="password" name="aca_ai_content_agent_options[openai_api_key]" value="" placeholder="' . esc_attr( $placeholder ) . '" class="regular-text">';
+        $options = get_option( 'aca_ai_content_agent_options', [] );
+        $encrypted_key = $options['openai_api_key'] ?? '';
+        $key = '';
+        
+        // Decrypt the API key if it exists
+        if ( ! empty( $encrypted_key ) ) {
+            $key = ACA_Encryption_Util::safe_decrypt( $encrypted_key );
+        }
+        
+        $placeholder = ! empty( $key ) ? esc_html__( '***************** (already saved)', 'aca-ai-content-agent' ) : esc_html__( 'Enter your OpenAI API key', 'aca-ai-content-agent' );
+        
+        echo '<div class="aca-form-row">';
+        echo '<input type="password" name="aca_ai_content_agent_options[openai_api_key]" value="" placeholder="' . esc_attr( $placeholder ) . '" class="regular-text aca-form-input">';
+        echo '<p class="description">' . esc_html__( 'Your OpenAI API key for additional AI features. Leave empty to keep existing key.', 'aca-ai-content-agent' ) . '</p>';
+        echo '</div>';
     }
 }

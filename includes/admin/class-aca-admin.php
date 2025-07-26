@@ -5,8 +5,8 @@
  * Main Admin Class
  *
  * @package ACA_AI_Content_Agent
- * @version 1.2
- * @since   1.2
+ * @version 1.3
+ * @since   1.3
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -16,37 +16,47 @@ if ( ! defined( 'ABSPATH' ) ) {
 class ACA_Admin {
 
     public function __construct() {
-        $this->includes();
-        $this->init_hooks();
-        add_action('admin_notices', array($this, 'capability_notice'));
-    }
-
-    private function includes() {
-        require_once plugin_dir_path( __FILE__ ) . 'class-aca-admin-menu.php';
-        require_once plugin_dir_path( __FILE__ ) . 'class-aca-admin-notices.php';
-        require_once plugin_dir_path( __FILE__ ) . 'class-aca-admin-assets.php';
-        require_once plugin_dir_path( __FILE__ ) . 'settings/class-aca-settings-api.php';
-        require_once plugin_dir_path( __FILE__ ) . 'settings/class-aca-settings-automation.php';
-        require_once plugin_dir_path( __FILE__ ) . 'settings/class-aca-settings-analysis.php';
-        require_once plugin_dir_path( __FILE__ ) . 'settings/class-aca-settings-enrichment.php';
-        require_once plugin_dir_path( __FILE__ ) . 'settings/class-aca-settings-management.php';
-        require_once plugin_dir_path( __FILE__ ) . 'settings/class-aca-settings-prompts.php';
-        require_once plugin_dir_path( __FILE__ ) . 'settings/class-aca-settings-license.php';
+        try {
+            $this->init_hooks();
+            add_action('admin_notices', array($this, 'capability_notice'));
+        } catch (Exception $e) {
+            if (class_exists('ACA_Log_Service')) {
+                ACA_Log_Service::error('Admin class initialization failed: ' . $e->getMessage());
+            }
+        }
     }
 
     private function init_hooks() {
-        add_action( 'admin_init', [ $this, 'register_core_settings' ] );
-
-        new ACA_Admin_Menu();
-        new ACA_Admin_Notices();
-        new ACA_Admin_Assets();
-        new ACA_Settings_Api();
-        new ACA_Settings_Automation();
-        new ACA_Settings_Analysis();
-        new ACA_Settings_Enrichment();
-        new ACA_Settings_Management();
-        new ACA_Settings_Prompts();
-        new ACA_Settings_License();
+        try {
+            add_action( 'admin_init', [ $this, 'register_core_settings' ] );
+            
+            // Initialize admin components
+            new ACA_Admin_Menu();
+            new ACA_Admin_Notices();
+            
+            // Initialize assets handler
+            ACA_Admin_Assets::init();
+            
+            // Initialize settings
+            new ACA_Settings_Api();
+            new ACA_Settings_Automation();
+            new ACA_Settings_Analysis();
+            new ACA_Settings_Enrichment();
+            new ACA_Settings_Management();
+            new ACA_Settings_Prompts();
+            new ACA_Settings_License();
+            
+            // Initialize onboarding
+            new ACA_Onboarding();
+            
+            // Initialize post hooks
+            $post_hooks = new ACA_Post_Hooks();
+            $post_hooks->init();
+        } catch (Exception $e) {
+            if (class_exists('ACA_Log_Service')) {
+                ACA_Log_Service::error('Admin hooks initialization failed: ' . $e->getMessage());
+            }
+        }
     }
 
     /**
@@ -54,87 +64,143 @@ class ACA_Admin {
      * This tells WordPress which options are allowed to be saved for our settings group.
      */
     public function register_core_settings() {
-        // Bu grup, ayarlar sayfasındaki formda settings_fields() ile belirttiğiniz grup adıyla eşleşmelidir.
-        $settings_group = 'aca_ai_content_agent_settings_group';
+        register_setting(
+            'aca_ai_content_agent_settings_group',
+            'aca_ai_content_agent_gemini_api_key',
+            array(
+                'type' => 'string',
+                'sanitize_callback' => array($this, 'sanitize_api_key'),
+                'default' => ''
+            )
+        );
 
-        // 1. 'aca_ai_content_agent_options' seçeneğini kaydet. Bu, ayarların çoğunu içeren bir dizidir.
-        register_setting( $settings_group, 'aca_ai_content_agent_options', [ $this, 'sanitize_options_array' ] );
+        register_setting(
+            'aca_ai_content_agent_settings_group',
+            'aca_ai_content_agent_options',
+            array(
+                'type' => 'array',
+                'sanitize_callback' => array($this, 'sanitize_options'),
+                'default' => array()
+            )
+        );
 
-        // 2. 'aca_ai_content_agent_gemini_api_key' seçeneğini ayrı olarak kaydet.
-        register_setting( $settings_group, 'aca_ai_content_agent_gemini_api_key', [ $this, 'sanitize_and_encrypt_api_key' ] );
+        register_setting(
+            'aca_ai_content_agent_settings_group',
+            'aca_ai_content_agent_license_key',
+            array(
+                'type' => 'string',
+                'sanitize_callback' => array($this, 'sanitize_license_key'),
+                'default' => ''
+            )
+        );
+
+        register_setting(
+            'aca_ai_content_agent_settings_group',
+            'aca_ai_content_agent_is_pro_active',
+            array(
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+                'default' => 'false'
+            )
+        );
     }
 
     /**
-     * Sanitize and encrypt the Gemini API key before saving.
-     *
-     * @param string $input The raw API key from the form.
-     * @return string The encrypted key or the existing key if the input is empty.
+     * Sanitize API key input.
      */
-    public function sanitize_and_encrypt_api_key( $input ) {
-        $existing_key = get_option( 'aca_ai_content_agent_gemini_api_key' );
-
-        // If the user didn't enter a new key, keep the old one.
-        if ( empty( trim( $input ) ) ) {
-            return $existing_key;
+    public function sanitize_api_key($input) {
+        try {
+            $input = sanitize_text_field($input);
+            
+            // If the input is not empty, encrypt it
+            if (!empty($input)) {
+                $input = ACA_Encryption_Util::encrypt($input);
+            }
+            
+            return $input;
+        } catch (Exception $e) {
+            if (class_exists('ACA_Log_Service')) {
+                ACA_Log_Service::error('API key sanitization failed: ' . $e->getMessage());
+            }
+            return '';
         }
-
-        $sanitized_key = sanitize_text_field( $input );
-        $encrypted_key = ACA_Encryption_Util::encrypt( $sanitized_key );
-
-        return is_wp_error( $encrypted_key ) ? $existing_key : $encrypted_key;
     }
 
     /**
-     * Sanitize the main options array.
-     *
-     * @param array $input The raw options array from the form.
-     * @return array The sanitized options array.
+     * Sanitize options array.
      */
-    public function sanitize_options_array( $input ) {
-        $options = get_option( 'aca_ai_content_agent_options', [] );
-        if ( ! is_array( $input ) ) {
-            return $options; // Return existing options if input is not an array
+    public function sanitize_options($input) {
+        if (!is_array($input)) {
+            return array();
         }
 
-        // Sanitize each expected key here
-        // Example for automation settings
-        if ( isset( $input['working_mode'] ) ) {
-            $options['working_mode'] = sanitize_key( $input['working_mode'] );
-        }
-        if ( isset( $input['automation_frequency'] ) ) {
-            $options['automation_frequency'] = sanitize_key( $input['automation_frequency'] );
-        }
-
-        // Example for analysis settings
-        if ( isset( $input['analysis_post_types'] ) && is_array( $input['analysis_post_types'] ) ) {
-            $options['analysis_post_types'] = array_map( 'sanitize_text_field', $input['analysis_post_types'] );
-        } else {
-            $options['analysis_post_types'] = [];
-        }
-
-        // Add sanitization for all other options keys...
-        // ... (pexels_api_key, copyscape_username, etc.)
-        // Example for an API key within the options array
-        if ( isset( $input['pexels_api_key'] ) ) {
-            if ( empty(trim($input['pexels_api_key'])) ) {
-                // If input is empty, don't overwrite existing key
-                $options['pexels_api_key'] = $options['pexels_api_key'] ?? '';
-            } else {
-                 $encrypted_key = ACA_Encryption_Util::encrypt( sanitize_text_field( $input['pexels_api_key'] ) );
-                 $options['pexels_api_key'] = is_wp_error($encrypted_key) ? '' : $encrypted_key;
+        $sanitized = array();
+        $existing_options = get_option('aca_ai_content_agent_options', array());
+        
+        // Sanitize each option
+        foreach ($input as $key => $value) {
+            switch ($key) {
+                case 'idea_generation_limit':
+                case 'content_generation_limit':
+                case 'api_monthly_limit':
+                    $sanitized[$key] = intval($value);
+                    break;
+                case 'working_mode':
+                    $sanitized[$key] = sanitize_text_field($value);
+                    break;
+                case 'auto_generate':
+                case 'enable_analytics':
+                    $sanitized[$key] = (bool) $value;
+                    break;
+                case 'copyscape_api_key':
+                case 'gsc_api_key':
+                case 'pexels_api_key':
+                case 'openai_api_key':
+                    // Handle API keys - only encrypt if not empty
+                    if (!empty(trim($value))) {
+                        $sanitized[$key] = ACA_Encryption_Util::encrypt(sanitize_text_field($value));
+                    } else {
+                        // Keep existing encrypted key if input is empty
+                        $sanitized[$key] = $existing_options[$key] ?? '';
+                    }
+                    break;
+                default:
+                    $sanitized[$key] = sanitize_text_field($value);
+                    break;
             }
         }
-
-
-        return $options;
+        
+        // Merge with existing options to preserve unchanged values
+        return array_merge($existing_options, $sanitized);
     }
 
     /**
-     * Show a notice if the current user does not have required capabilities.
+     * Sanitize license key input.
+     */
+    public function sanitize_license_key($input) {
+        try {
+            $input = sanitize_text_field($input);
+            
+            // If the input is not empty, encrypt it
+            if (!empty($input)) {
+                $input = ACA_Encryption_Util::encrypt($input);
+            }
+            
+            return $input;
+        } catch (Exception $e) {
+            if (class_exists('ACA_Log_Service')) {
+                ACA_Log_Service::error('License key sanitization failed: ' . $e->getMessage());
+            }
+            return '';
+        }
+    }
+
+    /**
+     * Display capability notice.
      */
     public function capability_notice() {
-        if (!current_user_can('manage_aca_ai_content_agent_settings') || !current_user_can('view_aca_ai_content_agent_dashboard')) {
-            echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__('ACA: Your user does not have all required capabilities to use this plugin. Please contact your site administrator.', 'aca-ai-content-agent') . '</p></div>';
+        if (!current_user_can('edit_posts')) {
+            echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__('ACA: You do not have sufficient permissions to access this page.', 'aca-ai-content-agent') . '</p></div>';
         }
     }
 }

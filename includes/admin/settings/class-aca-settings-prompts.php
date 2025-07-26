@@ -5,7 +5,7 @@
  * Prompts Settings
  *
  * @package ACA_AI_Content_Agent
- * @version 1.2
+ * @version 1.3
  * @since   1.2
  */
 

@@ -3,7 +3,7 @@
  * Plugin Name: ACA - AI Content Agent
  * Plugin URI: https://ademisler.com
  * Description: ACA is an intelligent WordPress plugin that learns your existing content's tone and style to autonomously generate high-quality, SEO-friendly new posts.
- * Version: 1.2
+ * Version: 1.3
  * Author: Adem Isler
  * Author URI: https://ademisler.com
  * Author Email: idemasler@gmail.com
@@ -18,97 +18,123 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Define constants
-define( 'ACA_AI_CONTENT_AGENT_VERSION', '1.2' );
+define( 'ACA_AI_CONTENT_AGENT_VERSION', '1.3' );
 define( 'ACA_AI_CONTENT_AGENT_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+define( 'ACA_AI_CONTENT_AGENT_PLUGIN_FILE', __FILE__ );
 
 // Gumroad Product ID for Pro license verification
-// Replace with your actual Gumroad product ID when you create the product
 define( 'ACA_AI_CONTENT_AGENT_GUMROAD_PRODUCT_ID', 'aca-ai-content-agent-pro' );
 
-// Load dependencies
-require_once plugin_dir_path( __FILE__ ) . 'vendor/autoload.php';
-require_once plugin_dir_path( __FILE__ ) . 'includes/class-aca-plugin.php';
+// Developer/Testing mode constant - DISABLED FOR PRODUCTION
+define('ACA_AI_CONTENT_AGENT_DEV_MODE', false); // Set to false for production
 
-// Include utility classes
-require_once plugin_dir_path( __FILE__ ) . 'includes/utils/class-aca-encryption-util.php';
-require_once plugin_dir_path( __FILE__ ) . 'includes/utils/class-aca-helper.php';
-require_once plugin_dir_path( __FILE__ ) . 'includes/utils/class-aca-log-service.php';
-require_once plugin_dir_path( __FILE__ ) . 'includes/utils/class-aca-cache-service.php';
-require_once plugin_dir_path( __FILE__ ) . 'includes/utils/class-aca-error-recovery.php';
+// SECURITY CHECK: Prevent developer mode in production
+if (defined('ACA_AI_CONTENT_AGENT_DEV_MODE') && ACA_AI_CONTENT_AGENT_DEV_MODE) {
+    // Check if this is a production environment
+    if (defined('WP_ENVIRONMENT_TYPE') && WP_ENVIRONMENT_TYPE === 'production') {
+        // Log the security violation
+        error_log('SECURITY WARNING: ACA_AI_CONTENT_AGENT_DEV_MODE is enabled in production environment!');
+        
+        // Disable developer mode in production
+        define('ACA_AI_CONTENT_AGENT_DEV_MODE', false);
+        
+        // Add admin notice if in admin area
+        if (function_exists('add_action') && function_exists('is_admin') && is_admin()) {
+            add_action('admin_notices', function() {
+                echo '<div class="notice notice-error"><p><strong>SECURITY WARNING:</strong> ACA AI Content Agent developer mode was disabled in production environment for security reasons.</p></div>';
+            });
+        }
+    }
+}
 
-// Initialize privacy integration
-require_once plugin_dir_path( __FILE__ ) . 'includes/integrations/class-aca-privacy.php';
+// Load Composer autoloader
+if (file_exists(plugin_dir_path(__FILE__) . 'vendor/autoload.php')) {
+    require_once plugin_dir_path(__FILE__) . 'vendor/autoload.php';
+}
+
+// Load main plugin class
+require_once plugin_dir_path(__FILE__) . 'includes/class-aca-plugin.php';
 
 /**
  * Activation hook.
  */
 function aca_ai_content_agent_activate() {
-    require_once plugin_dir_path( __FILE__ ) . 'includes/core/class-aca-activator.php';
-    ACA_Activator::activate();
+    try {
+        require_once plugin_dir_path(__FILE__) . 'includes/core/class-aca-activator.php';
+        ACA_Activator::activate();
+    } catch (Exception $e) {
+        // Log the error
+        error_log('ACA AI Content Agent activation failed: ' . $e->getMessage());
+        
+        // Show error to user
+        wp_die(
+            '<h1>Plugin Activation Error</h1>' .
+            '<p>ACA AI Content Agent could not be activated due to an error:</p>' .
+            '<p><strong>' . esc_html($e->getMessage()) . '</strong></p>' .
+            '<p>Please check your error logs for more details.</p>' .
+            '<p><a href="' . admin_url('plugins.php') . '">Return to plugins page</a></p>'
+        );
+    }
 }
 
 /**
  * Deactivation hook.
  */
 function aca_ai_content_agent_deactivate() {
-    require_once plugin_dir_path( __FILE__ ) . 'includes/core/class-aca-deactivator.php';
+    require_once plugin_dir_path(__FILE__) . 'includes/core/class-aca-deactivator.php';
     ACA_Deactivator::deactivate();
 }
 
-register_activation_hook( __FILE__, 'aca_ai_content_agent_activate' );
-register_deactivation_hook( __FILE__, 'aca_ai_content_agent_deactivate' );
+register_activation_hook(__FILE__, 'aca_ai_content_agent_activate');
+register_deactivation_hook(__FILE__, 'aca_ai_content_agent_deactivate');
 
 /**
- * The main function for that returns ACA_Plugin
- *
- * @since 1.2
- * @return ACA_Plugin
+ * Initialize the plugin.
  */
-function aca_ai_content_agent() {
+function aca_ai_content_agent_init() {
+    // Initialize the main plugin instance
     return ACA_Plugin::instance();
 }
 
-// Global for backwards compatibility.
-$GLOBALS['aca_ai_content_agent'] = aca_ai_content_agent();
+// Initialize plugin after WordPress is loaded
+add_action('plugins_loaded', 'aca_ai_content_agent_init');
 
 /**
  * Wrapper function to encrypt data using the plugin's utility class.
- *
- * This maintains backwards compatibility with earlier versions that
- * relied on global helper functions.
- *
- * @param string $data Plain text data.
- * @return string Encrypted string.
  */
-function aca_ai_content_agent_encrypt( $data ) {
-    return ACA_Encryption_Util::encrypt( $data );
+function aca_ai_content_agent_encrypt($data) {
+    if (class_exists('ACA_Encryption_Util')) {
+        return ACA_Encryption_Util::encrypt($data);
+    }
+    return $data;
 }
 
 /**
  * Wrapper function to decrypt data.
- *
- * @param string $data Encrypted string.
- * @return string Decrypted value.
  */
-function aca_ai_content_agent_decrypt( $data ) {
-    return ACA_Encryption_Util::decrypt( $data );
+function aca_ai_content_agent_decrypt($data) {
+    if (class_exists('ACA_Encryption_Util')) {
+        return ACA_Encryption_Util::decrypt($data);
+    }
+    return $data;
 }
 
 /**
  * Wrapper to safely decrypt data, falling back to the raw value on failure.
- *
- * @param string $data Encrypted or plain string.
- * @return string Decrypted value or original input.
  */
-function aca_ai_content_agent_safe_decrypt( $data ) {
-    return ACA_Encryption_Util::safe_decrypt( $data );
+function aca_ai_content_agent_safe_decrypt($data) {
+    if (class_exists('ACA_Encryption_Util')) {
+        return ACA_Encryption_Util::safe_decrypt($data);
+    }
+    return $data;
 }
 
 /**
  * Determine if ACA Pro is active.
- *
- * @return bool True when the Pro license is valid.
  */
 function aca_ai_content_agent_is_pro() {
-    return ACA_Helper::is_pro();
+    if (class_exists('ACA_Helper')) {
+        return ACA_Helper::is_pro();
+    }
+    return false;
 }

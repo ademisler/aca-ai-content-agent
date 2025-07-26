@@ -5,8 +5,8 @@
  * Main Plugin Class
  *
  * @package ACA_AI_Content_Agent
- * @version 1.2
- * @since   1.2
+ * @version 1.3
+ * @since   1.3
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -36,10 +36,87 @@ class ACA_Plugin {
     public function __construct() {
         $this->includes();
         $this->init_hooks();
+    }
+
+    /**
+     * Include required core files used in admin and on the frontend.
+     */
+    private function includes() {
+        // Core classes
+        require_once plugin_dir_path(__FILE__) . 'core/class-aca-activator.php';
+        require_once plugin_dir_path(__FILE__) . 'core/class-aca-deactivator.php';
+
+        // Utility classes
+        require_once plugin_dir_path(__FILE__) . 'utils/class-aca-encryption-util.php';
+        require_once plugin_dir_path(__FILE__) . 'utils/class-aca-helper.php';
+        require_once plugin_dir_path(__FILE__) . 'utils/class-aca-log-service.php';
+        require_once plugin_dir_path(__FILE__) . 'utils/class-aca-cache-service.php';
+        require_once plugin_dir_path(__FILE__) . 'utils/class-aca-error-recovery.php';
+
+        // API classes
+        require_once plugin_dir_path(__FILE__) . 'api/class-aca-gemini-api.php';
+        require_once plugin_dir_path(__FILE__) . 'api/class-aca-gumroad-api.php';
+
+        // Service classes
+        require_once plugin_dir_path(__FILE__) . 'services/class-aca-idea-service.php';
+        require_once plugin_dir_path(__FILE__) . 'services/class-aca-draft-service.php';
+        require_once plugin_dir_path(__FILE__) . 'services/class-aca-style-guide-service.php';
+
+        // Integration classes
+        require_once plugin_dir_path(__FILE__) . 'integrations/class-aca-privacy.php';
+        require_once plugin_dir_path(__FILE__) . 'integrations/class-aca-post-hooks.php';
+
+        // Admin classes (only in admin)
+        if (is_admin()) {
+            require_once plugin_dir_path(__FILE__) . 'admin/class-aca-admin.php';
+            require_once plugin_dir_path(__FILE__) . 'admin/class-aca-admin-menu.php';
+            require_once plugin_dir_path(__FILE__) . 'admin/class-aca-admin-assets.php';
+            require_once plugin_dir_path(__FILE__) . 'admin/class-aca-admin-notices.php';
+            require_once plugin_dir_path(__FILE__) . 'admin/class-aca-ajax-handler.php';
+            require_once plugin_dir_path(__FILE__) . 'admin/class-aca-dashboard.php';
+            require_once plugin_dir_path(__FILE__) . 'admin/class-aca-onboarding.php';
+            
+            // Settings classes
+            require_once plugin_dir_path(__FILE__) . 'admin/settings/class-aca-settings-api.php';
+            require_once plugin_dir_path(__FILE__) . 'admin/settings/class-aca-settings-automation.php';
+            require_once plugin_dir_path(__FILE__) . 'admin/settings/class-aca-settings-analysis.php';
+            require_once plugin_dir_path(__FILE__) . 'admin/settings/class-aca-settings-enrichment.php';
+            require_once plugin_dir_path(__FILE__) . 'admin/settings/class-aca-settings-management.php';
+            require_once plugin_dir_path(__FILE__) . 'admin/settings/class-aca-settings-prompts.php';
+            require_once plugin_dir_path(__FILE__) . 'admin/settings/class-aca-settings-license.php';
+        }
+
+        // Cron class
+        require_once plugin_dir_path(__FILE__) . 'class-aca-cron.php';
+    }
+
+    /**
+     * Hook into actions and filters.
+     */
+    private function init_hooks() {
+        add_action('plugins_loaded', [$this, 'init']);
         add_action('admin_init', array($this, 'handle_activation_redirect'));
         add_action('admin_menu', array($this, 'add_diagnostics_page'));
         add_action('admin_notices', array($this, 'diagnostics_admin_notices'));
         add_action('admin_init', array($this, 'check_and_create_tables'));
+    }
+
+    /**
+     * Init the plugin.
+     */
+    public function init() {
+        // Initialize cron functionality
+        new ACA_Cron();
+
+        // Initialize admin functionality
+        if (is_admin()) {
+            new ACA_Admin();
+        }
+
+        // Initialize privacy integration
+        if (class_exists('ACA_Privacy')) {
+            ACA_Privacy::init();
+        }
     }
 
     public function handle_activation_redirect() {
@@ -53,76 +130,6 @@ class ACA_Plugin {
     }
 
     
-
-    /**
-     * Include required core files used in admin and on the frontend.
-     */
-    public function includes() {
-        require_once plugin_dir_path( __FILE__ ) . '/core/class-aca-activator.php';
-        require_once plugin_dir_path( __FILE__ ) . '/core/class-aca-deactivator.php';
-
-        if (is_admin()) {
-            require_once plugin_dir_path( __FILE__ ) . '/admin/class-aca-admin.php';
-            require_once plugin_dir_path( __FILE__ ) . '/admin/class-aca-ajax-handler.php';
-            require_once plugin_dir_path( __FILE__ ) . '/admin/class-aca-dashboard.php';
-            require_once plugin_dir_path( __FILE__ ) . '/admin/class-aca-onboarding.php';
-        }
-
-        // Services
-        require_once plugin_dir_path( __FILE__ ) . '/services/class-aca-idea-service.php';
-        require_once plugin_dir_path( __FILE__ ) . '/services/class-aca-draft-service.php';
-        require_once plugin_dir_path( __FILE__ ) . '/services/class-aca-style-guide-service.php';
-
-        // API
-        require_once plugin_dir_path( __FILE__ ) . '/api/class-aca-gemini-api.php';
-        require_once plugin_dir_path( __FILE__ ) . '/api/class-aca-gumroad-api.php';
-
-        // Integrations
-        require_once plugin_dir_path( __FILE__ ) . '/integrations/class-aca-privacy.php';
-        require_once plugin_dir_path( __FILE__ ) . '/integrations/class-aca-post-hooks.php';
-
-        // Utils
-        require_once plugin_dir_path( __FILE__ ) . '/utils/class-aca-encryption-util.php';
-        require_once plugin_dir_path( __FILE__ ) . '/utils/class-aca-helper.php';
-        require_once plugin_dir_path( __FILE__ ) . '/utils/class-aca-log-service.php';
-
-        // Cron
-        require_once plugin_dir_path( __FILE__ ) . '/class-aca-cron.php';
-    }
-
-    /**
-     * Hook into actions and filters.
-     */
-    private function init_hooks() {
-
-        add_action( 'plugins_loaded', [$this, 'init'] );
-    }
-
-    /**
-     * Init the plugin.
-     */
-    public function init() {
-        // Init classes
-        if ( is_admin() ) {
-            new ACA_Admin();
-            // Initialize post hooks
-            $post_hooks = new ACA_Post_Hooks();
-            $post_hooks->init();
-        }
-        new ACA_AI_Content_Agent_Cron();
-
-        // Initialize admin functionality
-        if ( is_admin() ) {
-            new ACA_Admin_Menu();
-            new ACA_Admin_Assets();
-            new ACA_Admin_Notices();
-            new ACA_Onboarding();
-        }
-
-        // Initialize privacy integration
-        ACA_AI_Content_Agent_Privacy::init();
-
-    }
 
     /**
      * Add a diagnostics page to the admin menu.
@@ -144,8 +151,8 @@ class ACA_Plugin {
     public function render_diagnostics_page() {
         echo '<div class="wrap"><h1>' . esc_html__('ACA Content Agent Diagnostics', 'aca-ai-content-agent') . '</h1>';
         $this->output_diagnostics();
-        if (class_exists('ACA_AI_Content_Agent_Cron')) {
-            ACA_AI_Content_Agent_Cron::output_cron_diagnostics();
+        if (class_exists('ACA_Cron')) {
+            ACA_Cron::output_cron_diagnostics();
         }
         echo '</div>';
     }
@@ -206,7 +213,7 @@ class ACA_Plugin {
         // Check API connectivity
         $api_key = get_option('aca_ai_content_agent_gemini_api_key');
         if (!empty($api_key)) {
-            $test_result = ACA_Gumroad_Api::test_api_connectivity();
+            $test_result = ACA_Gemini_Api::test_api_connectivity();
             $health_checks['api_connectivity'] = is_wp_error($test_result) ? 'error' : 'ok';
         } else {
             $health_checks['api_connectivity'] = 'warning';
@@ -214,9 +221,15 @@ class ACA_Plugin {
         
         // Check database performance
         $start_time = microtime(true);
-        $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}aca_ai_content_agent_ideas");
-        $db_time = (microtime(true) - $start_time) * 1000;
-        $health_checks['database_performance'] = $db_time < 100 ? 'ok' : ($db_time < 500 ? 'warning' : 'error');
+        $table_exists = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->prefix . 'aca_ai_content_agent_ideas'));
+        
+        if ($table_exists) {
+            $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}aca_ai_content_agent_ideas");
+            $db_time = (microtime(true) - $start_time) * 1000;
+            $health_checks['database_performance'] = $db_time < 100 ? 'ok' : ($db_time < 500 ? 'warning' : 'error');
+        } else {
+            $health_checks['database_performance'] = 'warning';
+        }
         
         // Check memory usage
         $memory_usage = memory_get_usage(true);
@@ -226,12 +239,18 @@ class ACA_Plugin {
         
         // Check recent errors
         $logs_table = $wpdb->prefix . 'aca_ai_content_agent_logs';
-        $recent_errors = $wpdb->get_var($wpdb->prepare(
-            "SELECT COUNT(*) FROM {$logs_table} WHERE level = %s AND timestamp >= %s",
-            'error',
-            gmdate('Y-m-d H:i:s', strtotime('-24 hours'))
-        ));
-        $health_checks['recent_errors'] = $recent_errors == 0 ? 'ok' : ($recent_errors < 10 ? 'warning' : 'error');
+        $table_exists = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $logs_table));
+        
+        if ($table_exists) {
+            $recent_errors = $wpdb->get_var($wpdb->prepare(
+                "SELECT COUNT(*) FROM {$logs_table} WHERE level = %s AND timestamp >= %s",
+                'error',
+                gmdate('Y-m-d H:i:s', strtotime('-24 hours'))
+            ));
+            $health_checks['recent_errors'] = $recent_errors == 0 ? 'ok' : ($recent_errors < 10 ? 'warning' : 'error');
+        } else {
+            $health_checks['recent_errors'] = 'warning';
+        }
         
         // Check cron jobs
         $cron_jobs = [

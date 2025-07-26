@@ -112,7 +112,7 @@ class ACA_Plugin {
         if (is_admin()) {
             new ACA_Admin();
             new ACA_Admin_Menu();
-            new ACA_Admin_Assets();
+            ACA_Admin_Assets::init(); // Call static init method
             new ACA_Admin_Notices();
             new ACA_Ajax_Handler();
         }

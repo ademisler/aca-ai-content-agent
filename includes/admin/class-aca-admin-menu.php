@@ -168,8 +168,7 @@ class ACA_Admin_Menu {
             
             <div class="aca-settings-content">
                 <?php
-                // Include settings form
-                require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/settings/class-aca-settings-api.php';
+                // Settings form - class already loaded in plugin initialization
                 $settings_api = new ACA_Settings_Api();
                 $settings_api->render_settings_form();
                 ?>

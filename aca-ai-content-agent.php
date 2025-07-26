@@ -1,12 +1,13 @@
 <?php
 /**
  * Plugin Name: ACA - AI Content Agent
- * Plugin URI:  https://ademisler.com/plugins/aca-ai-content-agent
- * Description: A WordPress plugin that uses AI to generate content ideas and drafts based on your existing content.
- * Version:     1.2
- * Author:      Adem Isler
- * Author URI:  https://ademisler.com
- * License:     GPLv2 or later
+ * Plugin URI: https://ademisler.com
+ * Description: ACA is an intelligent WordPress plugin that learns your existing content's tone and style to autonomously generate high-quality, SEO-friendly new posts.
+ * Version: 1.2
+ * Author: Adem Isler
+ * Author URI: https://ademisler.com
+ * Author Email: idemasler@gmail.com
+ * License: GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: aca-ai-content-agent
  * Domain Path: /languages
@@ -20,11 +21,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 define( 'ACA_AI_CONTENT_AGENT_VERSION', '1.2' );
 define( 'ACA_AI_CONTENT_AGENT_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 
-define( 'ACA_AI_CONTENT_AGENT_GUMROAD_PRODUCT_ID', 'YOUR_PRODUCT_ID' );
+// Gumroad Product ID for Pro license verification
+// Replace with your actual Gumroad product ID when you create the product
+define( 'ACA_AI_CONTENT_AGENT_GUMROAD_PRODUCT_ID', 'aca-ai-content-agent-pro' );
 
 // Load dependencies
 require_once plugin_dir_path( __FILE__ ) . 'vendor/autoload.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-aca-plugin.php';
+
+// Include utility classes
+require_once plugin_dir_path( __FILE__ ) . 'includes/utils/class-aca-encryption-util.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/utils/class-aca-helper.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/utils/class-aca-log-service.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/utils/class-aca-cache-service.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/utils/class-aca-error-recovery.php';
+
+// Initialize privacy integration
+require_once plugin_dir_path( __FILE__ ) . 'includes/integrations/class-aca-privacy.php';
 
 /**
  * Activation hook.

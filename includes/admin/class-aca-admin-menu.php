@@ -40,6 +40,7 @@ class ACA_Admin_Menu {
                 <a href="?page=aca-ai-content-agent&tab=settings" class="nav-tab <?php echo esc_attr( $active_tab === 'settings' ? 'nav-tab-active' : '' ); ?>"><?php esc_html_e( 'Settings', 'aca-ai-content-agent' ); ?></a>
                 <a href="?page=aca-ai-content-agent&tab=prompts" class="nav-tab <?php echo esc_attr( $active_tab === 'prompts' ? 'nav-tab-active' : '' ); ?>"><?php esc_html_e( 'Prompt Editor', 'aca-ai-content-agent' ); ?></a>
                 <a href="?page=aca-ai-content-agent&tab=license" class="nav-tab <?php echo esc_attr( $active_tab === 'license' ? 'nav-tab-active' : '' ); ?>"><?php esc_html_e( 'License', 'aca-ai-content-agent' ); ?></a>
+                <a href="?page=aca-ai-content-agent-diagnostics" class="nav-tab <?php echo esc_attr( isset($_GET['page']) && $_GET['page'] === 'aca-ai-content-agent-diagnostics' ? 'nav-tab-active' : '' ); ?>"><?php esc_html_e( 'Diagnostics', 'aca-ai-content-agent' ); ?></a>
             </h2>
 
             <?php
@@ -61,6 +62,8 @@ class ACA_Admin_Menu {
             } elseif ($active_tab === 'license') {
                 $license = new ACA_Settings_License();
                 $license->render_license_page();
+            } elseif (isset($_GET['page']) && $_GET['page'] === 'aca-ai-content-agent-diagnostics') {
+                echo '<div class="notice notice-info"><p>' . esc_html__('This diagnostics page helps you identify issues with database tables, API keys, user permissions, and scheduled tasks for the ACA Content Agent plugin.', 'aca-ai-content-agent') . '</p></div>';
             }
             ?>
         </div>

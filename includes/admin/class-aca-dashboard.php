@@ -5,8 +5,8 @@
  * Dashboard Page
  *
  * @package ACA_AI_Content_Agent
- * @version 1.0
- * @since   1.0
+ * @version 1.2
+ * @since   1.2
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

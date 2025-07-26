@@ -13,15 +13,42 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
+/**
+ * Onboarding wizard class.
+ *
+ * Handles the initial setup process for new users, guiding them through
+ * API key configuration, content analysis settings, and working mode selection.
+ *
+ * @since 1.2.0
+ */
 class ACA_Onboarding {
 
+    /**
+     * Current step in the onboarding process.
+     *
+     * @since 1.2.0
+     * @var int
+     */
     private $step = 1;
 
+    /**
+     * Constructor.
+     *
+     * Registers the onboarding page and handles form submissions.
+     *
+     * @since 1.2.0
+     */
     public function __construct() {
         add_action('admin_menu', [$this, 'register_onboarding_page']);
         add_action('admin_init', [$this, 'handle_onboarding_steps']);
     }
 
+    /**
+     * Register the onboarding page in the admin menu.
+     *
+     * @since 1.2.0
+     * @return void
+     */
     public function register_onboarding_page() {
         add_dashboard_page(
             esc_html__('Welcome to ACA', 'aca-ai-content-agent'),
@@ -32,6 +59,12 @@ class ACA_Onboarding {
         );
     }
 
+    /**
+     * Handle onboarding form submissions and step progression.
+     *
+     * @since 1.2.0
+     * @return void
+     */
     public function handle_onboarding_steps() {
         if (!isset($_GET['page']) || $_GET['page'] !== 'aca-ai-content-agent-onboarding') {
             return;
@@ -43,17 +76,64 @@ class ACA_Onboarding {
             $step = absint($_POST['aca_ai_content_agent_onboarding_step']);
 
             if ($step === 1 && !empty($_POST['aca_ai_content_agent_gemini_api_key'])) {
+                // SECURITY FIX: Enhanced API key validation and sanitization
                 $api_key = sanitize_text_field(wp_unslash($_POST['aca_ai_content_agent_gemini_api_key']));
+                
+                // Validate API key format (basic validation)
+                if (!preg_match('/^[A-Za-z0-9_-]{20,}$/', $api_key)) {
+                    wp_die(__('Invalid API key format. Please check your Google Gemini API key.', 'aca-ai-content-agent'));
+                }
+                
+                // Test API key before saving
+                $test_response = wp_remote_post('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent', [
+                    'headers' => [
+                        'Content-Type' => 'application/json',
+                        'Authorization' => 'Bearer ' . $api_key,
+                    ],
+                    'body' => wp_json_encode([
+                        'contents' => [
+                            [
+                                'role' => 'user',
+                                'parts' => [['text' => 'Test connection']]
+                            ]
+                        ]
+                    ]),
+                    'timeout' => 10,
+                ]);
+
+                if (is_wp_error($test_response) || wp_remote_retrieve_response_code($test_response) !== 200) {
+                    wp_die(__('API key validation failed. Please check your Google Gemini API key.', 'aca-ai-content-agent'));
+                }
+                
                 update_option( 'aca_ai_content_agent_gemini_api_key', ACA_Encryption_Util::encrypt( $api_key ) );
                 $this->step = 2;
             } elseif ($step === 2 && !empty($_POST['aca_ai_content_agent_options']['analysis_post_types'])) {
                 $options = get_option('aca_ai_content_agent_options', []);
-                $options['analysis_post_types'] = array_map('sanitize_text_field', wp_unslash($_POST['aca_ai_content_agent_options']['analysis_post_types']));
+                // SECURITY FIX: Enhanced sanitization for post types
+                $post_types = array_map('sanitize_key', wp_unslash($_POST['aca_ai_content_agent_options']['analysis_post_types']));
+                
+                // Validate post types exist
+                $valid_post_types = array_keys(get_post_types(['public' => true]));
+                $post_types = array_intersect($post_types, $valid_post_types);
+                
+                if (empty($post_types)) {
+                    wp_die(__('No valid post types selected.', 'aca-ai-content-agent'));
+                }
+                
+                $options['analysis_post_types'] = $post_types;
                 update_option('aca_ai_content_agent_options', $options);
                 $this->step = 3;
             } elseif ($step === 3 && !empty($_POST['aca_ai_content_agent_options']['working_mode'])) {
                 $options = get_option('aca_ai_content_agent_options', []);
-                $options['working_mode'] = sanitize_key(wp_unslash($_POST['aca_ai_content_agent_options']['working_mode']));
+                // SECURITY FIX: Validate working mode
+                $working_mode = sanitize_key(wp_unslash($_POST['aca_ai_content_agent_options']['working_mode']));
+                $valid_modes = ['manual', 'semi-auto', 'full-auto'];
+                
+                if (!in_array($working_mode, $valid_modes, true)) {
+                    wp_die(__('Invalid working mode selected.', 'aca-ai-content-agent'));
+                }
+                
+                $options['working_mode'] = $working_mode;
                 update_option('aca_ai_content_agent_options', $options);
                 
                 // Complete onboarding
@@ -64,6 +144,12 @@ class ACA_Onboarding {
         }
     }
 
+    /**
+     * Render the onboarding page with step-specific content.
+     *
+     * @since 1.2.0
+     * @return void
+     */
     public function render_onboarding_page() {
         ?>
         <div class="wrap aca-ai-content-agent-onboarding">

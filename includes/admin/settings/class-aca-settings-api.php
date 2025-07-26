@@ -13,12 +13,29 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
+/**
+ * Handles the registration and rendering of API-related settings fields.
+ *
+ * @since 1.2.0
+ */
 class ACA_Settings_Api {
 
+    /**
+     * Constructor.
+     *
+     * Registers the settings section and fields for API configuration.
+     *
+     * @since 1.2.0
+     */
     public function __construct() {
         add_action( 'admin_init', [ $this, 'register_settings' ] );
     }
 
+    /**
+     * Register API settings section and fields.
+     *
+     * @since 1.2.0
+     */
     public function register_settings() {
         add_settings_section(
             'aca_ai_content_agent_api_settings_section',
@@ -92,6 +109,11 @@ class ACA_Settings_Api {
         );
     }
 
+    /**
+     * Render the Google Gemini API key input field.
+     *
+     * @since 1.2.0
+     */
     public function render_api_key_field() {
         $api_key = get_option( 'aca_ai_content_agent_gemini_api_key' );
         $placeholder = ! empty( $api_key ) ? esc_html__( '***************** (already saved)', 'aca-ai-content-agent' ) : '';
@@ -99,17 +121,32 @@ class ACA_Settings_Api {
         echo '<p class="description">' . esc_html__( 'Enter your Google Gemini API key. Your key is obfuscated for security.', 'aca-ai-content-agent' ) . '</p>';
     }
 
+    /**
+     * Render the API connection test button.
+     *
+     * @since 1.2.0
+     */
     public function render_api_test_button() {
         echo '<button type="button" class="button" id="aca-ai-content-agent-test-connection">' . esc_html__( 'Test Connection', 'aca-ai-content-agent' ) . '</button>';
         echo '<span id="aca-ai-content-agent-test-status" style="margin-left: 10px;"></span>';
     }
 
+    /**
+     * Render the Copyscape username input field.
+     *
+     * @since 1.2.0
+     */
     public function render_copyscape_username_field() {
         $options = get_option( 'aca_ai_content_agent_options' );
         $username = isset( $options['copyscape_username'] ) ? $options['copyscape_username'] : '';
         echo '<input type="text" name="aca_ai_content_agent_options[copyscape_username]" value="' . esc_attr( $username ) . '" class="regular-text">';
     }
 
+    /**
+     * Render the Copyscape API key input field.
+     *
+     * @since 1.2.0
+     */
     public function render_copyscape_api_key_field() {
         $options     = get_option( 'aca_ai_content_agent_options' );
         $key         = $options['copyscape_api_key'] ?? '';
@@ -117,12 +154,22 @@ class ACA_Settings_Api {
         echo '<input type="password" name="aca_ai_content_agent_options[copyscape_api_key]" value="" placeholder="' . esc_attr( $placeholder ) . '" class="regular-text">';
     }
 
+    /**
+     * Render the Search Console site URL input field.
+     *
+     * @since 1.2.0
+     */
     public function render_gsc_site_url_field() {
         $options = get_option( 'aca_ai_content_agent_options' );
         $url = isset( $options['gsc_site_url'] ) ? $options['gsc_site_url'] : '';
         echo '<input type="text" name="aca_ai_content_agent_options[gsc_site_url]" value="' . esc_attr( $url ) . '" class="regular-text">';
     }
 
+    /**
+     * Render the Search Console API key input field.
+     *
+     * @since 1.2.0
+     */
     public function render_gsc_api_key_field() {
         $options     = get_option( 'aca_ai_content_agent_options' );
         $key         = $options['gsc_api_key'] ?? '';
@@ -130,6 +177,11 @@ class ACA_Settings_Api {
         echo '<input type="password" name="aca_ai_content_agent_options[gsc_api_key]" value="" placeholder="' . esc_attr( $placeholder ) . '" class="regular-text">';
     }
 
+    /**
+     * Render the Pexels API key input field.
+     *
+     * @since 1.2.0
+     */
     public function render_pexels_api_key_field() {
         $options     = get_option( 'aca_ai_content_agent_options' );
         $key         = $options['pexels_api_key'] ?? '';
@@ -137,6 +189,11 @@ class ACA_Settings_Api {
         echo '<input type="password" name="aca_ai_content_agent_options[pexels_api_key]" value="" placeholder="' . esc_attr( $placeholder ) . '" class="regular-text">';
     }
 
+    /**
+     * Render the OpenAI API key input field.
+     *
+     * @since 1.2.0
+     */
     public function render_openai_api_key_field() {
         $options     = get_option( 'aca_ai_content_agent_options' );
         $key         = $options['openai_api_key'] ?? '';

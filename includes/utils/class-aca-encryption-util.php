@@ -13,11 +13,27 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
+/**
+ * Utility class for encryption and decryption using AUTH_KEY.
+ *
+ * @since 1.2.0
+ */
 class ACA_Encryption_Util {
+
+    /**
+     * Check if AUTH_KEY is valid and unique.
+     *
+     * @since 1.2.0
+     * @return bool True if AUTH_KEY is valid, false otherwise.
+     */
+    public static function is_auth_key_valid() {
+        return defined('AUTH_KEY') && AUTH_KEY !== 'put your unique phrase here' && strlen(AUTH_KEY) > 20;
+    }
 
     /**
      * Encrypt a string using the AUTH_KEY as a secret.
      *
+     * @since 1.2.0
      * @param string $data Plain text to encrypt.
      * @return string|WP_Error Encrypted and base64-encoded string or WP_Error on failure.
      */
@@ -25,8 +41,8 @@ class ACA_Encryption_Util {
         if ( empty( $data ) ) {
             return '';
         }
-        if ( ! defined( 'AUTH_KEY' ) || 'put your unique phrase here' === AUTH_KEY ) {
-            return new WP_Error( 'auth_key_not_defined', __( 'AUTH_KEY is not defined in wp-config.php. Please define it to use encryption.', 'aca-ai-content-agent' ) );
+        if ( ! self::is_auth_key_valid() ) {
+            return new WP_Error( 'auth_key_not_defined', __( 'AUTH_KEY is not defined or is set to the default in wp-config.php. Please define a unique AUTH_KEY to use encryption.', 'aca-ai-content-agent' ) );
         }
         $key    = AUTH_KEY;
         $method = 'AES-256-CBC';
@@ -42,6 +58,7 @@ class ACA_Encryption_Util {
     /**
      * Decrypt a string that was encrypted with aca_ai_content_agent_encrypt().
      *
+     * @since 1.2.0
      * @param string $data Encrypted string.
      * @return string|WP_Error Decrypted plain text or WP_Error on failure.
      */
@@ -49,8 +66,8 @@ class ACA_Encryption_Util {
         if ( empty( $data ) ) {
             return '';
         }
-        if ( ! defined( 'AUTH_KEY' ) || 'put your unique phrase here' === AUTH_KEY ) {
-            return new WP_Error( 'auth_key_not_defined', __( 'AUTH_KEY is not defined in wp-config.php. Please define it to use encryption.', 'aca-ai-content-agent' ) );
+        if ( ! self::is_auth_key_valid() ) {
+            return new WP_Error( 'auth_key_not_defined', __( 'AUTH_KEY is not defined or is set to the default in wp-config.php. Please define a unique AUTH_KEY to use encryption.', 'aca-ai-content-agent' ) );
         }
         $key    = AUTH_KEY;
         $method = 'AES-256-CBC';
@@ -63,10 +80,10 @@ class ACA_Encryption_Util {
     }
 
     /**
-     * Attempt to decrypt a value, falling back to the raw string if decryption
-     * fails. This helps maintain compatibility with previously stored plain text
-     * values.
+     * Attempt to decrypt a value, falling back to the raw string if decryption fails.
+     * This helps maintain compatibility with previously stored plain text values.
      *
+     * @since 1.2.0
      * @param string $data Encrypted or plain text value.
      * @return string Decrypted value or original string on failure.
      */

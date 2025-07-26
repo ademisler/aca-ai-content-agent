@@ -13,12 +13,29 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
+/**
+ * Handles the registration and rendering of automation-related settings fields.
+ *
+ * @since 1.2.0
+ */
 class ACA_Settings_Automation {
 
+    /**
+     * Constructor.
+     *
+     * Registers the settings section and fields for automation configuration.
+     *
+     * @since 1.2.0
+     */
     public function __construct() {
         add_action( 'admin_init', [ $this, 'register_settings' ] );
     }
 
+    /**
+     * Register automation settings section and fields.
+     *
+     * @since 1.2.0
+     */
     public function register_settings() {
         add_settings_section(
             'aca_ai_content_agent_automation_settings_section',
@@ -68,6 +85,11 @@ class ACA_Settings_Automation {
         );
     }
 
+    /**
+     * Render the working mode select field.
+     *
+     * @since 1.2.0
+     */
     public function render_working_mode_field() {
         $options = get_option( 'aca_ai_content_agent_options' );
         $current_mode = isset( $options['working_mode'] ) ? $options['working_mode'] : 'manual';
@@ -95,6 +117,11 @@ class ACA_Settings_Automation {
         echo '<p class="description">' . esc_html__( 'Choose how ACA operates. Note: All content is always saved as a draft.', 'aca-ai-content-agent' ) . '</p>';
     }
 
+    /**
+     * Render the automation frequency select field.
+     *
+     * @since 1.2.0
+     */
     public function render_automation_frequency_field() {
         $options = get_option( 'aca_ai_content_agent_options' );
         $current_freq = isset( $options['automation_frequency'] ) ? $options['automation_frequency'] : 'daily';
@@ -113,6 +140,11 @@ class ACA_Settings_Automation {
         echo '<p class="description">' . esc_html__( 'How often the automatic tasks should run.', 'aca-ai-content-agent' ) . '</p>';
     }
 
+    /**
+     * Render the generation limit input field.
+     *
+     * @since 1.2.0
+     */
     public function render_generation_limit_field() {
         $options = get_option( 'aca_ai_content_agent_options' );
         $limit = isset( $options['generation_limit'] ) ? $options['generation_limit'] : 5;
@@ -120,6 +152,11 @@ class ACA_Settings_Automation {
         echo '<p class="description">' . esc_html__( 'Max number of ideas/drafts per cycle to control API costs.', 'aca-ai-content-agent' ) . '</p>';
     }
 
+    /**
+     * Render the default author dropdown field.
+     *
+     * @since 1.2.0
+     */
     public function render_default_author_field() {
         $options = get_option( 'aca_ai_content_agent_options' );
         $selected_author = isset( $options['default_author'] ) ? $options['default_author'] : get_current_user_id();
@@ -130,6 +167,11 @@ class ACA_Settings_Automation {
         ] );
     }
 
+    /**
+     * Render the brand voice profile select field.
+     *
+     * @since 1.2.0
+     */
     public function render_default_profile_field() {
         $options  = get_option( 'aca_ai_content_agent_options' );
         $profiles = ACA_Style_Guide_Service::get_brand_profiles();

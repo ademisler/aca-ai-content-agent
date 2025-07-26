@@ -2,7 +2,7 @@
 /**
  * Fired during plugin deactivation
  *
- * @link       https://yourwebsite.com
+ * @link       https://ademisler.com
  * @since      1.2.0
  *
  * @package    ACA_AI_Content_Agent
@@ -10,21 +10,24 @@
  */
 
 /**
- * Fired during plugin deactivation.
+ * The deactivator.
  *
- * This class defines all code necessary to run during the plugin's deactivation.
- *
+ * @link       https://ademisler.com
  * @since      1.2.0
+ *
  * @package    ACA_AI_Content_Agent
  * @subpackage ACA_AI_Content_Agent/includes/core
- * @author     Your Name <email@example.com>
  */
 class ACA_Deactivator {
 
 	/**
 	 * The main deactivation method.
 	 *
-	 * @since    1.2.0
+	 * Clears all scheduled cron jobs and action scheduler tasks
+	 * to prevent orphaned processes after plugin deactivation.
+	 *
+	 * @since 1.2.0
+	 * @return void
 	 */
 	public static function deactivate() {
         // Clear all scheduled actions for the plugin

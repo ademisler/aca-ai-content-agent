@@ -13,17 +13,39 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
+/**
+ * Handles the registration and rendering of prompt and brand profile settings fields and page.
+ *
+ * @since 1.2.0
+ */
 class ACA_Settings_Prompts {
 
+    /**
+     * Constructor.
+     *
+     * Registers the prompts settings group and fields.
+     *
+     * @since 1.2.0
+     */
     public function __construct() {
         add_action( 'admin_init', [ $this, 'register_settings' ] );
     }
 
+    /**
+     * Register prompts and brand profiles settings group and fields.
+     *
+     * @since 1.2.0
+     */
     public function register_settings() {
         register_setting( 'aca_ai_content_agent_prompts_group', 'aca_ai_content_agent_prompts', [ 'sanitize_callback' => [ $this, 'sanitize_prompts' ] ] );
         register_setting( 'aca_ai_content_agent_prompts_group', 'aca_ai_content_agent_brand_profiles', [ 'sanitize_callback' => [ $this, 'sanitize_brand_profiles' ] ] );
     }
 
+    /**
+     * Render the prompts and brand profiles settings page.
+     *
+     * @since 1.2.0
+     */
     public function render_prompts_page() {
         ?>
         <form action="options.php" method="post">
@@ -61,6 +83,13 @@ class ACA_Settings_Prompts {
         <?php
     }
 
+    /**
+     * Sanitize the prompts before saving.
+     *
+     * @since 1.2.0
+     * @param array $input The input prompts array.
+     * @return array The sanitized prompts array.
+     */
     public function sanitize_prompts( $input ) {
         $new_input = [];
         $default_prompts = ACA_Style_Guide_Service::get_default_prompts();
@@ -75,6 +104,13 @@ class ACA_Settings_Prompts {
         return $new_input;
     }
 
+    /**
+     * Sanitize the brand profiles before saving.
+     *
+     * @since 1.2.0
+     * @param array $input The input brand profiles array.
+     * @return array The sanitized brand profiles array.
+     */
     public function sanitize_brand_profiles( $input ) {
         $clean = [];
         if ( is_array( $input ) ) {

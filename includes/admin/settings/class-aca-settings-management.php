@@ -13,12 +13,29 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
+/**
+ * Handles the registration and rendering of management and cost control settings fields.
+ *
+ * @since 1.2.0
+ */
 class ACA_Settings_Management {
 
+    /**
+     * Constructor.
+     *
+     * Registers the settings section and fields for management configuration.
+     *
+     * @since 1.2.0
+     */
     public function __construct() {
         add_action( 'admin_init', [ $this, 'register_settings' ] );
     }
 
+    /**
+     * Register management settings section and fields.
+     *
+     * @since 1.2.0
+     */
     public function register_settings() {
         add_settings_section(
             'aca_ai_content_agent_management_settings_section',
@@ -60,6 +77,11 @@ class ACA_Settings_Management {
         );
     }
 
+    /**
+     * Render the monthly API limit input field.
+     *
+     * @since 1.2.0
+     */
     public function render_api_monthly_limit_field() {
         $options = get_option( 'aca_ai_content_agent_options' );
         $limit = isset( $options['api_monthly_limit'] ) ? $options['api_monthly_limit'] : 0;
@@ -67,6 +89,11 @@ class ACA_Settings_Management {
         echo '<p class="description">' . esc_html__( 'Set a monthly API call limit to control costs. Set to 0 for no limit.', 'aca-ai-content-agent' ) . '</p>';
     }
 
+    /**
+     * Render the current API usage display field.
+     *
+     * @since 1.2.0
+     */
     public function render_api_usage_display_field() {
         $usage = get_option( 'aca_ai_content_agent_api_usage_current_month', 0 );
         /* translators: %d: number of API calls */
@@ -74,12 +101,22 @@ class ACA_Settings_Management {
         echo '<p class="description">' . esc_html__( 'This counter resets on the first day of each month.', 'aca-ai-content-agent' ) . '</p>';
     }
 
+    /**
+     * Render the log cleanup enabled checkbox field.
+     *
+     * @since 1.2.0
+     */
     public function render_log_cleanup_enabled_field() {
         $options = get_option( 'aca_ai_content_agent_options' );
         $checked = ! empty( $options['log_cleanup_enabled'] );
         echo '<label><input type="checkbox" name="aca_ai_content_agent_options[log_cleanup_enabled]" value="1" ' . checked( $checked, true, false ) . '> ' . esc_html__( 'Delete old log entries automatically', 'aca-ai-content-agent' ) . '</label>';
     }
 
+    /**
+     * Render the log retention days input field.
+     *
+     * @since 1.2.0
+     */
     public function render_log_retention_days_field() {
         $options = get_option( 'aca_ai_content_agent_options' );
         $days = isset( $options['log_retention_days'] ) ? $options['log_retention_days'] : 60;

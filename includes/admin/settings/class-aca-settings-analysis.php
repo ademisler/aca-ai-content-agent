@@ -13,12 +13,29 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
+/**
+ * Handles the registration and rendering of content analysis settings fields.
+ *
+ * @since 1.2.0
+ */
 class ACA_Settings_Analysis {
 
+    /**
+     * Constructor.
+     *
+     * Registers the settings section and fields for content analysis configuration.
+     *
+     * @since 1.2.0
+     */
     public function __construct() {
         add_action( 'admin_init', [ $this, 'register_settings' ] );
     }
 
+    /**
+     * Register content analysis settings section and fields.
+     *
+     * @since 1.2.0
+     */
     public function register_settings() {
         add_settings_section(
             'aca_ai_content_agent_analysis_settings_section',
@@ -60,6 +77,11 @@ class ACA_Settings_Analysis {
         );
     }
 
+    /**
+     * Render the post types checkbox field for analysis.
+     *
+     * @since 1.2.0
+     */
     public function render_analysis_post_types_field() {
         $options = get_option( 'aca_ai_content_agent_options' );
         $post_types = get_post_types( [ 'public' => true ], 'objects' );
@@ -75,6 +97,11 @@ class ACA_Settings_Analysis {
         echo '<p class="description">' . esc_html__( 'Select the content types ACA should analyze to learn the writing style.', 'aca-ai-content-agent' ) . '</p>';
     }
 
+    /**
+     * Render the analysis depth input field.
+     *
+     * @since 1.2.0
+     */
     public function render_analysis_depth_field() {
         $options = get_option( 'aca_ai_content_agent_options' );
         $depth = isset( $options['analysis_depth'] ) ? $options['analysis_depth'] : 20;
@@ -82,6 +109,11 @@ class ACA_Settings_Analysis {
         echo '<p class="description">' . esc_html__( 'Number of recent posts (5-100) to analyze for learning the writing style.', 'aca-ai-content-agent' ) . '</p>';
     }
 
+    /**
+     * Render the include/exclude categories checkboxes for analysis.
+     *
+     * @since 1.2.0
+     */
     public function render_analysis_categories_field() {
         $options = get_option( 'aca_ai_content_agent_options' );
         $include_categories = isset( $options['analysis_include_categories'] ) ? $options['analysis_include_categories'] : [];
@@ -112,6 +144,11 @@ class ACA_Settings_Analysis {
         echo '<p class="description">' . esc_html__( 'Fine-tune the style analysis by including or excluding specific categories. If any category is included, only posts from those categories will be analyzed.', 'aca-ai-content-agent' ) . '</p>';
     }
 
+    /**
+     * Render the style guide refresh frequency select field.
+     *
+     * @since 1.2.0
+     */
     public function render_style_guide_frequency_field() {
         $options = get_option( 'aca_ai_content_agent_options' );
         $current = isset( $options['style_guide_frequency'] ) ? $options['style_guide_frequency'] : 'weekly';

@@ -13,12 +13,29 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
+/**
+ * Handles the registration and rendering of content enrichment settings fields.
+ *
+ * @since 1.2.0
+ */
 class ACA_Settings_Enrichment {
 
+    /**
+     * Constructor.
+     *
+     * Registers the settings section and fields for content enrichment configuration.
+     *
+     * @since 1.2.0
+     */
     public function __construct() {
         add_action( 'admin_init', [ $this, 'register_settings' ] );
     }
 
+    /**
+     * Register content enrichment settings section and fields.
+     *
+     * @since 1.2.0
+     */
     public function register_settings() {
         add_settings_section(
             'aca_ai_content_agent_enrichment_settings_section',
@@ -52,6 +69,11 @@ class ACA_Settings_Enrichment {
         );
     }
 
+    /**
+     * Render the max internal links input field.
+     *
+     * @since 1.2.0
+     */
     public function render_internal_links_max_field() {
         $options = get_option( 'aca_ai_content_agent_options' );
         $max = isset( $options['internal_links_max'] ) ? $options['internal_links_max'] : 3;
@@ -59,6 +81,11 @@ class ACA_Settings_Enrichment {
         echo '<p class="description">' . esc_html__( 'Maximum number of internal links (0-10) to add to each new draft.', 'aca-ai-content-agent' ) . '</p>';
     }
 
+    /**
+     * Render the featured image provider select field.
+     *
+     * @since 1.2.0
+     */
     public function render_featured_image_provider_field() {
         $options = get_option( 'aca_ai_content_agent_options' );
         $provider = isset( $options['featured_image_provider'] ) ? $options['featured_image_provider'] : 'none';
@@ -78,6 +105,11 @@ class ACA_Settings_Enrichment {
         echo '<p class="description">' . esc_html__( 'Select a provider for automatically fetching a featured image for each draft.', 'aca-ai-content-agent' ) . '</p>';
     }
 
+    /**
+     * Render the add data sections checkbox field.
+     *
+     * @since 1.2.0
+     */
     public function render_add_data_sections_field() {
         $options = get_option( 'aca_ai_content_agent_options' );
         $checked = isset( $options['add_data_sections'] ) ? (bool) $options['add_data_sections'] : false;

@@ -18,6 +18,7 @@ class ACA_Admin {
     public function __construct() {
         $this->includes();
         $this->init_hooks();
+        add_action('admin_notices', array($this, 'capability_notice'));
     }
 
     private function includes() {
@@ -126,5 +127,14 @@ class ACA_Admin {
 
 
         return $options;
+    }
+
+    /**
+     * Show a notice if the current user does not have required capabilities.
+     */
+    public function capability_notice() {
+        if (!current_user_can('manage_aca_ai_content_agent_settings') || !current_user_can('view_aca_ai_content_agent_dashboard')) {
+            echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__('ACA: Your user does not have all required capabilities to use this plugin. Please contact your site administrator.', 'aca-ai-content-agent') . '</p></div>';
+        }
     }
 }

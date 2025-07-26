@@ -13,6 +13,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
+/**
+ * Google Gemini API client for content generation.
+ *
+ * Handles all communication with the Google Gemini API, including
+ * content generation, keyword extraction, and error handling.
+ *
+ * @since 1.2.0
+ */
 class ACA_Gemini_Api {
 
     /**
@@ -21,6 +29,7 @@ class ACA_Gemini_Api {
      * This function handles all API requests, including error handling,
      * secure key management, and response validation.
      *
+     * @since 1.2.0
      * @param string $prompt The main prompt or question for the API.
      * @param string $system_instruction Optional. A system-level instruction for the API (e.g., a style guide).
      * @param array $api_args Optional. Arguments to override default API parameters (e.g., temperature, max_tokens).
@@ -28,11 +37,11 @@ class ACA_Gemini_Api {
      */
     public static function call( $prompt, $system_instruction = '', $api_args = [] ) {
         $options = get_option('aca_ai_content_agent_options');
-        $monthly_limit = $options['api_monthly_limit'] ?? 0;
-        $current_usage = get_option('aca_ai_content_agent_api_usage_current_month', 0);
-
-        if ($monthly_limit > 0 && $current_usage >= $monthly_limit) {
-            return new WP_Error('limit_exceeded', __('The monthly API call limit has been reached.', 'aca-ai-content-agent'));
+        
+        // SECURITY FIX: Comprehensive rate limiting system
+        $rate_limit_check = self::check_rate_limits($options);
+        if (is_wp_error($rate_limit_check)) {
+            return $rate_limit_check;
         }
 
         $api_key_encrypted = get_option( 'aca_ai_content_agent_gemini_api_key' );
@@ -42,7 +51,8 @@ class ACA_Gemini_Api {
             return new WP_Error( 'api_key_missing', __( 'Google Gemini API key is missing or invalid. Please check your settings.', 'aca-ai-content-agent' ) );
         }
 
-        $api_url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' . $api_key;
+        // SECURITY FIX: Move API key to headers instead of URL
+        $api_url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
         $contents = [
             [
@@ -54,59 +64,57 @@ class ACA_Gemini_Api {
         ];
 
         // Default payload structure for Gemini API
-        $default_payload = [
+        $payload = [
             'contents' => $contents,
             'generationConfig' => [
-                'temperature'     => 0.7,
-                'topK'            => 1,
-                'topP'            => 1,
+                'temperature' => 0.7,
+                'topK' => 40,
+                'topP' => 0.95,
                 'maxOutputTokens' => 2048,
-                'stopSequences'   => [],
             ],
             'safetySettings' => [
                 [
                     'category' => 'HARM_CATEGORY_HARASSMENT',
-                    'threshold' => 'BLOCK_MEDIUM_AND_ABOVE',
+                    'threshold' => 'BLOCK_MEDIUM_AND_ABOVE'
                 ],
                 [
                     'category' => 'HARM_CATEGORY_HATE_SPEECH',
-                    'threshold' => 'BLOCK_MEDIUM_AND_ABOVE',
+                    'threshold' => 'BLOCK_MEDIUM_AND_ABOVE'
                 ],
                 [
                     'category' => 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
-                    'threshold' => 'BLOCK_MEDIUM_AND_ABOVE',
+                    'threshold' => 'BLOCK_MEDIUM_AND_ABOVE'
                 ],
                 [
                     'category' => 'HARM_CATEGORY_DANGEROUS_CONTENT',
-                    'threshold' => 'BLOCK_MEDIUM_AND_ABOVE',
-                ],
-            ],
+                    'threshold' => 'BLOCK_MEDIUM_AND_ABOVE'
+                ]
+            ]
         ];
 
-        if (!empty($system_instruction)) {
-            $default_payload['systemInstruction'] = [
-                'parts' => [
-                    ['text' => $system_instruction]
-                ]
-            ];
+        // Merge custom API arguments
+        if (!empty($api_args)) {
+            $payload = array_merge_recursive($payload, $api_args);
         }
-        
-        // In the future, we can merge $api_args with $default_payload for more granular control.
 
         $request_args = [
-            'method'  => 'POST',
+            'method' => 'POST',
+            'timeout' => 30,
             'headers' => [
                 'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . $api_key,
             ],
-            'body'    => wp_json_encode( $default_payload ),
-            'timeout' => 120, // Increased timeout for potentially long content generation.
+            'body' => wp_json_encode($payload),
         ];
 
-        $response = wp_remote_post( $api_url, $request_args );
+        // ERROR RECOVERY: Use retry mechanism for API calls
+        $response = ACA_Error_Recovery::retry_with_backoff(function() use ($api_url, $request_args) {
+            return wp_remote_post($api_url, $request_args);
+        }, [], 3);
 
         if ( is_wp_error( $response ) ) {
             // Returns the WP_Error from the HTTP request itself.
-            return $response;
+            return ACA_Error_Recovery::handle_api_error($response, 'Gemini API call');
         }
 
         $response_code = wp_remote_retrieve_response_code( $response );
@@ -116,7 +124,8 @@ class ACA_Gemini_Api {
         if ( $response_code !== 200 ) {
             $error_message = isset($data['error']['message']) ? $data['error']['message'] : __( 'An unknown API error occurred.', 'aca-ai-content-agent' );
             /* translators: 1: HTTP status code, 2: API error message */
-            return new WP_Error( 'api_error', sprintf( __( 'API request failed with status code %1$d: %2$s', 'aca-ai-content-agent' ), $response_code, $error_message ), [ 'status' => $response_code ] );
+            $error = new WP_Error( 'api_error', sprintf( __( 'API request failed with status code %1$d: %2$s', 'aca-ai-content-agent' ), $response_code, $error_message ), [ 'status' => $response_code ] );
+            return ACA_Error_Recovery::handle_api_error($error, 'Gemini API call');
         }
 
         if ( ! isset( $data['candidates'][0]['content']['parts'][0]['text'] ) ) {
@@ -127,16 +136,74 @@ class ACA_Gemini_Api {
             return new WP_Error( 'invalid_response', __( 'The API response did not contain the expected content format.', 'aca-ai-content-agent' ) );
         }
 
-        // Increment usage counter on successful call
-        $current_usage++;
-        update_option('aca_ai_content_agent_api_usage_current_month', $current_usage);
+        // SECURITY FIX: Update all rate limiting counters on successful call
+        self::update_rate_limit_counters();
 
         return $data['candidates'][0]['content']['parts'][0]['text'];
     }
 
     /**
+     * Check all rate limits before making API call.
+     *
+     * @since 1.2.0
+     * @param array $options Plugin options.
+     * @return true|WP_Error True if within limits, WP_Error if limit reached.
+     */
+    private static function check_rate_limits($options) {
+        $user_id = get_current_user_id();
+        
+        // Monthly limit check
+        $monthly_limit = $options['api_monthly_limit'] ?? 0;
+        $current_monthly_usage = get_option('aca_ai_content_agent_api_usage_current_month', 0);
+        
+        if ($monthly_limit > 0 && $current_monthly_usage >= $monthly_limit) {
+            return new WP_Error('monthly_limit_exceeded', __('The monthly API call limit has been reached.', 'aca-ai-content-agent'));
+        }
+
+        // Hourly limit check
+        $hourly_limit = $options['api_hourly_limit'] ?? 60; // Default 60 calls per hour
+        $current_hourly_usage = get_transient('aca_api_hourly_usage_' . $user_id) ?: 0;
+        
+        if ($current_hourly_usage >= $hourly_limit) {
+            return new WP_Error('hourly_limit_exceeded', __('The hourly API call limit has been reached. Please try again later.', 'aca-ai-content-agent'));
+        }
+
+        // Per-minute limit check
+        $minute_limit = $options['api_minute_limit'] ?? 10; // Default 10 calls per minute
+        $current_minute_usage = get_transient('aca_api_minute_usage_' . $user_id) ?: 0;
+        
+        if ($current_minute_usage >= $minute_limit) {
+            return new WP_Error('minute_limit_exceeded', __('Too many API calls in the last minute. Please wait before trying again.', 'aca-ai-content-agent'));
+        }
+
+        return true;
+    }
+
+    /**
+     * Update all rate limiting counters after successful API call.
+     *
+     * @since 1.2.0
+     */
+    private static function update_rate_limit_counters() {
+        $user_id = get_current_user_id();
+        
+        // Update monthly counter
+        $current_monthly = get_option('aca_ai_content_agent_api_usage_current_month', 0);
+        update_option('aca_ai_content_agent_api_usage_current_month', $current_monthly + 1);
+
+        // Update hourly counter
+        $current_hourly = get_transient('aca_api_hourly_usage_' . $user_id) ?: 0;
+        set_transient('aca_api_hourly_usage_' . $user_id, $current_hourly + 1, HOUR_IN_SECONDS);
+
+        // Update minute counter
+        $current_minute = get_transient('aca_api_minute_usage_' . $user_id) ?: 0;
+        set_transient('aca_api_minute_usage_' . $user_id, $current_minute + 1, MINUTE_IN_SECONDS);
+    }
+
+    /**
      * Extract keyword phrases from a given text using the Gemini API.
      *
+     * @since 1.2.0
      * @param string $content The text content to analyze.
      * @return array|WP_Error An array of keyword phrases on success, or a WP_Error object on failure.
      */

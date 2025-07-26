@@ -2,7 +2,7 @@
 /**
  * The style guide service.
  *
- * @link       https://yourwebsite.com
+ * @link       https://ademisler.com
  * @since      1.2.0
  *
  * @package    ACA_AI_Content_Agent
@@ -10,14 +10,12 @@
  */
 
 /**
- * The style guide service.
+ * Style guide service class for ACA AI Content Agent.
  *
- * This class defines all code necessary for style guide logic.
+ * Manages the generation and retrieval of the content style guide.
  *
- * @since      1.2.0
- * @package    ACA_AI_Content_Agent
- * @subpackage ACA_AI_Content_Agent/includes/services
- * @author     Your Name <email@example.com>
+ * @since 1.2.0
+ * @author     Adem Isler <idemasler@gmail.com>
  */
 class ACA_Style_Guide_Service {
 
@@ -25,7 +23,11 @@ class ACA_Style_Guide_Service {
      * Generate and update the Style Guide.
      */
     public static function generate_style_guide() {
-        ACA_Log_Service::add('Attempting to generate style guide.');
+        if (!is_admin() && !defined('DOING_AJAX')) {
+            ACA_Log_Service::add('Unauthorized access to generate_style_guide.', 'error');
+            return new WP_Error('unauthorized', __('Unauthorized access.', 'aca-ai-content-agent'));
+        }
+        ACA_Log_Service::add('Attempting to generate style guide.', 'info');
         $options     = get_option('aca_ai_content_agent_options');
 
         $post_types = $options['analysis_post_types'] ?? ['post'];
@@ -54,6 +56,7 @@ class ACA_Style_Guide_Service {
         }
 
         if (empty($contents)) {
+            ACA_Log_Service::add('Failed to generate style guide: No content found for analysis.', 'error');
             return new WP_Error('no_content', __('No content found for analysis.', 'aca-ai-content-agent'));
         }
 
@@ -62,15 +65,15 @@ class ACA_Style_Guide_Service {
 
         $style_guide = ACA_Gemini_Api::call($prompt);
 
-        if (!is_wp_error($style_guide)) {
+        if (is_wp_error($style_guide)) {
+            ACA_Log_Service::add('Failed to generate style guide: ' . $style_guide->get_error_message(), 'error');
+            return $style_guide;
+        } else {
             set_transient('aca_ai_content_agent_style_guide', $style_guide, WEEK_IN_SECONDS);
             update_option('aca_ai_content_agent_style_guide', $style_guide);
             // ACA_AI_Content_Agent_Engine::add_log('Style guide generated and cached successfully.', 'success');
-        } else {
-            ACA_Log_Service::add('Failed to generate style guide: ' . $style_guide->get_error_message(), 'error');
+            return $style_guide;
         }
-
-        return $style_guide;
     }
 
     /**

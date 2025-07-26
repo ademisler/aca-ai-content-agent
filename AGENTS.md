@@ -1,237 +1,288 @@
-# Developer Guide: ACA - AI Content Agent
+# ACA - AI Content Agent
 
-ACA (AI Content Agent) is a WordPress plugin that learns from your existing posts and automatically drafts new content using Google Gemini. This guide explains the code base and how to work with it.
+## Plugin Overview
 
-- [Overview](#overview)
-- [Folder Structure](#folder-structure)
-- [Setup](#setup)
-- [Activation & Database](#activation--database)
-- [Automation](#automation)
-- [Services](#services)
-- [API Clients](#api-clients)
-- [Admin Interface](#admin-interface)
-- [Security & Utilities](#security--utilities)
-- [Translations](#translations)
-- [Uninstallation](#uninstallation)
-- [Further Reading](#further-reading)
+ACA (AI Content Agent) is an intelligent WordPress plugin that learns your existing content's tone and style to autonomously generate high-quality, SEO-friendly new posts. The plugin uses Google Gemini AI to analyze your content and create new ideas and drafts that match your brand voice.
 
-## Overview
+## Core Features
 
-The plugin analyzes your published posts to build a style guide and then generates ideas and full drafts that match that style. You can run ACA manually, semi-automatically or fully automatically. Generated drafts are enriched with internal links, sources, optional images and plagiarism checks.
+### 🎯 **Content Idea Generation**
+- **AI-Powered Ideas**: Generate content ideas based on your existing posts
+- **Google Search Console Integration**: Extract uncovered queries for content opportunities
+- **Content Clustering**: Create strategic content clusters around topics (Pro)
+- **Smart Filtering**: Avoid duplicate ideas by analyzing existing titles
 
-Feature highlights (see `readme.txt` for the full list) include:
+### ✍️ **Draft Creation**
+- **Style-Guided Writing**: AI writes drafts following your brand voice
+- **SEO Optimization**: Automatically optimize content for search engines
+- **Content Enrichment**: Add internal links, featured images, and data sections
+- **Plagiarism Checking**: Ensure content originality with Copyscape (Pro)
 
-- Style analysis and prompt customization
-- Idea generation and draft creation
-- Optional data sections, featured images and internal links
-- Dashboard for ideas, clusters and logs
-- Google Search Console integration
-- Pro features such as content clusters, DALL‑E images and plagiarism checks
+### 🎨 **Style Guide Generation**
+- **Automatic Analysis**: Learn your writing style from existing content
+- **Brand Voice Profiles**: Create and manage multiple brand voices
+- **Custom Prompts**: Tailor AI behavior with custom prompt templates
+- **Periodic Updates**: Keep style guide current with scheduled updates
 
-## Folder Structure
+### 🔄 **Automation Modes**
+- **Manual Mode**: Full control over idea and draft generation
+- **Semi-Automated**: Generate ideas automatically, manual draft creation
+- **Fully Automated**: Complete hands-off content generation (Pro)
 
+## Pro Features
+
+### 🚀 **Advanced Content Tools**
+- **Content Cluster Planner**: Build strategic content clusters
+- **DALL-E 3 Image Generation**: Create unique featured images
+- **Copyscape Plagiarism Check**: Ensure content originality
+- **Content Update Assistant**: Improve existing posts
+- **Data-Driven Sections**: Add relevant statistics and data
+
+### 📊 **Enhanced Analytics**
+- **Unlimited Generation**: No monthly limits on ideas or drafts
+- **Advanced Reporting**: Detailed usage analytics and insights
+- **Performance Tracking**: Monitor content performance and engagement
+
+## Technical Architecture
+
+### 📁 **File Structure**
 ```
 aca-ai-content-agent/
-├─ aca-ai-content-agent.php    # Plugin bootstrap
-├─ admin/                      # CSS/JS assets for the admin UI
-├─ includes/
-│  ├─ admin/                   # Dashboard, settings and onboarding
-│  │  ├─ settings/             # Settings page classes
-│  │  ├─ class-aca-admin.php
-│  │  ├─ class-aca-admin-assets.php
-│  │  ├─ class-aca-admin-menu.php
-│  │  ├─ class-aca-admin-notices.php
-│  │  ├─ class-aca-ajax-handler.php
-│  │  ├─ class-aca-dashboard.php
-│  │  └─ class-aca-onboarding.php
-│  ├─ api/                     # Gemini & Gumroad clients
-│  ├─ core/                    # Activation, deactivation, uninstall
-│  ├─ integrations/            # Privacy hooks and meta boxes
-│  ├─ services/                # Idea, draft and style guide logic
-│  ├─ utils/                   # Helper, encryption and logging
-│  ├─ class-aca-cron.php       # Cron event manager
-│  └─ class-aca-plugin.php     # Main loader
-├─ languages/                  # Translation templates
-├─ templates/                  # Placeholder template directory
-├─ vendor/                     # Composer dependencies (Action Scheduler)
-└─ uninstall.php               # Full data cleanup
+├── aca-ai-content-agent.php          # Main plugin file
+├── readme.txt                        # WordPress.org readme
+├── uninstall.php                     # Uninstall handler
+├── composer.json                     # Dependencies
+├── GUMROAD_SETUP.md                  # Pro license setup guide
+├── AGENTS.md                         # This file
+├── admin/                           # Admin interface
+│   ├── css/                         # Admin styles
+│   ├── js/                          # Admin scripts
+│   └── index.php                    # Security file
+├── includes/                        # Core functionality
+│   ├── admin/                       # Admin classes
+│   │   ├── class-aca-admin.php      # Main admin handler
+│   │   ├── class-aca-admin-menu.php # Menu management
+│   │   ├── class-aca-admin-assets.php # Asset loading
+│   │   ├── class-aca-admin-notices.php # Admin notices
+│   │   ├── class-aca-ajax-handler.php # AJAX handlers
+│   │   ├── class-aca-dashboard.php  # Dashboard UI
+│   │   ├── class-aca-onboarding.php # Setup wizard
+│   │   └── settings/                # Settings pages
+│   │       ├── class-aca-settings-api.php
+│   │       ├── class-aca-settings-automation.php
+│   │       ├── class-aca-settings-analysis.php
+│   │       ├── class-aca-settings-enrichment.php
+│   │       ├── class-aca-settings-management.php
+│   │       ├── class-aca-settings-license.php
+│   │       └── class-aca-settings-prompts.php
+│   ├── api/                         # API integrations
+│   │   ├── class-aca-gemini-api.php # Google Gemini API
+│   │   └── class-aca-gumroad-api.php # Gumroad license API
+│   ├── services/                    # Core services
+│   │   ├── class-aca-idea-service.php # Idea generation
+│   │   ├── class-aca-draft-service.php # Draft creation
+│   │   └── class-aca-style-guide-service.php # Style guide
+│   ├── utils/                       # Utility classes
+│   │   ├── class-aca-encryption-util.php # Encryption
+│   │   ├── class-aca-helper.php     # Helper functions
+│   │   ├── class-aca-log-service.php # Logging system
+│   │   ├── class-aca-cache-service.php # Caching
+│   │   └── class-aca-error-recovery.php # Error handling
+│   ├── integrations/                # WordPress integrations
+│   │   ├── class-aca-post-hooks.php # Post editor integration
+│   │   └── class-aca-privacy.php    # GDPR compliance
+│   ├── core/                        # Core functionality
+│   │   ├── class-aca-activator.php  # Plugin activation
+│   │   ├── class-aca-deactivator.php # Plugin deactivation
+│   │   └── class-aca-uninstaller.php # Plugin uninstall
+│   ├── class-aca-plugin.php         # Main plugin class
+│   └── class-aca-cron.php           # Scheduled tasks
+├── languages/                       # Translations
+│   └── aca.pot                      # Translation template
+├── assets/                          # Plugin assets
+│   └── index.php                    # Security file
+├── templates/                       # Template files
+│   └── index.php                    # Security file
+└── vendor/                          # Composer dependencies
+    └── woocommerce/action-scheduler/ # Action Scheduler
 ```
 
-`aca-ai-content-agent.php` loads Composer autoloading, defines constants and boots the singleton `ACA_Plugin` class.
+### 🔧 **Core Classes**
 
-## Setup
+#### **ACA_Plugin** (Main Plugin Class)
+- Handles plugin initialization and lifecycle
+- Manages admin interface and settings
+- Provides diagnostics and health checks
 
-1. Run `composer install` to install Action Scheduler.
-2. Activate the plugin in WordPress. On first activation the onboarding wizard will prompt for API keys.
-3. API keys and other options are stored in the `aca_ai_content_agent_options` option.
+#### **ACA_Idea_Service** (Idea Generation)
+- Generates content ideas using AI
+- Integrates with Google Search Console
+- Manages idea storage and feedback
 
-## Activation & Database
+#### **ACA_Draft_Service** (Draft Creation)
+- Creates post drafts from ideas
+- Handles content enrichment features
+- Manages featured images and internal linking
 
-Activation creates several custom tables and adds capabilities. The key logic lives in `ACA_Activator::activate()`:
+#### **ACA_Style_Guide_Service** (Style Analysis)
+- Analyzes existing content for style patterns
+- Generates and maintains style guides
+- Provides brand voice profiles
 
-```php
-class ACA_Activator {
-    public static function activate() {
-        self::create_custom_tables();
-        self::add_custom_capabilities();
-        set_transient('aca_ai_content_agent_activation_redirect', true, 30);
-    }
-}
-```
+#### **ACA_Gemini_Api** (AI Integration)
+- Handles Google Gemini API communication
+- Manages rate limiting and error handling
+- Provides content generation capabilities
 
-Tables for ideas, logs, clusters and cluster items are defined in the same file. The uninstaller removes them and clears all plugin options:
+#### **ACA_Gumroad_Api** (License Management)
+- Verifies Pro license keys
+- Handles license validation and activation
+- Manages Pro feature access
 
-```php
-class ACA_Uninstaller {
-    public static function uninstall() {
-        global $wpdb;
-        $tables = [
-            $wpdb->prefix . 'aca_ai_content_agent_ideas',
-            $wpdb->prefix . 'aca_ai_content_agent_logs',
-            $wpdb->prefix . 'aca_ai_content_agent_clusters',
-            $wpdb->prefix . 'aca_ai_content_agent_cluster_items',
-        ];
-        // DROP TABLE ... and delete options
-    }
-}
-```
+### 🗄️ **Database Tables**
 
-## Automation
+#### **aca_ai_content_agent_ideas**
+- Stores generated content ideas
+- Tracks idea status and feedback
+- Links ideas to created posts
 
-`ACA_AI_Content_Agent_Cron` schedules recurring jobs such as idea generation, draft writing and log cleanup. Hooks are registered in the constructor:
+#### **aca_ai_content_agent_logs**
+- Comprehensive logging system
+- Tracks errors, warnings, and info messages
+- Includes context and user information
 
-```php
-public function __construct() {
-    add_action('init', [$this, 'schedule_events']);
-    add_action('aca_ai_content_agent_run_main_automation', [$this, 'run_main_automation']);
-    add_action('aca_ai_content_agent_reset_api_usage_counter', [$this, 'reset_api_usage_counter']);
-    add_action('aca_ai_content_agent_generate_style_guide', [$this, 'generate_style_guide']);
-    add_action('aca_ai_content_agent_verify_license', [$this, 'verify_license']);
-    add_action('aca_ai_content_agent_clean_logs', [$this, 'clean_logs']);
-}
-```
+#### **aca_ai_content_agent_clusters**
+- Stores content cluster information
+- Manages cluster relationships
+- Tracks cluster generation status
 
-The `run_main_automation()` method handles the selected working mode:
+#### **aca_ai_content_agent_cluster_items**
+- Individual items within clusters
+- Links cluster items to ideas
+- Manages cluster hierarchy
 
-```php
-public function run_main_automation() {
-    $options = get_option('aca_ai_content_agent_options');
-    $working_mode = $options['working_mode'] ?? 'manual';
-    if ($working_mode === 'semi-auto') {
-        ACA_Idea_Service::generate_ideas();
-    } elseif ($working_mode === 'full-auto') {
-        $idea_ids = ACA_Idea_Service::generate_ideas();
-        if (!is_wp_error($idea_ids) && !empty($idea_ids)) {
-            foreach ($idea_ids as $idea_id) {
-                ACA_Draft_Service::write_post_draft($idea_id);
-            }
-        }
-    }
-}
-```
+## Configuration
 
-## Services
+### 🔑 **Required Settings**
 
-### Idea Service
-Generates new post titles using recent posts as context and stores them in the `ideas` table.
+#### **Google Gemini API Key**
+- Required for all AI functionality
+- Securely encrypted and stored
+- Rate limited to prevent abuse
 
-```php
-ACA_Log_Service::add('Attempting to generate new ideas.');
-$prompts = ACA_Style_Guide_Service::get_default_prompts();
-$posts = get_posts([...]);
-$prompt = sprintf($prompts['idea_generation'], $existing_titles, $limit);
-$response = ACA_Gemini_Api::call($prompt);
-```
+#### **Working Mode**
+- **Manual**: Full user control
+- **Semi-Automated**: Automatic idea generation
+- **Fully Automated**: Complete automation (Pro)
 
-### Draft Service
-Writes full drafts from an idea and enriches the content with sources, internal links and optional images or plagiarism checks. See `ACA_Draft_Service::write_post_draft()` for the main workflow.
+#### **Content Analysis Settings**
+- Post types to analyze
+- Categories to include/exclude
+- Analysis depth and frequency
 
-### Style Guide Service
-Analyzes existing posts to build a reusable style guide:
+### ⚙️ **Optional Settings**
 
-```php
-public static function generate_style_guide() {
-    ACA_Log_Service::add('Attempting to generate style guide.');
-    $options  = get_option('aca_ai_content_agent_options');
-    $post_types = $options['analysis_post_types'] ?? ['post'];
-    $depth      = $options['analysis_depth'] ?? 20;
-    // ...query posts and build prompt
-    $style_guide = ACA_Gemini_Api::call($prompt);
-    if (!is_wp_error($style_guide)) {
-        set_transient('aca_ai_content_agent_style_guide', $style_guide, WEEK_IN_SECONDS);
-        update_option('aca_ai_content_agent_style_guide', $style_guide);
-    }
-}
-```
+#### **Content Enrichment**
+- Internal linking
+- Featured image generation
+- Data section addition
+- Plagiarism checking (Pro)
 
-## API Clients
+#### **Automation Settings**
+- Idea generation frequency
+- Style guide update schedule
+- Log cleanup settings
 
-- **Gemini** – Communicates with Google Gemini and keeps track of API usage. The main `call()` function assembles the payload, sends the request and handles safety blocks.
-- **Gumroad** – Verifies Pro licenses via the Gumroad API.
+## Security Features
 
-Example Gemini request:
+### 🔒 **Data Protection**
+- API keys encrypted using AUTH_KEY
+- Secure license validation
+- GDPR compliance features
+- User data privacy controls
 
-```php
-$api_url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' . $api_key;
-$response = wp_remote_post($api_url, [...]);
-```
+### 🛡️ **Access Control**
+- Capability-based permissions
+- Nonce validation for all forms
+- Rate limiting on API calls
+- Input sanitization and validation
 
-License validation snippet:
+## Performance Optimization
 
-```php
-$response = wp_remote_post('https://api.gumroad.com/v2/licenses/verify', [
-    'body' => [
-        'product_id' => ACA_AI_CONTENT_AGENT_GUMROAD_PRODUCT_ID,
-        'license_key' => sanitize_text_field($license_key),
-    ],
-]);
-```
+### ⚡ **Caching System**
+- Transient-based caching
+- API response caching
+- Database query optimization
+- Memory usage optimization
 
-## Admin Interface
+### 📊 **Monitoring**
+- Comprehensive logging
+- Error tracking and recovery
+- Performance metrics
+- Usage analytics
 
-The admin classes render the dashboard, settings pages and onboarding wizard. Settings fields are registered in the various `ACA_Settings_*` classes and sensitive keys are obfuscated before storage:
+## Integration Points
 
-```php
-public function sanitize_and_obfuscate_api_key($input) {
-    $existing = get_option('aca_ai_content_agent_gemini_api_key');
-    if (!isset($input) || '' === trim($input)) {
-        return $existing;
-    }
-    $sanitized_key = sanitize_text_field($input);
-    return aca_ai_content_agent_encrypt($sanitized_key);
-}
-```
+### 🔗 **WordPress Core**
+- Post editor integration
+- Admin menu and settings
+- Cron job scheduling
+- Plugin lifecycle management
 
-AJAX handlers located in `ACA_Ajax_Handler` respond to actions like testing the API connection or generating ideas. The JavaScript logic for these requests lives in `admin/js/aca-admin.js`.
+### 🌐 **External APIs**
+- Google Gemini AI
+- Google Search Console
+- Gumroad (Pro licensing)
+- Pexels (image generation)
+- DALL-E 3 (Pro image generation)
+- Copyscape (Pro plagiarism checking)
 
-## Security & Utilities
+## Development Guidelines
 
-- **Encryption** – `ACA_Encryption_Util` encrypts API and license keys using `AUTH_KEY` as the secret:
+### 📝 **Code Standards**
+- WordPress Coding Standards
+- PHPDoc documentation
+- Error handling and logging
+- Security best practices
 
-```php
-if ( ! defined( 'AUTH_KEY' ) || 'put your unique phrase here' === AUTH_KEY ) {
-    return new WP_Error( 'auth_key_not_defined', __( 'AUTH_KEY is not defined in wp-config.php. Please define it to use encryption.', 'aca-ai-content-agent' ) );
-}
-$key    = AUTH_KEY;
-$cipher = openssl_encrypt($data, 'AES-256-CBC', substr(hash('sha256', $key), 0, 32), 0, $iv);
-```
+### 🔄 **Version Control**
+- Semantic versioning
+- Changelog maintenance
+- Backward compatibility
+- Migration handling
 
-- **Helper** – `ACA_Helper::is_pro()` checks license validity and caches the result.
-- **Log Service** – `ACA_Log_Service::add()` writes log entries to the `logs` table.
+## Support and Documentation
 
-## Translations
+### 📚 **Resources**
+- WordPress.org plugin page
+- Developer documentation
+- User guides and tutorials
+- Support forum
 
-Language files live in `languages/`. The `aca.pot` template can be translated to create `.po` and `.mo` files for other locales.
+### 🆘 **Support Channels**
+- Email: idemasler@gmail.com
+- Website: https://ademisler.com
+- WordPress.org support forum
 
-## Uninstallation
+## License Information
 
-Running `uninstall.php` triggers a full cleanup:
+### 📄 **Free Version**
+- GPL v2 or later
+- Basic content generation features
+- Monthly usage limits
+- Community support
 
-```php
-require_once plugin_dir_path(__FILE__) . 'includes/core/class-aca-uninstaller.php';
-ACA_Uninstaller::uninstall();
-```
+### 💎 **Pro Version**
+- Perpetual license
+- All advanced features
+- Unlimited usage
+- Priority support
+- Regular updates
 
-## Further Reading
+---
 
-`readme.txt` explains installation steps, features and screenshots for end users. Consult that file alongside this guide when developing new functionality.
+**Version**: 1.2  
+**Last Updated**: January 2025  
+**Author**: Adem Isler  
+**Email**: idemasler@gmail.com  
+**Website**: https://ademisler.com

@@ -59,13 +59,8 @@ class ACA_Onboarding {
      * @return void
      */
     public function register_onboarding_page() {
-        add_dashboard_page(
-            esc_html__('Welcome to ACA', 'aca-ai-content-agent'),
-            null, // Hide from menu
-            'manage_aca_ai_content_agent_settings',
-            'aca-ai-content-agent-onboarding',
-            [$this, 'render_onboarding_page']
-        );
+        // Don't register as dashboard page, let admin menu handle it
+        // This prevents conflicts with the main menu registration
     }
 
     /**
@@ -115,6 +110,11 @@ class ACA_Onboarding {
      * @return void
      */
     public function handle_onboarding_steps() {
+        // Check if user has permission
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+        
         if (!isset($_GET['page']) || $_GET['page'] !== 'aca-ai-content-agent-onboarding') {
             return;
         }
@@ -241,6 +241,9 @@ class ACA_Onboarding {
      * @return void
      */
     public function render_onboarding_page() {
+        // Capability check is already done in admin menu class
+        // No need for additional checks here
+        
         ?>
         <div class="wrap aca-onboarding">
             <div class="aca-onboarding-header">

@@ -95,6 +95,16 @@ class ACA_Admin_Menu {
             'aca-ai-content-agent-logs',
             [ $this, 'render_logs_page' ]
         );
+
+        // Add onboarding page as submenu
+        add_submenu_page(
+            'aca-ai-content-agent',
+            esc_html__( 'Welcome to ACA', 'aca-ai-content-agent' ),
+            esc_html__( 'Welcome', 'aca-ai-content-agent' ),
+            'manage_options', // Use 'manage_options' to match capability check
+            'aca-ai-content-agent-onboarding',
+            [ $this, 'render_onboarding_page' ]
+        );
     }
 
     public function add_menu_icon_styles() {
@@ -501,6 +511,21 @@ class ACA_Admin_Menu {
             return '<span class="aca-status-success">✅ All tasks scheduled</span>';
         } else {
             return '<span class="aca-status-warning">⚠️ Some tasks not scheduled</span>';
+        }
+    }
+
+    public function render_onboarding_page() {
+        // Check if user has permission
+        if (!current_user_can('manage_options')) {
+            wp_die(__('You do not have sufficient permissions to access this page.', 'aca-ai-content-agent'));
+        }
+        
+        // Initialize onboarding class and render the page
+        if (class_exists('ACA_Onboarding')) {
+            $onboarding = new ACA_Onboarding();
+            $onboarding->render_onboarding_page();
+        } else {
+            wp_die(__('Onboarding class not found.', 'aca-ai-content-agent'));
         }
     }
 }

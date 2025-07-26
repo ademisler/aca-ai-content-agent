@@ -173,7 +173,7 @@ class ACA_Activator {
     private static function add_database_indexes() {
         global $wpdb;
         
-        // Add indexes if they don't exist
+        // Add indexes if they don't exist - MySQL 8.0 compatible
         $indexes = [
             $wpdb->prefix . 'aca_ai_content_agent_ideas' => [
                 'status_generated_date' => 'status, generated_date',
@@ -190,8 +190,18 @@ class ACA_Activator {
 
         foreach ($indexes as $table => $table_indexes) {
             foreach ($table_indexes as $index_name => $columns) {
-                if (method_exists($wpdb, 'query')) {
-                    $wpdb->query("CREATE INDEX IF NOT EXISTS {$index_name} ON {$table} ({$columns})");
+                // Check if index exists first
+                $index_exists = $wpdb->get_var($wpdb->prepare(
+                    "SELECT COUNT(*) FROM information_schema.statistics 
+                     WHERE table_schema = DATABASE() 
+                     AND table_name = %s 
+                     AND index_name = %s",
+                    $table,
+                    $index_name
+                ));
+                
+                if (!$index_exists) {
+                    $wpdb->query("CREATE INDEX {$index_name} ON {$table} ({$columns})");
                 }
             }
         }

@@ -115,6 +115,7 @@ class ACA_Plugin {
             ACA_Admin_Assets::init(); // Call static init method
             new ACA_Admin_Notices();
             new ACA_Ajax_Handler();
+            new ACA_Onboarding(); // Initialize onboarding
         }
 
         // Initialize privacy integration

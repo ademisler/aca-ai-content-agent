@@ -30,12 +30,12 @@ class ACA_Admin {
         try {
             add_action( 'admin_init', [ $this, 'register_core_settings' ] );
             
-            // Initialize admin components
-            new ACA_Admin_Menu();
+            // Initialize admin components (moved to plugin main class to avoid conflicts)
+            // new ACA_Admin_Menu();
             new ACA_Admin_Notices();
             
-            // Initialize assets handler
-            ACA_Admin_Assets::init();
+            // Initialize assets handler (moved to plugin main class to avoid conflicts)
+            // ACA_Admin_Assets::init();
             
             // Initialize settings
             new ACA_Settings_Api();
@@ -46,8 +46,8 @@ class ACA_Admin {
             new ACA_Settings_Prompts();
             new ACA_Settings_License();
             
-            // Initialize onboarding
-            new ACA_Onboarding();
+            // Initialize onboarding (moved to plugin main class to avoid conflicts)
+            // new ACA_Onboarding();
             
             // Initialize post hooks
             $post_hooks = new ACA_Post_Hooks();

@@ -32,6 +32,55 @@ class ACA_Admin_Assets {
             return;
         }
 
+        // Enqueue main admin styles
+        wp_enqueue_style(
+            'aca-admin-css',
+            plugin_dir_url(dirname(dirname(__FILE__))) . 'admin/css/aca-admin.css',
+            array(),
+            ACA_AI_CONTENT_AGENT_VERSION
+        );
+
+        // Enqueue additional components styles
+        wp_enqueue_style(
+            'aca-admin-components-css',
+            plugin_dir_url(dirname(dirname(__FILE__))) . 'admin/css/aca-admin-components.css',
+            array('aca-admin-css'),
+            ACA_AI_CONTENT_AGENT_VERSION
+        );
+
+        // Enqueue admin JavaScript
+        wp_enqueue_script(
+            'aca-admin-js',
+            plugin_dir_url(dirname(dirname(__FILE__))) . 'admin/js/aca-admin.js',
+            array('jquery'),
+            ACA_AI_CONTENT_AGENT_VERSION,
+            true
+        );
+
+        // Localize script with enhanced data
+        wp_localize_script('aca-admin-js', 'aca_ai_content_agent_admin_ajax', array(
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('aca_ai_content_agent_admin_nonce'),
+            'strings' => array(
+                'confirm_delete' => __('Are you sure you want to delete this item?', 'aca-ai-content-agent'),
+                'confirm_reject' => __('Are you sure you want to reject this idea?', 'aca-ai-content-agent'),
+                'processing' => __('Processing...', 'aca-ai-content-agent'),
+                'success' => __('Success!', 'aca-ai-content-agent'),
+                'error' => __('Error', 'aca-ai-content-agent'),
+                'warning' => __('Warning', 'aca-ai-content-agent'),
+                'info' => __('Information', 'aca-ai-content-agent'),
+                'loading' => __('Loading...', 'aca-ai-content-agent'),
+                'save_changes' => __('Save Changes', 'aca-ai-content-agent'),
+                'cancel' => __('Cancel', 'aca-ai-content-agent'),
+                'close' => __('Close', 'aca-ai-content-agent')
+            ),
+            'settings' => array(
+                'animation_duration' => 300,
+                'notification_duration' => 4000,
+                'auto_save_delay' => 2000
+            )
+        ));
+
         // Enqueue Bootstrap Icons with fallback
         wp_enqueue_style(
             'bootstrap-icons',

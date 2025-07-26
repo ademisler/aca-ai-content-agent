@@ -91,7 +91,7 @@ class ACA_Draft_Service {
 
         if (false === $updated) {
             $wpdb->query('ROLLBACK');
-            $error_message = 'Failed to update idea status in the database.';
+            $error_message = __( 'Failed to update idea status in the database.', 'aca-ai-content-agent' );
             ACA_Log_Service::add($error_message, 'error');
             return new WP_Error('database_error', $error_message);
         }
@@ -183,7 +183,10 @@ class ACA_Draft_Service {
             return;
         }
         $content = $post->post_content;
-        $content .= "\n\n<h3>Sources</h3>\n<ul>";
+        $content .= "
+
+<h3>" . __( 'Sources', 'aca-ai-content-agent' ) . "</h3>
+<ul>";
         foreach (preg_split('/\n+/', $sources) as $src) {
             $src = trim($src);
             if (!empty($src)) {
@@ -249,19 +252,14 @@ class ACA_Draft_Service {
      * Extract simple keywords from text.
      */
     private static function extract_keywords($text, $limit = 10) {
-        $text  = strtolower($text);
-        $words = preg_split('/[^a-zA-Z0-9]+/', $text);
-        $stop  = ['the','and','for','with','that','this','have','from','your','you','about','into','will','been','them','then','than'];
-        $keywords = [];
-        foreach ($words as $w) {
-            if (strlen($w) > 3 && !in_array($w, $stop) && !in_array($w, $keywords)) {
-                $keywords[] = $w;
-                if (count($keywords) >= $limit) {
-                    break;
-                }
-            }
+        $keywords = ACA_Gemini_Api::extract_keywords_from_content($text);
+
+        if (is_wp_error($keywords)) {
+            ACA_Log_Service::add('Failed to extract keywords: ' . $keywords->get_error_message(), 'error');
+            return [];
         }
-        return $keywords;
+
+        return array_slice($keywords, 0, $limit);
     }
 
     /**
@@ -283,7 +281,7 @@ class ACA_Draft_Service {
                 'timeout' => 15,
             ]);
             if (is_wp_error($response)) {
-                // ACA_AI_Content_Agent_Engine::add_log('Pexels request failed: ' . $response->get_error_message(), 'error');
+                ACA_Log_Service::add('Pexels request failed: ' . $response->get_error_message(), 'error');
                 return;
             }
             $body = json_decode(wp_remote_retrieve_body($response), true);
@@ -316,7 +314,7 @@ class ACA_Draft_Service {
                 'timeout' => 60,
             ] );
             if ( is_wp_error( $response ) ) {
-                // ACA_AI_Content_Agent_Engine::add_log( 'DALL-E request failed: ' . $response->get_error_message(), 'error' );
+                ACA_Log_Service::add( 'DALL-E request failed: ' . $response->get_error_message(), 'error' );
                 return;
             }
             $body = json_decode( wp_remote_retrieve_body( $response ), true );
@@ -333,7 +331,13 @@ class ACA_Draft_Service {
 
         $tmp = download_url($url);
         if (is_wp_error($tmp)) {
-            // ACA_AI_Content_Agent_Engine::add_log('Image download failed: ' . $tmp->get_error_message(), 'error');
+            ACA_Log_Service::add(
+                sprintf(
+                    'Image download failed: %s',
+                    $tmp->get_error_message()
+                ),
+                'error'
+            );
             return;
         }
 
@@ -348,7 +352,7 @@ class ACA_Draft_Service {
         $size = filesize($tmp);
         $allowed_types = ['image/jpeg', 'image/png'];
         if ($size === false || $size > 2 * MB_IN_BYTES || empty($type['type']) || ! in_array($type['type'], $allowed_types, true)) {
-            // ACA_AI_Content_Agent_Engine::add_log('Downloaded image rejected due to size or type.', 'error');
+            ACA_Log_Service::add(__( 'Downloaded image rejected due to size or type.', 'aca-ai-content-agent' ), 'error');
             wp_delete_file( $tmp );
             return;
         }
@@ -360,7 +364,7 @@ class ACA_Draft_Service {
 
         $id = media_handle_sideload($file_array, $post_id);
         if (is_wp_error($id)) {
-            // ACA_AI_Content_Agent_Engine::add_log('Failed to sideload image: ' . $id->get_error_message(), 'error');
+            ACA_Log_Service::add('Failed to sideload image: ' . $id->get_error_message(), 'error');
         } else {
             set_post_thumbnail($post_id, $id);
         }
@@ -413,7 +417,8 @@ class ACA_Draft_Service {
 
         $content = wp_strip_all_tags( $post->post_content );
         $prompt  = sprintf(
-            "Suggest concise improvements to refresh and optimize the following blog post for SEO. Return a bullet list only.\n\nTitle: %s\n\n%s",
+            /* translators: 1: The post title, 2: The post content. */
+            __( 'Suggest concise improvements to refresh and optimize the following blog post for SEO. Return a bullet list only.\n\nTitle: %1$s\n\n%2$s', 'aca-ai-content-agent' ),
             $post->post_title,
             $content
         );

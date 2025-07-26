@@ -127,7 +127,7 @@ class ACA_AI_Content_Agent_Dashboard {
         if (!empty($logs)) {
             echo '<ul class="aca-ai-content-agent-log-list">';
             foreach ($logs as $log) {
-                echo '<li class="log-' . esc_attr($log->log_type) . '">[' . esc_html($log->timestamp) . '] ' . esc_html($log->message) . '</li>';
+                echo '<li class="log-' . esc_attr($log->level) . '">[' . esc_html($log->timestamp) . '] ' . esc_html($log->message) . '</li>';
             }
             echo '</ul>';
         } else {

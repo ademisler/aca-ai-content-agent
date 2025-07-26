@@ -19,19 +19,22 @@ class ACA_Encryption_Util {
      * Encrypt a string using the AUTH_KEY as a secret.
      *
      * @param string $data Plain text to encrypt.
-     * @return string Encrypted and base64-encoded string.
+     * @return string|WP_Error Encrypted and base64-encoded string or WP_Error on failure.
      */
     public static function encrypt( $data ) {
         if ( empty( $data ) ) {
             return '';
         }
-        $key    = defined( 'AUTH_KEY' ) ? AUTH_KEY : 'aca_ai_content_agent_default_key';
+        if ( ! defined( 'AUTH_KEY' ) || 'put your unique phrase here' === AUTH_KEY ) {
+            return new WP_Error( 'auth_key_not_defined', __( 'AUTH_KEY is not defined in wp-config.php. Please define it to use encryption.', 'aca-ai-content-agent' ) );
+        }
+        $key    = AUTH_KEY;
         $method = 'AES-256-CBC';
         $iv_len = openssl_cipher_iv_length( $method );
         $iv     = random_bytes( $iv_len );
         $cipher = openssl_encrypt( $data, $method, substr( hash( 'sha256', $key ), 0, 32 ), 0, $iv );
         if ( false === $cipher ) {
-            return '';
+            return new WP_Error( 'encryption_failed', __( 'Encryption failed.', 'aca-ai-content-agent' ) );
         }
         return base64_encode( $iv . $cipher );
     }
@@ -40,20 +43,23 @@ class ACA_Encryption_Util {
      * Decrypt a string that was encrypted with aca_ai_content_agent_encrypt().
      *
      * @param string $data Encrypted string.
-     * @return string Decrypted plain text.
+     * @return string|WP_Error Decrypted plain text or WP_Error on failure.
      */
     public static function decrypt( $data ) {
         if ( empty( $data ) ) {
             return '';
         }
-        $key    = defined( 'AUTH_KEY' ) ? AUTH_KEY : 'aca_ai_content_agent_default_key';
+        if ( ! defined( 'AUTH_KEY' ) || 'put your unique phrase here' === AUTH_KEY ) {
+            return new WP_Error( 'auth_key_not_defined', __( 'AUTH_KEY is not defined in wp-config.php. Please define it to use encryption.', 'aca-ai-content-agent' ) );
+        }
+        $key    = AUTH_KEY;
         $method = 'AES-256-CBC';
         $raw    = base64_decode( $data );
         $iv_len = openssl_cipher_iv_length( $method );
         $iv     = substr( $raw, 0, $iv_len );
         $cipher = substr( $raw, $iv_len );
         $plain  = openssl_decrypt( $cipher, $method, substr( hash( 'sha256', $key ), 0, 32 ), 0, $iv );
-        return $plain ?: '';
+        return $plain ?: new WP_Error( 'decryption_failed', __( 'Decryption failed.', 'aca-ai-content-agent' ) );
     }
 
     /**
@@ -69,6 +75,6 @@ class ACA_Encryption_Util {
             return '';
         }
         $decrypted = self::decrypt( $data );
-        return '' === $decrypted ? $data : $decrypted;
+        return is_wp_error( $decrypted ) ? $data : $decrypted;
     }
 }

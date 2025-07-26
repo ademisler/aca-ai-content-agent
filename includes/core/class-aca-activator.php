@@ -94,10 +94,18 @@ class ACA_Activator {
      * Add custom capabilities for the plugin.
      */
     private static function add_custom_capabilities() {
-        $role = get_role( 'administrator' );
-        if ( $role ) {
-            $role->add_cap( 'manage_aca_ai_content_agent_settings' );
-            $role->add_cap( 'view_aca_ai_content_agent_dashboard' );
+        $capabilities = [
+            'manage_aca_ai_content_agent_settings' => true,
+            'view_aca_ai_content_agent_dashboard'  => true,
+        ];
+
+        add_role('aca_content_manager', __('ACA Content Manager', 'aca-ai-content-agent'), $capabilities);
+
+        $admin_role = get_role('administrator');
+        if ($admin_role) {
+            foreach ($capabilities as $cap => $grant) {
+                $admin_role->add_cap($cap);
+            }
         }
     }
 }

@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const fetchGSCButton = document.getElementById('aca-ai-content-agent-fetch-gsc');
     const generateGSCIdeasButton = document.getElementById('aca-ai-content-agent-generate-gsc-ideas');
     const gscResults = document.getElementById('aca-ai-content-agent-gsc-results');
+    const resetButton = document.getElementById('aca-ai-content-agent-reset-settings');
 
     const validateLicenseButton = document.getElementById('aca-ai-content-agent-validate-license');
     const licenseStatusSpan = document.getElementById('aca-ai-content-agent-license-status');
@@ -246,6 +247,20 @@ document.addEventListener('DOMContentLoaded', function () {
                     ideasStatus.style.color = '#DC143C';
                 }
             });
+        });
+    }
+
+    if (resetButton) {
+        resetButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (confirm('Are you sure you want to reset all settings? This action cannot be undone.')) {
+                handleApiRequest('aca_ai_content_agent_reset_settings', {}, document.getElementById('aca-ai-content-agent-reset-status'), resetButton)
+                    .then(result => {
+                        if (result.success) {
+                            window.location.reload();
+                        }
+                    });
+            }
         });
     }
 });

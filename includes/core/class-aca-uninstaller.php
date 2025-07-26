@@ -68,6 +68,8 @@ class ACA_Uninstaller {
                 $role->remove_cap( 'view_aca_ai_content_agent_dashboard' );
             }
         }
+
+        remove_role( 'aca_content_manager' );
 	}
 
 }

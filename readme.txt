@@ -1,7 +1,7 @@
 === ACA - AI Content Agent ===
 Contributors: ademisler
 Tags: ai, content, generator, automation, content writer,
-Requires at least: 5.0
+Requires at least: 6.5
 Tested up to: 6.8
 Requires PHP: 7.4
 Stable tag: 1.2

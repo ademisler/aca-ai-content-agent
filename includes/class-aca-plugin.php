@@ -40,10 +40,11 @@ class ACA_Plugin {
     }
 
     public function handle_activation_redirect() {
-        if (get_option('aca_activation_redirect', false)) {
-            delete_option('aca_activation_redirect');
-            if (!is_multisite()) {
-                wp_redirect(admin_url('admin.php?page=aca-ai-content-agent-onboarding'));
+        if ( get_transient( 'aca_ai_content_agent_activation_redirect' ) ) {
+            delete_transient( 'aca_ai_content_agent_activation_redirect' );
+            if ( ! is_multisite() ) {
+                wp_safe_redirect( admin_url( 'admin.php?page=aca-ai-content-agent-onboarding' ) );
+                exit;
             }
         }
     }
@@ -57,10 +58,12 @@ class ACA_Plugin {
         require_once plugin_dir_path( __FILE__ ) . '/core/class-aca-activator.php';
         require_once plugin_dir_path( __FILE__ ) . '/core/class-aca-deactivator.php';
 
-        // Admin
-        require_once plugin_dir_path( __FILE__ ) . '/admin/class-aca-admin-init.php';
-        require_once plugin_dir_path( __FILE__ ) . '/admin/class-aca-ajax-handler.php';
-        require_once plugin_dir_path( __FILE__ ) . '/admin/class-aca-dashboard.php';
+        if (is_admin()) {
+            require_once plugin_dir_path( __FILE__ ) . '/admin/class-aca-admin-init.php';
+            require_once plugin_dir_path( __FILE__ ) . '/admin/class-aca-ajax-handler.php';
+            require_once plugin_dir_path( __FILE__ ) . '/admin/class-aca-dashboard.php';
+            require_once plugin_dir_path( __FILE__ ) . '/admin/class-aca-onboarding.php';
+        }
 
         // Services
         require_once plugin_dir_path( __FILE__ ) . '/services/class-aca-idea-service.php';
@@ -97,11 +100,11 @@ class ACA_Plugin {
      */
     public function init() {
         // Init classes
-        new ACA_Admin_Init();
-        new ACA_Ajax_Handler();
+        if ( is_admin() ) {
+            new ACA_Admin();
+        }
         new ACA_AI_Content_Agent_Cron();
         new ACA_Privacy();
-        new ACA_Onboarding();
 
     }
 }

@@ -39,7 +39,7 @@ class ACA_Gemini_Api {
         $api_key = ! empty( $api_key_encrypted ) ? ACA_Encryption_Util::decrypt( $api_key_encrypted ) : '';
 
         if ( empty( $api_key ) ) {
-                    return new WP_Error( 'api_key_missing', __( 'Google Gemini API key is not set.', 'aca-ai-content-agent' ) );
+            return new WP_Error( 'api_key_missing', __( 'Google Gemini API key is missing or invalid. Please check your settings.', 'aca-ai-content-agent' ) );
         }
 
         $api_url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' . $api_key;
@@ -132,5 +132,29 @@ class ACA_Gemini_Api {
         update_option('aca_ai_content_agent_api_usage_current_month', $current_usage);
 
         return $data['candidates'][0]['content']['parts'][0]['text'];
+    }
+
+    /**
+     * Extract keyword phrases from a given text using the Gemini API.
+     *
+     * @param string $content The text content to analyze.
+     * @return array|WP_Error An array of keyword phrases on success, or a WP_Error object on failure.
+     */
+    public static function extract_keywords_from_content( $content ) {
+        $prompt = sprintf(
+            /* translators: %s: The content to extract keywords from. */
+            __( 'Extract the most important 5-10 SEO keyword phrases from the following text. Return them as a comma-separated list. Text: %s', 'aca-ai-content-agent' ),
+            $content
+        );
+
+        $response = self::call( $prompt );
+
+        if ( is_wp_error( $response ) ) {
+            return $response;
+        }
+
+        $keywords = array_map( 'trim', explode( ',', $response ) );
+
+        return $keywords;
     }
 }

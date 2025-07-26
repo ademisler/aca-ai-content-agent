@@ -21,7 +21,7 @@ class ACA_AI_Content_Agent_Cron {
         add_action('aca_ai_content_agent_reset_api_usage_counter', [$this, 'reset_api_usage_counter']);
         add_action('aca_ai_content_agent_generate_style_guide', [$this, 'generate_style_guide']);
         add_action('aca_ai_content_agent_verify_license', [$this, 'verify_license']);
-        add_action('aca_ai_content_agent_clean_logs', [$this, 'clean_logs']);
+        add_action('aca_ai_content_agent_clean_logs', [$this, 'clean_logs'], 10, 1);
 
         // Ensure custom schedules like weekly and monthly are available.
         add_filter('cron_schedules', [$this, 'add_custom_schedules']);

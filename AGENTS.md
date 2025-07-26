@@ -36,6 +36,14 @@ aca-ai-content-agent/
 ├─ admin/                      # CSS/JS assets for the admin UI
 ├─ includes/
 │  ├─ admin/                   # Dashboard, settings and onboarding
+│  │  ├─ settings/             # Settings page classes
+│  │  ├─ class-aca-admin.php
+│  │  ├─ class-aca-admin-assets.php
+│  │  ├─ class-aca-admin-menu.php
+│  │  ├─ class-aca-admin-notices.php
+│  │  ├─ class-aca-ajax-handler.php
+│  │  ├─ class-aca-dashboard.php
+│  │  └─ class-aca-onboarding.php
 │  ├─ api/                     # Gemini & Gumroad clients
 │  ├─ core/                    # Activation, deactivation, uninstall
 │  ├─ integrations/            # Privacy hooks and meta boxes
@@ -70,7 +78,6 @@ class ACA_Activator {
     }
 }
 ```
-【F:includes/core/class-aca-activator.php†L22-L54】
 
 Tables for ideas, logs, clusters and cluster items are defined in the same file. The uninstaller removes them and clears all plugin options:
 
@@ -88,7 +95,6 @@ class ACA_Uninstaller {
     }
 }
 ```
-【F:includes/core/class-aca-uninstaller.php†L22-L62】
 
 ## Automation
 
@@ -104,7 +110,6 @@ public function __construct() {
     add_action('aca_ai_content_agent_clean_logs', [$this, 'clean_logs']);
 }
 ```
-【F:includes/class-aca-cron.php†L18-L30】
 
 The `run_main_automation()` method handles the selected working mode:
 
@@ -124,7 +129,6 @@ public function run_main_automation() {
     }
 }
 ```
-【F:includes/class-aca-cron.php†L120-L137】
 
 ## Services
 
@@ -138,7 +142,6 @@ $posts = get_posts([...]);
 $prompt = sprintf($prompts['idea_generation'], $existing_titles, $limit);
 $response = ACA_Gemini_Api::call($prompt);
 ```
-【F:includes/services/class-aca-idea-service.php†L24-L60】
 
 ### Draft Service
 Writes full drafts from an idea and enriches the content with sources, internal links and optional images or plagiarism checks. See `ACA_Draft_Service::write_post_draft()` for the main workflow.
@@ -160,7 +163,6 @@ public static function generate_style_guide() {
     }
 }
 ```
-【F:includes/services/class-aca-style-guide-service.php†L24-L68】
 
 ## API Clients
 
@@ -173,7 +175,6 @@ Example Gemini request:
 $api_url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' . $api_key;
 $response = wp_remote_post($api_url, [...]);
 ```
-【F:includes/api/class-aca-gemini-api.php†L19-L72】
 
 License validation snippet:
 
@@ -185,11 +186,10 @@ $response = wp_remote_post('https://api.gumroad.com/v2/licenses/verify', [
     ],
 ]);
 ```
-【F:includes/api/class-aca-gumroad-api.php†L24-L38】
 
 ## Admin Interface
 
-The admin classes render the dashboard, settings pages and onboarding wizard. Settings fields are registered in `ACA_Admin_Init::register_settings()` and sensitive keys are obfuscated before storage:
+The admin classes render the dashboard, settings pages and onboarding wizard. Settings fields are registered in the various `ACA_Settings_*` classes and sensitive keys are obfuscated before storage:
 
 ```php
 public function sanitize_and_obfuscate_api_key($input) {
@@ -201,7 +201,6 @@ public function sanitize_and_obfuscate_api_key($input) {
     return aca_ai_content_agent_encrypt($sanitized_key);
 }
 ```
-【F:includes/admin/class-aca-admin-init.php†L292-L307】
 
 AJAX handlers located in `ACA_Ajax_Handler` respond to actions like testing the API connection or generating ideas. The JavaScript logic for these requests lives in `admin/js/aca-admin.js`.
 
@@ -210,10 +209,12 @@ AJAX handlers located in `ACA_Ajax_Handler` respond to actions like testing the 
 - **Encryption** – `ACA_Encryption_Util` encrypts API and license keys using `AUTH_KEY` as the secret:
 
 ```php
-$key = defined('AUTH_KEY') ? AUTH_KEY : 'aca_ai_content_agent_default_key';
+if ( ! defined( 'AUTH_KEY' ) || 'put your unique phrase here' === AUTH_KEY ) {
+    return new WP_Error( 'auth_key_not_defined', __( 'AUTH_KEY is not defined in wp-config.php. Please define it to use encryption.', 'aca-ai-content-agent' ) );
+}
+$key    = AUTH_KEY;
 $cipher = openssl_encrypt($data, 'AES-256-CBC', substr(hash('sha256', $key), 0, 32), 0, $iv);
 ```
-【F:includes/utils/class-aca-encryption-util.php†L20-L36】
 
 - **Helper** – `ACA_Helper::is_pro()` checks license validity and caches the result.
 - **Log Service** – `ACA_Log_Service::add()` writes log entries to the `logs` table.
@@ -230,7 +231,6 @@ Running `uninstall.php` triggers a full cleanup:
 require_once plugin_dir_path(__FILE__) . 'includes/core/class-aca-uninstaller.php';
 ACA_Uninstaller::uninstall();
 ```
-【F:uninstall.php†L9-L17】
 
 ## Further Reading
 

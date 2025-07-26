@@ -30,6 +30,7 @@ class ACA_Ajax_Handler {
         add_action('wp_ajax_aca_ai_content_agent_suggest_update', [$this, 'handle_ajax_suggest_update']);
         add_action('wp_ajax_aca_ai_content_agent_fetch_gsc_data', [$this, 'handle_ajax_fetch_gsc_data']);
         add_action('wp_ajax_aca_ai_content_agent_generate_gsc_ideas', [$this, 'handle_ajax_generate_gsc_ideas']);
+        add_action('wp_ajax_aca_ai_content_agent_reset_settings', [$this, 'handle_ajax_reset_settings']);
     }
 
     /**
@@ -47,7 +48,11 @@ class ACA_Ajax_Handler {
         $response = ACA_Gemini_Api::call($test_prompt);
 
         if (is_wp_error($response)) {
-            wp_send_json_error($response->get_error_message());
+            if ('api_key_missing' === $response->get_error_code()) {
+                wp_send_json_error(esc_html__('Google Gemini API key is missing or invalid. Please check your settings.', 'aca-ai-content-agent'));
+            } else {
+                wp_send_json_error($response->get_error_message());
+            }
         } else {
             wp_send_json_success(esc_html__('Connection successful! API is working correctly.', 'aca-ai-content-agent'));
         }
@@ -81,6 +86,13 @@ class ACA_Ajax_Handler {
         if ( ! current_user_can('view_aca_ai_content_agent_dashboard') ) {
             wp_send_json_error(esc_html__('You do not have permission to do this.', 'aca-ai-content-agent'));
         }
+
+        $transient_key = 'aca_ai_content_agent_rate_limit_' . get_current_user_id();
+        if ( get_transient( $transient_key ) ) {
+            wp_send_json_error( esc_html__( 'Please wait a moment before generating new ideas.', 'aca-ai-content-agent' ) );
+        }
+
+        set_transient( $transient_key, true, 20 );
 
         $result = ACA_Idea_Service::generate_ideas();
 
@@ -329,4 +341,24 @@ class ACA_Ajax_Handler {
             wp_send_json_success(['message' => $message, 'ideas_html' => $ideas_html]);
         }
     }
-}
+
+    /**
+     * Handle the AJAX request for resetting all settings.
+     */
+    public function handle_ajax_reset_settings() {
+        check_ajax_referer('aca_ai_content_agent_admin_nonce', 'nonce');
+
+        if ( ! current_user_can('manage_aca_ai_content_agent_settings') ) {
+            wp_send_json_error(esc_html__('You do not have permission to do this.', 'aca-ai-content-agent'));
+        }
+
+        delete_option('aca_ai_content_agent_options');
+        delete_option('aca_ai_content_agent_prompts');
+        delete_option('aca_ai_content_agent_gemini_api_key');
+        delete_option('aca_ai_content_agent_license_key');
+        delete_option('aca_ai_content_agent_is_pro_active');
+        delete_option('aca_ai_content_agent_license_data');
+        delete_option('aca_ai_content_agent_license_valid_until');
+
+        wp_send_json_success(esc_html__('All settings have been reset to their default values.', 'aca-ai-content-agent'));
+    }

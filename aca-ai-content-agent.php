@@ -1,11 +1,11 @@
 <?php
 /**
  * Plugin Name: ACA - AI Content Agent
- * Plugin URI:  https://yourwebsite.com/aca-ai-content-agent
+ * Plugin URI:  https://ademisler.com/plugins/aca-ai-content-agent
  * Description: A WordPress plugin that uses AI to generate content ideas and drafts based on your existing content.
  * Version:     1.2
- * Author:      Your Name
- * Author URI:  https://yourwebsite.com
+ * Author:      Adem Isler
+ * Author URI:  https://ademisler.com
  * License:     GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: aca-ai-content-agent
@@ -32,7 +32,6 @@ require_once plugin_dir_path( __FILE__ ) . 'includes/class-aca-plugin.php';
 function aca_ai_content_agent_activate() {
     require_once plugin_dir_path( __FILE__ ) . 'includes/core/class-aca-activator.php';
     ACA_Activator::activate();
-    add_option('aca_activation_redirect', true);
 }
 
 /**

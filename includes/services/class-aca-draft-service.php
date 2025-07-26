@@ -88,7 +88,7 @@ class ACA_Draft_Service {
      */
     public static function write_post_draft($idea_id) {
         // SECURITY FIX: Enhanced security checks
-        if (!is_admin() && !defined('DOING_AJAX')) {
+        if (!is_admin() && !wp_doing_ajax()) {
             ACA_Log_Service::add('Unauthorized access to write_post_draft.', 'error');
             return new WP_Error('unauthorized', __('Unauthorized access.', 'aca-ai-content-agent'));
         }

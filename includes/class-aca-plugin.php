@@ -111,11 +111,20 @@ class ACA_Plugin {
         // Initialize admin functionality
         if (is_admin()) {
             new ACA_Admin();
+            new ACA_Admin_Menu();
+            new ACA_Admin_Assets();
+            new ACA_Admin_Notices();
+            new ACA_Ajax_Handler();
         }
 
         // Initialize privacy integration
         if (class_exists('ACA_Privacy')) {
             ACA_Privacy::init();
+        }
+        
+        // Initialize post hooks
+        if (class_exists('ACA_Post_Hooks')) {
+            new ACA_Post_Hooks();
         }
     }
 

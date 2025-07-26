@@ -61,7 +61,7 @@ class ACA_Idea_Service {
      * @return array|WP_Error Array of inserted idea IDs on success, WP_Error on failure.
      */
     public static function generate_ideas() {
-        if (!is_admin() && !defined('DOING_AJAX')) {
+        if (!is_admin() && !wp_doing_ajax()) {
             ACA_Log_Service::add('Unauthorized access to generate_ideas.', 'error');
             return new WP_Error('unauthorized', __('Unauthorized access.', 'aca-ai-content-agent'));
         }
@@ -247,7 +247,7 @@ class ACA_Idea_Service {
      * @return array|WP_Error Array of inserted idea IDs on success or WP_Error.
      */
     public static function generate_ideas_from_gsc() {
-        if (!is_admin() && !defined('DOING_AJAX')) {
+        if (!is_admin() && !wp_doing_ajax()) {
             ACA_Log_Service::add('Unauthorized access to generate_ideas_from_gsc.', 'error');
             return new WP_Error('unauthorized', __('Unauthorized access.', 'aca-ai-content-agent'));
         }
@@ -409,7 +409,7 @@ class ACA_Idea_Service {
      * @return bool|WP_Error True on success, WP_Error on failure.
      */
     public static function record_feedback($idea_id, $value) {
-        if (!is_admin() && !defined('DOING_AJAX')) {
+        if (!is_admin() && !wp_doing_ajax()) {
             ACA_Log_Service::add('Unauthorized access to record_feedback.', 'error');
             return new WP_Error('unauthorized', __('Unauthorized access.', 'aca-ai-content-agent'));
         }
@@ -439,7 +439,7 @@ class ACA_Idea_Service {
      * @return bool|WP_Error True on success, WP_Error on failure.
      */
     public static function reject_idea($idea_id) {
-        if (!is_admin() && !defined('DOING_AJAX')) {
+        if (!is_admin() && !wp_doing_ajax()) {
             ACA_Log_Service::add('Unauthorized access to reject_idea.', 'error');
             return new WP_Error('unauthorized', __('Unauthorized access.', 'aca-ai-content-agent'));
         }
@@ -530,7 +530,7 @@ class ACA_Idea_Service {
      * @return array|WP_Error The cluster data or WP_Error on failure.
      */
     public static function generate_content_cluster($topic) {
-        if (!is_admin() && !defined('DOING_AJAX')) {
+        if (!is_admin() && !wp_doing_ajax()) {
             ACA_Log_Service::add('Unauthorized access to generate_content_cluster.', 'error');
             return new WP_Error('unauthorized', __('Unauthorized access.', 'aca-ai-content-agent'));
         }

@@ -80,7 +80,7 @@ jQuery(function($) {
     /**
      * Show loading state for buttons
      */
-    function showButtonLoading($button, loadingText = 'İşleniyor...') {
+    function showButtonLoading($button, loadingText = 'Processing...') {
         const originalText = $button.find('.button-text').text();
         $button.prop('disabled', true)
                .data('original-text', originalText);
@@ -106,7 +106,7 @@ jQuery(function($) {
      */
     function makeAjaxRequest(action, data = {}, successCallback = null, errorCallback = null) {
         if (ACA.isProcessing) {
-            showNotification('Lütfen bekleyin, başka bir işlem devam ediyor...', 'error');
+            showNotification('Please wait, another operation is in progress...', 'error');
             return;
         }
 
@@ -130,7 +130,7 @@ jQuery(function($) {
                         successCallback(response.data);
                     }
                 } else {
-                    const errorMessage = response.data?.message || 'Bir hata oluştu.';
+                    const errorMessage = response.data?.message || 'An error occurred.';
                     showNotification(errorMessage, 'error');
                     if (errorCallback) {
                         errorCallback(response.data);
@@ -139,13 +139,31 @@ jQuery(function($) {
             },
             error: function(xhr, status, error) {
                 ACA.isProcessing = false;
-                const errorMessage = 'Sunucu hatası: ' + error;
+                const errorMessage = 'Server error: ' + error;
                 showNotification(errorMessage, 'error');
                 if (errorCallback) {
                     errorCallback({ message: errorMessage });
                 }
             }
         });
+    }
+
+    /**
+     * Handle AJAX errors
+     */
+    function handleAjaxError(response, error) {
+        console.error('AJAX Error:', response, error);
+        
+        let errorMessage;
+        if (response && response.data && response.data.message) {
+            errorMessage = response.data.message;
+        } else if (error) {
+            errorMessage = 'Server error: ' + error;
+        } else {
+            errorMessage = 'An error occurred.';
+        }
+        
+        showNotification(errorMessage, 'error');
     }
 
     // ===== TAB NAVIGATION =====
@@ -206,20 +224,20 @@ jQuery(function($) {
      * Handle generate ideas
      */
     function handleGenerateIdeas($button) {
-        showButtonLoading($button, 'Üretiliyor...');
+        showButtonLoading($button, 'Generating...');
 
         // Simulate API call
         setTimeout(() => {
             const newIdeas = [
                 { 
                     id: Date.now() + 1, 
-                    title: 'İçerik Stratejisinde Video Pazarlamanın Yeri', 
-                    keywords: 'video pazarlama, içerik stratejisi'
+                    title: 'The Place of Video Marketing in Content Strategy', 
+                    keywords: 'video marketing, content strategy'
                 },
                 { 
                     id: Date.now() + 2, 
-                    title: 'E-Ticaret Siteleri İçin Kullanıcı Deneyimi (UX) İyileştirmeleri', 
-                    keywords: 'e-ticaret, ux, kullanıcı deneyimi'
+                    title: 'Enhancements for User Experience (UX) for E-Commerce Sites', 
+                    keywords: 'e-commerce, ux, user experience'
                 }
             ];
             
@@ -229,19 +247,19 @@ jQuery(function($) {
                         <div class="aca-idea-content">
                             <div class="aca-idea-title">${idea.title}</div>
                             <div class="aca-idea-meta">
-                                <i class="bi bi-clock"></i> şimdi &nbsp;&nbsp; 
+                                <i class="bi bi-clock"></i> now &nbsp;&nbsp; 
                                 <i class="bi bi-tags"></i> ${idea.keywords}
                             </div>
                         </div>
                         <div class="aca-idea-actions">
                             <button class="aca-action-button write-draft-btn">
-                                <i class="bi bi-pencil-square"></i> Taslak Yaz
+                                <i class="bi bi-pencil-square"></i> Write Draft
                             </button>
                             <button class="aca-action-button secondary reject-idea-btn">
-                                <i class="bi bi-x-circle"></i> Reddet
+                                <i class="bi bi-x-circle"></i> Reject
                             </button>
-                            <button class="aca-feedback-btn" title="İyi fikir">👍</button>
-                            <button class="aca-feedback-btn" title="Kötü fikir">👎</button>
+                            <button class="aca-feedback-btn" title="Good idea">👍</button>
+                            <button class="aca-feedback-btn" title="Bad idea">👎</button>
                         </div>
                     </li>
                 `);
@@ -251,7 +269,7 @@ jQuery(function($) {
             ACA.pendingIdeasCount += newIdeas.length;
             updateCounters();
             checkIdeaListState();
-            showNotification(`${newIdeas.length} yeni fikir başarıyla üretildi!`);
+            showNotification(`${newIdeas.length} new ideas generated successfully!`);
 
             hideButtonLoading($button);
         }, 2000);
@@ -261,10 +279,10 @@ jQuery(function($) {
      * Handle update style guide
      */
     function handleUpdateStyleGuide($button) {
-        showButtonLoading($button, 'Güncelleniyor...');
+        showButtonLoading($button, 'Updating...');
 
         setTimeout(() => {
-            showNotification('Stil rehberi başarıyla güncellendi.');
+            showNotification('Style guide updated successfully.');
             hideButtonLoading($button);
         }, 1500);
     }
@@ -276,14 +294,14 @@ jQuery(function($) {
         const topic = $('#cluster-topic-input').val().trim();
         
         if (!topic) {
-            showNotification('Lütfen bir ana konu girin.', 'error');
+            showNotification('Please enter a main topic.', 'error');
             return;
         }
 
-        showButtonLoading($button, 'Küme Oluşturuluyor...');
+        showButtonLoading($button, 'Generating cluster...');
 
         setTimeout(() => {
-            showNotification(`"${topic}" konusu için içerik kümesi oluşturuldu.`);
+            showNotification(`Content cluster generated for "${topic}" topic.`);
             $('#cluster-topic-input').val('');
             hideButtonLoading($button);
         }, 2500);
@@ -293,7 +311,7 @@ jQuery(function($) {
      * Handle write draft
      */
     function handleWriteDraft($button, $ideaItem) {
-        $button.html('<span class="aca-loading-spinner"></span> Yazılıyor...');
+        $button.html('<span class="aca-loading-spinner"></span> Writing...');
         $button.prop('disabled', true);
 
         setTimeout(() => {
@@ -307,7 +325,7 @@ jQuery(function($) {
                 checkIdeaListState();
                 
                 const ideaTitle = $ideaItem.find('.aca-idea-title').text();
-                showNotification(`"${ideaTitle}" başlıklı taslak oluşturuldu.`);
+                showNotification(`Draft created for "${ideaTitle}" title.`);
             }, 500);
         }, 2500);
     }
@@ -323,7 +341,7 @@ jQuery(function($) {
             ACA.pendingIdeasCount--;
             updateCounters();
             checkIdeaListState();
-            showNotification('Fikir reddedildi.', 'error');
+            showNotification('Idea rejected.', 'error');
         }, 500);
     }
 
@@ -332,14 +350,14 @@ jQuery(function($) {
         // Test connection button
         $('#test-connection-btn').on('click', function() {
             const $statusEl = $('#connection-test-status');
-            $statusEl.html('<span class="aca-status-indicator loading"><span class="aca-loading-spinner"></span> Test ediliyor...</span>');
+            $statusEl.html('<span class="aca-status-indicator loading"><span class="aca-loading-spinner"></span> Testing connection...</span>');
             
             setTimeout(() => {
                 const success = Math.random() > 0.2; // 80% success rate
                 if (success) {
-                    $statusEl.html('<span class="aca-status-indicator success"><i class="bi bi-check-circle-fill"></i> Bağlantı Başarılı</span>');
+                    $statusEl.html('<span class="aca-status-indicator success"><i class="bi bi-check-circle-fill"></i> Connection Successful</span>');
                 } else {
-                    $statusEl.html('<span class="aca-status-indicator error"><i class="bi bi-x-circle-fill"></i> Bağlantı Hatası</span>');
+                    $statusEl.html('<span class="aca-status-indicator error"><i class="bi bi-x-circle-fill"></i> Connection Error</span>');
                 }
             }, 1500);
         });
@@ -347,7 +365,7 @@ jQuery(function($) {
         // Settings form
         $('#settings-form').on('submit', function(e) {
             e.preventDefault();
-            showNotification('Ayarlar başarıyla kaydedildi.');
+            showNotification('Settings saved successfully.');
         });
     }
 
@@ -358,11 +376,11 @@ jQuery(function($) {
             const $button = $(this);
             
             if (!$keyInput.val().trim()) {
-                showNotification('Lütfen bir lisans anahtarı girin.', 'error');
+                showNotification('Please enter a license key.', 'error');
                 return;
             }
 
-            $button.text('Doğrulanıyor...');
+            $button.text('Validating...');
             $button.prop('disabled', true);
 
             setTimeout(() => {
@@ -370,10 +388,10 @@ jQuery(function($) {
                 const $statusText = $('#license-status-text');
                 
                 $statusBox.removeClass('free').addClass('pro');
-                $statusText.text('PRO LİSANS AKTİF');
+                $statusText.text('PRO LICENSE ACTIVE');
                 
                 $('#license-form-container').hide();
-                showNotification('Lisans anahtarı başarıyla doğrulandı. Pro özellikler aktif!');
+                showNotification('License key validated successfully. Pro features activated!');
             }, 2000);
         });
     }
@@ -387,11 +405,43 @@ jQuery(function($) {
             const title = $row.find('td:first strong').text();
             
             if (!$button.prop('disabled')) {
-                $button.prop('disabled', true).text('İşlendi');
-                showNotification(`"${title}" başlıklı içerik işlendi.`);
+                $button.prop('disabled', true).text('Processed');
+                showNotification(`"${title}" content processed.`);
             }
         });
     }
+
+    // ===== CONNECTION TEST =====
+    $(document).on('click', '#test-connection-btn', function() {
+        const $button = $(this);
+        const $statusEl = $('#connection-test-status');
+        
+        showButtonLoading($button, 'Testing...');
+        $statusEl.html('<span class="aca-status-indicator loading"><i class="bi bi-arrow-repeat"></i> Testing connection...</span>');
+        
+        $.ajax({
+            url: ACA.ajaxUrl,
+            type: 'POST',
+            data: {
+                action: 'aca_ai_content_agent_test_connection',
+                nonce: ACA.nonce
+            },
+            success: function(response) {
+                if (response.success) {
+                    $statusEl.html('<span class="aca-status-indicator success"><i class="bi bi-check-circle-fill"></i> Connection Successful</span>');
+                } else {
+                    $statusEl.html('<span class="aca-status-indicator error"><i class="bi bi-x-circle-fill"></i> Connection Error</span>');
+                }
+            },
+            error: function(xhr, status, error) {
+                handleAjaxError(null, error);
+                $statusEl.html('<span class="aca-status-indicator error"><i class="bi bi-x-circle-fill"></i> Connection Failed</span>');
+            },
+            complete: function() {
+                hideButtonLoading($button);
+            }
+        });
+    });
 
     // ===== INITIALIZATION =====
     function init() {

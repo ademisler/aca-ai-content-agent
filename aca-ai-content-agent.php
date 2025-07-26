@@ -26,7 +26,9 @@ define( 'ACA_AI_CONTENT_AGENT_PLUGIN_FILE', __FILE__ );
 define( 'ACA_AI_CONTENT_AGENT_GUMROAD_PRODUCT_ID', 'aca-ai-content-agent-pro' );
 
 // Developer/Testing mode constant - DISABLED FOR PRODUCTION
-define('ACA_AI_CONTENT_AGENT_DEV_MODE', false); // Set to false for production
+if (!defined('ACA_AI_CONTENT_AGENT_DEV_MODE')) {
+    define('ACA_AI_CONTENT_AGENT_DEV_MODE', false); // Set to false for production
+}
 
 // SECURITY CHECK: Prevent developer mode in production
 if (defined('ACA_AI_CONTENT_AGENT_DEV_MODE') && ACA_AI_CONTENT_AGENT_DEV_MODE) {
@@ -35,15 +37,16 @@ if (defined('ACA_AI_CONTENT_AGENT_DEV_MODE') && ACA_AI_CONTENT_AGENT_DEV_MODE) {
         // Log the security violation
         error_log('SECURITY WARNING: ACA_AI_CONTENT_AGENT_DEV_MODE is enabled in production environment!');
         
-        // Disable developer mode in production
-        define('ACA_AI_CONTENT_AGENT_DEV_MODE', false);
-        
         // Add admin notice if in admin area
         if (function_exists('add_action') && function_exists('is_admin') && is_admin()) {
             add_action('admin_notices', function() {
                 echo '<div class="notice notice-error"><p><strong>SECURITY WARNING:</strong> ACA AI Content Agent developer mode was disabled in production environment for security reasons.</p></div>';
             });
         }
+        
+        // Force disable developer mode in production by overriding the constant
+        // Note: We can't redefine constants, so we'll use a different approach
+        add_filter('aca_ai_content_agent_dev_mode_enabled', '__return_false');
     }
 }
 

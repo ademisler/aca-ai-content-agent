@@ -44,8 +44,7 @@ class ACA_Admin_Menu {
 
             <?php
             if ($active_tab === 'dashboard') {
-                $dashboard = new ACA_Dashboard();
-                $dashboard->render();
+                ACA_AI_Content_Agent_Dashboard::render();
             } elseif ($active_tab === 'settings') {
                 ?>
                 <form action="options.php" method="post">

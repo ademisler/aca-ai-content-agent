@@ -102,9 +102,14 @@ class ACA_Plugin {
         // Init classes
         if ( is_admin() ) {
             new ACA_Admin();
+            // Initialize post hooks
+            $post_hooks = new ACA_Post_Hooks();
+            $post_hooks->init();
         }
         new ACA_AI_Content_Agent_Cron();
-        new ACA_Privacy();
+
+        // Privacy sınıfını doğru şekilde başlat
+        ACA_AI_Content_Agent_Privacy::init();
 
     }
 }

@@ -72,9 +72,9 @@ class ACA_Ajax_Handler {
 
         if (is_wp_error($result)) {
             wp_send_json_error($result->get_error_message());
-        } else {
-            wp_send_json_success(esc_html__('Style guide updated successfully based on the latest content.', 'aca-ai-content-agent'));
         }
+
+        wp_send_json_success(esc_html__('Style guide updated successfully based on the latest content.', 'aca-ai-content-agent'));
     }
 
     /**
@@ -362,3 +362,4 @@ class ACA_Ajax_Handler {
 
         wp_send_json_success(esc_html__('All settings have been reset to their default values.', 'aca-ai-content-agent'));
     }
+}

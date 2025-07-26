@@ -1,6 +1,10 @@
 # Gumroad Setup Guide for ACA Pro
 
-This guide will help you set up Gumroad to sell ACA Pro licenses.
+**Version:** 1.3 Compatible  
+**Last Updated:** January 2025  
+**Status:** Production Ready
+
+This guide will help you set up Gumroad to sell ACA Pro licenses for version 1.3 and above.
 
 ## 1. Create Gumroad Account
 

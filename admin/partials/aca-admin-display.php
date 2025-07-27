@@ -1,6 +1,6 @@
 <?php
 /**
- * Provide a admin area view for the plugin
+ * Provide a admin area view for the plugin - React Prototype Design
  */
 
 // Prevent direct access
@@ -9,170 +9,282 @@ if (!defined('ABSPATH')) {
 }
 ?>
 
-<div class="wrap">
-    <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
-    
-    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-6">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <!-- Stats Cards -->
-            <div class="bg-blue-50 p-6 rounded-lg border border-blue-200">
-                <div class="flex items-center">
-                    <div class="bg-blue-600 p-3 rounded-lg">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
-                        </svg>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-2xl font-bold text-gray-900"><?php echo esc_html($stats['ideas']); ?></h3>
-                        <p class="text-gray-600">Content Ideas</p>
-                    </div>
-                </div>
-            </div>
+<div class="aca-app-container">
+    <!-- Mobile Header -->
+    <header class="aca-mobile-header">
+        <button id="aca-sidebar-toggle" class="aca-mobile-menu-btn">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+        </button>
+        <span class="aca-mobile-title">AI Content Agent</span>
+    </header>
 
-            <div class="bg-yellow-50 p-6 rounded-lg border border-yellow-200">
-                <div class="flex items-center">
-                    <div class="bg-yellow-600 p-3 rounded-lg">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-2xl font-bold text-gray-900"><?php echo esc_html($stats['drafts']); ?></h3>
-                        <p class="text-gray-600">Draft Posts</p>
-                    </div>
+    <div class="aca-main-layout">
+        <!-- Sidebar -->
+        <aside class="aca-sidebar" id="aca-sidebar">
+            <div class="aca-sidebar-content">
+                <div class="aca-sidebar-header">
+                    <h1 class="aca-sidebar-title">AI Content Agent</h1>
+                    <a href="https://ademisler.com" target="_blank" rel="noopener noreferrer" class="aca-sidebar-credit">by Adem Isler</a>
                 </div>
-            </div>
-
-            <div class="bg-green-50 p-6 rounded-lg border border-green-200">
-                <div class="flex items-center">
-                    <div class="bg-green-600 p-3 rounded-lg">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                <nav class="aca-sidebar-nav">
+                    <a href="<?php echo admin_url('admin.php?page=aca-ai-content-agent'); ?>" class="aca-nav-item active">
+                        <svg class="aca-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/>
                         </svg>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-2xl font-bold text-gray-900"><?php echo esc_html($stats['published']); ?></h3>
-                        <p class="text-gray-600">Published Posts</p>
-                    </div>
-                </div>
+                        Dashboard
+                    </a>
+                    <a href="<?php echo admin_url('admin.php?page=aca-style-guide'); ?>" class="aca-nav-item">
+                        <svg class="aca-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                        </svg>
+                        Style Guide
+                    </a>
+                    <a href="<?php echo admin_url('admin.php?page=aca-ideas'); ?>" class="aca-nav-item">
+                        <svg class="aca-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/>
+                        </svg>
+                        Idea Board
+                    </a>
+                    <a href="<?php echo admin_url('admin.php?page=aca-drafts'); ?>" class="aca-nav-item">
+                        <svg class="aca-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>
+                        </svg>
+                        Drafts
+                    </a>
+                    <a href="<?php echo admin_url('admin.php?page=aca-calendar'); ?>" class="aca-nav-item">
+                        <svg class="aca-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/>
+                        </svg>
+                        Calendar
+                    </a>
+                    <a href="<?php echo admin_url('admin.php?page=aca-published'); ?>" class="aca-nav-item">
+                        <svg class="aca-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>
+                        </svg>
+                        Published
+                    </a>
+                </nav>
             </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            <button id="analyze-style-btn" class="bg-slate-800 p-6 rounded-lg border border-slate-700 shadow-md flex flex-col items-start text-left w-full hover:bg-slate-700 hover:border-slate-600 transition-all transform hover:-translate-y-1">
-                <div class="bg-blue-600 p-3 rounded-lg mb-4">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+            <div class="aca-sidebar-footer">
+                <a href="<?php echo admin_url('admin.php?page=aca-settings'); ?>" class="aca-nav-item">
+                    <svg class="aca-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2.82l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2.82l.15.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>
                     </svg>
-                </div>
-                <h3 class="text-lg font-semibold text-white mb-1">
-                    <span>Analyze Style Guide</span>
-                    <span id="analyze-loading" class="hidden">
-                        <svg class="animate-spin h-5 w-5 ml-2 inline" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                    </span>
-                </h3>
-                <p class="text-slate-400 text-sm">Learn your site's writing style from recent posts</p>
-            </button>
-
-            <button id="generate-ideas-btn" class="bg-slate-800 p-6 rounded-lg border border-slate-700 shadow-md flex flex-col items-start text-left w-full hover:bg-slate-700 hover:border-slate-600 transition-all transform hover:-translate-y-1">
-                <div class="bg-yellow-600 p-3 rounded-lg mb-4">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
-                    </svg>
-                </div>
-                <h3 class="text-lg font-semibold text-white mb-1">
-                    <span>Generate Ideas</span>
-                    <span id="ideas-loading" class="hidden">
-                        <svg class="animate-spin h-5 w-5 ml-2 inline" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                    </span>
-                </h3>
-                <p class="text-slate-400 text-sm">Create new blog post ideas using AI</p>
-            </button>
-
-            <a href="<?php echo admin_url('admin.php?page=aca-settings'); ?>" class="bg-slate-800 p-6 rounded-lg border border-slate-700 shadow-md flex flex-col items-start text-left w-full hover:bg-slate-700 hover:border-slate-600 transition-all transform hover:-translate-y-1 text-decoration-none">
-                <div class="bg-gray-600 p-3 rounded-lg mb-4">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                    </svg>
-                </div>
-                <h3 class="text-lg font-semibold text-white mb-1">Settings</h3>
-                <p class="text-slate-400 text-sm">Configure API keys and automation settings</p>
-            </a>
-        </div>
-
-        <!-- Style Guide Status -->
-        <?php if (!empty($style_guide) && !empty($style_guide['tone'])): ?>
-        <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-            <div class="flex items-start">
-                <svg class="w-5 h-5 text-green-600 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                </svg>
-                <div>
-                    <h4 class="text-green-800 font-medium">Style Guide Active</h4>
-                    <p class="text-green-700 text-sm mt-1">
-                        <strong>Tone:</strong> <?php echo esc_html($style_guide['tone']); ?><br>
-                        <strong>Last analyzed:</strong> <?php echo esc_html($style_guide['last_analyzed'] ?? 'Unknown'); ?>
-                    </p>
-                </div>
+                    Settings
+                </a>
             </div>
-        </div>
-        <?php else: ?>
-        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-            <div class="flex items-start">
-                <svg class="w-5 h-5 text-yellow-600 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                </svg>
-                <div>
-                    <h4 class="text-yellow-800 font-medium">Style Guide Not Set</h4>
-                    <p class="text-yellow-700 text-sm mt-1">Click "Analyze Style Guide" to learn your site's writing style before generating content.</p>
-                </div>
-            </div>
-        </div>
-        <?php endif; ?>
+        </aside>
 
-        <!-- Recent Activity -->
-        <div class="mt-8">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
-            <?php if (!empty($activity_logs)): ?>
-            <div class="space-y-3">
-                <?php foreach ($activity_logs as $log): ?>
-                <div class="flex items-start p-3 bg-gray-50 rounded-lg">
-                    <div class="bg-blue-100 p-2 rounded-lg mr-3">
-                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                        </svg>
+        <!-- Main Content -->
+        <main class="aca-main-content">
+            <div class="aca-dashboard-content">
+                <header class="aca-page-header">
+                    <h2 class="aca-page-title">Dashboard</h2>
+                    <p class="aca-page-subtitle">Welcome back! Here's a quick overview of your content pipeline.</p>
+                </header>
+
+                <?php if (empty($style_guide) || empty($style_guide['tone'])): ?>
+                <!-- Get Started Banner -->
+                <div class="aca-get-started-banner">
+                    <div class="aca-banner-content">
+                        <div class="aca-banner-icon">
+                            <svg class="aca-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/>
+                            </svg>
+                        </div>
+                        <div class="aca-banner-text">
+                            <h4 class="aca-banner-title">Get Started with AI Content Agent</h4>
+                            <p class="aca-banner-description">Create your Style Guide first to enable all features and generate on-brand content.</p>
+                        </div>
                     </div>
-                    <div class="flex-1">
-                        <p class="text-sm text-gray-900"><?php echo esc_html($log->details); ?></p>
-                        <p class="text-xs text-gray-500 mt-1"><?php echo esc_html(human_time_diff(strtotime($log->created_at))); ?> ago</p>
+                    <button id="create-style-guide-btn" class="aca-banner-button">
+                        Create Style Guide
+                    </button>
+                </div>
+                <?php endif; ?>
+
+                <div class="aca-dashboard-grid">
+                    <!-- Left Column -->
+                    <div class="aca-dashboard-left">
+                        <!-- Quick Actions -->
+                        <section class="aca-section">
+                            <h3 class="aca-section-title">Quick Actions</h3>
+                            <div class="aca-actions-grid">
+                                <button id="analyze-style-btn" class="aca-action-card">
+                                    <div class="aca-action-icon">
+                                        <svg class="aca-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                                        </svg>
+                                    </div>
+                                    <h3 class="aca-action-title">
+                                        <span id="analyze-title"><?php echo !empty($style_guide) ? 'Update Style Guide' : 'Learn My Style'; ?></span>
+                                        <span id="analyze-loading" class="aca-loading-spinner hidden">
+                                            <svg class="aca-spinner" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                        </span>
+                                    </h3>
+                                    <p class="aca-action-description">Analyze your content to define or refine your brand's voice.</p>
+                                </button>
+
+                                <button id="generate-ideas-btn" class="aca-action-card" <?php echo empty($style_guide) ? 'disabled' : ''; ?>>
+                                    <div class="aca-action-icon">
+                                        <svg class="aca-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/>
+                                        </svg>
+                                    </div>
+                                    <h3 class="aca-action-title">
+                                        <span id="ideas-title">Generate New Ideas</span>
+                                        <span id="ideas-loading" class="aca-loading-spinner hidden">
+                                            <svg class="aca-spinner" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                        </span>
+                                    </h3>
+                                    <p class="aca-action-description">Create a fresh batch of content ideas based on your style.</p>
+                                </button>
+                            </div>
+                        </section>
+
+                        <!-- Content Pipeline -->
+                        <section class="aca-section">
+                            <h3 class="aca-section-title">Content Pipeline</h3>
+                            <div class="aca-pipeline-container">
+                                <div class="aca-pipeline-item">
+                                    <div class="aca-pipeline-icon aca-pipeline-ideas">
+                                        <svg class="aca-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/>
+                                        </svg>
+                                    </div>
+                                    <div class="aca-pipeline-content">
+                                        <p class="aca-pipeline-title">Pending Ideas</p>
+                                        <p class="aca-pipeline-count"><?php echo esc_html($stats['ideas']); ?> ideas waiting</p>
+                                    </div>
+                                    <a href="<?php echo admin_url('admin.php?page=aca-ideas'); ?>" class="aca-pipeline-button">View</a>
+                                </div>
+
+                                <div class="aca-pipeline-item">
+                                    <div class="aca-pipeline-icon aca-pipeline-drafts">
+                                        <svg class="aca-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>
+                                        </svg>
+                                    </div>
+                                    <div class="aca-pipeline-content">
+                                        <p class="aca-pipeline-title">Drafts</p>
+                                        <p class="aca-pipeline-count"><?php echo esc_html($stats['drafts']); ?> drafts to review</p>
+                                    </div>
+                                    <a href="<?php echo admin_url('admin.php?page=aca-drafts'); ?>" class="aca-pipeline-button">View</a>
+                                </div>
+
+                                <div class="aca-pipeline-item">
+                                    <div class="aca-pipeline-icon aca-pipeline-published">
+                                        <svg class="aca-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>
+                                        </svg>
+                                    </div>
+                                    <div class="aca-pipeline-content">
+                                        <p class="aca-pipeline-title">Published Posts</p>
+                                        <p class="aca-pipeline-count"><?php echo esc_html($stats['published']); ?> posts are live</p>
+                                    </div>
+                                    <a href="<?php echo admin_url('admin.php?page=aca-published'); ?>" class="aca-pipeline-button">View</a>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div class="aca-dashboard-right">
+                        <!-- Status -->
+                        <section class="aca-section">
+                            <h3 class="aca-section-title">Status</h3>
+                            <div class="aca-status-container">
+                                <div class="aca-status-item">
+                                    <div class="aca-status-icon">
+                                        <svg class="aca-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="aca-status-content">
+                                        <p class="aca-status-title">Style Guide</p>
+                                        <?php if (!empty($style_guide) && !empty($style_guide['tone'])): ?>
+                                            <p class="aca-status-ready">
+                                                <svg class="aca-check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/>
+                                                </svg>
+                                                Ready
+                                            </p>
+                                        <?php else: ?>
+                                            <p class="aca-status-not-set">Not Set</p>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                <?php if (!empty($style_guide['last_analyzed'])): ?>
+                                <div class="aca-status-details">
+                                    <p class="aca-status-label">Last Scanned:</p>
+                                    <p class="aca-status-value"><?php echo esc_html(date('M j, Y g:i A', strtotime($style_guide['last_analyzed']))); ?></p>
+                                </div>
+                                <?php endif; ?>
+                            </div>
+                        </section>
+
+                        <!-- Recent Activity -->
+                        <section class="aca-section">
+                            <h3 class="aca-section-title">Recent Activity</h3>
+                            <div class="aca-activity-container">
+                                <?php if (!empty($activity_logs)): ?>
+                                    <?php foreach ($activity_logs as $log): ?>
+                                    <div class="aca-activity-item">
+                                        <div class="aca-activity-icon">
+                                            <svg class="aca-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                            </svg>
+                                        </div>
+                                        <div class="aca-activity-content">
+                                            <p class="aca-activity-text"><?php echo esc_html($log->details); ?></p>
+                                            <p class="aca-activity-time"><?php echo esc_html(human_time_diff(strtotime($log->created_at))); ?> ago</p>
+                                        </div>
+                                    </div>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <p class="aca-activity-empty">No recent activity</p>
+                                <?php endif; ?>
+                            </div>
+                        </section>
                     </div>
                 </div>
-                <?php endforeach; ?>
             </div>
-            <?php else: ?>
-            <p class="text-gray-500 text-sm">No recent activity</p>
-            <?php endif; ?>
-        </div>
+        </main>
     </div>
 
-    <!-- Success/Error Messages -->
-    <div id="aca-messages" class="hidden mb-4"></div>
+    <!-- Toast Container -->
+    <div id="aca-toast-container" class="aca-toast-container"></div>
+
+    <!-- Sidebar Overlay -->
+    <div id="aca-sidebar-overlay" class="aca-sidebar-overlay"></div>
 </div>
 
 <script>
 jQuery(document).ready(function($) {
+    // Mobile sidebar toggle
+    $('#aca-sidebar-toggle').on('click', function() {
+        $('#aca-sidebar').addClass('open');
+        $('#aca-sidebar-overlay').addClass('active');
+    });
+
+    $('#aca-sidebar-overlay').on('click', function() {
+        $('#aca-sidebar').removeClass('open');
+        $('#aca-sidebar-overlay').removeClass('active');
+    });
+
     // Analyze Style Guide
-    $('#analyze-style-btn').on('click', function() {
+    $('#analyze-style-btn, #create-style-guide-btn').on('click', function() {
         const $btn = $(this);
         const $loading = $('#analyze-loading');
+        const $title = $('#analyze-title');
         
         $btn.prop('disabled', true);
         $loading.removeClass('hidden');
@@ -186,14 +298,14 @@ jQuery(document).ready(function($) {
             },
             success: function(response) {
                 if (response.success) {
-                    showMessage('Style guide analyzed successfully!', 'success');
+                    showToast('Style guide analyzed successfully!', 'success');
                     setTimeout(() => location.reload(), 1500);
                 } else {
-                    showMessage('Error: ' + response.data, 'error');
+                    showToast('Error: ' + response.data, 'error');
                 }
             },
             error: function() {
-                showMessage('Network error occurred', 'error');
+                showToast('Network error occurred', 'error');
             },
             complete: function() {
                 $btn.prop('disabled', false);
@@ -220,14 +332,14 @@ jQuery(document).ready(function($) {
             },
             success: function(response) {
                 if (response.success) {
-                    showMessage(response.data.message, 'success');
+                    showToast(response.data.message, 'success');
                     setTimeout(() => location.reload(), 1500);
                 } else {
-                    showMessage('Error: ' + response.data, 'error');
+                    showToast('Error: ' + response.data, 'error');
                 }
             },
             error: function() {
-                showMessage('Network error occurred', 'error');
+                showToast('Network error occurred', 'error');
             },
             complete: function() {
                 $btn.prop('disabled', false);
@@ -236,16 +348,43 @@ jQuery(document).ready(function($) {
         });
     });
 
-    function showMessage(message, type) {
-        const $messages = $('#aca-messages');
-        const alertClass = type === 'success' ? 'notice-success' : 'notice-error';
-        
-        $messages.html(`<div class="notice ${alertClass} is-dismissible"><p>${message}</p></div>`);
-        $messages.removeClass('hidden');
-        
+    // Toast notification system
+    function showToast(message, type) {
+        const toastId = Date.now();
+        const iconMap = {
+            success: '<svg class="aca-toast-icon aca-toast-success" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>',
+            error: '<svg class="aca-toast-icon aca-toast-error" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>',
+            warning: '<svg class="aca-toast-icon aca-toast-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>',
+            info: '<svg class="aca-toast-icon aca-toast-info" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>'
+        };
+
+        const toast = $(`
+            <div class="aca-toast aca-toast-${type}" data-id="${toastId}">
+                ${iconMap[type]}
+                <p class="aca-toast-message">${message}</p>
+                <button class="aca-toast-close" onclick="dismissToast(${toastId})">
+                    <svg class="aca-toast-close-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+                    </svg>
+                </button>
+            </div>
+        `);
+
+        $('#aca-toast-container').append(toast);
+
+        // Auto dismiss after 5 seconds
         setTimeout(() => {
-            $messages.addClass('hidden');
+            dismissToast(toastId);
         }, 5000);
     }
+
+    // Make dismissToast global
+    window.dismissToast = function(toastId) {
+        const $toast = $(`.aca-toast[data-id="${toastId}"]`);
+        $toast.addClass('aca-toast-exit');
+        setTimeout(() => {
+            $toast.remove();
+        }, 300);
+    };
 });
 </script>

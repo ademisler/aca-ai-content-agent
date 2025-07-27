@@ -65,6 +65,15 @@ class ACA_Admin {
 
         add_submenu_page(
             'aca-ai-content-agent',
+            'Style Guide',
+            'Style Guide',
+            'manage_options',
+            'aca-style-guide',
+            array($this, 'display_style_guide_page')
+        );
+
+        add_submenu_page(
+            'aca-ai-content-agent',
             'Ideas',
             'Ideas',
             'manage_options',
@@ -79,6 +88,24 @@ class ACA_Admin {
             'manage_options',
             'aca-drafts',
             array($this, 'display_drafts_page')
+        );
+
+        add_submenu_page(
+            'aca-ai-content-agent',
+            'Calendar',
+            'Calendar',
+            'manage_options',
+            'aca-calendar',
+            array($this, 'display_calendar_page')
+        );
+
+        add_submenu_page(
+            'aca-ai-content-agent',
+            'Published',
+            'Published',
+            'manage_options',
+            'aca-published',
+            array($this, 'display_published_page')
         );
 
         add_submenu_page(
@@ -100,6 +127,31 @@ class ACA_Admin {
         $style_guide = get_option('aca_style_guide', array());
         
         include ACA_PLUGIN_PATH . 'admin/partials/aca-admin-display.php';
+    }
+
+    /**
+     * Display the style guide page
+     */
+    public function display_style_guide_page() {
+        $style_guide = get_option('aca_style_guide', array());
+        include ACA_PLUGIN_PATH . 'admin/partials/aca-style-guide-display.php';
+    }
+
+    /**
+     * Display the calendar page
+     */
+    public function display_calendar_page() {
+        $drafts = ACA_Database::get_drafts('draft');
+        $published = ACA_Database::get_drafts('published');
+        include ACA_PLUGIN_PATH . 'admin/partials/aca-calendar-display.php';
+    }
+
+    /**
+     * Display the published page
+     */
+    public function display_published_page() {
+        $published = ACA_Database::get_drafts('published');
+        include ACA_PLUGIN_PATH . 'admin/partials/aca-published-display.php';
     }
 
     /**

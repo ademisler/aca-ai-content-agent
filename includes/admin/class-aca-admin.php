@@ -30,13 +30,18 @@ class ACA_Admin {
         try {
             add_action( 'admin_init', [ $this, 'register_core_settings' ] );
             
-            // Initialize admin components in correct order
+            // FIX: Initialize admin components in correct order
+            // First initialize admin menu (this creates the menu structure)
             new ACA_Admin_Menu();
-            ACA_Admin_Assets::init(); // Initialize assets handler
+            
+            // Then initialize assets handler (this enqueues CSS/JS for menu pages)
+            ACA_Admin_Assets::init();
+            
+            // Initialize other admin components
             new ACA_Admin_Notices();
             new ACA_Ajax_Handler();
             
-            // Initialize settings
+            // Initialize settings classes
             new ACA_Settings_Api();
             new ACA_Settings_Automation();
             new ACA_Settings_Analysis();

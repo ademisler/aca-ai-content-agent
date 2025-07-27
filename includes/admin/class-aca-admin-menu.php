@@ -21,11 +21,11 @@ class ACA_Admin_Menu {
     }
 
     public function add_admin_menu() {
-        // Main menu page
+        // Main menu page - FIX: Use manage_options for consistent access control
         add_menu_page(
             esc_html__( 'ACA - AI Content Agent', 'aca-ai-content-agent' ),
             esc_html__( 'ACA Agent', 'aca-ai-content-agent' ),
-            'edit_posts', // Changed from 'read' to 'edit_posts' for proper access control
+            'manage_options', // Changed from 'edit_posts' to 'manage_options' for consistent access
             'aca-ai-content-agent',
             [ $this, 'render_main_page' ],
             'dashicons-robot',
@@ -37,7 +37,7 @@ class ACA_Admin_Menu {
             'aca-ai-content-agent',
             esc_html__( 'Dashboard', 'aca-ai-content-agent' ),
             esc_html__( 'Dashboard', 'aca-ai-content-agent' ),
-            'edit_posts', // Changed from 'read' to 'edit_posts' for consistency
+            'manage_options', // Changed from 'edit_posts' to 'manage_options' for consistency
             'aca-ai-content-agent',
             [ $this, 'render_main_page' ]
         );
@@ -46,7 +46,7 @@ class ACA_Admin_Menu {
             'aca-ai-content-agent',
             esc_html__( 'Content Ideas', 'aca-ai-content-agent' ),
             esc_html__( 'Content Ideas', 'aca-ai-content-agent' ),
-            'edit_posts', // Keep edit_posts for broader access
+            'edit_posts', // Keep edit_posts for content-related operations
             'aca-ai-content-agent-ideas',
             [ $this, 'render_ideas_page' ]
         );
@@ -64,7 +64,7 @@ class ACA_Admin_Menu {
             'aca-ai-content-agent',
             esc_html__( 'Prompt Editor', 'aca-ai-content-agent' ),
             esc_html__( 'Prompt Editor', 'aca-ai-content-agent' ),
-            'edit_posts', // Keep edit_posts for broader access
+            'edit_posts', // Keep edit_posts for content operations
             'aca-ai-content-agent-prompts',
             [ $this, 'render_prompts_page' ]
         );
@@ -91,7 +91,7 @@ class ACA_Admin_Menu {
             'aca-ai-content-agent',
             esc_html__( 'Activity Logs', 'aca-ai-content-agent' ),
             esc_html__( 'Activity Logs', 'aca-ai-content-agent' ),
-            'edit_posts', // Keep edit_posts for broader access
+            'edit_posts', // Keep edit_posts for viewing logs
             'aca-ai-content-agent-logs',
             [ $this, 'render_logs_page' ]
         );
@@ -124,8 +124,8 @@ class ACA_Admin_Menu {
     }
 
     public function render_main_page() {
-        // Check if user has permission - use 'edit_posts' to match menu capability
-        if (!current_user_can('edit_posts')) {
+        // Check if user has permission - use 'manage_options' to match menu capability
+        if (!current_user_can('manage_options')) {
             wp_die(__('You do not have sufficient permissions to access this page.', 'aca-ai-content-agent'));
         }
         

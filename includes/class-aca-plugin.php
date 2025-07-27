@@ -114,8 +114,13 @@ class ACA_Plugin {
 
         // Initialize admin functionality
         if (is_admin()) {
-            // Initialize the main admin class - this was missing!
+            // FIX: Initialize admin components in correct order
+            // First initialize the main admin class
             new ACA_Admin();
+            
+            // Admin assets will be initialized by ACA_Admin class
+            // Admin menu will be initialized by ACA_Admin class
+            // Other admin components will be initialized by ACA_Admin class
         }
 
         // Initialize privacy integration

@@ -223,27 +223,34 @@ class ACA_Activator {
                 'view_aca_ai_content_agent_dashboard'  => true,
             ];
 
-            // Create custom role
-            add_role('aca_content_manager', __('ACA Content Manager', 'aca-ai-content-agent'), $capabilities);
+            // FIX: Create custom role only if it doesn't exist
+            if (!get_role('aca_content_manager')) {
+                add_role('aca_content_manager', __('ACA Content Manager', 'aca-ai-content-agent'), $capabilities);
+            }
 
             // Add capabilities to roles that should have access
-            $roles_to_update = ['administrator', 'editor', 'author'];
+            $roles_to_update = ['administrator', 'editor'];
             
             foreach ($roles_to_update as $role_name) {
                 $role = get_role($role_name);
                 if ($role) {
                     foreach ($capabilities as $cap => $grant) {
-                        $role->add_cap($cap);
+                        if (!$role->has_cap($cap)) {
+                            $role->add_cap($cap);
+                        }
                     }
                     
-                    // Ensure edit_posts capability exists for content management
-                    if (!$role->has_cap('edit_posts') && $role_name === 'author') {
+                    // FIX: Ensure basic WordPress capabilities exist
+                    if ($role_name === 'administrator' && !$role->has_cap('manage_options')) {
+                        $role->add_cap('manage_options');
+                    }
+                    if (!$role->has_cap('edit_posts')) {
                         $role->add_cap('edit_posts');
                     }
                 }
             }
             
-            // Ensure current user has the necessary capabilities
+            // FIX: Ensure current user has necessary capabilities if they're an admin
             $current_user = wp_get_current_user();
             if ($current_user->exists() && current_user_can('manage_options')) {
                 foreach ($capabilities as $cap => $grant) {

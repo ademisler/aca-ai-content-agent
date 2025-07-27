@@ -367,10 +367,32 @@ class ACA_Ajax_Handler {
      * @param string $capability The required capability.
      */
     private function verify_nonce_and_capability($capability) {
-        check_ajax_referer('aca_ai_content_agent_admin_nonce', 'nonce');
+        // FIX: Better error handling for nonce verification
+        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'aca_ai_content_agent_admin_nonce')) {
+            wp_send_json_error(array(
+                'message' => esc_html__('Security check failed. Please refresh the page and try again.', 'aca-ai-content-agent'),
+                'code' => 'nonce_failed'
+            ));
+        }
 
+        // FIX: More detailed capability error messages
         if (!current_user_can($capability)) {
-            wp_send_json_error(esc_html__('You do not have permission to do this.', 'aca-ai-content-agent'));
+            $capability_names = array(
+                'manage_options' => __('administrator privileges', 'aca-ai-content-agent'),
+                'edit_posts' => __('content editing privileges', 'aca-ai-content-agent'),
+                'edit_pages' => __('page editing privileges', 'aca-ai-content-agent')
+            );
+            
+            $capability_name = $capability_names[$capability] ?? $capability;
+            
+            wp_send_json_error(array(
+                'message' => sprintf(
+                    esc_html__('You do not have %s required for this action. Please contact your administrator.', 'aca-ai-content-agent'),
+                    $capability_name
+                ),
+                'code' => 'insufficient_capability',
+                'required_capability' => $capability
+            ));
         }
     }
 

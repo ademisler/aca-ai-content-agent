@@ -27,7 +27,29 @@ class ACA_Encryption_Util {
      * @return bool True if AUTH_KEY is valid, false otherwise.
      */
     public static function is_auth_key_valid() {
-        return defined('AUTH_KEY') && AUTH_KEY !== 'put your unique phrase here' && strlen(AUTH_KEY) > 20;
+        // FIX: More comprehensive AUTH_KEY validation
+        if (!defined('AUTH_KEY')) {
+            return false;
+        }
+        
+        $auth_key = AUTH_KEY;
+        
+        // Check if it's the default value
+        if ($auth_key === 'put your unique phrase here') {
+            return false;
+        }
+        
+        // Check minimum length
+        if (strlen($auth_key) < 20) {
+            return false;
+        }
+        
+        // Check if it's not empty or just whitespace
+        if (empty(trim($auth_key))) {
+            return false;
+        }
+        
+        return true;
     }
 
     /**
@@ -41,17 +63,40 @@ class ACA_Encryption_Util {
         if ( empty( $data ) ) {
             return '';
         }
+        
         if ( ! self::is_auth_key_valid() ) {
-            return new WP_Error( 'auth_key_not_defined', __( 'AUTH_KEY is not defined or is set to the default in wp-config.php. Please define a unique AUTH_KEY to use encryption.', 'aca-ai-content-agent' ) );
+            return new WP_Error( 
+                'auth_key_invalid', 
+                __( 'WordPress AUTH_KEY is not properly configured. Please define a unique AUTH_KEY in your wp-config.php file to enable encryption features.', 'aca-ai-content-agent' ) 
+            );
         }
-        $key    = AUTH_KEY;
+        
+        // FIX: Add error handling for OpenSSL functions
         $method = 'AES-256-CBC';
-        $iv_len = openssl_cipher_iv_length( $method );
-        $iv     = random_bytes( $iv_len );
-        $cipher = openssl_encrypt( $data, $method, substr( hash( 'sha256', $key ), 0, 32 ), 0, $iv );
-        if ( false === $cipher ) {
-            return new WP_Error( 'encryption_failed', __( 'Encryption failed.', 'aca-ai-content-agent' ) );
+        
+        if (!in_array($method, openssl_get_cipher_methods())) {
+            return new WP_Error( 'cipher_not_supported', __( 'Required encryption cipher is not supported on this server.', 'aca-ai-content-agent' ) );
         }
+        
+        $key = AUTH_KEY;
+        $iv_len = openssl_cipher_iv_length( $method );
+        
+        if ($iv_len === false) {
+            return new WP_Error( 'cipher_iv_length_failed', __( 'Failed to get cipher IV length.', 'aca-ai-content-agent' ) );
+        }
+        
+        try {
+            $iv = random_bytes( $iv_len );
+        } catch (Exception $e) {
+            return new WP_Error( 'random_bytes_failed', __( 'Failed to generate random bytes for encryption.', 'aca-ai-content-agent' ) );
+        }
+        
+        $cipher = openssl_encrypt( $data, $method, substr( hash( 'sha256', $key ), 0, 32 ), 0, $iv );
+        
+        if ( false === $cipher ) {
+            return new WP_Error( 'encryption_failed', __( 'Encryption operation failed.', 'aca-ai-content-agent' ) );
+        }
+        
         return base64_encode( $iv . $cipher );
     }
 
@@ -66,17 +111,42 @@ class ACA_Encryption_Util {
         if ( empty( $data ) ) {
             return '';
         }
+        
         if ( ! self::is_auth_key_valid() ) {
-            return new WP_Error( 'auth_key_not_defined', __( 'AUTH_KEY is not defined or is set to the default in wp-config.php. Please define a unique AUTH_KEY to use encryption.', 'aca-ai-content-agent' ) );
+            return new WP_Error( 
+                'auth_key_invalid', 
+                __( 'WordPress AUTH_KEY is not properly configured. Please define a unique AUTH_KEY in your wp-config.php file to enable decryption.', 'aca-ai-content-agent' ) 
+            );
         }
-        $key    = AUTH_KEY;
+        
+        // FIX: Add validation for base64 data
+        $raw = base64_decode( $data, true );
+        if ($raw === false) {
+            return new WP_Error( 'invalid_base64', __( 'Invalid encrypted data format.', 'aca-ai-content-agent' ) );
+        }
+        
+        $key = AUTH_KEY;
         $method = 'AES-256-CBC';
-        $raw    = base64_decode( $data );
         $iv_len = openssl_cipher_iv_length( $method );
-        $iv     = substr( $raw, 0, $iv_len );
+        
+        if ($iv_len === false) {
+            return new WP_Error( 'cipher_iv_length_failed', __( 'Failed to get cipher IV length.', 'aca-ai-content-agent' ) );
+        }
+        
+        if (strlen($raw) < $iv_len) {
+            return new WP_Error( 'invalid_encrypted_data', __( 'Encrypted data is too short.', 'aca-ai-content-agent' ) );
+        }
+        
+        $iv = substr( $raw, 0, $iv_len );
         $cipher = substr( $raw, $iv_len );
-        $plain  = openssl_decrypt( $cipher, $method, substr( hash( 'sha256', $key ), 0, 32 ), 0, $iv );
-        return $plain ?: new WP_Error( 'decryption_failed', __( 'Decryption failed.', 'aca-ai-content-agent' ) );
+        
+        $plain = openssl_decrypt( $cipher, $method, substr( hash( 'sha256', $key ), 0, 32 ), 0, $iv );
+        
+        if ($plain === false) {
+            return new WP_Error( 'decryption_failed', __( 'Decryption operation failed.', 'aca-ai-content-agent' ) );
+        }
+        
+        return $plain;
     }
 
     /**

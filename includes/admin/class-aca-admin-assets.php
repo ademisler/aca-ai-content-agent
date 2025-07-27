@@ -118,10 +118,13 @@ class ACA_Admin_Assets {
             null
         );
 
+        // FIX: Correct asset paths - use plugin root directory
+        $plugin_url = plugin_dir_url( dirname( dirname( __FILE__ ) ) );
+
         // Enqueue main admin styles
         wp_enqueue_style(
             'aca-admin-css',
-            plugin_dir_url( ACA_AI_CONTENT_AGENT_PLUGIN_FILE ) . 'admin/css/aca-admin.css',
+            $plugin_url . 'admin/css/aca-admin.css',
             array( 'bootstrap-icons', 'inter-font' ),
             ACA_AI_CONTENT_AGENT_VERSION
         );
@@ -129,7 +132,7 @@ class ACA_Admin_Assets {
         // Enqueue additional components styles
         wp_enqueue_style(
             'aca-admin-components-css',
-            plugin_dir_url( ACA_AI_CONTENT_AGENT_PLUGIN_FILE ) . 'admin/css/aca-admin-components.css',
+            $plugin_url . 'admin/css/aca-admin-components.css',
             array('aca-admin-css'),
             ACA_AI_CONTENT_AGENT_VERSION
         );
@@ -137,7 +140,7 @@ class ACA_Admin_Assets {
         // Enqueue admin JavaScript
         wp_enqueue_script(
             'aca-admin-js',
-            plugin_dir_url( ACA_AI_CONTENT_AGENT_PLUGIN_FILE ) . 'admin/js/aca-admin.js',
+            $plugin_url . 'admin/js/aca-admin.js',
             array( 'jquery' ),
             ACA_AI_CONTENT_AGENT_VERSION,
             true

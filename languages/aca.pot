@@ -647,7 +647,7 @@ msgid "Matches found: %d"
 msgstr ""
 
 #: includes/class-aca-admin.php:1018
-msgid "ACA ile Güncelleme Önerisi Al"
+msgid "Get Update Suggestion with ACA"
 msgstr ""
 
 #: vendor/woocommerce/action-scheduler/functions.php:137

@@ -28,10 +28,10 @@ class ACA_Admin_Notices {
         
         // FIX: Add capability check notice
         $current_user = wp_get_current_user();
-        if (!current_user_can('edit_posts') && !current_user_can('manage_options')) {
+        if (!current_user_can('manage_options')) {
             echo '<div class="notice notice-error"><p>' . 
                  sprintf(
-                     esc_html__('ACA: Your user account lacks the necessary permissions. Current roles: %s. Please contact your administrator or try logging out and back in.', 'aca-ai-content-agent'),
+                     esc_html__('ACA: You need administrator privileges to access this plugin. Current roles: %s. Please contact your administrator.', 'aca-ai-content-agent'),
                      '<strong>' . implode(', ', $current_user->roles) . '</strong>'
                  ) . 
                  '</p></div>';

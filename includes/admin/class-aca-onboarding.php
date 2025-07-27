@@ -110,8 +110,8 @@ class ACA_Onboarding {
      * @return void
      */
     public function handle_onboarding_steps() {
-        // Check if user has permission - use edit_posts for consistency
-        if (!current_user_can('edit_posts')) {
+        // Check if user has permission - use manage_options for consistency
+        if (!current_user_can('manage_options')) {
             return;
         }
         

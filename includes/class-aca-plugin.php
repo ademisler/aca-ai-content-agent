@@ -148,12 +148,23 @@ class ACA_Plugin {
     }
 
     public function handle_activation_redirect() {
+        // FIX: Replace redirect with admin notice for better UX and security
         if ( get_transient( 'aca_ai_content_agent_activation_redirect' ) ) {
             delete_transient( 'aca_ai_content_agent_activation_redirect' );
-            if ( ! is_multisite() ) {
-                wp_safe_redirect( admin_url( 'admin.php?page=aca-ai-content-agent-onboarding' ) );
-                exit;
-            }
+            
+            // Add welcome notice instead of redirect
+            add_action( 'admin_notices', function() {
+                if ( current_user_can( 'manage_options' ) ) {
+                    echo '<div class="notice notice-success is-dismissible">';
+                    echo '<p><strong>' . esc_html__( 'ACA AI Content Agent activated successfully!', 'aca-ai-content-agent' ) . '</strong></p>';
+                    echo '<p>' . esc_html__( 'Get started by configuring your API settings and generating your first content ideas.', 'aca-ai-content-agent' ) . '</p>';
+                    echo '<p>';
+                    echo '<a href="' . admin_url( 'admin.php?page=aca-ai-content-agent' ) . '" class="button button-primary">' . esc_html__( 'Go to Dashboard', 'aca-ai-content-agent' ) . '</a> ';
+                    echo '<a href="' . admin_url( 'admin.php?page=aca-ai-content-agent-settings' ) . '" class="button">' . esc_html__( 'Configure Settings', 'aca-ai-content-agent' ) . '</a>';
+                    echo '</p>';
+                    echo '</div>';
+                }
+            } );
         }
     }
 

@@ -109,7 +109,7 @@ class ACA_Ajax_Handler {
      * @since 1.2.0
      */
     public function handle_ajax_generate_style_guide() {
-        $this->verify_nonce_and_capability('edit_posts');
+        $this->verify_nonce_and_capability('manage_options'); // Admin function
 
         $result = ACA_Style_Guide_Service::generate_style_guide();
 
@@ -128,7 +128,7 @@ class ACA_Ajax_Handler {
      * @since 1.2.0
      */
     public function handle_ajax_generate_ideas() {
-        $this->verify_nonce_and_capability('edit_posts');
+        $this->verify_nonce_and_capability('manage_options'); // Changed to manage_options for consistency
 
         if ($this->is_rate_limited()) {
             wp_send_json_error(esc_html__('Please wait a moment before generating new ideas.', 'aca-ai-content-agent'));
@@ -154,7 +154,7 @@ class ACA_Ajax_Handler {
      * @since 1.2.0
      */
     public function handle_ajax_write_draft() {
-        $this->verify_nonce_and_capability('edit_posts');
+        $this->verify_nonce_and_capability('edit_posts'); // Keep edit_posts for content creation
 
         $idea_id = $this->validate_idea_id();
         if (is_wp_error($idea_id)) {
@@ -181,7 +181,7 @@ class ACA_Ajax_Handler {
      * @since 1.2.0
      */
     public function handle_ajax_reject_idea() {
-        $this->verify_nonce_and_capability('edit_posts');
+        $this->verify_nonce_and_capability('edit_posts'); // Keep edit_posts for content management
 
         $idea_id = $this->validate_idea_id();
         if (is_wp_error($idea_id)) {
@@ -243,7 +243,7 @@ class ACA_Ajax_Handler {
      * @since 1.2.0
      */
     public function handle_ajax_generate_cluster() {
-        $this->verify_nonce_and_capability('edit_posts');
+        $this->verify_nonce_and_capability('manage_options'); // Changed to manage_options
 
         $topic = $this->validate_topic();
         if (is_wp_error($topic)) {
@@ -267,7 +267,7 @@ class ACA_Ajax_Handler {
      * @since 1.2.0
      */
     public function handle_ajax_submit_feedback() {
-        $this->verify_nonce_and_capability('edit_posts');
+        $this->verify_nonce_and_capability('edit_posts'); // Keep edit_posts for content feedback
 
         $feedback_data = $this->validate_feedback_data();
         if (is_wp_error($feedback_data)) {
@@ -291,7 +291,7 @@ class ACA_Ajax_Handler {
      * @since 1.2.0
      */
     public function handle_ajax_suggest_update() {
-        $this->verify_nonce_and_capability('edit_posts');
+        $this->verify_nonce_and_capability('edit_posts'); // Keep edit_posts for content updates
 
         $post_id = $this->validate_post_id();
         if (is_wp_error($post_id)) {
@@ -315,7 +315,7 @@ class ACA_Ajax_Handler {
      * @since 1.2.0
      */
     public function handle_ajax_fetch_gsc_data() {
-        $this->verify_nonce_and_capability('edit_posts');
+        $this->verify_nonce_and_capability('manage_options'); // Changed to manage_options for admin data
 
         $gsc_params = $this->get_gsc_date_range();
         $result = ACA_Idea_Service::fetch_gsc_data($gsc_params['site_url'], $gsc_params['start'], $gsc_params['end']);
@@ -335,7 +335,7 @@ class ACA_Ajax_Handler {
      * @since 1.2.0
      */
     public function handle_ajax_generate_gsc_ideas() {
-        $this->verify_nonce_and_capability('edit_posts');
+        $this->verify_nonce_and_capability('manage_options'); // Changed to manage_options
 
         $result = ACA_Idea_Service::generate_ideas_from_gsc();
 

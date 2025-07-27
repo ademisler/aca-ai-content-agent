@@ -26,6 +26,18 @@ class ACA_Admin_Notices {
             return;
         }
         
+        // FIX: Add capability check notice
+        $current_user = wp_get_current_user();
+        if (!current_user_can('edit_posts') && !current_user_can('manage_options')) {
+            echo '<div class="notice notice-error"><p>' . 
+                 sprintf(
+                     esc_html__('ACA: Your user account lacks the necessary permissions. Current roles: %s. Please contact your administrator or try logging out and back in.', 'aca-ai-content-agent'),
+                     '<strong>' . implode(', ', $current_user->roles) . '</strong>'
+                 ) . 
+                 '</p></div>';
+            return; // Don't show other notices if user lacks basic permissions
+        }
+        
         // AUTH_KEY check
         if ( ! defined( 'AUTH_KEY' ) || 'put your unique phrase here' === AUTH_KEY ) {
             echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__( 'ACA: AUTH_KEY is not defined or is set to the default in your wp-config.php file. This is a security risk and will break encryption. Please set a unique AUTH_KEY.', 'aca-ai-content-agent' ) . '</p></div>';

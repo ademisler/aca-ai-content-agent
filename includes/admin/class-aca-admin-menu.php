@@ -21,11 +21,11 @@ class ACA_Admin_Menu {
     }
 
     public function add_admin_menu() {
-        // Main menu page - FIX: Use manage_options for consistent access control
+        // Main menu page - FIX: Use edit_posts for consistency with content management
         add_menu_page(
             esc_html__( 'ACA - AI Content Agent', 'aca-ai-content-agent' ),
             esc_html__( 'ACA Agent', 'aca-ai-content-agent' ),
-            'manage_options', // Changed from 'edit_posts' to 'manage_options' for consistent access
+            'edit_posts', // Changed from manage_options to edit_posts for consistent access
             'aca-ai-content-agent',
             [ $this, 'render_main_page' ],
             'dashicons-robot',
@@ -37,7 +37,7 @@ class ACA_Admin_Menu {
             'aca-ai-content-agent',
             esc_html__( 'Dashboard', 'aca-ai-content-agent' ),
             esc_html__( 'Dashboard', 'aca-ai-content-agent' ),
-            'manage_options', // Changed from 'edit_posts' to 'manage_options' for consistency
+            'edit_posts', // Changed from manage_options to edit_posts for consistency
             'aca-ai-content-agent',
             [ $this, 'render_main_page' ]
         );
@@ -101,7 +101,7 @@ class ACA_Admin_Menu {
             'aca-ai-content-agent',
             esc_html__( 'Welcome to ACA', 'aca-ai-content-agent' ),
             esc_html__( 'Welcome', 'aca-ai-content-agent' ),
-            'manage_options', // Keep 'manage_options' to match capability check
+            'edit_posts', // Changed from manage_options to edit_posts for consistency
             'aca-ai-content-agent-onboarding',
             [ $this, 'render_onboarding_page' ]
         );
@@ -124,8 +124,8 @@ class ACA_Admin_Menu {
     }
 
     public function render_main_page() {
-        // Check if user has permission - use 'manage_options' to match menu capability
-        if (!current_user_can('manage_options')) {
+        // Check if user has permission - use 'edit_posts' to match menu capability
+        if (!current_user_can('edit_posts')) {
             wp_die(__('You do not have sufficient permissions to access this page.', 'aca-ai-content-agent'));
         }
         
@@ -524,8 +524,8 @@ class ACA_Admin_Menu {
     }
 
     public function render_onboarding_page() {
-        // Check if user has permission
-        if (!current_user_can('manage_options')) {
+        // Check if user has permission - use 'edit_posts' to match menu capability
+        if (!current_user_can('edit_posts')) {
             wp_die(__('You do not have sufficient permissions to access this page.', 'aca-ai-content-agent'));
         }
         

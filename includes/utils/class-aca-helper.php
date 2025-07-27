@@ -150,4 +150,68 @@ class ACA_Helper {
             $purchase_id
         );
     }
+    
+    /**
+     * Refresh user capabilities to fix permission issues.
+     *
+     * @since 1.3.0
+     * @return bool True if refresh was successful, false otherwise.
+     */
+    public static function refresh_user_capabilities() {
+        $current_user = wp_get_current_user();
+        
+        if (!$current_user->exists()) {
+            return false;
+        }
+        
+        try {
+            // Clear capability cache
+            clean_user_cache($current_user->ID);
+            wp_cache_delete($current_user->ID, 'users');
+            wp_cache_delete($current_user->ID, 'user_meta');
+            
+            // Force refresh capabilities from database
+            $current_user->get_role_caps();
+            
+            // Ensure basic capabilities for admin users
+            if (in_array('administrator', $current_user->roles)) {
+                if (!$current_user->has_cap('edit_posts')) {
+                    $current_user->add_cap('edit_posts');
+                }
+                if (!$current_user->has_cap('manage_options')) {
+                    $current_user->add_cap('manage_options');
+                }
+                
+                // Add ACA specific capabilities
+                $aca_caps = [
+                    'manage_aca_ai_content_agent_settings',
+                    'view_aca_ai_content_agent_dashboard'
+                ];
+                
+                foreach ($aca_caps as $cap) {
+                    if (!$current_user->has_cap($cap)) {
+                        $current_user->add_cap($cap);
+                    }
+                }
+            }
+            
+            // Clear cache again after modifications
+            clean_user_cache($current_user->ID);
+            
+            if (class_exists('ACA_Log_Service')) {
+                ACA_Log_Service::info('User capabilities refreshed successfully', [
+                    'user_id' => $current_user->ID,
+                    'roles' => $current_user->roles
+                ]);
+            }
+            
+            return true;
+            
+        } catch (Exception $e) {
+            if (class_exists('ACA_Log_Service')) {
+                ACA_Log_Service::error('Failed to refresh user capabilities: ' . $e->getMessage());
+            }
+            return false;
+        }
+    }
 }

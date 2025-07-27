@@ -119,7 +119,7 @@ class ACA_Admin_Assets {
         );
 
         // FIX: Correct asset paths - use plugin root directory
-        $plugin_url = plugin_dir_url( dirname( dirname( __FILE__ ) ) );
+        $plugin_url = plugin_dir_url( ACA_AI_CONTENT_AGENT_PLUGIN_FILE );
 
         // Enqueue main admin styles
         wp_enqueue_style(

@@ -252,12 +252,26 @@ class ACA_Activator {
             
             // FIX: Ensure current user has necessary capabilities if they're an admin
             $current_user = wp_get_current_user();
-            if ($current_user->exists() && current_user_can('manage_options')) {
-                foreach ($capabilities as $cap => $grant) {
-                    if (!$current_user->has_cap($cap)) {
+            if ($current_user->exists()) {
+                // Force refresh user capabilities from database
+                $current_user->get_role_caps();
+                
+                // Add capabilities directly to current user if they're admin
+                if (current_user_can('manage_options') || in_array('administrator', $current_user->roles)) {
+                    foreach ($capabilities as $cap => $grant) {
                         $current_user->add_cap($cap);
                     }
+                    
+                    // Ensure basic capabilities
+                    if (!$current_user->has_cap('edit_posts')) {
+                        $current_user->add_cap('edit_posts');
+                    }
                 }
+                
+                // Clear capability cache to ensure immediate effect
+                clean_user_cache($current_user->ID);
+                wp_cache_delete($current_user->ID, 'users');
+                wp_cache_delete($current_user->ID, 'user_meta');
             }
             
             // Log successful capability addition

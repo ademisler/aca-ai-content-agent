@@ -909,8 +909,65 @@ jQuery(function($) {
         // Set up periodic health checks
         setInterval(healthCheck, 60000); // Every minute
 
+        // FIX: Add capability refresh button handler
+        initCapabilityRefresh();
+
         // Announce page load to screen readers
         announceToScreenReader('ACA AI Content Agent dashboard loaded');
+    }
+    
+    /**
+     * Initialize capability refresh functionality
+     */
+    function initCapabilityRefresh() {
+        // Add refresh capabilities button to notices with permission errors
+        $(document).on('click', '.notice-error', function() {
+            const $notice = $(this);
+            const noticeText = $notice.text();
+            
+            // Check if this is a capability-related error
+            if (noticeText.includes('permission') || noticeText.includes('capability') || noticeText.includes('not allowed')) {
+                // Only add button if it doesn't already exist
+                if (!$notice.find('.aca-refresh-capabilities').length) {
+                    const refreshButton = $('<button class="button aca-refresh-capabilities" style="margin-left: 10px;">Refresh Permissions</button>');
+                    $notice.find('p').append(refreshButton);
+                }
+            }
+        });
+        
+        // Handle refresh capabilities button click
+        $(document).on('click', '.aca-refresh-capabilities', function(e) {
+            e.preventDefault();
+            const $button = $(this);
+            
+            makeAjaxRequest('aca_ai_content_agent_refresh_capabilities', {}, {
+                loadingElement: $button,
+                loadingText: 'Refreshing...',
+                successCallback: function(data) {
+                    showNotification(
+                        data.message || 'Permissions refreshed successfully!',
+                        'success',
+                        4000,
+                        'Permissions Updated'
+                    );
+                    
+                    // Reload page if required
+                    if (data.reload_required) {
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 2000);
+                    }
+                },
+                errorCallback: function(error) {
+                    showNotification(
+                        error.message || 'Failed to refresh permissions.',
+                        'error',
+                        6000,
+                        'Refresh Failed'
+                    );
+                }
+            });
+        });
     }
 
     /**

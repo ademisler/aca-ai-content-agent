@@ -218,10 +218,14 @@ class ACA_Admin {
         }
         
         if (!current_user_can($required_capability)) {
+            $current_user = wp_get_current_user();
+            $user_roles = implode(', ', $current_user->roles);
+            
             echo '<div class="notice notice-error is-dismissible"><p>' . 
                  sprintf(
-                     esc_html__('ACA: You need %s permission to access this page. Please contact your administrator.', 'aca-ai-content-agent'),
-                     '<strong>' . $required_capability . '</strong>'
+                     esc_html__('ACA: You need %s permission to access this page. Your current role(s): %s. Please contact your administrator or try logging out and back in.', 'aca-ai-content-agent'),
+                     '<strong>' . $required_capability . '</strong>',
+                     '<strong>' . $user_roles . '</strong>'
                  ) . 
                  '</p></div>';
         }

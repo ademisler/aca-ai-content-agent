@@ -73,6 +73,7 @@ class ACA_Ajax_Handler {
             'aca_ai_content_agent_fetch_gsc_data' => 'handle_ajax_fetch_gsc_data',
             'aca_ai_content_agent_generate_gsc_ideas' => 'handle_ajax_generate_gsc_ideas',
             'aca_ai_content_agent_reset_settings' => 'handle_ajax_reset_settings',
+            'aca_ai_content_agent_refresh_capabilities' => 'handle_ajax_refresh_capabilities',
         ];
 
         foreach ($actions as $action => $method) {
@@ -359,6 +360,45 @@ class ACA_Ajax_Handler {
         $this->delete_all_plugin_options();
         wp_send_json_success(esc_html__('All settings have been reset to their default values.', 'aca-ai-content-agent'));
     }
+    
+    /**
+     * Handle the AJAX request for refreshing user capabilities.
+     *
+     * Refreshes user capabilities to fix permission issues.
+     *
+     * @since 1.3.0
+     */
+    public function handle_ajax_refresh_capabilities() {
+        // Use a more lenient capability check for this specific function
+        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'aca_ai_content_agent_admin_nonce')) {
+            wp_send_json_error(array(
+                'message' => esc_html__('Security check failed. Please refresh the page and try again.', 'aca-ai-content-agent'),
+                'code' => 'nonce_failed'
+            ));
+        }
+        
+        // Allow any logged-in user to refresh their own capabilities
+        if (!is_user_logged_in()) {
+            wp_send_json_error(array(
+                'message' => esc_html__('You must be logged in to perform this action.', 'aca-ai-content-agent'),
+                'code' => 'not_logged_in'
+            ));
+        }
+
+        $result = ACA_Helper::refresh_user_capabilities();
+        
+        if ($result) {
+            wp_send_json_success(array(
+                'message' => esc_html__('User capabilities have been refreshed successfully. Please reload the page.', 'aca-ai-content-agent'),
+                'reload_required' => true
+            ));
+        } else {
+            wp_send_json_error(array(
+                'message' => esc_html__('Failed to refresh user capabilities. Please contact your administrator.', 'aca-ai-content-agent'),
+                'code' => 'refresh_failed'
+            ));
+        }
+    }
 
     /**
      * Verify nonce and user capability for AJAX requests.
@@ -371,12 +411,16 @@ class ACA_Ajax_Handler {
         if (!wp_verify_nonce($_POST['nonce'] ?? '', 'aca_ai_content_agent_admin_nonce')) {
             wp_send_json_error(array(
                 'message' => esc_html__('Security check failed. Please refresh the page and try again.', 'aca-ai-content-agent'),
-                'code' => 'nonce_failed'
+                'code' => 'nonce_failed',
+                'reload_required' => true
             ));
         }
 
-        // FIX: More detailed capability error messages
+        // FIX: More detailed capability error messages with troubleshooting
         if (!current_user_can($capability)) {
+            $current_user = wp_get_current_user();
+            $user_roles = implode(', ', $current_user->roles);
+            
             $capability_names = array(
                 'manage_options' => __('administrator privileges', 'aca-ai-content-agent'),
                 'edit_posts' => __('content editing privileges', 'aca-ai-content-agent'),
@@ -385,13 +429,23 @@ class ACA_Ajax_Handler {
             
             $capability_name = $capability_names[$capability] ?? $capability;
             
+            // Provide troubleshooting suggestions
+            $troubleshooting = '';
+            if ($capability === 'edit_posts' && !current_user_can('edit_posts')) {
+                $troubleshooting = ' ' . esc_html__('Try logging out and back in, or contact your administrator to check your user role permissions.', 'aca-ai-content-agent');
+            }
+            
             wp_send_json_error(array(
                 'message' => sprintf(
-                    esc_html__('You do not have %s required for this action. Please contact your administrator.', 'aca-ai-content-agent'),
-                    $capability_name
+                    esc_html__('You do not have %s required for this action. Your current role(s): %s.%s', 'aca-ai-content-agent'),
+                    $capability_name,
+                    $user_roles,
+                    $troubleshooting
                 ),
                 'code' => 'insufficient_capability',
-                'required_capability' => $capability
+                'required_capability' => $capability,
+                'user_roles' => $user_roles,
+                'troubleshooting' => true
             ));
         }
     }

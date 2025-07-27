@@ -96,6 +96,21 @@ register_deactivation_hook(__FILE__, 'aca_ai_content_agent_deactivate');
  */
 function aca_ai_content_agent_init() {
     try {
+        // FIX: Add capability debugging for troubleshooting
+        if (defined('WP_DEBUG') && WP_DEBUG && current_user_can('manage_options')) {
+            add_action('admin_notices', function() {
+                $current_user = wp_get_current_user();
+                $user_caps = array_keys($current_user->allcaps);
+                $relevant_caps = array_filter($user_caps, function($cap) {
+                    return strpos($cap, 'aca_') !== false || in_array($cap, ['edit_posts', 'manage_options']);
+                });
+                
+                if (!empty($relevant_caps)) {
+                    echo '<div class="notice notice-info is-dismissible"><p><strong>ACA Debug:</strong> User capabilities: ' . implode(', ', $relevant_caps) . '</p></div>';
+                }
+            });
+        }
+        
         // Initialize the main plugin instance
         return ACA_Plugin::instance();
     } catch (Exception $e) {

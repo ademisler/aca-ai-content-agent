@@ -96,8 +96,9 @@ class ACA_Plugin {
     private function init_hooks() {
         add_action('plugins_loaded', [$this, 'init']);
         add_action('admin_init', array($this, 'handle_activation_redirect'));
-        add_action('admin_menu', array($this, 'add_diagnostics_page'));
-        add_action('admin_notices', array($this, 'diagnostics_admin_notices'));
+        // Removed duplicate diagnostics page - already handled in ACA_Admin_Menu
+        // add_action('admin_menu', array($this, 'add_diagnostics_page'));
+        // add_action('admin_notices', array($this, 'diagnostics_admin_notices'));
         add_action('admin_init', array($this, 'check_and_create_tables'));
     }
 
@@ -110,13 +111,8 @@ class ACA_Plugin {
 
         // Initialize admin functionality
         if (is_admin()) {
-            // Remove duplicate initialization - these are already initialized in ACA_Admin class
-            // new ACA_Admin(); // This is already initialized in the main plugin file
-            // new ACA_Admin_Menu(); // This is already initialized in ACA_Admin class
-            // ACA_Admin_Assets::init(); // This is already initialized in ACA_Admin class
-            // new ACA_Admin_Notices(); // This is already initialized in ACA_Admin class
-            // new ACA_Ajax_Handler(); // This is already initialized in ACA_Admin class
-            // new ACA_Onboarding(); // This is already initialized in ACA_Admin class
+            // Initialize the main admin class - this was missing!
+            new ACA_Admin();
         }
 
         // Initialize privacy integration
@@ -144,8 +140,9 @@ class ACA_Plugin {
 
     /**
      * Add a diagnostics page to the admin menu.
+     * NOTE: This method is not used anymore - diagnostics page is handled by ACA_Admin_Menu
      */
-    public function add_diagnostics_page() {
+    private function add_diagnostics_page() {
         add_submenu_page(
             'aca-ai-content-agent',
             esc_html__('Diagnostics', 'aca-ai-content-agent'),
@@ -158,8 +155,9 @@ class ACA_Plugin {
 
     /**
      * Render the diagnostics page.
+     * NOTE: This method is not used anymore - diagnostics page is handled by ACA_Admin_Menu
      */
-    public function render_diagnostics_page() {
+    private function render_diagnostics_page() {
         echo '<div class="wrap"><h1>' . esc_html__('ACA Content Agent Diagnostics', 'aca-ai-content-agent') . '</h1>';
         $this->output_diagnostics();
         if (class_exists('ACA_Cron')) {

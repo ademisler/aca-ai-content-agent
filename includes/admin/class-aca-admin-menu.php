@@ -178,9 +178,16 @@ class ACA_Admin_Menu {
             
             <div class="aca-settings-content">
                 <?php
-                // Settings form - class already loaded in plugin initialization
-                $settings_api = new ACA_Settings_Api();
-                $settings_api->render_settings_form();
+                // Render settings form using static approach to avoid multiple instances
+                if (class_exists('ACA_Settings_Api')) {
+                    echo '<form method="post" action="options.php">';
+                    settings_fields( 'aca_ai_content_agent_settings_group' );
+                    do_settings_sections( 'aca-ai-content-agent' );
+                    submit_button();
+                    echo '</form>';
+                } else {
+                    echo '<p>' . esc_html__('Settings API not available.', 'aca-ai-content-agent') . '</p>';
+                }
                 ?>
             </div>
         </div>
@@ -466,7 +473,9 @@ class ACA_Admin_Menu {
         
         $missing_tables = [];
         foreach ($tables as $table) {
-            if ($wpdb->get_var("SHOW TABLES LIKE '$table'") != $table) {
+            // SECURITY FIX: Use prepared statement to prevent SQL injection
+            $exists = $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $table));
+            if (!$exists) {
                 $missing_tables[] = $table;
             }
         }
@@ -487,7 +496,7 @@ class ACA_Admin_Menu {
     }
 
     private function check_user_permissions() {
-        if (current_user_can('view_aca_ai_content_agent_dashboard')) {
+        if (current_user_can('edit_posts')) {
             return '<span class="aca-status-success">✅ Permissions OK</span>';
         } else {
             return '<span class="aca-status-error">❌ Insufficient permissions</span>';
@@ -520,8 +529,9 @@ class ACA_Admin_Menu {
             wp_die(__('You do not have sufficient permissions to access this page.', 'aca-ai-content-agent'));
         }
         
-        // Initialize onboarding class and render the page
+        // Render onboarding page directly without creating new instance
         if (class_exists('ACA_Onboarding')) {
+            // Create a temporary instance just for rendering
             $onboarding = new ACA_Onboarding();
             $onboarding->render_onboarding_page();
         } else {

@@ -47,7 +47,7 @@ class ACA_Uninstaller {
             as_unschedule_all_actions( 'aca_ai_content_agent_clean_logs' );
         }
 
-        // Temizlenecek transient ve option anahtarları
+        // Transient and option keys to be cleaned
         $option_keys = [
             'aca_ai_content_agent_options',
             'aca_ai_content_agent_prompts',
@@ -65,7 +65,7 @@ class ACA_Uninstaller {
         foreach ($option_keys as $key) {
             delete_option($key);
         }
-        // Temizlenecek transient anahtarları (prefix ile silme)
+        // Transient keys to be cleaned (delete by prefix)
         $wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s", '_transient_aca_%' ) );
         $wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s", '_transient_timeout_aca_%' ) );
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching

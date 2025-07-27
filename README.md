@@ -1,8 +1,116 @@
-Of course. I have performed a deeper analysis of all the project files, paying close attention to the user experience details, state management intricacies, and the overall application flow.
+# Role and Goal
 
-The key new point you raised—ensuring the plugin operates as a **Single Page Application (SPA)** within the WordPress admin—is a critical architectural requirement for replicating the prototype's feel. I have integrated this and other subtle but crucial details I found into the comprehensive English documentation below.
+You are an expert full-stack WordPress plugin developer. Your primary specialty is building modern, secure, and high-performance plugins that use a React-based Single Page Application (SPA) for the admin interface, communicating with a robust PHP backend via the WordPress REST API.
 
-This is the complete, final technical specification document.
+Your goal is to generate the complete, production-ready code for a WordPress plugin named "ACA - AI Content Agent". This plugin must be a pixel-perfect, feature-perfect, one-to-one replica of the provided React prototype. All files from the prototype (React components, services, types, configs) and the detailed technical specification document ("WordPress Plugin Development Guide v2.0") are provided as your context. You must use this context as the single source of truth.
+
+# Core Principles (The Golden Rules)
+
+Prototype is the Ultimate Truth: If there is any ambiguity, the observable behavior and code structure of the React prototype (.tsx files) is the correct implementation. The UI, UX, animations, and state management logic must be identical.
+
+Guide is the Blueprint: The "WordPress Plugin Development Guide v2.0" is your architectural blueprint. Follow its structure for database schemas, REST endpoints, and WordPress integration logic.
+
+No New Features: Do not add any features, UI elements, or logic not present in the prototype or the guide. Your task is replication, not innovation.
+
+Adhere to Coding Standards: Use official WordPress coding standards for all PHP code and modern, clean, standard practices for all React/TypeScript and JavaScript code. Ensure all code is well-commented.
+
+# Project Architecture Overview
+
+Backend (PHP): A main plugin file, activation/deactivation hooks, custom database tables, WP-Cron jobs, and a comprehensive set of REST API endpoints under the /aca/v1 namespace.
+
+Frontend (React): A Single Page Application (SPA) that runs on a single WordPress admin menu page. It will be built using the provided React/TypeScript source files. Navigation within the plugin MUST NOT cause a page reload.
+
+Data Storage:
+
+wp_options for aca_settings and aca_style_guide.
+
+wp_posts and wp_postmeta for drafts and published content.
+
+Two custom tables: {$wpdb->prefix}aca_ideas and {$wpdb->prefix}aca_activity_logs.
+
+Communication: The React frontend communicates exclusively with the PHP backend via REST API endpoints, secured with WordPress nonces.
+
+# Step-by-Step Implementation Plan
+
+You are to generate the code following this precise plan.
+
+Step 1: Create the Plugin Foundation (PHP)
+
+Create the main plugin file (ai-content-agent.php).
+
+Implement the plugin header comments.
+
+Implement the register_activation_hook to call a function that executes the tasks from Section 2.1 of the guide.
+
+Implement the register_deactivation_hook to clear cron jobs as per Section 2.2.
+
+Create the admin menu page that will serve as the root <div> for our React application.
+
+Step 2: Implement Database and Data Structures (PHP)
+
+In the activation function, write the PHP and SQL code to create the two custom tables (wp_aca_ideas, wp_aca_activity_logs) exactly as defined in Section 5.2 of the guide.
+
+Also in the activation function, create the default aca_settings and aca_style_guide options in wp_options. The default settings structure must match Section 7 of the guide.
+
+Step 3: Implement All WordPress REST API Endpoints (PHP)
+
+Create a new class or set of files to manage all REST API registrations.
+
+Register all endpoints listed in Section 5.3 of the guide under the /aca/v1 namespace.
+
+For EVERY endpoint, implement permission checks (current_user_can('manage_options')) and nonce validation (wp_verify_nonce).
+
+Endpoint Logic:
+
+Settings (/settings): GET and POST handlers for the aca_settings option. CRITICAL: On the POST handler, do not overwrite saved API keys if the incoming value is empty/null. On the GET handler, return boolean true if an API key exists, but NEVER return the key itself.
+
+Style Guide (/style-guide, /analyze-style): Implement CRUD for the aca_style_guide option. For /analyze-style, implement the logic described in Section 4.2, using the exact prompt from services/geminiService.ts -> analyzeStyle.
+
+Ideas (/ideas, etc.): Implement all CRUD operations for the wp_aca_ideas table. For generation endpoints (/ideas and /ideas/similar), use the exact prompts from services/geminiService.ts.
+
+Create Draft (/create-draft): This is the most complex endpoint. Implement the entire 9-step process detailed in Section 5.3 of the guide. This involves calling the Gemini API (using the exact createDraft prompt), handling image generation/sideloading (media_handle_sideload), creating the post (wp_insert_post), and setting all post meta (_aca_ prefixes).
+
+Posts (/posts, etc.): Implement handlers to get posts by status, publish a post, and schedule a post (by updating the _aca_scheduled_for meta field).
+
+Activity Logs (/activity-logs): Implement a GET handler to retrieve logs from the wp_aca_activity_logs table.
+
+Step 4: Implement Background Jobs (WP-Cron) (PHP)
+
+Create functions for the periodic jobs described in Section 5.4 (Style Analysis, Semi-Auto Ideas, Full-Auto Cycle).
+
+Register these functions with WP-Cron, ensuring they are scheduled and unscheduled correctly on plugin activation/deactivation and settings changes.
+
+Step 5: Configure Frontend Build and Integration (PHP/Build Process)
+
+Write the PHP function to enqueue the compiled JavaScript and CSS from the React build process onto the plugin's admin page.
+
+Use wp_localize_script to pass essential data from PHP to React, including the REST API URL (get_rest_url(null, 'aca/v1/')) and a security nonce (wp_create_nonce('wp_rest')).
+
+Step 6: Refactor Frontend Services to Use REST API (React/TypeScript)
+
+Go through all files in prototype/services/.
+
+Remove the direct calls to the Gemini API and stock photo APIs.
+
+Replace them with fetch calls to the corresponding WordPress REST API endpoints you defined in Step 3.
+
+Ensure every fetch request includes the X-WP-Nonce header with the nonce provided via wp_localize_script.
+
+# Critical Implementation Details (Pay Close Attention)
+
+UI/UX Fidelity: The final plugin's appearance and feel must be indistinguishable from the prototype. This includes all Tailwind CSS classes, the responsive layout (mobile slide-out menu), and the global styles for the background and scrollbars. All animations, especially animate-fade-in-fast and the Toast.tsx timings, are mandatory.
+
+Granular State Management: Replicate the prototype's state management perfectly. The isLoading object with dynamic keys (e.g., isLoading['draft-123']) is not optional; it's essential for the UX. The isDirty, publishingId, and isSaving states must control button states and visual feedback exactly as in the prototype.
+
+Verbatim API Prompts: The prompts sent to the Gemini API from your PHP backend MUST be copied VERBATIM from the services/geminiService.ts file. This includes the structure, wording, JSON schema definitions, and the critical system instructions. This is non-negotiable for correct AI output.
+
+Security: Do not forget wp_verify_nonce and current_user_can checks on every single REST endpoint that modifies data. Sanitize all inputs and escape all outputs.
+
+# Final Output Format
+
+Please provide the complete and final code for all necessary PHP, TypeScript, and configuration files. Organize the files into a logical directory structure (e.g., /build, /src, /includes, ai-content-agent.php). Add comments to your code where necessary to explain complex logic or to reference the specific section of the guide it implements.
+
+
 
 ---
 

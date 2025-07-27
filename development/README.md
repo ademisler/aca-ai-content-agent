@@ -22,7 +22,7 @@ development/
 
 ## 🚀 Quick Start
 
-### For New Developers
+### For  Developers
 1. **Read First**: `docs/DEVELOPMENT-GUIDE.md` - Complete plugin architecture
 2. **Setup Environment**: Follow development setup instructions
 3. **Run Tests**: `php testing/test-plugin.php` - Validate your setup

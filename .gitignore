@@ -15,14 +15,6 @@ vendor/
 # Build artifacts
 *.zip
 
-# Development directories (now organized)
-dev-docs/
-dev-testing/
-
-# Legacy exclusions (files now moved to dev directories)
-# test-plugin.php (now in dev-testing/)
-# *.md files in root (now in dev-docs/)
-
 # IDE and editor files
 .vscode/
 .idea/

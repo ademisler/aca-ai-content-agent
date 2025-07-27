@@ -1,0 +1,348 @@
+/* ACA AI Content Agent Admin Styles */
+
+.aca-admin-page {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+/* Custom loading spinner */
+.aca-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #3498db;
+    border-radius: 50%;
+    animation: aca-spin 1s linear infinite;
+}
+
+@keyframes aca-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* WordPress notice overrides for better styling */
+.aca-notice {
+    margin: 0 0 20px 0;
+    padding: 12px;
+    border-left: 4px solid;
+    border-radius: 0 4px 4px 0;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.aca-notice.notice-success {
+    border-left-color: #10b981;
+    background-color: #f0fdf4;
+    color: #166534;
+}
+
+.aca-notice.notice-error {
+    border-left-color: #ef4444;
+    background-color: #fef2f2;
+    color: #dc2626;
+}
+
+/* Modal styles */
+.aca-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100000;
+}
+
+.aca-modal-content {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+/* Button styles */
+.aca-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.aca-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.aca-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.aca-btn-primary {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.aca-btn-primary:hover {
+    background-color: #2563eb;
+}
+
+.aca-btn-success {
+    background-color: #10b981;
+    color: white;
+}
+
+.aca-btn-success:hover {
+    background-color: #059669;
+}
+
+.aca-btn-danger {
+    background-color: #ef4444;
+    color: white;
+}
+
+.aca-btn-danger:hover {
+    background-color: #dc2626;
+}
+
+/* Card styles */
+.aca-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 24px;
+}
+
+.aca-card-header {
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.aca-card-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0;
+}
+
+/* Form styles */
+.aca-form-group {
+    margin-bottom: 20px;
+}
+
+.aca-form-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 6px;
+}
+
+.aca-form-input,
+.aca-form-textarea,
+.aca-form-select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.aca-form-input:focus,
+.aca-form-textarea:focus,
+.aca-form-select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.aca-form-help {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 4px;
+}
+
+/* Stats cards */
+.aca-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.aca-stat-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+}
+
+.aca-stat-number {
+    font-size: 32px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 8px;
+}
+
+.aca-stat-label {
+    font-size: 14px;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Activity log */
+.aca-activity-item {
+    display: flex;
+    align-items: start;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    background: #f9fafb;
+}
+
+.aca-activity-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    background: #dbeafe;
+    color: #3b82f6;
+}
+
+.aca-activity-content {
+    flex: 1;
+}
+
+.aca-activity-text {
+    font-size: 14px;
+    color: #111827;
+    margin-bottom: 4px;
+}
+
+.aca-activity-time {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .aca-stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .aca-card {
+        padding: 16px;
+    }
+    
+    .aca-modal-content {
+        margin: 20px;
+        max-width: calc(100% - 40px);
+    }
+}
+
+/* WordPress admin compatibility */
+.wp-admin .aca-admin-page {
+    margin-right: 20px;
+}
+
+.wp-admin .aca-admin-page h1 {
+    margin-bottom: 20px;
+}
+
+/* Tailwind compatibility - ensure our styles take precedence */
+.aca-admin-page * {
+    box-sizing: border-box;
+}
+
+/* Loading states */
+.aca-loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.aca-loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin-top: -10px;
+    margin-left: -10px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #3b82f6;
+    border-radius: 50%;
+    animation: aca-spin 1s linear infinite;
+}
+
+/* Status badges */
+.aca-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+.aca-badge-success {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.aca-badge-warning {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.aca-badge-info {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+/* Draft editor styles */
+.aca-draft-editor {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* Hover effects */
+.aca-hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Focus states */
+.aca-focus-ring:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    border-color: #3b82f6;
+}

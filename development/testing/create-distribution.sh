@@ -18,13 +18,11 @@ mkdir -p ${DIST_DIR}/${PACKAGE_NAME}
 # Copy plugin files (excluding development directories)
 echo "Copying plugin files..."
 rsync -av --progress \
-  --exclude='dev-docs/' \
-  --exclude='dev-testing/' \
+  --exclude='development/' \
   --exclude='.git/' \
   --exclude='node_modules/' \
   --exclude='*.zip' \
   --exclude='dist/' \
-  --exclude='README.md' \
   . ${DIST_DIR}/${PACKAGE_NAME}/
 
 # Create zip package

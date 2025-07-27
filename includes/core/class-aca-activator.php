@@ -173,7 +173,7 @@ class ACA_Activator {
     private static function add_database_indexes() {
         global $wpdb;
         
-        // Add indexes if they don't exist
+        // Add indexes if they don't exist - MySQL 8.0 compatible
         $indexes = [
             $wpdb->prefix . 'aca_ai_content_agent_ideas' => [
                 'status_generated_date' => 'status, generated_date',
@@ -190,8 +190,18 @@ class ACA_Activator {
 
         foreach ($indexes as $table => $table_indexes) {
             foreach ($table_indexes as $index_name => $columns) {
-                if (method_exists($wpdb, 'query')) {
-                    $wpdb->query("CREATE INDEX IF NOT EXISTS {$index_name} ON {$table} ({$columns})");
+                // Check if index exists first
+                $index_exists = $wpdb->get_var($wpdb->prepare(
+                    "SELECT COUNT(*) FROM information_schema.statistics 
+                     WHERE table_schema = DATABASE() 
+                     AND table_name = %s 
+                     AND index_name = %s",
+                    $table,
+                    $index_name
+                ));
+                
+                if (!$index_exists) {
+                    $wpdb->query("CREATE INDEX {$index_name} ON {$table} ({$columns})");
                 }
             }
         }
@@ -213,30 +223,48 @@ class ACA_Activator {
                 'view_aca_ai_content_agent_dashboard'  => true,
             ];
 
-            // Create custom role
-            add_role('aca_content_manager', __('ACA Content Manager', 'aca-ai-content-agent'), $capabilities);
+            // FIX: Create custom role only if it doesn't exist
+            if (!get_role('aca_content_manager')) {
+                add_role('aca_content_manager', __('ACA Content Manager', 'aca-ai-content-agent'), $capabilities);
+            }
 
-            // Add capabilities to all existing roles that should have access
-            $roles_to_update = ['administrator', 'editor', 'author'];
+            // Add capabilities to roles that should have access
+            $roles_to_update = ['administrator', 'editor'];
             
             foreach ($roles_to_update as $role_name) {
                 $role = get_role($role_name);
                 if ($role) {
                     foreach ($capabilities as $cap => $grant) {
-                        $role->add_cap($cap);
+                        if (!$role->has_cap($cap)) {
+                            $role->add_cap($cap);
+                        }
+                    }
+                    
+                    // FIX: Ensure basic WordPress capabilities exist
+                    if ($role_name === 'administrator' && !$role->has_cap('manage_options')) {
+                        $role->add_cap('manage_options');
+                    }
+                    if (!$role->has_cap('edit_posts')) {
+                        $role->add_cap('edit_posts');
                     }
                 }
             }
             
-            // Also add to current user if they don't have the capability
+            // FIX: Ensure current user has necessary capabilities if they're an admin
             $current_user = wp_get_current_user();
-            if ($current_user->exists()) {
+            if ($current_user->exists() && current_user_can('manage_options')) {
                 foreach ($capabilities as $cap => $grant) {
                     if (!$current_user->has_cap($cap)) {
                         $current_user->add_cap($cap);
                     }
                 }
             }
+            
+            // Log successful capability addition
+            if (class_exists('ACA_Log_Service')) {
+                ACA_Log_Service::info('Custom capabilities added successfully');
+            }
+            
         } catch (Exception $e) {
             throw new Exception('Failed to add custom capabilities: ' . $e->getMessage());
         }

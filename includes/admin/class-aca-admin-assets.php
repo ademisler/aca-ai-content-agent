@@ -41,7 +41,7 @@ class ACA_Admin_Assets {
         );
         
         // Add fallback for Bootstrap Icons
-        add_action('wp_head', function() {
+        add_action('admin_head', function() {
             echo '<style>
                 /* Fallback for Bootstrap Icons */
                 .bi::before {
@@ -118,44 +118,63 @@ class ACA_Admin_Assets {
             null
         );
 
-        // Enqueue our admin CSS
+        // FIX: Correct asset paths - use plugin root directory
+        $plugin_url = plugin_dir_url( dirname( dirname( __FILE__ ) ) );
+
+        // Enqueue main admin styles
         wp_enqueue_style(
             'aca-admin-css',
-            plugin_dir_url( ACA_AI_CONTENT_AGENT_PLUGIN_FILE ) . 'admin/css/aca-admin.css',
+            $plugin_url . 'admin/css/aca-admin.css',
             array( 'bootstrap-icons', 'inter-font' ),
             ACA_AI_CONTENT_AGENT_VERSION
         );
 
-        // Enqueue our admin JavaScript
+        // Enqueue additional components styles
+        wp_enqueue_style(
+            'aca-admin-components-css',
+            $plugin_url . 'admin/css/aca-admin-components.css',
+            array('aca-admin-css'),
+            ACA_AI_CONTENT_AGENT_VERSION
+        );
+
+        // Enqueue admin JavaScript
         wp_enqueue_script(
             'aca-admin-js',
-            plugin_dir_url( ACA_AI_CONTENT_AGENT_PLUGIN_FILE ) . 'admin/js/aca-admin.js',
+            $plugin_url . 'admin/js/aca-admin.js',
             array( 'jquery' ),
             ACA_AI_CONTENT_AGENT_VERSION,
             true
         );
 
-        // Localize script with AJAX data
-        wp_localize_script(
-            'aca-admin-js',
-            'aca_ai_content_agent_admin_ajax',
-            array(
-                'ajax_url' => admin_url( 'admin-ajax.php' ),
-                'nonce'    => wp_create_nonce( 'aca_ai_content_agent_admin_nonce' ),
-                'strings'  => array(
-                    'loading'           => __( 'Loading...', 'aca-ai-content-agent' ),
-                    'error'             => __( 'An error occurred.', 'aca-ai-content-agent' ),
-                    'success'           => __( 'Operation completed successfully.', 'aca-ai-content-agent' ),
-                    'confirm_delete'    => __( 'Are you sure you want to delete this item?', 'aca-ai-content-agent' ),
-                    'no_ideas'          => __( 'No ideas available.', 'aca-ai-content-agent' ),
-                    'generating_ideas'  => __( 'Generating ideas...', 'aca-ai-content-agent' ),
-                    'writing_draft'     => __( 'Writing draft...', 'aca-ai-content-agent' ),
-                    'testing_connection' => __( 'Testing connection...', 'aca-ai-content-agent' ),
-                    'saving_settings'   => __( 'Saving settings...', 'aca-ai-content-agent' ),
-                    'validating_license' => __( 'Validating license...', 'aca-ai-content-agent' ),
-                ),
+        // Localize script with enhanced data
+        wp_localize_script('aca-admin-js', 'aca_ai_content_agent_admin_ajax', array(
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('aca_ai_content_agent_admin_nonce'),
+            'strings' => array(
+                'confirm_delete' => __('Are you sure you want to delete this item?', 'aca-ai-content-agent'),
+                'confirm_reject' => __('Are you sure you want to reject this idea?', 'aca-ai-content-agent'),
+                'processing' => __('Processing...', 'aca-ai-content-agent'),
+                'success' => __('Success!', 'aca-ai-content-agent'),
+                'error' => __('Error', 'aca-ai-content-agent'),
+                'warning' => __('Warning', 'aca-ai-content-agent'),
+                'info' => __('Information', 'aca-ai-content-agent'),
+                'loading' => __('Loading...', 'aca-ai-content-agent'),
+                'save_changes' => __('Save Changes', 'aca-ai-content-agent'),
+                'cancel' => __('Cancel', 'aca-ai-content-agent'),
+                'close' => __('Close', 'aca-ai-content-agent'),
+                'no_ideas' => __( 'No ideas available.', 'aca-ai-content-agent' ),
+                'generating_ideas' => __( 'Generating ideas...', 'aca-ai-content-agent' ),
+                'writing_draft' => __( 'Writing draft...', 'aca-ai-content-agent' ),
+                'testing_connection' => __( 'Testing connection...', 'aca-ai-content-agent' ),
+                'saving_settings' => __( 'Saving settings...', 'aca-ai-content-agent' ),
+                'validating_license' => __( 'Validating license...', 'aca-ai-content-agent' ),
+            ),
+            'settings' => array(
+                'animation_duration' => 300,
+                'notification_duration' => 4000,
+                'auto_save_delay' => 2000
             )
-        );
+        ));
     }
 
     /**
@@ -229,10 +248,19 @@ class ACA_Admin_Assets {
     private static function is_aca_page( $hook ) {
         $aca_pages = array(
             'toplevel_page_aca-ai-content-agent',
+            'aca-ai-content-agent_page_aca-ai-content-agent-ideas',
             'aca-ai-content-agent_page_aca-ai-content-agent-settings',
+            'aca-ai-content-agent_page_aca-ai-content-agent-prompts',
             'aca-ai-content-agent_page_aca-ai-content-agent-license',
             'aca-ai-content-agent_page_aca-ai-content-agent-diagnostics',
+            'aca-ai-content-agent_page_aca-ai-content-agent-logs',
+            'aca-ai-content-agent_page_aca-ai-content-agent-onboarding',
         );
+
+        // Also check if hook contains aca-ai-content-agent for flexibility
+        if (strpos($hook, 'aca-ai-content-agent') !== false) {
+            return true;
+        }
 
         return in_array( $hook, $aca_pages, true );
     }

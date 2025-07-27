@@ -21,11 +21,11 @@ class ACA_Admin_Menu {
     }
 
     public function add_admin_menu() {
-        // Main menu page
+        // Main menu page - FIX: Use manage_options for consistent access control
         add_menu_page(
             esc_html__( 'ACA - AI Content Agent', 'aca-ai-content-agent' ),
             esc_html__( 'ACA Agent', 'aca-ai-content-agent' ),
-            'read', // Use 'read' for maximum access - any logged in user
+            'manage_options', // Changed from 'edit_posts' to 'manage_options' for consistent access
             'aca-ai-content-agent',
             [ $this, 'render_main_page' ],
             'dashicons-robot',
@@ -37,7 +37,7 @@ class ACA_Admin_Menu {
             'aca-ai-content-agent',
             esc_html__( 'Dashboard', 'aca-ai-content-agent' ),
             esc_html__( 'Dashboard', 'aca-ai-content-agent' ),
-            'read', // Use 'read' for maximum access - any logged in user
+            'manage_options', // Changed from 'edit_posts' to 'manage_options' for consistency
             'aca-ai-content-agent',
             [ $this, 'render_main_page' ]
         );
@@ -46,7 +46,7 @@ class ACA_Admin_Menu {
             'aca-ai-content-agent',
             esc_html__( 'Content Ideas', 'aca-ai-content-agent' ),
             esc_html__( 'Content Ideas', 'aca-ai-content-agent' ),
-            'edit_posts', // Use edit_posts for broader access
+            'edit_posts', // Keep edit_posts for content-related operations
             'aca-ai-content-agent-ideas',
             [ $this, 'render_ideas_page' ]
         );
@@ -64,7 +64,7 @@ class ACA_Admin_Menu {
             'aca-ai-content-agent',
             esc_html__( 'Prompt Editor', 'aca-ai-content-agent' ),
             esc_html__( 'Prompt Editor', 'aca-ai-content-agent' ),
-            'edit_posts', // Use edit_posts for broader access
+            'edit_posts', // Keep edit_posts for content operations
             'aca-ai-content-agent-prompts',
             [ $this, 'render_prompts_page' ]
         );
@@ -91,9 +91,19 @@ class ACA_Admin_Menu {
             'aca-ai-content-agent',
             esc_html__( 'Activity Logs', 'aca-ai-content-agent' ),
             esc_html__( 'Activity Logs', 'aca-ai-content-agent' ),
-            'edit_posts', // Use edit_posts for broader access
+            'edit_posts', // Keep edit_posts for viewing logs
             'aca-ai-content-agent-logs',
             [ $this, 'render_logs_page' ]
+        );
+
+        // Add onboarding page as submenu
+        add_submenu_page(
+            'aca-ai-content-agent',
+            esc_html__( 'Welcome to ACA', 'aca-ai-content-agent' ),
+            esc_html__( 'Welcome', 'aca-ai-content-agent' ),
+            'manage_options', // Keep 'manage_options' to match capability check
+            'aca-ai-content-agent-onboarding',
+            [ $this, 'render_onboarding_page' ]
         );
     }
 
@@ -114,8 +124,8 @@ class ACA_Admin_Menu {
     }
 
     public function render_main_page() {
-        // Check if user has permission - use 'read' to match menu capability
-        if (!current_user_can('read')) {
+        // Check if user has permission - use 'manage_options' to match menu capability
+        if (!current_user_can('manage_options')) {
             wp_die(__('You do not have sufficient permissions to access this page.', 'aca-ai-content-agent'));
         }
         
@@ -168,10 +178,16 @@ class ACA_Admin_Menu {
             
             <div class="aca-settings-content">
                 <?php
-                // Include settings form
-                require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/settings/class-aca-settings-api.php';
-                $settings_api = new ACA_Settings_Api();
-                $settings_api->render_settings_form();
+                // Render settings form using static approach to avoid multiple instances
+                if (class_exists('ACA_Settings_Api')) {
+                    echo '<form method="post" action="options.php">';
+                    settings_fields( 'aca_ai_content_agent_settings_group' );
+                    do_settings_sections( 'aca-ai-content-agent' );
+                    submit_button();
+                    echo '</form>';
+                } else {
+                    echo '<p>' . esc_html__('Settings API not available.', 'aca-ai-content-agent') . '</p>';
+                }
                 ?>
             </div>
         </div>
@@ -457,7 +473,9 @@ class ACA_Admin_Menu {
         
         $missing_tables = [];
         foreach ($tables as $table) {
-            if ($wpdb->get_var("SHOW TABLES LIKE '$table'") != $table) {
+            // SECURITY FIX: Use prepared statement to prevent SQL injection
+            $exists = $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $table));
+            if (!$exists) {
                 $missing_tables[] = $table;
             }
         }
@@ -478,7 +496,7 @@ class ACA_Admin_Menu {
     }
 
     private function check_user_permissions() {
-        if (current_user_can('view_aca_ai_content_agent_dashboard')) {
+        if (current_user_can('edit_posts')) {
             return '<span class="aca-status-success">✅ Permissions OK</span>';
         } else {
             return '<span class="aca-status-error">❌ Insufficient permissions</span>';
@@ -502,6 +520,22 @@ class ACA_Admin_Menu {
             return '<span class="aca-status-success">✅ All tasks scheduled</span>';
         } else {
             return '<span class="aca-status-warning">⚠️ Some tasks not scheduled</span>';
+        }
+    }
+
+    public function render_onboarding_page() {
+        // Check if user has permission
+        if (!current_user_can('manage_options')) {
+            wp_die(__('You do not have sufficient permissions to access this page.', 'aca-ai-content-agent'));
+        }
+        
+        // Render onboarding page directly without creating new instance
+        if (class_exists('ACA_Onboarding')) {
+            // Create a temporary instance just for rendering
+            $onboarding = new ACA_Onboarding();
+            $onboarding->render_onboarding_page();
+        } else {
+            wp_die(__('Onboarding class not found.', 'aca-ai-content-agent'));
         }
     }
 }

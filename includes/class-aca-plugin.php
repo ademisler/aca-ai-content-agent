@@ -96,8 +96,9 @@ class ACA_Plugin {
     private function init_hooks() {
         add_action('plugins_loaded', [$this, 'init']);
         add_action('admin_init', array($this, 'handle_activation_redirect'));
-        add_action('admin_menu', array($this, 'add_diagnostics_page'));
-        add_action('admin_notices', array($this, 'diagnostics_admin_notices'));
+        // Removed duplicate diagnostics page - already handled in ACA_Admin_Menu
+        // add_action('admin_menu', array($this, 'add_diagnostics_page'));
+        // add_action('admin_notices', array($this, 'diagnostics_admin_notices'));
         add_action('admin_init', array($this, 'check_and_create_tables'));
     }
 
@@ -105,18 +106,45 @@ class ACA_Plugin {
      * Init the plugin.
      */
     public function init() {
+        // Load plugin text domain for translations
+        add_action('plugins_loaded', array($this, 'load_textdomain'));
+        
         // Initialize cron functionality
         new ACA_Cron();
 
         // Initialize admin functionality
         if (is_admin()) {
+            // FIX: Initialize admin components in correct order
+            // First initialize the main admin class
             new ACA_Admin();
+            
+            // Admin assets will be initialized by ACA_Admin class
+            // Admin menu will be initialized by ACA_Admin class
+            // Other admin components will be initialized by ACA_Admin class
         }
 
         // Initialize privacy integration
         if (class_exists('ACA_Privacy')) {
             ACA_Privacy::init();
         }
+        
+        // Initialize post hooks
+        if (class_exists('ACA_Post_Hooks')) {
+            new ACA_Post_Hooks();
+        }
+    }
+
+    /**
+     * Load plugin text domain for translations.
+     *
+     * @since 1.3.0
+     */
+    public function load_textdomain() {
+        load_plugin_textdomain(
+            'aca-ai-content-agent',
+            false,
+            dirname(plugin_basename(ACA_AI_CONTENT_AGENT_PLUGIN_FILE)) . '/languages'
+        );
     }
 
     public function handle_activation_redirect() {
@@ -133,8 +161,9 @@ class ACA_Plugin {
 
     /**
      * Add a diagnostics page to the admin menu.
+     * NOTE: This method is not used anymore - diagnostics page is handled by ACA_Admin_Menu
      */
-    public function add_diagnostics_page() {
+    private function add_diagnostics_page() {
         add_submenu_page(
             'aca-ai-content-agent',
             esc_html__('Diagnostics', 'aca-ai-content-agent'),
@@ -147,8 +176,9 @@ class ACA_Plugin {
 
     /**
      * Render the diagnostics page.
+     * NOTE: This method is not used anymore - diagnostics page is handled by ACA_Admin_Menu
      */
-    public function render_diagnostics_page() {
+    private function render_diagnostics_page() {
         echo '<div class="wrap"><h1>' . esc_html__('ACA Content Agent Diagnostics', 'aca-ai-content-agent') . '</h1>';
         $this->output_diagnostics();
         if (class_exists('ACA_Cron')) {

@@ -4,7 +4,7 @@ Tags: ai, content, generation, automation, seo, writing, blog, posts, ideas, dra
 Requires at least: 6.5
 Tested up to: 6.5
 Requires PHP: 8.0
-Stable tag: 1.2
+Stable tag: 1.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Author: Adem Isler
@@ -158,6 +158,18 @@ All generated content is saved as drafts, so you can review and edit before publ
 
 == Changelog ==
 
+= 1.3 =
+* 🌐 **Primary Language Conversion**: Converted entire plugin interface from Turkish to English
+* 🔧 **Critical Bug Fixes**: Resolved admin assets initialization and class loading issues
+* ⚡ **WordPress Modernization**: Updated to use wp_doing_ajax() instead of deprecated DOING_AJAX
+* 🔒 **Enhanced Security**: Improved developer mode handling with production safety filters
+* 🎨 **UI/UX Improvements**: Complete English localization with proper internationalization
+* 📝 **Code Optimization**: Removed redundant require_once statements and improved loading
+* 🏗️ **Architecture Improvements**: Better class initialization order and dependency management
+* 🔍 **Error Resolution**: Fixed all JavaScript language strings and AJAX error handling
+* 📊 **Translation Updates**: Updated POT file with new English translation strings
+* 🚀 **Production Ready**: Comprehensive testing and validation of all 162 files
+
 = 1.2 =
 * Enhanced security with API key encryption and proper sanitization
 * Added comprehensive rate limiting system
@@ -188,6 +200,9 @@ All generated content is saved as drafts, so you can review and edit before publ
 * Basic content enrichment features
 
 == Upgrade Notice ==
+
+= 1.3 =
+MAJOR UPDATE: Complete English language conversion, critical bug fixes, and WordPress modernization. All Turkish strings converted to English with proper internationalization. Enhanced security, improved admin interface, and production-ready stability.
 
 = 1.2 =
 This major update introduces Pro licensing, enhanced security, improved performance, and advanced content creation features. Upgrade to Pro for unlimited generation, content clustering, DALL-E 3 images, and plagiarism checking.

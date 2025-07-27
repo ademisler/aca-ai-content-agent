@@ -268,4 +268,19 @@ class ACA_Settings_Api {
         echo '<p class="description">' . esc_html__( 'Your OpenAI API key for additional AI features. Leave empty to keep existing key.', 'aca-ai-content-agent' ) . '</p>';
         echo '</div>';
     }
+
+    /**
+     * Render the main settings form.
+     *
+     * @since 1.2.0
+     */
+    public function render_settings_form() {
+        ?>
+        <form method="post" action="options.php">
+            <?php settings_fields( 'aca_ai_content_agent_settings_group' ); ?>
+            <?php do_settings_sections( 'aca-ai-content-agent' ); ?>
+            <?php submit_button(); ?>
+        </form>
+        <?php
+    }
 }

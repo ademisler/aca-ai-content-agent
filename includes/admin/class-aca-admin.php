@@ -30,14 +30,18 @@ class ACA_Admin {
         try {
             add_action( 'admin_init', [ $this, 'register_core_settings' ] );
             
-            // Initialize admin components
+            // FIX: Initialize admin components in correct order
+            // First initialize admin menu (this creates the menu structure)
             new ACA_Admin_Menu();
-            new ACA_Admin_Notices();
             
-            // Initialize assets handler
+            // Then initialize assets handler (this enqueues CSS/JS for menu pages)
             ACA_Admin_Assets::init();
             
-            // Initialize settings
+            // Initialize other admin components
+            new ACA_Admin_Notices();
+            new ACA_Ajax_Handler();
+            
+            // Initialize settings classes
             new ACA_Settings_Api();
             new ACA_Settings_Automation();
             new ACA_Settings_Analysis();
@@ -50,8 +54,10 @@ class ACA_Admin {
             new ACA_Onboarding();
             
             // Initialize post hooks
-            $post_hooks = new ACA_Post_Hooks();
-            $post_hooks->init();
+            if (class_exists('ACA_Post_Hooks')) {
+                $post_hooks = new ACA_Post_Hooks();
+                $post_hooks->init();
+            }
         } catch (Exception $e) {
             if (class_exists('ACA_Log_Service')) {
                 ACA_Log_Service::error('Admin hooks initialization failed: ' . $e->getMessage());
@@ -199,8 +205,25 @@ class ACA_Admin {
      * Display capability notice.
      */
     public function capability_notice() {
-        if (!current_user_can('edit_posts')) {
-            echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__('ACA: You do not have sufficient permissions to access this page.', 'aca-ai-content-agent') . '</p></div>';
+        // Only show notice on ACA plugin pages
+        $screen = get_current_screen();
+        if (!$screen || strpos($screen->id, 'aca-ai-content-agent') === false) {
+            return;
+        }
+        
+        // Check if user has proper capabilities for the current page
+        $required_capability = 'edit_posts';
+        if (strpos($screen->id, 'settings') !== false || strpos($screen->id, 'license') !== false || strpos($screen->id, 'diagnostics') !== false) {
+            $required_capability = 'manage_options';
+        }
+        
+        if (!current_user_can($required_capability)) {
+            echo '<div class="notice notice-error is-dismissible"><p>' . 
+                 sprintf(
+                     esc_html__('ACA: You need %s permission to access this page. Please contact your administrator.', 'aca-ai-content-agent'),
+                     '<strong>' . $required_capability . '</strong>'
+                 ) . 
+                 '</p></div>';
         }
     }
 }

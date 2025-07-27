@@ -23,7 +23,7 @@ class ACA_Style_Guide_Service {
      * Generate and update the Style Guide.
      */
     public static function generate_style_guide() {
-        if (!is_admin() && !defined('DOING_AJAX')) {
+        if (!is_admin() && !wp_doing_ajax()) {
             ACA_Log_Service::add('Unauthorized access to generate_style_guide.', 'error');
             return new WP_Error('unauthorized', __('Unauthorized access.', 'aca-ai-content-agent'));
         }
@@ -71,7 +71,7 @@ class ACA_Style_Guide_Service {
         } else {
             set_transient('aca_ai_content_agent_style_guide', $style_guide, WEEK_IN_SECONDS);
             update_option('aca_ai_content_agent_style_guide', $style_guide);
-            // ACA_AI_Content_Agent_Engine::add_log('Style guide generated and cached successfully.', 'success');
+            ACA_Log_Service::add('Style guide generated and cached successfully.', 'info');
             return $style_guide;
         }
     }

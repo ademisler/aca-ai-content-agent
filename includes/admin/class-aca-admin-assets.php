@@ -41,7 +41,7 @@ class ACA_Admin_Assets {
         );
         
         // Add fallback for Bootstrap Icons
-        add_action('wp_head', function() {
+        add_action('admin_head', function() {
             echo '<style>
                 /* Fallback for Bootstrap Icons */
                 .bi::before {

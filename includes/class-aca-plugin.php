@@ -106,6 +106,9 @@ class ACA_Plugin {
      * Init the plugin.
      */
     public function init() {
+        // Load plugin text domain for translations
+        add_action('plugins_loaded', array($this, 'load_textdomain'));
+        
         // Initialize cron functionality
         new ACA_Cron();
 
@@ -124,6 +127,19 @@ class ACA_Plugin {
         if (class_exists('ACA_Post_Hooks')) {
             new ACA_Post_Hooks();
         }
+    }
+
+    /**
+     * Load plugin text domain for translations.
+     *
+     * @since 1.3.0
+     */
+    public function load_textdomain() {
+        load_plugin_textdomain(
+            'aca-ai-content-agent',
+            false,
+            dirname(plugin_basename(ACA_AI_CONTENT_AGENT_PLUGIN_FILE)) . '/languages'
+        );
     }
 
     public function handle_activation_redirect() {

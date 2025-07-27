@@ -110,12 +110,13 @@ class ACA_Plugin {
 
         // Initialize admin functionality
         if (is_admin()) {
-            new ACA_Admin();
-            new ACA_Admin_Menu();
-            ACA_Admin_Assets::init(); // Call static init method
-            new ACA_Admin_Notices();
-            new ACA_Ajax_Handler();
-            new ACA_Onboarding(); // Initialize onboarding
+            // Remove duplicate initialization - these are already initialized in ACA_Admin class
+            // new ACA_Admin(); // This is already initialized in the main plugin file
+            // new ACA_Admin_Menu(); // This is already initialized in ACA_Admin class
+            // ACA_Admin_Assets::init(); // This is already initialized in ACA_Admin class
+            // new ACA_Admin_Notices(); // This is already initialized in ACA_Admin class
+            // new ACA_Ajax_Handler(); // This is already initialized in ACA_Admin class
+            // new ACA_Onboarding(); // This is already initialized in ACA_Admin class
         }
 
         // Initialize privacy integration

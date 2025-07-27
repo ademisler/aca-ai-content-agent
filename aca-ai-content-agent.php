@@ -95,8 +95,22 @@ register_deactivation_hook(__FILE__, 'aca_ai_content_agent_deactivate');
  * Initialize the plugin.
  */
 function aca_ai_content_agent_init() {
-    // Initialize the main plugin instance
-    return ACA_Plugin::instance();
+    try {
+        // Initialize the main plugin instance
+        return ACA_Plugin::instance();
+    } catch (Exception $e) {
+        // Log the error
+        error_log('ACA AI Content Agent initialization failed: ' . $e->getMessage());
+        
+        // Show admin notice
+        if (is_admin()) {
+            add_action('admin_notices', function() use ($e) {
+                echo '<div class="notice notice-error"><p><strong>ACA AI Content Agent Error:</strong> ' . esc_html($e->getMessage()) . '</p></div>';
+            });
+        }
+        
+        return false;
+    }
 }
 
 // Initialize plugin after WordPress is loaded

@@ -226,7 +226,7 @@ class ACA_Activator {
             // Create custom role
             add_role('aca_content_manager', __('ACA Content Manager', 'aca-ai-content-agent'), $capabilities);
 
-            // Add capabilities to all existing roles that should have access
+            // Add capabilities to roles that should have access
             $roles_to_update = ['administrator', 'editor', 'author'];
             
             foreach ($roles_to_update as $role_name) {
@@ -235,18 +235,29 @@ class ACA_Activator {
                     foreach ($capabilities as $cap => $grant) {
                         $role->add_cap($cap);
                     }
+                    
+                    // Ensure edit_posts capability exists for content management
+                    if (!$role->has_cap('edit_posts') && $role_name === 'author') {
+                        $role->add_cap('edit_posts');
+                    }
                 }
             }
             
-            // Also add to current user if they don't have the capability
+            // Ensure current user has the necessary capabilities
             $current_user = wp_get_current_user();
-            if ($current_user->exists()) {
+            if ($current_user->exists() && current_user_can('manage_options')) {
                 foreach ($capabilities as $cap => $grant) {
                     if (!$current_user->has_cap($cap)) {
                         $current_user->add_cap($cap);
                     }
                 }
             }
+            
+            // Log successful capability addition
+            if (class_exists('ACA_Log_Service')) {
+                ACA_Log_Service::info('Custom capabilities added successfully');
+            }
+            
         } catch (Exception $e) {
             throw new Exception('Failed to add custom capabilities: ' . $e->getMessage());
         }

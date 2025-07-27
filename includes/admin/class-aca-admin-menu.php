@@ -25,7 +25,7 @@ class ACA_Admin_Menu {
         add_menu_page(
             esc_html__( 'ACA - AI Content Agent', 'aca-ai-content-agent' ),
             esc_html__( 'ACA Agent', 'aca-ai-content-agent' ),
-            'read', // Use 'read' for maximum access - any logged in user
+            'edit_posts', // Changed from 'read' to 'edit_posts' for proper access control
             'aca-ai-content-agent',
             [ $this, 'render_main_page' ],
             'dashicons-robot',
@@ -37,7 +37,7 @@ class ACA_Admin_Menu {
             'aca-ai-content-agent',
             esc_html__( 'Dashboard', 'aca-ai-content-agent' ),
             esc_html__( 'Dashboard', 'aca-ai-content-agent' ),
-            'read', // Use 'read' for maximum access - any logged in user
+            'edit_posts', // Changed from 'read' to 'edit_posts' for consistency
             'aca-ai-content-agent',
             [ $this, 'render_main_page' ]
         );
@@ -46,7 +46,7 @@ class ACA_Admin_Menu {
             'aca-ai-content-agent',
             esc_html__( 'Content Ideas', 'aca-ai-content-agent' ),
             esc_html__( 'Content Ideas', 'aca-ai-content-agent' ),
-            'edit_posts', // Use edit_posts for broader access
+            'edit_posts', // Keep edit_posts for broader access
             'aca-ai-content-agent-ideas',
             [ $this, 'render_ideas_page' ]
         );
@@ -64,7 +64,7 @@ class ACA_Admin_Menu {
             'aca-ai-content-agent',
             esc_html__( 'Prompt Editor', 'aca-ai-content-agent' ),
             esc_html__( 'Prompt Editor', 'aca-ai-content-agent' ),
-            'edit_posts', // Use edit_posts for broader access
+            'edit_posts', // Keep edit_posts for broader access
             'aca-ai-content-agent-prompts',
             [ $this, 'render_prompts_page' ]
         );
@@ -91,7 +91,7 @@ class ACA_Admin_Menu {
             'aca-ai-content-agent',
             esc_html__( 'Activity Logs', 'aca-ai-content-agent' ),
             esc_html__( 'Activity Logs', 'aca-ai-content-agent' ),
-            'edit_posts', // Use edit_posts for broader access
+            'edit_posts', // Keep edit_posts for broader access
             'aca-ai-content-agent-logs',
             [ $this, 'render_logs_page' ]
         );
@@ -101,7 +101,7 @@ class ACA_Admin_Menu {
             'aca-ai-content-agent',
             esc_html__( 'Welcome to ACA', 'aca-ai-content-agent' ),
             esc_html__( 'Welcome', 'aca-ai-content-agent' ),
-            'manage_options', // Use 'manage_options' to match capability check
+            'manage_options', // Keep 'manage_options' to match capability check
             'aca-ai-content-agent-onboarding',
             [ $this, 'render_onboarding_page' ]
         );
@@ -124,8 +124,8 @@ class ACA_Admin_Menu {
     }
 
     public function render_main_page() {
-        // Check if user has permission - use 'read' to match menu capability
-        if (!current_user_can('read')) {
+        // Check if user has permission - use 'edit_posts' to match menu capability
+        if (!current_user_can('edit_posts')) {
             wp_die(__('You do not have sufficient permissions to access this page.', 'aca-ai-content-agent'));
         }
         

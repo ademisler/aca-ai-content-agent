@@ -1,28 +1,54 @@
 # Developer Documentation
 
-This directory contains development documentation for the **ACA - AI Content Agent** WordPress plugin.
+This directory contains comprehensive development documentation for the **ACA - AI Content Agent** WordPress plugin.
 
 ## 📁 Files Overview
 
-| File | Purpose | Status |
-|------|---------|--------|
-| **DEVELOPMENT-GUIDE.md** | Complete development guide and architecture | ✅ Current |
-| **TESTING-GUIDE.md** | Testing procedures and quality assurance | ✅ Current |
-| **GUMROAD-SETUP.md** | Pro license setup via Gumroad | ✅ Current |
+| File | Purpose | Status | Lines |
+|------|---------|--------|-------|
+| **DEVELOPMENT-GUIDE.md** | Plugin architecture & development guide | ✅ Current | ~150 |
+| **TESTING-GUIDE.md** | Testing procedures and quality assurance | ✅ Current | ~170 |
+| **GUMROAD-SETUP.md** | Pro license setup via Gumroad | ✅ Current | ~115 |
 
-## 🎯 Quick Start for Developers
+## 🎯 Quick Navigation
 
-1. **Architecture**: See `DEVELOPMENT-GUIDE.md` for plugin structure and core classes
-2. **Testing**: Use `TESTING-GUIDE.md` for testing procedures and validation
-3. **Pro Setup**: Follow `GUMROAD-SETUP.md` for license integration
+### For New Developers
+1. **Start Here**: `DEVELOPMENT-GUIDE.md` - Plugin architecture and core concepts
+2. **Testing**: `TESTING-GUIDE.md` - How to test and validate your changes
+3. **Pro Features**: `GUMROAD-SETUP.md` - License system integration
+
+### Key Topics Covered
+
+**DEVELOPMENT-GUIDE.md:**
+- Plugin architecture and core classes
+- Database structure and API integrations
+- Security best practices
+- Development setup and workflows
+
+**TESTING-GUIDE.md:**
+- Automated test suite usage
+- Manual testing procedures
+- Quality assurance checklist
+- Debugging and troubleshooting
+
+**GUMROAD-SETUP.md:**
+- Pro license system setup
+- Gumroad integration steps
+- Sales and customer support
 
 ## 📝 Documentation Standards
 
-- All documentation is in **English**
-- Version numbers match plugin version (currently **1.3**)
-- Updated with each major release
-- Focus on current, actionable information
+- **Language**: All documentation in English
+- **Version**: Matches plugin version (currently **1.3**)
+- **Updates**: Maintained with each release
+- **Focus**: Current, actionable information only
 
-## 🚫 Distribution Note
+## 🔗 Related Resources
 
-**These files are for development only** and should be excluded from production releases.
+- **Testing Tools**: `../testing/` directory
+- **Distribution**: Use `../testing/create-distribution.sh`
+- **WordPress Test Environment**: `../testing/wordpress-test/`
+
+## ⚠️ Distribution Note
+
+**These documentation files are for development only** and should be excluded from production releases using `--exclude='development/'`.

@@ -40,7 +40,10 @@ aca-ai-content-agent/
 │   └── class-aca-plugin.php     # Main controller
 ├── admin/                       # CSS/JS assets
 ├── languages/                   # Translation files
-└── vendor/                      # Composer dependencies
+├── vendor/                      # Composer dependencies
+└── development/                 # Development files (excluded from production)
+    ├── docs/                    # This documentation
+    └── testing/                 # Testing tools and scripts
 ```
 
 ## 🗄️ Database
@@ -71,9 +74,16 @@ aca-ai-content-agent/
 4. Configure Google Gemini API key in settings
 
 ### Testing
-Use the test script in `dev-testing/test-plugin.php`:
+Use the comprehensive test suite:
 ```bash
-php dev-testing/test-plugin.php
+# Run all tests from project root
+php development/testing/test-plugin.php
+
+# Run with verbose output
+php development/testing/test-plugin.php --verbose
+
+# Run specific test category
+php development/testing/test-plugin.php --category=encryption
 ```
 
 ## 🔌 API Integration
@@ -112,14 +122,14 @@ $decrypted = aca_ai_content_agent_safe_decrypt($encrypted_data);
 ### Building for Release
 Use the distribution script:
 ```bash
-./dev-testing/create-distribution.sh
+# From project root
+./development/testing/create-distribution.sh
 ```
 
 This creates a clean package excluding:
-- `dev-docs/` directory
-- `dev-testing/` directory  
+- `development/` directory (all dev files)
 - `.git/` directory
-- Development files
+- Development artifacts
 
 ### Version Management
 1. Update version in `aca-ai-content-agent.php`

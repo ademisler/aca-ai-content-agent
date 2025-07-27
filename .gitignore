@@ -1,9 +1,35 @@
+# System files
 .DS_Store
-test-plugin.php
 *.log
+
+# Environment files
 .env
 .env.local
 .env.production
+
+# Dependencies
 node_modules/
+vendor/
 .sass-cache/
+
+# Build artifacts
 *.zip
+
+# Development directories (now organized)
+dev-docs/
+dev-testing/
+
+# Legacy exclusions (files now moved to dev directories)
+# test-plugin.php (now in dev-testing/)
+# *.md files in root (now in dev-docs/)
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+tmp/
+temp/

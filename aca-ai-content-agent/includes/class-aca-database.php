@@ -16,33 +16,48 @@ class ACA_Database {
     public static function create_tables() {
         global $wpdb;
         
-        $charset_collate = $wpdb->get_charset_collate();
-        
-        // Create aca_ideas table
-        $ideas_table = $wpdb->prefix . 'aca_ideas';
-        $ideas_sql = "CREATE TABLE IF NOT EXISTS $ideas_table (
-            id BIGINT(20) NOT NULL AUTO_INCREMENT,
-            title TEXT NOT NULL,
-            status VARCHAR(20) DEFAULT 'new' NOT NULL,
-            source VARCHAR(20) NOT NULL,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
-            PRIMARY KEY (id)
-        ) $charset_collate;";
-        
-        // Create aca_activity_logs table
-        $logs_table = $wpdb->prefix . 'aca_activity_logs';
-        $logs_sql = "CREATE TABLE IF NOT EXISTS $logs_table (
-            id BIGINT(20) NOT NULL AUTO_INCREMENT,
-            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
-            type VARCHAR(50) NOT NULL,
-            details TEXT NOT NULL,
-            icon VARCHAR(50) NOT NULL,
-            PRIMARY KEY (id)
-        ) $charset_collate;";
-        
-        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-        dbDelta($ideas_sql);
-        dbDelta($logs_sql);
+        try {
+            $charset_collate = $wpdb->get_charset_collate();
+            
+            // Create aca_ideas table
+            $ideas_table = $wpdb->prefix . 'aca_ideas';
+            $ideas_sql = "CREATE TABLE IF NOT EXISTS $ideas_table (
+                id BIGINT(20) NOT NULL AUTO_INCREMENT,
+                title TEXT NOT NULL,
+                status VARCHAR(20) DEFAULT 'new' NOT NULL,
+                source VARCHAR(20) NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+                PRIMARY KEY (id)
+            ) $charset_collate;";
+            
+            // Create aca_activity_logs table
+            $logs_table = $wpdb->prefix . 'aca_activity_logs';
+            $logs_sql = "CREATE TABLE IF NOT EXISTS $logs_table (
+                id BIGINT(20) NOT NULL AUTO_INCREMENT,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+                type VARCHAR(50) NOT NULL,
+                details TEXT NOT NULL,
+                icon VARCHAR(50) NOT NULL,
+                PRIMARY KEY (id)
+            ) $charset_collate;";
+            
+            // Include upgrade.php if not already included
+            if (!function_exists('dbDelta')) {
+                require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+            }
+            
+            // Execute table creation
+            $result1 = dbDelta($ideas_sql);
+            $result2 = dbDelta($logs_sql);
+            
+            // Log any errors
+            if ($wpdb->last_error) {
+                error_log('ACA Plugin DB Error: ' . $wpdb->last_error);
+            }
+            
+        } catch (Exception $e) {
+            error_log('ACA Plugin Exception in create_tables: ' . $e->getMessage());
+        }
     }
     
     /**

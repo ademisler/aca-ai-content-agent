@@ -14,47 +14,56 @@ class ACA_Cron {
      * Schedule all cron jobs
      */
     public static function schedule_jobs() {
-        // Clear existing jobs first
-        self::clear_jobs();
-        
-        $settings = get_option('aca_settings', array());
-        
-        // Schedule style analysis every 30 minutes
-        if (!wp_next_scheduled('aca_style_analysis')) {
-            wp_schedule_event(time(), 'aca_30min', 'aca_style_analysis');
-        }
-        
-        // Schedule based on automation mode
-        $mode = isset($settings['mode']) ? $settings['mode'] : 'manual';
-        
-        if ($mode === 'semi-automatic') {
-            // Generate ideas every 15 minutes
-            if (!wp_next_scheduled('aca_semi_auto_ideas')) {
-                wp_schedule_event(time(), 'aca_15min', 'aca_semi_auto_ideas');
+        try {
+            // Clear existing jobs first
+            self::clear_jobs();
+            
+            $settings = get_option('aca_settings', array());
+            
+            // Add custom cron schedules first
+            add_filter('cron_schedules', array(__CLASS__, 'add_custom_schedules'));
+            
+            // Schedule style analysis every 30 minutes
+            if (!wp_next_scheduled('aca_style_analysis')) {
+                wp_schedule_event(time(), 'aca_30min', 'aca_style_analysis');
             }
-        } elseif ($mode === 'full-automatic') {
-            // Full automation cycle every 30 minutes
-            if (!wp_next_scheduled('aca_full_auto_cycle')) {
-                wp_schedule_event(time(), 'aca_30min', 'aca_full_auto_cycle');
+            
+            // Schedule based on automation mode
+            $mode = isset($settings['mode']) ? $settings['mode'] : 'manual';
+            
+            if ($mode === 'semi-automatic') {
+                // Generate ideas every 15 minutes
+                if (!wp_next_scheduled('aca_semi_auto_ideas')) {
+                    wp_schedule_event(time(), 'aca_15min', 'aca_semi_auto_ideas');
+                }
+            } elseif ($mode === 'full-automatic') {
+                // Full automation cycle every 30 minutes
+                if (!wp_next_scheduled('aca_full_auto_cycle')) {
+                    wp_schedule_event(time(), 'aca_30min', 'aca_full_auto_cycle');
+                }
             }
+            
+            // Hook the cron functions
+            add_action('aca_style_analysis', array(__CLASS__, 'run_style_analysis'));
+            add_action('aca_semi_auto_ideas', array(__CLASS__, 'run_semi_auto_ideas'));
+            add_action('aca_full_auto_cycle', array(__CLASS__, 'run_full_auto_cycle'));
+            
+        } catch (Exception $e) {
+            error_log('ACA Plugin Exception in schedule_jobs: ' . $e->getMessage());
         }
-        
-        // Add custom cron schedules
-        add_filter('cron_schedules', array(__CLASS__, 'add_custom_schedules'));
-        
-        // Hook the cron functions
-        add_action('aca_style_analysis', array(__CLASS__, 'run_style_analysis'));
-        add_action('aca_semi_auto_ideas', array(__CLASS__, 'run_semi_auto_ideas'));
-        add_action('aca_full_auto_cycle', array(__CLASS__, 'run_full_auto_cycle'));
     }
     
     /**
      * Clear all scheduled jobs
      */
     public static function clear_jobs() {
-        wp_clear_scheduled_hook('aca_style_analysis');
-        wp_clear_scheduled_hook('aca_semi_auto_ideas');
-        wp_clear_scheduled_hook('aca_full_auto_cycle');
+        try {
+            wp_clear_scheduled_hook('aca_style_analysis');
+            wp_clear_scheduled_hook('aca_semi_auto_ideas');
+            wp_clear_scheduled_hook('aca_full_auto_cycle');
+        } catch (Exception $e) {
+            error_log('ACA Plugin Exception in clear_jobs: ' . $e->getMessage());
+        }
     }
     
     /**

@@ -106,11 +106,11 @@ export const StyleGuideManager: React.FC<StyleGuideManagerProps> = ({ styleGuide
                         Content Analysis
                     </h2>
                 </div>
-                <p style={{ color: '#646970', marginBottom: '20px', fontSize: '13px' }}>
+                <p style={{ color: '#646970', marginBottom: '25px', fontSize: '13px' }}>
                     The AI periodically scans your published content to understand your writing style and automatically updates your guide.
                 </p>
                 
-                <div className="aca-stat-item" style={{ marginBottom: '20px' }}>
+                <div className="aca-stat-item">
                     <div className="aca-stat-info">
                         <div className="aca-stat-icon">
                             <CheckCircle style={{ fill: styleGuide?.lastAnalyzed ? '#00a32a' : '#a7aaad' }} />
@@ -150,7 +150,7 @@ export const StyleGuideManager: React.FC<StyleGuideManagerProps> = ({ styleGuide
                         Your Style Guide
                     </h2>
                 </div>
-                <p style={{ color: '#646970', marginBottom: '25px', fontSize: '13px' }}>
+                <p style={{ color: '#646970', marginBottom: '30px', fontSize: '13px' }}>
                     Review and customize the AI-generated style guide below. These settings will influence all future content generation.
                 </p>
                 
@@ -164,7 +164,7 @@ export const StyleGuideManager: React.FC<StyleGuideManagerProps> = ({ styleGuide
                             <div style={{ 
                                 display: 'grid', 
                                 gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', 
-                                gap: '10px',
+                                gap: '12px',
                                 padding: '20px',
                                 background: '#f6f7f7',
                                 borderRadius: '4px',
@@ -175,7 +175,7 @@ export const StyleGuideManager: React.FC<StyleGuideManagerProps> = ({ styleGuide
                                         key={tone} 
                                         onClick={() => handleToneToggle(tone)}
                                         style={{
-                                            padding: '10px 16px',
+                                            padding: '12px 16px',
                                             fontSize: '13px',
                                             fontWeight: '500',
                                             borderRadius: '4px',
@@ -239,7 +239,7 @@ export const StyleGuideManager: React.FC<StyleGuideManagerProps> = ({ styleGuide
                                     justifyContent: 'space-between', 
                                     fontSize: '11px', 
                                     color: '#646970', 
-                                    marginTop: '10px',
+                                    marginTop: '12px',
                                     fontWeight: '500'
                                 }}>
                                     <span>Short & Simple</span>
@@ -287,14 +287,17 @@ export const StyleGuideManager: React.FC<StyleGuideManagerProps> = ({ styleGuide
                         </div>
                     </div>
                 ) : (
-                    <div className="aca-stat-item" style={{ 
-                        minHeight: '200px',
+                    <div style={{ 
+                        display: 'flex',
                         flexDirection: 'column',
                         justifyContent: 'center',
+                        alignItems: 'center',
+                        minHeight: '200px',
                         textAlign: 'center',
                         border: '2px dashed #ccd0d4',
                         borderRadius: '4px',
-                        background: '#f9f9f9'
+                        background: '#f9f9f9',
+                        padding: '40px 20px'
                     }}>
                         <BookOpen style={{ width: '48px', height: '48px', marginBottom: '15px', fill: '#a7aaad' }} />
                         <h4 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: '500', color: '#23282d' }}>
@@ -313,19 +316,27 @@ export const StyleGuideManager: React.FC<StyleGuideManagerProps> = ({ styleGuide
                         paddingTop: '20px', 
                         borderTop: '1px solid #f0f0f1', 
                         display: 'flex', 
-                        justifyContent: 'flex-end',
-                        gap: '10px'
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        gap: '15px'
                     }}>
                         {isDirty && (
-                            <span style={{ 
+                            <div style={{ 
+                                display: 'flex',
+                                alignItems: 'center',
                                 fontSize: '13px', 
-                                color: '#dba617', 
-                                alignSelf: 'center',
-                                marginRight: '15px',
-                                fontWeight: '500'
+                                color: '#dba617',
+                                fontWeight: '500',
+                                gap: '8px'
                             }}>
-                                • Unsaved changes
-                            </span>
+                                <div style={{ 
+                                    width: '8px', 
+                                    height: '8px', 
+                                    borderRadius: '50%', 
+                                    background: '#dba617' 
+                                }}></div>
+                                Unsaved changes
+                            </div>
                         )}
                         <button
                             onClick={handleSave}
@@ -335,7 +346,8 @@ export const StyleGuideManager: React.FC<StyleGuideManagerProps> = ({ styleGuide
                                 display: 'flex', 
                                 alignItems: 'center', 
                                 minWidth: '140px',
-                                justifyContent: 'center'
+                                justifyContent: 'center',
+                                marginLeft: 'auto'
                             }}
                         >
                             {isSaving && <Spinner style={{ marginRight: '8px', width: '16px', height: '16px' }} />}

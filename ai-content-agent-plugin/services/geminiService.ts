@@ -18,7 +18,7 @@ export const setGeminiApiKey = (key: string) => {
     }
 };
 
-const textModel = "gemini-2.0-flash-exp";
+const textModel = "gemini-2.0-flash";
 
 const checkAi = () => {
     if (!genAI) {

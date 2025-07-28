@@ -201,7 +201,11 @@ class ACA_Rest_Api {
         }
         
         try {
-            $analysis = $this->call_gemini_analyze_style($settings['geminiApiKey']);
+            // Fetch recent posts from WordPress to analyze
+            $recent_posts = $this->fetch_recent_posts_for_analysis();
+            $posts_content = $this->prepare_posts_content_for_analysis($recent_posts);
+            
+            $analysis = $this->call_gemini_analyze_style($settings['geminiApiKey'], $posts_content);
             $parsed_analysis = json_decode($analysis, true);
             
             if (json_last_error() !== JSON_ERROR_NONE) {
@@ -219,6 +223,81 @@ class ACA_Rest_Api {
         } catch (Exception $e) {
             return new WP_Error('analysis_failed', $e->getMessage(), array('status' => 500));
         }
+    }
+    
+    /**
+     * Fetch recent posts for style analysis
+     */
+    private function fetch_recent_posts_for_analysis() {
+        $args = array(
+            'post_type' => 'post',
+            'post_status' => 'publish',
+            'posts_per_page' => 20,
+            'orderby' => 'date',
+            'order' => 'DESC',
+            'meta_query' => array(
+                array(
+                    'key' => '_wp_page_template',
+                    'compare' => 'NOT EXISTS'
+                )
+            )
+        );
+        
+        return get_posts($args);
+    }
+    
+    /**
+     * Prepare posts content for AI analysis
+     */
+    private function prepare_posts_content_for_analysis($posts) {
+        if (empty($posts)) {
+            return "No recent posts found. Please analyze based on a generic professional blog style.";
+        }
+        
+        $content_samples = array();
+        
+        foreach ($posts as $post) {
+            // Get post content and clean it
+            $content = wp_strip_all_tags($post->post_content);
+            $content = wp_trim_words($content, 150, '...');
+            
+            $content_samples[] = array(
+                'title' => $post->post_title,
+                'content' => $content,
+                'date' => $post->post_date
+            );
+        }
+        
+        $analysis_prompt = "Here are the 20 most recent blog posts from this website:\n\n";
+        
+        foreach ($content_samples as $sample) {
+            $analysis_prompt .= "Title: {$sample['title']}\n";
+            $analysis_prompt .= "Content: {$sample['content']}\n";
+            $analysis_prompt .= "Date: {$sample['date']}\n\n---\n\n";
+        }
+        
+        return $analysis_prompt;
+    }
+    
+    private function call_gemini_analyze_style($api_key, $posts_content = '') {
+        $prompt = "
+            Analyze the writing style of the following blog content and generate a JSON object that describes it.
+            This JSON object will be used as a \"Style Guide\" for generating new content.
+            
+            {$posts_content}
+            
+            Based on the content above, create a JSON object that strictly follows this schema:
+            {
+              \"tone\": \"string (e.g., 'Friendly and conversational', 'Formal and professional', 'Technical and informative', 'Witty and humorous')\",
+              \"sentenceStructure\": \"string (e.g., 'Mix of short, punchy sentences and longer, more descriptive ones', 'Primarily short and direct sentences', 'Complex sentences with multiple clauses')\",
+              \"paragraphLength\": \"string (e.g., 'Short, 2-3 sentences per paragraph', 'Medium, 4-6 sentences per paragraph')\",
+              \"formattingStyle\": \"string (e.g., 'Uses bullet points, bold text for emphasis, and subheadings (H2, H3)', 'Minimal formatting, relies on plain text paragraphs')\"
+            }
+            
+            Return ONLY the JSON object, nothing else.
+        ";
+        
+        return $this->call_gemini_api($api_key, $prompt);
     }
     
     /**
@@ -933,23 +1012,6 @@ class ACA_Rest_Api {
     
     // AI Service calls - Real Gemini API integration
     
-    private function call_gemini_analyze_style($api_key) {
-        $prompt = '
-            Analyze the common writing style of a professional tech and marketing blog and generate a JSON object that describes it. 
-            Imagine you have read the 20 most recent articles from the blog to gather this information.
-            This JSON object will be used as a "Style Guide" for generating new content.
-            The JSON object must strictly follow this schema:
-            {
-              "tone": "string (e.g., \'Friendly and conversational\', \'Formal and professional\', \'Technical and informative\', \'Witty and humorous\')",
-              "sentenceStructure": "string (e.g., \'Mix of short, punchy sentences and longer, more descriptive ones\', \'Primarily short and direct sentences\', \'Complex sentences with multiple clauses\')",
-              "paragraphLength": "string (e.g., \'Short, 2-3 sentences per paragraph\', \'Medium, 4-6 sentences per paragraph\')",
-              "formattingStyle": "string (e.g., \'Uses bullet points, bold text for emphasis, and subheadings (H2, H3)\', \'Minimal formatting, relies on plain text paragraphs\')"
-            }
-        ';
-        
-        return $this->call_gemini_api($api_key, $prompt);
-    }
-    
     private function call_gemini_generate_ideas($api_key, $style_guide, $existing_titles, $count, $search_console_data) {
         $prompt = "
             Based on this style guide: {$style_guide}
@@ -1109,7 +1171,7 @@ class ACA_Rest_Api {
      * Make actual API call to Gemini
      */
     private function call_gemini_api($api_key, $prompt) {
-        $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=' . $api_key;
+        $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
         
         $body = json_encode(array(
             'contents' => array(
@@ -1121,16 +1183,18 @@ class ACA_Rest_Api {
             ),
             'generationConfig' => array(
                 'temperature' => 0.7,
-                'maxOutputTokens' => 2048
+                'maxOutputTokens' => 2048,
+                'responseMimeType' => 'application/json'
             )
         ));
         
         $response = wp_remote_post($url, array(
             'headers' => array(
-                'Content-Type' => 'application/json'
+                'Content-Type' => 'application/json',
+                'x-goog-api-key' => $api_key
             ),
             'body' => $body,
-            'timeout' => 30
+            'timeout' => 60
         ));
         
         if (is_wp_error($response)) {
@@ -1139,18 +1203,19 @@ class ACA_Rest_Api {
         
         $response_code = wp_remote_retrieve_response_code($response);
         if ($response_code !== 200) {
-            throw new Exception('Gemini API returned error code: ' . $response_code);
+            $error_body = wp_remote_retrieve_body($response);
+            throw new Exception('Gemini API returned error code: ' . $response_code . ' - ' . $error_body);
         }
         
         $response_body = wp_remote_retrieve_body($response);
         $data = json_decode($response_body, true);
         
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new Exception('Invalid JSON response from Gemini API');
+            throw new Exception('Invalid JSON response from Gemini API: ' . json_last_error_msg());
         }
         
         if (empty($data['candidates'][0]['content']['parts'][0]['text'])) {
-            throw new Exception('No content returned from Gemini API');
+            throw new Exception('No content returned from Gemini API. Response: ' . $response_body);
         }
         
         return $data['candidates'][0]['content']['parts'][0]['text'];

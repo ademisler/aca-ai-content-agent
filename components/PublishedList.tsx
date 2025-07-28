@@ -10,26 +10,70 @@ interface PublishedListProps {
 
 export const PublishedList: React.FC<PublishedListProps> = ({ posts, onSelectPost }) => {
     return (
-        <div className="space-y-6">
-            <header>
-                <h2 className="text-3xl font-bold text-white border-b border-slate-700 pb-3 mb-6">Published Posts</h2>
-                <p className="text-slate-400 -mt-2">Here are your live articles. Congratulations!</p>
-            </header>
+        <div className="aca-fade-in">
+            <div className="aca-page-header">
+                <h1 className="aca-page-title">Published Posts</h1>
+                <p className="aca-page-description">Here are your live articles. Congratulations!</p>
+            </div>
 
-            <div className="bg-slate-800 p-4 sm:p-6 rounded-lg border border-slate-700/80">
+            <div className="aca-card">
                 {posts.length > 0 ? (
-                    <div className="space-y-3">
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                         {posts.map(post => (
-                            <div key={post.id} className="bg-slate-900/50 p-4 rounded-lg border border-slate-700 flex flex-col sm:flex-row gap-4 justify-between items-center hover:bg-slate-700/50 transition-colors">
-                                <div className="flex-grow text-center sm:text-left cursor-pointer" onClick={() => onSelectPost(post)}>
-                                    <h3 className="text-lg font-semibold text-green-400">{post.title}</h3>
-                                    <p className="text-sm text-slate-400">
+                            <div 
+                                key={post.id} 
+                                style={{ 
+                                    background: '#f6f7f7', 
+                                    padding: '20px', 
+                                    borderRadius: '4px', 
+                                    border: '1px solid #ccd0d4', 
+                                    display: 'flex', 
+                                    flexDirection: 'column', 
+                                    gap: '15px', 
+                                    alignItems: 'center', 
+                                    transition: 'background 0.2s ease',
+                                    cursor: 'pointer'
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.background = '#f0f0f1';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.background = '#f6f7f7';
+                                }}
+                            >
+                                <div 
+                                    style={{ 
+                                        flexGrow: 1, 
+                                        textAlign: 'center', 
+                                        cursor: 'pointer',
+                                        width: '100%'
+                                    }} 
+                                    onClick={() => onSelectPost(post)}
+                                >
+                                    <h3 style={{ 
+                                        fontSize: '18px', 
+                                        fontWeight: '600', 
+                                        color: '#00a32a', 
+                                        margin: '0 0 8px 0' 
+                                    }}>
+                                        {post.title}
+                                    </h3>
+                                    <p style={{ 
+                                        fontSize: '13px', 
+                                        color: '#646970', 
+                                        margin: 0 
+                                    }}>
                                         Published: {post.publishedAt ? new Date(post.publishedAt).toLocaleString() : 'N/A'}
                                     </p>
                                 </div>
                                 <button
                                     onClick={() => onSelectPost(post)}
-                                    className="bg-slate-600 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-slate-700 transition-colors flex-shrink-0"
+                                    className="aca-button secondary"
+                                    style={{ 
+                                        fontSize: '13px',
+                                        padding: '8px 16px',
+                                        flexShrink: 0
+                                    }}
                                 >
                                     View Post
                                 </button>
@@ -37,10 +81,16 @@ export const PublishedList: React.FC<PublishedListProps> = ({ posts, onSelectPos
                         ))}
                     </div>
                 ) : (
-                    <div className="text-center py-16 text-slate-500 border-2 border-dashed border-slate-700 rounded-md">
-                        <Send className="mx-auto h-12 w-12 text-slate-600" />
-                        <p className="mt-4 text-lg font-medium">No posts have been published yet.</p>
-                        <p>Create drafts and publish them to see them here.</p>
+                    <div style={{ 
+                        textAlign: 'center', 
+                        padding: '60px 20px', 
+                        color: '#646970', 
+                        border: '2px dashed #ccd0d4', 
+                        borderRadius: '4px' 
+                    }}>
+                        <Send style={{ margin: '0 auto 15px auto', width: '48px', height: '48px', fill: '#a7aaad' }} />
+                        <p style={{ margin: '0 0 5px 0', fontSize: '16px', fontWeight: '500', color: '#23282d' }}>No posts have been published yet.</p>
+                        <p style={{ margin: 0, fontSize: '13px' }}>Create drafts and publish them to see them here.</p>
                     </div>
                 )}
             </div>

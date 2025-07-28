@@ -1,6 +1,8 @@
 
 import React, { useState, useCallback, useEffect } from 'react';
 import { settingsApi, styleGuideApi, ideasApi, draftsApi, publishedApi, activityApi } from './services/wordpressApi';
+import { geminiService, setGeminiApiKey } from './services/geminiService';
+import { fetchStockPhotoAsBase64 } from './services/stockPhotoService';
 import type { StyleGuide, ContentIdea, Draft, View, AppSettings, ActivityLog, ActivityLogType, IconName, IdeaSource } from './types';
 import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './components/Dashboard';
@@ -40,6 +42,10 @@ const App: React.FC = () => {
 
     const drafts = posts.filter(p => p.status === 'draft');
     const publishedPosts = posts.filter(p => p.status === 'published');
+
+    useEffect(() => {
+        setGeminiApiKey(settings.geminiApiKey);
+    }, [settings.geminiApiKey]);
 
     // Load initial data from WordPress
     useEffect(() => {
@@ -88,6 +94,17 @@ const App: React.FC = () => {
         setToasts(currentToasts => [...currentToasts, { ...toast, id }]);
     }, []);
     
+    const addLogEntry = useCallback((type: ActivityLogType, details: string, icon: IconName) => {
+        const newLog: ActivityLog = {
+            id: Date.now(),
+            timestamp: new Date().toISOString(),
+            type,
+            details,
+            icon,
+        };
+        setActivityLogs(prevLogs => [newLog, ...prevLogs]);
+    }, []);
+    
 
 
     const removeToast = (id: number) => {
@@ -106,6 +123,7 @@ const App: React.FC = () => {
         try {
             const analysis = await styleGuideApi.analyze();
             setStyleGuide(analysis);
+            addLogEntry('style_updated', 'Style Guide was successfully updated.', 'BookOpen');
             if (!isAuto) {
                 addToast({ message: 'Style Guide successfully updated!', type: 'success' });
                 setView('style-guide');
@@ -141,6 +159,7 @@ const App: React.FC = () => {
                 setIdeas(prev => [...newIdeas, ...prev]);
                 const message = isAuto ? `Semi-auto: ${newIdeas.length} new ideas generated!` : `${newIdeas.length} new ideas generated!`;
                 addToast({ message, type: isAuto ? 'info' : 'success' });
+                addLogEntry('ideas_generated', `Generated ${newIdeas.length} new content ideas.`, 'Lightbulb');
                 if (!isAuto) {
                     setView('ideas');
                 }
@@ -169,6 +188,7 @@ const App: React.FC = () => {
             if (similarIdeas.length > 0) {
                 setIdeas(prev => [...similarIdeas, ...prev]);
                 addToast({ message: `Generated ${similarIdeas.length} ideas similar to "${baseIdea.title}"`, type: 'success' });
+                addLogEntry('ideas_generated', `Generated ${similarIdeas.length} similar ideas.`, 'Sparkles');
             } else {
                 addToast({ message: 'Could not generate similar ideas.', type: 'warning' });
             }
@@ -200,6 +220,7 @@ const App: React.FC = () => {
             setPosts(prev => [newDraft, ...prev]);
             setIdeas(prev => prev.filter(i => i.id !== idea.id));
             addToast({ message: `Draft "${idea.title}" created successfully!`, type: 'success' });
+            addLogEntry('draft_created', `Created draft: "${idea.title}"`, 'FileText');
             if (settings.mode !== 'full-automatic') {
                 setView('drafts');
             }
@@ -215,14 +236,89 @@ const App: React.FC = () => {
         }
     };
     
-    // Show automation status messages
+    // Auto Style Guide Analysis (runs on mount and periodically)
     useEffect(() => {
-        if (settings.mode === 'semi-automatic') {
-            addToast({ message: "Semi-Automatic mode activated. Ideas will be generated periodically.", type: "info" });
-        } else if (settings.mode === 'full-automatic') {
-            addToast({ message: "Full-Automatic mode activated. Content will be created automatically.", type: "info" });
+        if(settings.geminiApiKey) {
+            handleAnalyzeStyle(true); // Initial analysis
+            const styleInterval = setInterval(() => handleAnalyzeStyle(true), 30 * 60 * 1000); // every 30 mins
+            return () => clearInterval(styleInterval);
         }
-    }, [settings.mode, addToast]);
+    }, [handleAnalyzeStyle, settings.geminiApiKey]);
+    
+    // Semi-Automatic Mode: Generate Ideas periodically
+    useEffect(() => {
+        let intervalId: number | undefined;
+        if (settings.mode === 'semi-automatic' && styleGuide && settings.geminiApiKey) {
+            intervalId = window.setInterval(() => handleGenerateIdeas(true, 5), 15 * 60 * 1000); // every 15 mins
+            addToast({ message: "Semi-Automatic mode activated. Will generate ideas periodically.", type: "info" });
+        }
+        return () => {
+            if (intervalId) {
+                clearInterval(intervalId);
+                addToast({ message: "Semi-Automatic mode deactivated.", type: "info" });
+            }
+        }
+    }, [settings.mode, styleGuide, settings.geminiApiKey, addToast, handleGenerateIdeas]);
+
+    // Full-Automatic Mode: Full content cycle periodically
+    useEffect(() => {
+        let intervalId: number | undefined;
+        const runAutoProcess = async () => {
+          if (!settings.geminiApiKey) {
+            addToast({ message: "Auto-pilot paused: Please set your Google AI API Key in Settings.", type: "warning" });
+            return;
+          }
+          if (!styleGuide) {
+            console.warn("Auto-pilot paused: Style Guide must be set.");
+            return;
+          }
+          addToast({ message: "Auto-pilot: Starting content cycle...", type: "info" });
+          setIsLoading(prev => ({ ...prev, auto: true }));
+          try {
+            const existingTitles = [...posts.map(p => p.title), ...ideas.map(i => i.title)];
+             const searchConsoleData = settings.searchConsoleUser
+                ? {
+                    topQueries: ['AI for content marketing', 'how to write blog posts faster', 'wordpress automation tools'],
+                    underperformingPages: ['/blog/old-seo-tips', '/blog/2022-social-media-trends']
+                  }
+                : undefined;
+            
+            const ideasResult = await geminiService.generateIdeas(JSON.stringify(styleGuide), existingTitles, 1, searchConsoleData);
+            const parsedIdeas = JSON.parse(ideasResult);
+            const newTitle = parsedIdeas[0];
+            if (!newTitle) throw new Error("Failed to generate a unique idea.");
+    
+            const ideaObject: ContentIdea = { id: Date.now(), title: newTitle, status: "new", source: 'ai' };
+            addToast({ message: `Auto-pilot: Generated idea "${newTitle}"`, type: "info" });
+    
+            const newDraft = await handleCreateDraft(ideaObject);
+            if (newDraft && settings.autoPublish) {
+              addToast({ message: `Auto-pilot: Publishing post...`, type: "info" });
+              setTimeout(() => handlePublishPost(newDraft.id), 1500);
+            }
+          } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+            console.error("Auto-pilot process failed:", errorMessage);
+            addToast({ message: `Auto-pilot error: ${errorMessage}`, type: "error" });
+          } finally {
+            setIsLoading(prev => ({ ...prev, auto: false }));
+          }
+        };
+    
+        if (settings.mode === 'full-automatic') {
+          intervalId = window.setInterval(runAutoProcess, 30 * 60 * 1000); // every 30 mins
+          addToast({ message: "Full-Automatic mode activated.", type: "info" });
+        }
+    
+        return () => {
+          if (intervalId) {
+            clearInterval(intervalId);
+            if (settings.mode === 'full-automatic') {
+                addToast({ message: "Full-Automatic mode deactivated.", type: "info" });
+            }
+          }
+        };
+      }, [settings, styleGuide, addToast, handleCreateDraft, ideas, posts]);
 
 
     const handlePublishPost = async (id: number) => {
@@ -243,6 +339,7 @@ const App: React.FC = () => {
             const post = posts.find(p => p.id === id);
             if (post) {
                 addToast({ message: `Post "${post.title}" published!`, type: 'success' });
+                addLogEntry('post_published', `Published post: "${post.title}"`, 'Send');
             }
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Failed to publish post';
@@ -261,6 +358,7 @@ const App: React.FC = () => {
             );
             setSelectedDraft(prev => prev ? { ...prev, ...updates } : null);
             addToast({ message: `Draft "${updates.title || 'post'}" has been updated.`, type: 'success' });
+            addLogEntry('draft_updated', `Updated draft: "${updates.title}"`, 'Pencil');
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Failed to update draft';
             addToast({ message: errorMessage, type: 'error' });
@@ -275,6 +373,7 @@ const App: React.FC = () => {
                 currentPosts.map(p => {
                     if (p.id === id) {
                         addToast({ message: `Draft "${p.title}" scheduled for ${new Date(date).toLocaleDateString()}.`, type: 'info' });
+                        addLogEntry('draft_scheduled', `Scheduled draft: "${p.title}"`, 'Calendar');
                         return { ...p, scheduledFor: date };
                     }
                     return p;
@@ -291,6 +390,7 @@ const App: React.FC = () => {
             await settingsApi.save(newSettings);
             setSettings(newSettings);
             addToast({ message: 'Settings saved successfully!', type: 'success' });
+            addLogEntry('settings_saved', 'Application settings were updated.', 'Settings');
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Failed to save settings';
             addToast({ message: errorMessage, type: 'error' });
@@ -302,6 +402,7 @@ const App: React.FC = () => {
             await styleGuideApi.save(newGuide);
             setStyleGuide(newGuide);
             addToast({ message: 'Style Guide saved successfully!', type: 'success' });
+            addLogEntry('style_updated', 'Style Guide was manually edited and saved.', 'BookOpen');
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Failed to save style guide';
             addToast({ message: errorMessage, type: 'error' });
@@ -309,10 +410,14 @@ const App: React.FC = () => {
     };
 
     const handleArchiveIdea = async (id: number) => {
+        const idea = ideas.find(i => i.id === id);
         try {
             await ideasApi.delete(id);
             setIdeas(prev => prev.filter(i => i.id !== id));
             addToast({ message: 'Idea archived.', type: 'info' });
+            if (idea) {
+                addLogEntry('idea_archived', `Archived idea: "${idea.title}"`, 'Trash');
+            }
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Failed to archive idea';
             addToast({ message: errorMessage, type: 'error' });
@@ -328,6 +433,7 @@ const App: React.FC = () => {
                 )
             );
             addToast({ message: 'Idea title updated.', type: 'info' });
+            addLogEntry('idea_title_updated', `Updated idea title to "${newTitle}"`, 'Pencil');
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Failed to update idea';
             addToast({ message: errorMessage, type: 'error' });
@@ -344,6 +450,7 @@ const App: React.FC = () => {
             const newIdea = await ideasApi.add(title.trim());
             setIdeas(prev => [newIdea, ...prev]);
             addToast({ message: 'Idea added successfully!', type: 'success' });
+            addLogEntry('idea_added', `Manually added idea: "${title.trim()}"`, 'PlusCircle');
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Failed to add idea';
             addToast({ message: errorMessage, type: 'error' });

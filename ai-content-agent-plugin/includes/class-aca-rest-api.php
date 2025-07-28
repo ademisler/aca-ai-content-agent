@@ -675,31 +675,51 @@ class ACA_Rest_Api {
      * Create draft from idea
      */
     public function create_draft($request) {
-        $nonce_check = $this->verify_nonce($request);
-        if (is_wp_error($nonce_check)) {
-            return $nonce_check;
+        // Set up error handling to catch fatal errors
+        $old_error_handler = set_error_handler(function($severity, $message, $file, $line) {
+            error_log("ACA PHP Error: $message in $file on line $line");
+            throw new ErrorException($message, 0, $severity, $file, $line);
+        });
+        
+        try {
+            $nonce_check = $this->verify_nonce($request);
+            if (is_wp_error($nonce_check)) {
+                return $nonce_check;
+            }
+            
+            $params = $request->get_json_params();
+            if (!isset($params['ideaId'])) {
+                return new WP_Error('missing_idea_id', 'Idea ID is required', array('status' => 400));
+            }
+            
+            $idea_id = (int) $params['ideaId'];
+            
+            // Log the attempt
+            error_log('ACA: Creating draft for idea ID: ' . $idea_id);
+            
+            $result = $this->create_draft_from_idea($idea_id);
+            
+            // Log the result
+            if (is_wp_error($result)) {
+                error_log('ACA: Draft creation failed for idea ' . $idea_id . ': ' . $result->get_error_message());
+            } else {
+                error_log('ACA: Draft creation successful for idea ' . $idea_id);
+            }
+            
+            return $result;
+            
+        } catch (Throwable $e) {
+            error_log('ACA FATAL ERROR in create_draft: ' . $e->getMessage());
+            error_log('ACA FATAL ERROR stack trace: ' . $e->getTraceAsString());
+            return new WP_Error('fatal_error', 'A fatal error occurred during draft creation: ' . $e->getMessage(), array('status' => 500));
+        } finally {
+            // Restore previous error handler
+            if ($old_error_handler) {
+                set_error_handler($old_error_handler);
+            } else {
+                restore_error_handler();
+            }
         }
-        
-        $params = $request->get_json_params();
-        if (!isset($params['ideaId'])) {
-            return new WP_Error('missing_idea_id', 'Idea ID is required', array('status' => 400));
-        }
-        
-        $idea_id = (int) $params['ideaId'];
-        
-        // Log the attempt
-        error_log('ACA: Creating draft for idea ID: ' . $idea_id);
-        
-        $result = $this->create_draft_from_idea($idea_id);
-        
-        // Log the result
-        if (is_wp_error($result)) {
-            error_log('ACA: Draft creation failed for idea ' . $idea_id . ': ' . $result->get_error_message());
-        } else {
-            error_log('ACA: Draft creation successful for idea ' . $idea_id);
-        }
-        
-        return $result;
     }
     
     /**
@@ -708,6 +728,9 @@ class ACA_Rest_Api {
     public function create_draft_from_idea($idea_id, $is_auto = false) {
         global $wpdb;
         
+        // Enable error reporting for debugging
+        error_log('ACA DEBUG: Starting create_draft_from_idea for ID: ' . $idea_id);
+        
         // Get the idea
         $idea = $wpdb->get_row($wpdb->prepare(
             "SELECT * FROM {$wpdb->prefix}aca_ideas WHERE id = %d",
@@ -715,11 +738,17 @@ class ACA_Rest_Api {
         ));
         
         if (!$idea) {
+            error_log('ACA DEBUG: Idea not found for ID: ' . $idea_id);
             return new WP_Error('idea_not_found', 'Idea not found', array('status' => 404));
         }
         
+        error_log('ACA DEBUG: Idea found: ' . $idea->title);
+        
         $settings = get_option('aca_settings', array());
         $style_guide = get_option('aca_style_guide');
+        
+        error_log('ACA DEBUG: Settings loaded, API key present: ' . (!empty($settings['geminiApiKey']) ? 'YES' : 'NO'));
+        error_log('ACA DEBUG: Style guide present: ' . (!empty($style_guide) ? 'YES' : 'NO'));
         
         if (empty($settings['geminiApiKey'])) {
             return new WP_Error('no_api_key', 'Google AI API Key is not set', array('status' => 400));
@@ -730,7 +759,10 @@ class ACA_Rest_Api {
         }
         
         try {
+            error_log('ACA DEBUG: Starting try block');
+            
             // Get existing published posts for internal linking
+            error_log('ACA DEBUG: Getting published posts');
             $published_posts = get_posts(array(
                 'post_type' => 'post',
                 'post_status' => 'publish',
@@ -738,6 +770,8 @@ class ACA_Rest_Api {
                 'orderby' => 'date',
                 'order' => 'DESC'
             ));
+            
+            error_log('ACA DEBUG: Found ' . count($published_posts) . ' published posts');
             
             $existing_posts_context = array();
             foreach ($published_posts as $post) {
@@ -750,6 +784,7 @@ class ACA_Rest_Api {
             }
             
             // Generate content using AI
+            error_log('ACA DEBUG: Starting AI content generation');
             try {
                 $draft_content = $this->call_gemini_create_draft(
                     $settings['geminiApiKey'],
@@ -757,6 +792,8 @@ class ACA_Rest_Api {
                     json_encode($style_guide),
                     $existing_posts_context
                 );
+                
+                error_log('ACA DEBUG: AI content generated, length: ' . strlen($draft_content));
                 
                 if (empty($draft_content)) {
                     throw new Exception('Empty response from AI service');
@@ -826,14 +863,20 @@ class ACA_Rest_Api {
                 )
             );
             
+            error_log('ACA DEBUG: Creating WordPress post');
             $post_id = wp_insert_post($post_data);
             
             if (is_wp_error($post_id)) {
+                error_log('ACA DEBUG: wp_insert_post failed: ' . $post_id->get_error_message());
                 throw new Exception('Failed to create WordPress post: ' . $post_id->get_error_message());
             }
             
+            error_log('ACA DEBUG: WordPress post created with ID: ' . $post_id);
+            
             // Add categories safely
+            error_log('ACA DEBUG: Processing categories');
             if (isset($draft_data['categories']) && is_array($draft_data['categories'])) {
+                error_log('ACA DEBUG: Found ' . count($draft_data['categories']) . ' categories to process');
                 $category_ids = array();
                 foreach ($draft_data['categories'] as $category_name) {
                     if (is_string($category_name) && !empty(trim($category_name))) {
@@ -851,12 +894,19 @@ class ACA_Rest_Api {
                     }
                 }
                 if (!empty($category_ids)) {
+                    error_log('ACA DEBUG: Setting ' . count($category_ids) . ' categories');
                     wp_set_post_categories($post_id, $category_ids);
+                } else {
+                    error_log('ACA DEBUG: No valid categories to set');
                 }
+            } else {
+                error_log('ACA DEBUG: No categories in draft_data');
             }
             
             // Add tags safely
+            error_log('ACA DEBUG: Processing tags');
             if (isset($draft_data['tags']) && is_array($draft_data['tags'])) {
+                error_log('ACA DEBUG: Found ' . count($draft_data['tags']) . ' tags to process');
                 $clean_tags = array();
                 foreach ($draft_data['tags'] as $tag) {
                     if (is_string($tag) && !empty(trim($tag))) {
@@ -864,8 +914,13 @@ class ACA_Rest_Api {
                     }
                 }
                 if (!empty($clean_tags)) {
+                    error_log('ACA DEBUG: Setting ' . count($clean_tags) . ' tags: ' . implode(', ', $clean_tags));
                     wp_set_post_tags($post_id, $clean_tags);
+                } else {
+                    error_log('ACA DEBUG: No valid tags to set');
                 }
+            } else {
+                error_log('ACA DEBUG: No tags in draft_data');
             }
             
             // Set featured image if we have one
@@ -884,12 +939,16 @@ class ACA_Rest_Api {
             );
             
             // Add activity log with error handling (non-blocking)
+            error_log('ACA DEBUG: Adding activity log');
             $log_result = $this->add_activity_log('draft_created', "Created draft: \"{$idea->title}\"", 'FileText');
             if (!$log_result) {
-                error_log('ACA: Activity log failed but continuing with draft creation');
+                error_log('ACA DEBUG: Activity log failed but continuing with draft creation');
+            } else {
+                error_log('ACA DEBUG: Activity log added successfully');
             }
             
             // Return the created post - simplified approach to avoid formatting errors
+            error_log('ACA DEBUG: Getting created post for response');
             $created_post = get_post($post_id);
             
             if (!$created_post) {
@@ -929,9 +988,11 @@ class ACA_Rest_Api {
                 'message' => 'Draft created successfully'
             );
             
+            error_log('ACA DEBUG: Returning successful response');
             return rest_ensure_response($safe_response);
             
         } catch (Exception $e) {
+            error_log('ACA DEBUG: Exception caught in create_draft_from_idea');
             error_log('ACA Draft Creation Error: ' . $e->getMessage());
             error_log('ACA Draft Creation Stack Trace: ' . $e->getTraceAsString());
             error_log('ACA Draft Creation Context - Idea ID: ' . $idea_id);

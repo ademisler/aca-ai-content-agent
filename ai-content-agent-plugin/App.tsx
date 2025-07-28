@@ -219,13 +219,10 @@ const App: React.FC = () => {
             setIdeas(prev => prev.map(i => i.id === ideaId ? updatedIdea : i));
             
             addToast({ 
-                message: `Draft "${draft.title}" created successfully with ${draft.tags?.length || 0} tags and ${draft.categories?.length || 0} categories!`, 
+                message: `Draft "${draft.title}" created successfully! Check WordPress admin for the post.`, 
                 type: 'success' 
             });
             addLogEntry('draft_created', `Created draft: "${draft.title}" with full WordPress integration`, 'FileText');
-            
-            // Navigate to drafts page after successful creation
-            setView('drafts');
         } catch (error) {
             console.error('Error creating draft:', error);
             const errorMessage = error instanceof Error ? error.message : 'Failed to create draft';

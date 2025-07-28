@@ -828,7 +828,26 @@ class ACA_Rest_Api {
             
             // Return the created post
             $created_post = get_post($post_id);
-            return rest_ensure_response($this->format_post_for_api($created_post));
+            
+            if (!$created_post) {
+                throw new Exception('Failed to retrieve created post');
+            }
+            
+            try {
+                $formatted_post = $this->format_post_for_api($created_post);
+                return rest_ensure_response($formatted_post);
+            } catch (Exception $format_error) {
+                // If formatting fails, return basic post data
+                error_log('ACA Format Post Error: ' . $format_error->getMessage());
+                return rest_ensure_response(array(
+                    'id' => $post_id,
+                    'title' => $idea->title,
+                    'content' => $draft_data['content'],
+                    'status' => 'draft',
+                    'createdAt' => current_time('mysql'),
+                    'message' => 'Draft created successfully but with limited formatting'
+                ));
+            }
             
         } catch (Exception $e) {
             error_log('ACA Draft Creation Error: ' . $e->getMessage());

@@ -1,6 +1,6 @@
 # AI Content Agent (ACA) WordPress Plugin
 
-![Version](https://img.shields.io/badge/version-1.3.2-blue.svg)
+![Version](https://img.shields.io/badge/version-1.3.3-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-6.0+-green.svg)
 ![PHP](https://img.shields.io/badge/PHP-8.0+-purple.svg)
 ![React](https://img.shields.io/badge/React-18+-61DAFB.svg)
@@ -15,6 +15,13 @@
 - **Full Draft Creation**: Generates complete blog posts (800-1500 words) with proper HTML structure
 - **SEO Optimization**: Automatic meta titles, descriptions, and focus keywords
 - **Content Formatting**: Smart Markdown to HTML conversion for perfect WordPress display
+
+### 📅 Content Calendar & Scheduling
+- **Visual Calendar**: Drag-and-drop interface for scheduling content
+- **WordPress Scheduling**: Proper integration with WordPress post scheduling system
+- **Visual Indicators**: Clear distinction between unscheduled, scheduled, and published content
+- **Calendar Navigation**: Navigate months to see your complete content timeline
+- **Click-to-Edit**: Click on any scheduled or published post to view and edit
 
 ### 📝 WordPress Integration
 - **Native WordPress Posts**: Creates real WordPress draft posts with full metadata
@@ -44,7 +51,7 @@
 
 ### Installation
 
-1. **Download** the latest `ai-content-agent-v1.3.2-markdown-fix.zip` file
+1. **Download** the latest `ai-content-agent-v1.3.3-calendar-fix.zip` file
 2. **Upload** to WordPress Admin → Plugins → Add New → Upload Plugin
 3. **Activate** the plugin
 4. **Configure** your Google Gemini API key in Settings
@@ -208,7 +215,14 @@ This project is licensed under the GPL v2 or later - see the [LICENSE](LICENSE) 
 
 ## 🔄 Changelog
 
-### Version 1.3.2 (Current) - Content Formatting Fix
+### Version 1.3.3 (Current) - Content Calendar Fix
+- 🎯 **FIXED**: Drag-and-drop functionality where drafts disappeared after scheduling
+- ✅ **Added**: Proper WordPress post scheduling with `post_status: 'future'`
+- ✅ **Enhanced**: Visual indicators for scheduled drafts (yellow background)
+- ✅ **Improved**: API parameter handling and state management
+- ✅ **Added**: Clickable scheduled items for editing
+
+### Version 1.3.2 - Content Formatting Fix
 - 🎨 **FIXED**: Markdown formatting in generated content
 - ✅ **Added**: Automatic Markdown to HTML conversion
 - ✅ **Enhanced**: Content display in WordPress

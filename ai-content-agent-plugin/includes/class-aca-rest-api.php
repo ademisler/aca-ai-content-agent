@@ -635,7 +635,7 @@ class ACA_Rest_Api {
     public function get_drafts($request) {
         $drafts = get_posts(array(
             'post_type' => 'post',
-            'post_status' => 'draft',
+            'post_status' => array('draft', 'future'),
             'meta_key' => '_aca_meta_title',
             'numberposts' => -1,
             'orderby' => 'date',
@@ -1163,14 +1163,60 @@ class ACA_Rest_Api {
         
         $post_id = $request['id'];
         $params = $request->get_json_params();
-        $scheduled_date = $params['date'];
         
+        // Handle both 'date' and 'scheduledDate' parameters for compatibility
+        $scheduled_date = isset($params['scheduledDate']) ? $params['scheduledDate'] : (isset($params['date']) ? $params['date'] : null);
+        
+        if (empty($scheduled_date)) {
+            return new WP_Error('missing_date', 'Scheduled date is required', array('status' => 400));
+        }
+        
+        // Validate and parse the date
+        $parsed_date = date_create($scheduled_date);
+        if (!$parsed_date) {
+            return new WP_Error('invalid_date', 'Invalid date format', array('status' => 400));
+        }
+        
+        // Format date for WordPress
+        $wordpress_date = $parsed_date->format('Y-m-d H:i:s');
+        
+        // Update post meta for our plugin
         update_post_meta($post_id, '_aca_scheduled_for', $scheduled_date);
         
-        $post = get_post($post_id);
-        $this->add_activity_log('draft_scheduled', "Scheduled draft: \"{$post->post_title}\"", 'Calendar');
+        // Update WordPress post to actually schedule it
+        $current_time = current_time('mysql');
+        if ($wordpress_date > $current_time) {
+            // Schedule for future - set post status to 'future' and update post_date
+            $update_result = wp_update_post(array(
+                'ID' => $post_id,
+                'post_status' => 'future',
+                'post_date' => $wordpress_date,
+                'post_date_gmt' => get_gmt_from_date($wordpress_date)
+            ));
+        } else {
+            // Date is in the past or now - just update our meta field
+            $update_result = wp_update_post(array(
+                'ID' => $post_id,
+                'post_date' => $wordpress_date,
+                'post_date_gmt' => get_gmt_from_date($wordpress_date)
+            ));
+        }
         
-        return rest_ensure_response(array('success' => true));
+        if (is_wp_error($update_result)) {
+            return new WP_Error('update_failed', 'Failed to schedule post: ' . $update_result->get_error_message(), array('status' => 500));
+        }
+        
+        // Get the updated post and format it for API response
+        $updated_post = get_post($post_id);
+        if (!$updated_post) {
+            return new WP_Error('post_not_found', 'Post not found after update', array('status' => 404));
+        }
+        
+        $formatted_post = $this->format_post_for_api($updated_post);
+        
+        $this->add_activity_log('draft_scheduled', "Scheduled draft: \"{$updated_post->post_title}\" for " . $parsed_date->format('M j, Y g:i A'), 'Calendar');
+        
+        return rest_ensure_response($formatted_post);
     }
     
     /**
@@ -1300,7 +1346,7 @@ class ACA_Rest_Api {
                 'tags' => $tag_names,
                 'featuredImage' => $featured_image,
                 'createdAt' => $post->post_date ?: current_time('mysql'),
-                'status' => $post->post_status ?: 'draft',
+                'status' => $post->post_status === 'future' ? 'draft' : ($post->post_status ?: 'draft'),
                 'publishedAt' => $post->post_status === 'publish' ? $post->post_date : null,
                 'url' => $post->post_status === 'publish' ? get_permalink($post->ID) : null,
                 'scheduledFor' => $scheduled_for,

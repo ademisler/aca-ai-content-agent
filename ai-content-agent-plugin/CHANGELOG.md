@@ -5,6 +5,35 @@ All notable changes to the AI Content Agent WordPress plugin will be documented 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.3] - 2025-01-28 - Content Calendar Fix
+
+### 🎯 Fixed
+- **Draft Scheduling Issues**: Fixed drag-and-drop functionality where drafts would disappear after scheduling
+- **WordPress Integration**: Proper WordPress post scheduling with `post_status: 'future'` for scheduled posts
+- **API Parameter Mismatch**: Fixed backend expecting `date` parameter while frontend sent `scheduledDate`
+- **State Management**: Fixed frontend state not updating properly after scheduling operations
+- **Calendar Display**: Scheduled drafts now properly appear on calendar dates and remain visible
+
+### ✅ Added
+- **Visual Indicators**: Scheduled drafts now show with yellow background to distinguish from published posts
+- **Clickable Scheduled Items**: Users can click on scheduled drafts to view and edit them
+- **Enhanced Error Handling**: Better error messages and validation for scheduling operations
+- **WordPress Scheduling**: Posts are now properly scheduled in WordPress with correct publication dates
+
+### 🔧 Enhanced
+- **User Experience**: Improved drag-and-drop feedback and confirmation messages
+- **Calendar Navigation**: Better visual distinction between unscheduled, scheduled, and published content
+- **API Response**: Backend now returns complete updated draft object after scheduling
+- **Instructions Panel**: Updated help text to reflect new scheduling functionality
+
+### 📝 Technical Details
+- Updated `schedule_draft()` function to handle both `date` and `scheduledDate` parameters
+- Added proper WordPress post scheduling with `wp_update_post()` and `post_status: 'future'`
+- Enhanced `format_post_for_api()` to properly handle 'future' status posts
+- Updated `get_drafts()` to include both 'draft' and 'future' status posts
+- Improved frontend state management in `handleScheduleDraft()` function
+- Added visual styling for scheduled drafts with yellow background (#fff3cd)
+
 ## [1.3.2] - 2025-01-XX - Content Formatting Fix
 
 ### 🎨 Fixed

@@ -227,7 +227,33 @@ export const ContentCalendar: React.FC<ContentCalendarProps> = ({ drafts, publis
                                                 flex: 1
                                             }}>
                                                 {scheduledDrafts.map(draft => (
-                                                    <DraggableDraft key={draft.id} draft={draft} />
+                                                    <div 
+                                                        key={draft.id} 
+                                                        onClick={() => onSelectPost(draft)} 
+                                                        className="aca-action-button"
+                                                        style={{
+                                                            background: '#fff3cd',
+                                                            border: '1px solid #ffc107',
+                                                            color: '#856404',
+                                                            padding: '8px 10px',
+                                                            fontSize: '12px',
+                                                            overflow: 'hidden',
+                                                            textOverflow: 'ellipsis',
+                                                            whiteSpace: 'nowrap' as const,
+                                                            cursor: 'pointer',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            gap: '6px',
+                                                            fontWeight: '500',
+                                                            margin: 0
+                                                        }}
+                                                        title={`Scheduled: ${draft.title}`}
+                                                    >
+                                                        <FileText style={{ width: '12px', height: '12px', flexShrink: 0 }} />
+                                                        <span style={{ flexGrow: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                                            {draft.title}
+                                                        </span>
+                                                    </div>
                                                 ))}
                                                 {postsToday.map(post => (
                                                     <div 
@@ -250,6 +276,7 @@ export const ContentCalendar: React.FC<ContentCalendarProps> = ({ drafts, publis
                                                             fontWeight: '500',
                                                             margin: 0
                                                         }}
+                                                        title={`Published: ${post.title}`}
                                                     >
                                                         <Send style={{ width: '12px', height: '12px', flexShrink: 0 }} />
                                                         <span style={{ flexGrow: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -325,21 +352,28 @@ export const ContentCalendar: React.FC<ContentCalendarProps> = ({ drafts, publis
                             <div style={{ marginBottom: '20px' }}>
                                 <h4 className="aca-label">Scheduling Drafts</h4>
                                 <p style={{ margin: 0 }}>
-                                    Drag any unscheduled draft from the sidebar and drop it onto a calendar date to schedule it for that day.
+                                    Drag any unscheduled draft from the sidebar and drop it onto a calendar date to schedule it for publication on that day.
+                                </p>
+                            </div>
+                            
+                            <div style={{ marginBottom: '20px' }}>
+                                <h4 className="aca-label">Scheduled Drafts</h4>
+                                <p style={{ margin: 0 }}>
+                                    Yellow items show scheduled drafts. Click on them to view and edit the content. Scheduled posts will be automatically published by WordPress.
                                 </p>
                             </div>
                             
                             <div style={{ marginBottom: '20px' }}>
                                 <h4 className="aca-label">Published Posts</h4>
                                 <p style={{ margin: 0 }}>
-                                    Green items show published posts. Click on them to view the full content.
+                                    Green items show published posts. Click on them to view the full content and manage them.
                                 </p>
                             </div>
                             
                             <div>
                                 <h4 className="aca-label">Navigation</h4>
                                 <p style={{ margin: 0 }}>
-                                    Use the arrow buttons to navigate between months and see your content timeline.
+                                    Use the arrow buttons to navigate between months and see your complete content timeline.
                                 </p>
                             </div>
                         </div>

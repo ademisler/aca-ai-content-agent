@@ -261,13 +261,20 @@ const App: React.FC = () => {
 
     const handleScheduleDraft = useCallback(async (draftId: number, scheduledDate: string) => {
         try {
-            const scheduledDraft = await draftsApi.schedule(draftId, scheduledDate);
-            setPosts(prev => prev.map(p => p.id === draftId ? scheduledDraft : p));
-            addToast({ message: 'Draft scheduled successfully!', type: 'success' });
-            addLogEntry('draft_scheduled', `Scheduled draft: "${scheduledDraft.title}" for ${new Date(scheduledDate).toLocaleDateString()}`, 'Calendar');
+            const updatedDraft = await draftsApi.schedule(draftId, scheduledDate);
+            
+            // Update the posts array with the properly scheduled draft
+            setPosts(prev => prev.map(p => p.id === draftId ? updatedDraft : p));
+            
+            const formattedDate = new Date(scheduledDate).toLocaleDateString();
+            const draftTitle = updatedDraft.title || `Draft ${draftId}`;
+            
+            addToast({ message: `Draft "${draftTitle}" scheduled for ${formattedDate}!`, type: 'success' });
+            addLogEntry('draft_scheduled', `Scheduled draft: "${draftTitle}" for ${formattedDate}`, 'Calendar');
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Failed to schedule draft';
             addToast({ message: errorMessage, type: 'error' });
+            console.error('Error scheduling draft:', error);
         }
     }, [addToast, addLogEntry]);
 

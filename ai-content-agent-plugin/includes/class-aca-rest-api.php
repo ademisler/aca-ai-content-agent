@@ -1272,18 +1272,28 @@ class ACA_Rest_Api {
     }
     
     private function call_gemini_create_draft($api_key, $title, $style_guide, $existing_posts) {
+        // Safely build context string
         $context_string = '';
-        if (!empty($existing_posts)) {
+        if (!empty($existing_posts) && is_array($existing_posts)) {
             $context_string = "Here are some recently published posts for context and internal linking:\n";
             foreach ($existing_posts as $post) {
-                $context_string .= "Title: {$post['title']}\nURL: {$post['url']}\nContent snippet: {$post['content']}...\n\n";
+                if (is_array($post) && isset($post['title'], $post['url'], $post['content'])) {
+                    $safe_title = wp_strip_all_tags($post['title']);
+                    $safe_url = esc_url($post['url']);
+                    $safe_content = wp_strip_all_tags(substr($post['content'], 0, 200));
+                    $context_string .= "Title: {$safe_title}\nURL: {$safe_url}\nContent snippet: {$safe_content}...\n\n";
+                }
             }
         }
 
+        // Clean inputs
+        $safe_title = wp_strip_all_tags($title);
+        $safe_style_guide = is_string($style_guide) ? wp_strip_all_tags($style_guide) : '';
+
         $prompt = "
-            Create a comprehensive blog post based on this idea: \"{$title}\"
+            Create a comprehensive blog post based on this idea: \"{$safe_title}\"
             
-            Use this style guide: {$style_guide}
+            Use this style guide: {$safe_style_guide}
             
             {$context_string}
             
@@ -1395,11 +1405,22 @@ class ACA_Rest_Api {
     private function call_gemini_api($api_key, $prompt) {
         $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
         
-        $body = json_encode(array(
+        // Clean and validate prompt
+        $clean_prompt = is_string($prompt) ? trim($prompt) : '';
+        if (empty($clean_prompt)) {
+            throw new Exception('Empty or invalid prompt provided');
+        }
+        
+        // Ensure prompt is valid UTF-8
+        if (!mb_check_encoding($clean_prompt, 'UTF-8')) {
+            $clean_prompt = mb_convert_encoding($clean_prompt, 'UTF-8', 'UTF-8');
+        }
+        
+        $request_data = array(
             'contents' => array(
                 array(
                     'parts' => array(
-                        array('text' => $prompt)
+                        array('text' => $clean_prompt)
                     )
                 )
             ),
@@ -1408,7 +1429,16 @@ class ACA_Rest_Api {
                 'maxOutputTokens' => 2048,
                 'responseMimeType' => 'application/json'
             )
-        ));
+        );
+        
+        $body = json_encode($request_data);
+        
+        // Check if json_encode failed
+        if ($body === false) {
+            error_log('ACA JSON Encode Error: ' . json_last_error_msg());
+            error_log('ACA Request Data: ' . print_r($request_data, true));
+            throw new Exception('Failed to encode request data: ' . json_last_error_msg());
+        }
         
                         $response = wp_remote_post($url, array(
                     'headers' => array(

@@ -5,6 +5,39 @@ All notable changes to the AI Content Agent WordPress plugin will be documented 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.6] - 2025-01-28 - ENHANCED CALENDAR UX
+
+### 🎯 MAJOR IMPROVEMENTS
+- **WordPress Editor Integration**: Clicking on scheduled drafts or published posts now opens WordPress editor directly (no more popup)
+- **Re-draggable Scheduled Drafts**: Scheduled drafts can now be dragged to different dates for rescheduling
+- **Published Posts Display**: Published posts now appear on calendar with green indicators
+- **Enhanced Visual Design**: Improved calendar layout with better spacing and modern UI
+- **Smart Date Detection**: Better handling of calendar dates and scheduling logic
+
+### ✨ NEW FEATURES
+- **Direct WordPress Editing**: Click any calendar item to open in WordPress editor in new tab
+- **Drag-to-Reschedule**: Move scheduled drafts between dates by dragging
+- **Published Content Timeline**: View published posts alongside scheduled drafts
+- **Visual Status Indicators**: 
+  - 🟡 Yellow = Scheduled drafts (draggable, clickable)
+  - 🟢 Green = Published posts (clickable)
+  - 🔵 Blue border = Today's date
+- **Improved Instructions**: Better user guidance with visual examples
+
+### 🔧 TECHNICAL ENHANCEMENTS
+- **Icon System**: Consistent icon usage with Clock, Edit, and Eye indicators
+- **Responsive Grid**: Better calendar grid layout for various screen sizes
+- **Admin URL Integration**: Proper WordPress admin URL handling for editor links
+- **Enhanced Drag & Drop**: Improved drag-and-drop feedback and visual states
+
+### 🎨 UI/UX IMPROVEMENTS
+- **Cleaner Calendar Grid**: Modern grid design with better visual separation
+- **Compact Item Display**: Optimized space usage for calendar items
+- **Hover States**: Better visual feedback for interactive elements
+- **Tooltip Enhancements**: Informative tooltips with action guidance
+
+This version transforms the calendar from a basic scheduling tool into a comprehensive content management interface!
+
 ## [1.3.5] - 2025-01-28 - COMPREHENSIVE SCHEDULING FIX
 
 ### 🎯 MAJOR FIXES

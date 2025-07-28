@@ -820,11 +820,27 @@ class ACA_Rest_Api {
                 }
                 
                 $draft_data = json_decode($draft_content, true);
-                if (json_last_error() !== JSON_ERROR_NONE) {
-                    error_log('ACA JSON Decode Error: ' . json_last_error_msg());
-                    error_log('ACA Raw Response: ' . $draft_content);
-                    throw new Exception('Invalid JSON response from AI service: ' . json_last_error_msg());
-                }
+                                        if (json_last_error() !== JSON_ERROR_NONE) {
+                            error_log('ACA JSON Decode Error: ' . json_last_error_msg());
+                            error_log('ACA Raw Response Length: ' . strlen($draft_content));
+                            error_log('ACA Raw Response First 1000 chars: ' . substr($draft_content, 0, 1000));
+                            error_log('ACA Raw Response Last 500 chars: ' . substr($draft_content, -500));
+                            
+                            // Try to clean and fix common JSON issues
+                            $cleaned_content = $this->clean_ai_json_response($draft_content);
+                            if ($cleaned_content !== $draft_content) {
+                                error_log('ACA Attempting to parse cleaned JSON');
+                                $draft_data = json_decode($cleaned_content, true);
+                                if (json_last_error() === JSON_ERROR_NONE) {
+                                    error_log('ACA Successfully parsed cleaned JSON');
+                                } else {
+                                    error_log('ACA Cleaned JSON still invalid: ' . json_last_error_msg());
+                                    throw new Exception('Invalid JSON response from AI service after cleaning: ' . json_last_error_msg());
+                                }
+                            } else {
+                                throw new Exception('Invalid JSON response from AI service: ' . json_last_error_msg());
+                            }
+                        }
                 
                 // Validate required fields with detailed logging
                 $missing_fields = array();
@@ -1468,36 +1484,35 @@ class ACA_Rest_Api {
             }
         }
 
-        $prompt = "
-            Create a comprehensive blog post based on this idea: \"{$safe_title}\"
-            
-            Use this style guide: {$safe_style_guide}
-            
-            {$context_string}
-            
-            {$categories_string}
-            
-            Requirements:
-            - Write a well-structured blog post with clear H2 and H3 headings
-            - 800-1500 words in length
-            - Engaging introduction and compelling conclusion
-            - SEO-optimized content matching the style guide
-            - Include 2-3 internal links to the provided existing posts where contextually relevant
-            - Use markdown format for links: [anchor text](URL)
-            - For categories: ONLY use category IDs from the provided list above. Select 1-2 most relevant ones.
-            - For tags: Create new relevant tags as strings
-            
-            Return a JSON object with this exact structure:
-            {
-              \"content\": \"The full blog post content in HTML format with proper headings (H2, H3), paragraphs, internal links, and formatting\",
-              \"metaTitle\": \"SEO-optimized title (50-60 characters)\",
-              \"metaDescription\": \"Compelling meta description (150-160 characters)\",
-              \"focusKeywords\": [\"keyword1\", \"keyword2\", \"keyword3\", \"keyword4\", \"keyword5\"],
-              \"tags\": [\"tag1\", \"tag2\", \"tag3\", \"tag4\", \"tag5\"],
-              \"categoryIds\": [1, 5],
-              \"excerpt\": \"Brief excerpt for the post (150 characters)\"
-            }
-        ";
+        $prompt = "Create a comprehensive blog post based on this idea: \"{$safe_title}\"
+
+Use this style guide: {$safe_style_guide}
+
+{$context_string}
+
+{$categories_string}
+
+Requirements:
+- Write a well-structured blog post with clear H2 and H3 headings
+- 800-1500 words in length
+- Engaging introduction and compelling conclusion
+- SEO-optimized content matching the style guide
+- Include 2-3 internal links to the provided existing posts where contextually relevant
+- Use markdown format for links: [anchor text](URL)
+- For categories: ONLY use category IDs from the provided list above. Select 1-2 most relevant ones.
+- For tags: Create new relevant tags as strings
+
+IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not include any text before or after the JSON:
+
+{
+  \"content\": \"The full blog post content in HTML format with proper headings (H2, H3), paragraphs, internal links, and formatting. Escape all quotes and newlines properly.\",
+  \"metaTitle\": \"SEO-optimized title (50-60 characters)\",
+  \"metaDescription\": \"Compelling meta description (150-160 characters)\",
+  \"focusKeywords\": [\"keyword1\", \"keyword2\", \"keyword3\", \"keyword4\", \"keyword5\"],
+  \"tags\": [\"tag1\", \"tag2\", \"tag3\", \"tag4\", \"tag5\"],
+  \"categoryIds\": [1, 5],
+  \"excerpt\": \"Brief excerpt for the post (150 characters)\"
+}";
         
         return $this->call_gemini_api($api_key, $prompt);
     }
@@ -1665,5 +1680,39 @@ class ACA_Rest_Api {
         }
         
         return $data['candidates'][0]['content']['parts'][0]['text'];
+    }
+    
+    /**
+     * Clean AI JSON response to fix common formatting issues
+     */
+    private function clean_ai_json_response($response) {
+        // Remove any text before the first {
+        $start = strpos($response, '{');
+        if ($start !== false) {
+            $response = substr($response, $start);
+        }
+        
+        // Remove any text after the last }
+        $end = strrpos($response, '}');
+        if ($end !== false) {
+            $response = substr($response, 0, $end + 1);
+        }
+        
+        // Remove markdown code blocks if present
+        $response = preg_replace('/^```json\s*/m', '', $response);
+        $response = preg_replace('/\s*```$/m', '', $response);
+        
+        // Fix common JSON issues
+        $response = preg_replace('/,\s*}/', '}', $response); // Remove trailing commas in objects
+        $response = preg_replace('/,\s*]/', ']', $response); // Remove trailing commas in arrays
+        
+        // Fix unescaped newlines and tabs in string values
+        $response = preg_replace_callback('/"([^"\\\\]*(\\\\.[^"\\\\]*)*)"/', function($matches) {
+            $string = $matches[1];
+            $string = str_replace(["\n", "\r", "\t"], ['\\n', '\\r', '\\t'], $string);
+            return '"' . $string . '"';
+        }, $response);
+        
+        return trim($response);
     }
 }

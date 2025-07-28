@@ -1439,24 +1439,35 @@ class ACA_Rest_Api {
                 ));
         
         if (is_wp_error($response)) {
+            error_log('ACA Gemini API WP Error: ' . $response->get_error_message());
             throw new Exception('Gemini API request failed: ' . $response->get_error_message());
         }
         
         $response_code = wp_remote_retrieve_response_code($response);
         if ($response_code !== 200) {
             $error_body = wp_remote_retrieve_body($response);
-            throw new Exception('Gemini API returned error code: ' . $response_code . ' - ' . $error_body);
+            error_log('ACA Gemini API HTTP Error: Code ' . $response_code . ', Body: ' . substr($error_body, 0, 500));
+            throw new Exception('Gemini API returned error code: ' . $response_code . ' - ' . substr($error_body, 0, 200));
         }
         
         $response_body = wp_remote_retrieve_body($response);
+        if (empty($response_body)) {
+            error_log('ACA Gemini API Empty Response Body');
+            throw new Exception('Empty response from Gemini API');
+        }
+        
+        error_log('ACA Gemini API Response: ' . substr($response_body, 0, 500));
+        
         $data = json_decode($response_body, true);
         
         if (json_last_error() !== JSON_ERROR_NONE) {
+            error_log('ACA Gemini API JSON Error: ' . json_last_error_msg() . ', Response: ' . substr($response_body, 0, 300));
             throw new Exception('Invalid JSON response from Gemini API: ' . json_last_error_msg());
         }
         
         if (empty($data['candidates'][0]['content']['parts'][0]['text'])) {
-            throw new Exception('No content returned from Gemini API. Response: ' . $response_body);
+            error_log('ACA Gemini API No Content: ' . print_r($data, true));
+            throw new Exception('No content returned from Gemini API. Response structure: ' . json_encode(array_keys($data)));
         }
         
         return $data['candidates'][0]['content']['parts'][0]['text'];

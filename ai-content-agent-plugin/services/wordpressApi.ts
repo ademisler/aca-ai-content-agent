@@ -29,8 +29,27 @@ export async function apiFetch(path: string, options: RequestInit = {}): Promise
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ message: 'Network error' }));
-    throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    let errorMessage = `HTTP error! status: ${response.status}`;
+    
+    try {
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const errorData = await response.json();
+        errorMessage = errorData.message || errorMessage;
+      } else {
+        // If response is HTML (WordPress critical error), extract meaningful part
+        const htmlText = await response.text();
+        if (htmlText.includes('critical error')) {
+          errorMessage = 'WordPress critical error occurred. Check server logs.';
+        } else {
+          errorMessage = `Server returned non-JSON response: ${response.status}`;
+        }
+      }
+    } catch (parseError) {
+      errorMessage = `Failed to parse error response: ${response.status}`;
+    }
+    
+    throw new Error(errorMessage);
   }
 
   return response.json();

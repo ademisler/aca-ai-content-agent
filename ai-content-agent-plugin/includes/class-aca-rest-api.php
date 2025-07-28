@@ -741,9 +741,10 @@ class ACA_Rest_Api {
             
             $existing_posts_context = array();
             foreach ($published_posts as $post) {
+                $permalink = get_permalink($post->ID);
                 $existing_posts_context[] = array(
                     'title' => $post->post_title,
-                    'url' => get_permalink($post->ID),
+                    'url' => $permalink ? $permalink : home_url("/?p={$post->ID}"),
                     'content' => wp_strip_all_tags(substr($post->post_content, 0, 500))
                 );
             }
@@ -841,11 +842,10 @@ class ACA_Rest_Api {
                 array('id' => $idea_id)
             );
             
-            // Add activity log with error handling
-            try {
-                $this->add_activity_log('draft_created', "Created draft: \"{$idea->title}\"", 'FileText');
-            } catch (Exception $log_error) {
-                error_log('ACA Activity Log Error: ' . $log_error->getMessage());
+            // Add activity log with error handling (non-blocking)
+            $log_result = $this->add_activity_log('draft_created', "Created draft: \"{$idea->title}\"", 'FileText');
+            if (!$log_result) {
+                error_log('ACA: Activity log failed but continuing with draft creation');
             }
             
             // Return the created post - simplified approach to avoid formatting errors
@@ -866,27 +866,29 @@ class ACA_Rest_Api {
                 ));
             }
             
-            // Try to format the post, but use fallback if it fails
-            try {
-                $formatted_post = $this->format_post_for_api($created_post);
-                return rest_ensure_response($formatted_post);
-            } catch (Exception $format_error) {
-                error_log('ACA Format Post Error: ' . $format_error->getMessage());
-                error_log('ACA Format Post Stack Trace: ' . $format_error->getTraceAsString());
-                
-                // Return basic post data as fallback
-                return rest_ensure_response(array(
-                    'id' => $post_id,
-                    'title' => $created_post->post_title,
-                    'content' => $created_post->post_content,
-                    'excerpt' => $created_post->post_excerpt,
-                    'status' => $created_post->post_status,
-                    'createdAt' => $created_post->post_date,
-                    'categories' => isset($draft_data['categories']) ? $draft_data['categories'] : array(),
-                    'tags' => isset($draft_data['tags']) ? $draft_data['tags'] : array(),
-                    'message' => 'Draft created successfully with basic formatting'
-                ));
-            }
+            // Use simplified response format to avoid complex formatting errors
+            $safe_response = array(
+                'id' => (int) $post_id,
+                'title' => $created_post->post_title ?: '',
+                'content' => $created_post->post_content ?: '',
+                'excerpt' => $created_post->post_excerpt ?: '',
+                'status' => $created_post->post_status ?: 'draft',
+                'createdAt' => $created_post->post_date ?: current_time('mysql'),
+                'categories' => isset($draft_data['categories']) && is_array($draft_data['categories']) ? $draft_data['categories'] : array(),
+                'tags' => isset($draft_data['tags']) && is_array($draft_data['tags']) ? $draft_data['tags'] : array(),
+                'metaTitle' => isset($draft_data['metaTitle']) ? $draft_data['metaTitle'] : '',
+                'metaDescription' => isset($draft_data['metaDescription']) ? $draft_data['metaDescription'] : '',
+                'focusKeywords' => isset($draft_data['focusKeywords']) ? $draft_data['focusKeywords'] : '',
+                'featuredImage' => '',
+                'publishedAt' => null,
+                'url' => null,
+                'scheduledFor' => '',
+                'aiGenerated' => true,
+                'generationDate' => current_time('mysql'),
+                'message' => 'Draft created successfully'
+            );
+            
+            return rest_ensure_response($safe_response);
             
         } catch (Exception $e) {
             error_log('ACA Draft Creation Error: ' . $e->getMessage());
@@ -1160,15 +1162,37 @@ class ACA_Rest_Api {
     private function add_activity_log($type, $details, $icon) {
         global $wpdb;
         
-        $wpdb->insert(
-            $wpdb->prefix . 'aca_activity_logs',
-            array(
-                'timestamp' => current_time('mysql'),
-                'type' => $type,
-                'details' => $details,
-                'icon' => $icon
-            )
-        );
+        try {
+            // Check if table exists first
+            $table_name = $wpdb->prefix . 'aca_activity_logs';
+            $table_exists = $wpdb->get_var("SHOW TABLES LIKE '$table_name'") === $table_name;
+            
+            if (!$table_exists) {
+                error_log('ACA: Activity logs table does not exist: ' . $table_name);
+                return false;
+            }
+            
+            $result = $wpdb->insert(
+                $table_name,
+                array(
+                    'timestamp' => current_time('mysql'),
+                    'type' => sanitize_text_field($type),
+                    'details' => sanitize_text_field($details),
+                    'icon' => sanitize_text_field($icon)
+                )
+            );
+            
+            if ($result === false) {
+                error_log('ACA: Failed to insert activity log: ' . $wpdb->last_error);
+                return false;
+            }
+            
+            return true;
+            
+        } catch (Exception $e) {
+            error_log('ACA: Activity log exception: ' . $e->getMessage());
+            return false;
+        }
     }
     
     /**

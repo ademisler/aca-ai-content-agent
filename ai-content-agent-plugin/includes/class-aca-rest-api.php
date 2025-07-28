@@ -764,12 +764,32 @@ class ACA_Rest_Api {
                 
                 $draft_data = json_decode($draft_content, true);
                 if (json_last_error() !== JSON_ERROR_NONE) {
-                    throw new Exception('Invalid JSON response from AI service: ' . json_last_error_msg() . '. Response: ' . substr($draft_content, 0, 200));
+                    error_log('ACA JSON Decode Error: ' . json_last_error_msg());
+                    error_log('ACA Raw Response: ' . $draft_content);
+                    throw new Exception('Invalid JSON response from AI service: ' . json_last_error_msg());
                 }
                 
-                // Validate required fields
-                if (empty($draft_data['content']) || empty($draft_data['metaTitle']) || empty($draft_data['metaDescription'])) {
-                    throw new Exception('AI response missing required fields. Response: ' . substr($draft_content, 0, 200));
+                // Validate required fields with detailed logging
+                $missing_fields = array();
+                if (empty($draft_data['content'])) $missing_fields[] = 'content';
+                if (empty($draft_data['metaTitle'])) $missing_fields[] = 'metaTitle';
+                if (empty($draft_data['metaDescription'])) $missing_fields[] = 'metaDescription';
+                
+                if (!empty($missing_fields)) {
+                    error_log('ACA Missing Fields: ' . implode(', ', $missing_fields));
+                    error_log('ACA Response Keys: ' . implode(', ', array_keys($draft_data)));
+                    throw new Exception('AI response missing required fields: ' . implode(', ', $missing_fields));
+                }
+                
+                // Validate data types
+                if (!is_string($draft_data['content'])) {
+                    throw new Exception('AI response content field must be string');
+                }
+                if (!is_string($draft_data['metaTitle'])) {
+                    throw new Exception('AI response metaTitle field must be string');
+                }
+                if (!is_string($draft_data['metaDescription'])) {
+                    throw new Exception('AI response metaDescription field must be string');
                 }
                 
             } catch (Exception $ai_error) {
@@ -779,18 +799,28 @@ class ACA_Rest_Api {
             // Generate or fetch image (temporarily disabled for debugging)
             $image_data = null; // $this->get_featured_image($idea->title, $settings);
             
+            // Safely prepare meta data
+            $focus_keywords = '';
+            if (isset($draft_data['focusKeywords'])) {
+                if (is_array($draft_data['focusKeywords'])) {
+                    $focus_keywords = implode(', ', $draft_data['focusKeywords']);
+                } else {
+                    $focus_keywords = (string) $draft_data['focusKeywords'];
+                }
+            }
+            
             // Create WordPress post with enhanced content
             $post_data = array(
-                'post_title' => $idea->title,
-                'post_content' => $draft_data['content'],
-                'post_excerpt' => isset($draft_data['excerpt']) ? $draft_data['excerpt'] : '',
+                'post_title' => sanitize_text_field($idea->title),
+                'post_content' => wp_kses_post($draft_data['content']),
+                'post_excerpt' => isset($draft_data['excerpt']) ? sanitize_text_field($draft_data['excerpt']) : '',
                 'post_status' => 'draft',
                 'post_type' => 'post',
                 'meta_input' => array(
-                    '_aca_meta_title' => $draft_data['metaTitle'],
-                    '_aca_meta_description' => $draft_data['metaDescription'],
-                    '_aca_focus_keywords' => $draft_data['focusKeywords'],
-                    '_aca_created_from_idea' => $idea_id,
+                    '_aca_meta_title' => sanitize_text_field($draft_data['metaTitle']),
+                    '_aca_meta_description' => sanitize_text_field($draft_data['metaDescription']),
+                    '_aca_focus_keywords' => sanitize_text_field($focus_keywords),
+                    '_aca_created_from_idea' => (int) $idea_id,
                     '_aca_ai_generated' => true,
                     '_aca_generation_date' => current_time('mysql')
                 )
@@ -802,19 +832,22 @@ class ACA_Rest_Api {
                 throw new Exception('Failed to create WordPress post: ' . $post_id->get_error_message());
             }
             
-            // Add categories
+            // Add categories safely
             if (isset($draft_data['categories']) && is_array($draft_data['categories'])) {
                 $category_ids = array();
                 foreach ($draft_data['categories'] as $category_name) {
-                    $category = get_category_by_slug(sanitize_title($category_name));
-                    if (!$category) {
-                        // Create category if it doesn't exist
-                        $category_id = wp_create_category($category_name);
-                        if (!is_wp_error($category_id)) {
-                            $category_ids[] = $category_id;
+                    if (is_string($category_name) && !empty(trim($category_name))) {
+                        $clean_category_name = sanitize_text_field($category_name);
+                        $category = get_category_by_slug(sanitize_title($clean_category_name));
+                        if (!$category) {
+                            // Create category if it doesn't exist
+                            $category_id = wp_create_category($clean_category_name);
+                            if (!is_wp_error($category_id) && is_numeric($category_id)) {
+                                $category_ids[] = (int) $category_id;
+                            }
+                        } else {
+                            $category_ids[] = (int) $category->term_id;
                         }
-                    } else {
-                        $category_ids[] = $category->term_id;
                     }
                 }
                 if (!empty($category_ids)) {
@@ -822,9 +855,17 @@ class ACA_Rest_Api {
                 }
             }
             
-            // Add tags
+            // Add tags safely
             if (isset($draft_data['tags']) && is_array($draft_data['tags'])) {
-                wp_set_post_tags($post_id, $draft_data['tags']);
+                $clean_tags = array();
+                foreach ($draft_data['tags'] as $tag) {
+                    if (is_string($tag) && !empty(trim($tag))) {
+                        $clean_tags[] = sanitize_text_field($tag);
+                    }
+                }
+                if (!empty($clean_tags)) {
+                    wp_set_post_tags($post_id, $clean_tags);
+                }
             }
             
             // Set featured image if we have one
@@ -878,7 +919,7 @@ class ACA_Rest_Api {
                 'tags' => isset($draft_data['tags']) && is_array($draft_data['tags']) ? $draft_data['tags'] : array(),
                 'metaTitle' => isset($draft_data['metaTitle']) ? $draft_data['metaTitle'] : '',
                 'metaDescription' => isset($draft_data['metaDescription']) ? $draft_data['metaDescription'] : '',
-                'focusKeywords' => isset($draft_data['focusKeywords']) ? $draft_data['focusKeywords'] : '',
+                'focusKeywords' => $focus_keywords,
                 'featuredImage' => '',
                 'publishedAt' => null,
                 'url' => null,
@@ -1310,9 +1351,22 @@ class ACA_Rest_Api {
             }
         }
 
-        // Clean inputs
-        $safe_title = wp_strip_all_tags($title);
-        $safe_style_guide = is_string($style_guide) ? wp_strip_all_tags($style_guide) : '';
+        // Clean inputs safely
+        $safe_title = sanitize_text_field($title);
+        
+        // Handle style guide - don't strip tags if it's JSON
+        $safe_style_guide = '';
+        if (is_string($style_guide)) {
+            // Check if it's JSON first
+            $decoded = json_decode($style_guide, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                // It's valid JSON, keep it as is
+                $safe_style_guide = $style_guide;
+            } else {
+                // It's not JSON, sanitize it
+                $safe_style_guide = sanitize_text_field($style_guide);
+            }
+        }
 
         $prompt = "
             Create a comprehensive blog post based on this idea: \"{$safe_title}\"

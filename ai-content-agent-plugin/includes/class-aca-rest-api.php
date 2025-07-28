@@ -783,6 +783,25 @@ class ACA_Rest_Api {
                 );
             }
             
+            // Get existing categories for AI to choose from
+            error_log('ACA DEBUG: Getting existing categories');
+            $existing_categories = get_categories(array(
+                'hide_empty' => false,
+                'number' => 20
+            ));
+            
+            $categories_context = array();
+            foreach ($existing_categories as $category) {
+                $categories_context[] = array(
+                    'id' => $category->term_id,
+                    'name' => $category->name,
+                    'slug' => $category->slug,
+                    'count' => $category->count
+                );
+            }
+            
+            error_log('ACA DEBUG: Found ' . count($categories_context) . ' existing categories');
+            
             // Generate content using AI
             error_log('ACA DEBUG: Starting AI content generation');
             try {
@@ -790,7 +809,8 @@ class ACA_Rest_Api {
                     $settings['geminiApiKey'],
                     $idea->title,
                     json_encode($style_guide),
-                    $existing_posts_context
+                    $existing_posts_context,
+                    $categories_context
                 );
                 
                 error_log('ACA DEBUG: AI content generated, length: ' . strlen($draft_content));
@@ -827,6 +847,15 @@ class ACA_Rest_Api {
                 }
                 if (!is_string($draft_data['metaDescription'])) {
                     throw new Exception('AI response metaDescription field must be string');
+                }
+                
+                // Log what we received from AI
+                error_log('ACA DEBUG: AI response keys: ' . implode(', ', array_keys($draft_data)));
+                if (isset($draft_data['categoryIds'])) {
+                    error_log('ACA DEBUG: AI selected category IDs: ' . implode(', ', $draft_data['categoryIds']));
+                }
+                if (isset($draft_data['tags'])) {
+                    error_log('ACA DEBUG: AI selected tags: ' . implode(', ', $draft_data['tags']));
                 }
                 
             } catch (Exception $ai_error) {
@@ -873,23 +902,21 @@ class ACA_Rest_Api {
             
             error_log('ACA DEBUG: WordPress post created with ID: ' . $post_id);
             
-            // Add categories safely
+            // Add categories safely using AI-selected IDs
             error_log('ACA DEBUG: Processing categories');
-            if (isset($draft_data['categories']) && is_array($draft_data['categories'])) {
-                error_log('ACA DEBUG: Found ' . count($draft_data['categories']) . ' categories to process');
+            if (isset($draft_data['categoryIds']) && is_array($draft_data['categoryIds'])) {
+                error_log('ACA DEBUG: Found ' . count($draft_data['categoryIds']) . ' category IDs to process');
                 $category_ids = array();
-                foreach ($draft_data['categories'] as $category_name) {
-                    if (is_string($category_name) && !empty(trim($category_name))) {
-                        $clean_category_name = sanitize_text_field($category_name);
-                        $category = get_category_by_slug(sanitize_title($clean_category_name));
-                        if (!$category) {
-                            // Create category if it doesn't exist
-                            $category_id = wp_create_category($clean_category_name);
-                            if (!is_wp_error($category_id) && is_numeric($category_id)) {
-                                $category_ids[] = (int) $category_id;
-                            }
+                foreach ($draft_data['categoryIds'] as $category_id) {
+                    if (is_numeric($category_id)) {
+                        $category_id = (int) $category_id;
+                        // Verify category exists
+                        $category = get_category($category_id);
+                        if ($category && !is_wp_error($category)) {
+                            $category_ids[] = $category_id;
+                            error_log('ACA DEBUG: Valid category ID: ' . $category_id . ' (' . $category->name . ')');
                         } else {
-                            $category_ids[] = (int) $category->term_id;
+                            error_log('ACA DEBUG: Invalid category ID: ' . $category_id);
                         }
                     }
                 }
@@ -900,7 +927,7 @@ class ACA_Rest_Api {
                     error_log('ACA DEBUG: No valid categories to set');
                 }
             } else {
-                error_log('ACA DEBUG: No categories in draft_data');
+                error_log('ACA DEBUG: No categoryIds in draft_data');
             }
             
             // Add tags safely
@@ -974,7 +1001,7 @@ class ACA_Rest_Api {
                 'excerpt' => $created_post->post_excerpt ?: '',
                 'status' => $created_post->post_status ?: 'draft',
                 'createdAt' => $created_post->post_date ?: current_time('mysql'),
-                'categories' => isset($draft_data['categories']) && is_array($draft_data['categories']) ? $draft_data['categories'] : array(),
+                'categories' => array(), // Will be populated from actual post categories
                 'tags' => isset($draft_data['tags']) && is_array($draft_data['tags']) ? $draft_data['tags'] : array(),
                 'metaTitle' => isset($draft_data['metaTitle']) ? $draft_data['metaTitle'] : '',
                 'metaDescription' => isset($draft_data['metaDescription']) ? $draft_data['metaDescription'] : '',
@@ -1397,7 +1424,7 @@ class ACA_Rest_Api {
         return $this->call_gemini_api($api_key, $prompt);
     }
     
-    private function call_gemini_create_draft($api_key, $title, $style_guide, $existing_posts) {
+    private function call_gemini_create_draft($api_key, $title, $style_guide, $existing_posts, $existing_categories = array()) {
         // Safely build context string
         $context_string = '';
         if (!empty($existing_posts) && is_array($existing_posts)) {
@@ -1410,6 +1437,18 @@ class ACA_Rest_Api {
                     $context_string .= "Title: {$safe_title}\nURL: {$safe_url}\nContent snippet: {$safe_content}...\n\n";
                 }
             }
+        }
+
+        // Build categories context string
+        $categories_string = '';
+        if (!empty($existing_categories) && is_array($existing_categories)) {
+            $categories_string = "Available categories to choose from (select the most appropriate ones):\n";
+            foreach ($existing_categories as $category) {
+                if (isset($category['id'], $category['name'])) {
+                    $categories_string .= "- ID: {$category['id']}, Name: \"{$category['name']}\", Posts: {$category['count']}\n";
+                }
+            }
+            $categories_string .= "\n";
         }
 
         // Clean inputs safely
@@ -1436,6 +1475,8 @@ class ACA_Rest_Api {
             
             {$context_string}
             
+            {$categories_string}
+            
             Requirements:
             - Write a well-structured blog post with clear H2 and H3 headings
             - 800-1500 words in length
@@ -1443,7 +1484,8 @@ class ACA_Rest_Api {
             - SEO-optimized content matching the style guide
             - Include 2-3 internal links to the provided existing posts where contextually relevant
             - Use markdown format for links: [anchor text](URL)
-            - Generate relevant tags and categories
+            - For categories: ONLY use category IDs from the provided list above. Select 1-2 most relevant ones.
+            - For tags: Create new relevant tags as strings
             
             Return a JSON object with this exact structure:
             {
@@ -1452,7 +1494,7 @@ class ACA_Rest_Api {
               \"metaDescription\": \"Compelling meta description (150-160 characters)\",
               \"focusKeywords\": [\"keyword1\", \"keyword2\", \"keyword3\", \"keyword4\", \"keyword5\"],
               \"tags\": [\"tag1\", \"tag2\", \"tag3\", \"tag4\", \"tag5\"],
-              \"categories\": [\"category1\", \"category2\"],
+              \"categoryIds\": [1, 5],
               \"excerpt\": \"Brief excerpt for the post (150 characters)\"
             }
         ";

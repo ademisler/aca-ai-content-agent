@@ -733,20 +733,34 @@ class ACA_Rest_Api {
             }
             
             // Generate content using AI
-            $draft_content = $this->call_gemini_create_draft(
-                $settings['geminiApiKey'],
-                $idea->title,
-                json_encode($style_guide),
-                $existing_posts_context
-            );
-            
-            $draft_data = json_decode($draft_content, true);
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new Exception('Invalid JSON response from AI service');
+            try {
+                $draft_content = $this->call_gemini_create_draft(
+                    $settings['geminiApiKey'],
+                    $idea->title,
+                    json_encode($style_guide),
+                    $existing_posts_context
+                );
+                
+                if (empty($draft_content)) {
+                    throw new Exception('Empty response from AI service');
+                }
+                
+                $draft_data = json_decode($draft_content, true);
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    throw new Exception('Invalid JSON response from AI service: ' . json_last_error_msg() . '. Response: ' . substr($draft_content, 0, 200));
+                }
+                
+                // Validate required fields
+                if (empty($draft_data['content']) || empty($draft_data['metaTitle']) || empty($draft_data['metaDescription'])) {
+                    throw new Exception('AI response missing required fields. Response: ' . substr($draft_content, 0, 200));
+                }
+                
+            } catch (Exception $ai_error) {
+                throw new Exception('AI content generation failed: ' . $ai_error->getMessage());
             }
             
-            // Generate or fetch image
-            $image_data = $this->get_featured_image($idea->title, $settings);
+            // Generate or fetch image (temporarily disabled for debugging)
+            $image_data = null; // $this->get_featured_image($idea->title, $settings);
             
             // Create WordPress post with enhanced content
             $post_data = array(
@@ -817,7 +831,9 @@ class ACA_Rest_Api {
             return rest_ensure_response($this->format_post_for_api($created_post));
             
         } catch (Exception $e) {
-            return new WP_Error('creation_failed', $e->getMessage(), array('status' => 500));
+            error_log('ACA Draft Creation Error: ' . $e->getMessage());
+            error_log('ACA Draft Creation Stack Trace: ' . $e->getTraceAsString());
+            return new WP_Error('creation_failed', 'Draft creation failed: ' . $e->getMessage(), array('status' => 500));
         }
     }
     

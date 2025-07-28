@@ -105,8 +105,12 @@ const App: React.FC = () => {
         };
         setActivityLogs(prev => [newLog, ...prev.slice(0, 49)]);
         
-        // Save to WordPress
-        activityApi.create(newLog).catch(console.error);
+        // Save to WordPress with correct parameter names
+        activityApi.create({
+            type,
+            message: details,
+            icon
+        }).catch(console.error);
     }, []);
 
     const removeToast = useCallback((id: number) => {

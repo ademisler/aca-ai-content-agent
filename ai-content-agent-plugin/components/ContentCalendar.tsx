@@ -24,7 +24,7 @@ const DraggableDraft: React.FC<{ draft: Draft }> = ({ draft }) => {
                 background: '#e3f2fd',
                 border: '1px solid #2196f3',
                 color: '#0d47a1',
-                padding: '8px',
+                padding: '8px 10px',
                 borderRadius: '4px',
                 fontSize: '12px',
                 overflow: 'hidden',
@@ -34,7 +34,8 @@ const DraggableDraft: React.FC<{ draft: Draft }> = ({ draft }) => {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px',
-                transition: 'all 0.2s ease'
+                transition: 'all 0.2s ease',
+                fontWeight: '500'
             }}
             onMouseDown={(e) => {
                 e.currentTarget.style.cursor = 'grabbing';
@@ -46,9 +47,11 @@ const DraggableDraft: React.FC<{ draft: Draft }> = ({ draft }) => {
             }}
             onMouseEnter={(e) => {
                 e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+                e.currentTarget.style.background = '#bbdefb';
             }}
             onMouseLeave={(e) => {
                 e.currentTarget.style.boxShadow = 'none';
+                e.currentTarget.style.background = '#e3f2fd';
             }}
         >
             <FileText style={{ width: '12px', height: '12px', flexShrink: 0 }} />
@@ -118,9 +121,9 @@ export const ContentCalendar: React.FC<ContentCalendarProps> = ({ drafts, publis
                 </p>
             </div>
 
-            <div className="aca-grid aca-grid-2" style={{ alignItems: 'flex-start' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 {/* Calendar */}
-                <div className="aca-card" style={{ gridColumn: '1 / -1' }}>
+                <div className="aca-card">
                     <div className="aca-card-header">
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <h2 className="aca-card-title">
@@ -253,7 +256,7 @@ export const ContentCalendar: React.FC<ContentCalendarProps> = ({ drafts, publis
                                                             background: '#e6f7e6',
                                                             border: '1px solid #28a745',
                                                             color: '#0a5d0a',
-                                                            padding: '8px',
+                                                            padding: '8px 10px',
                                                             borderRadius: '4px',
                                                             fontSize: '12px',
                                                             overflow: 'hidden',
@@ -263,7 +266,8 @@ export const ContentCalendar: React.FC<ContentCalendarProps> = ({ drafts, publis
                                                             display: 'flex',
                                                             alignItems: 'center',
                                                             gap: '6px',
-                                                            transition: 'all 0.2s ease'
+                                                            transition: 'all 0.2s ease',
+                                                            fontWeight: '500'
                                                         }}
                                                         onMouseEnter={(e) => {
                                                             e.currentTarget.style.background = '#d4edda';
@@ -289,88 +293,91 @@ export const ContentCalendar: React.FC<ContentCalendarProps> = ({ drafts, publis
                     </div>
                 </div>
 
-                {/* Unscheduled Drafts */}
-                <div className="aca-card">
-                    <div className="aca-card-header">
-                        <h2 className="aca-card-title">
-                            <FileText style={{ width: '20px', height: '20px', marginRight: '8px', fill: '#0073aa' }} />
-                            Unscheduled Drafts
-                        </h2>
+                {/* Side panels */}
+                <div className="aca-grid aca-grid-2">
+                    {/* Unscheduled Drafts */}
+                    <div className="aca-card">
+                        <div className="aca-card-header">
+                            <h2 className="aca-card-title">
+                                <FileText style={{ width: '20px', height: '20px', marginRight: '8px', fill: '#0073aa' }} />
+                                Unscheduled Drafts
+                            </h2>
+                        </div>
+                        
+                        <div style={{ 
+                            background: '#f6f7f7', 
+                            padding: '15px', 
+                            borderRadius: '4px', 
+                            border: '1px solid #ccd0d4', 
+                            minHeight: '200px',
+                            maxHeight: '300px',
+                            overflowY: 'auto'
+                        }}>
+                            {unscheduledDrafts.length > 0 ? (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    {unscheduledDrafts.map(draft => (
+                                        <DraggableDraft key={draft.id} draft={draft} />
+                                    ))}
+                                </div>
+                            ) : (
+                                <div style={{ 
+                                    display: 'flex', 
+                                    flexDirection: 'column', 
+                                    alignItems: 'center', 
+                                    justifyContent: 'center', 
+                                    height: '100%', 
+                                    color: '#646970', 
+                                    textAlign: 'center',
+                                    padding: '20px'
+                                }}>
+                                    <FileText style={{ width: '40px', height: '40px', marginBottom: '15px', fill: '#a7aaad' }} />
+                                    <h4 style={{ margin: '0 0 8px 0', fontWeight: '500', color: '#23282d' }}>
+                                        No Unscheduled Drafts
+                                    </h4>
+                                    <p style={{ fontSize: '13px', margin: 0 }}>
+                                        All your drafts are scheduled or you haven't created any yet.
+                                    </p>
+                                </div>
+                            )}
+                        </div>
                     </div>
-                    
-                    <div style={{ 
-                        background: '#f6f7f7', 
-                        padding: '15px', 
-                        borderRadius: '4px', 
-                        border: '1px solid #ccd0d4', 
-                        minHeight: '300px',
-                        maxHeight: '400px',
-                        overflowY: 'auto'
-                    }}>
-                        {unscheduledDrafts.length > 0 ? (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                {unscheduledDrafts.map(draft => (
-                                    <DraggableDraft key={draft.id} draft={draft} />
-                                ))}
-                            </div>
-                        ) : (
-                            <div style={{ 
-                                display: 'flex', 
-                                flexDirection: 'column', 
-                                alignItems: 'center', 
-                                justifyContent: 'center', 
-                                height: '100%', 
-                                color: '#646970', 
-                                textAlign: 'center',
-                                padding: '20px'
-                            }}>
-                                <FileText style={{ width: '40px', height: '40px', marginBottom: '15px', fill: '#a7aaad' }} />
-                                <h4 style={{ margin: '0 0 8px 0', fontWeight: '500', color: '#23282d' }}>
-                                    No Unscheduled Drafts
+
+                    {/* Instructions */}
+                    <div className="aca-card">
+                        <div className="aca-card-header">
+                            <h2 className="aca-card-title">
+                                <Info style={{ width: '20px', height: '20px', marginRight: '8px', fill: '#0073aa' }} />
+                                How to Use
+                            </h2>
+                        </div>
+                        
+                        <div style={{ fontSize: '13px', color: '#646970', lineHeight: '1.5' }}>
+                            <div style={{ marginBottom: '20px' }}>
+                                <h4 style={{ margin: '0 0 8px 0', fontWeight: '600', color: '#23282d', fontSize: '14px' }}>
+                                    Scheduling Drafts
                                 </h4>
-                                <p style={{ fontSize: '13px', margin: 0 }}>
-                                    All your drafts are scheduled or you haven't created any yet.
+                                <p style={{ margin: 0 }}>
+                                    Drag any unscheduled draft from the sidebar and drop it onto a calendar date to schedule it for that day.
                                 </p>
                             </div>
-                        )}
-                    </div>
-                </div>
-
-                {/* Instructions */}
-                <div className="aca-card">
-                    <div className="aca-card-header">
-                        <h2 className="aca-card-title">
-                            <Info style={{ width: '20px', height: '20px', marginRight: '8px', fill: '#0073aa' }} />
-                            How to Use
-                        </h2>
-                    </div>
-                    
-                    <div style={{ fontSize: '13px', color: '#646970', lineHeight: '1.5' }}>
-                        <div style={{ marginBottom: '15px' }}>
-                            <h4 style={{ margin: '0 0 8px 0', fontWeight: '600', color: '#23282d', fontSize: '14px' }}>
-                                Scheduling Drafts
-                            </h4>
-                            <p style={{ margin: 0 }}>
-                                Drag any unscheduled draft from the sidebar and drop it onto a calendar date to schedule it for that day.
-                            </p>
-                        </div>
-                        
-                        <div style={{ marginBottom: '15px' }}>
-                            <h4 style={{ margin: '0 0 8px 0', fontWeight: '600', color: '#23282d', fontSize: '14px' }}>
-                                Published Posts
-                            </h4>
-                            <p style={{ margin: 0 }}>
-                                Green items show published posts. Click on them to view the full content.
-                            </p>
-                        </div>
-                        
-                        <div>
-                            <h4 style={{ margin: '0 0 8px 0', fontWeight: '600', color: '#23282d', fontSize: '14px' }}>
-                                Navigation
-                            </h4>
-                            <p style={{ margin: 0 }}>
-                                Use the arrow buttons to navigate between months and see your content timeline.
-                            </p>
+                            
+                            <div style={{ marginBottom: '20px' }}>
+                                <h4 style={{ margin: '0 0 8px 0', fontWeight: '600', color: '#23282d', fontSize: '14px' }}>
+                                    Published Posts
+                                </h4>
+                                <p style={{ margin: 0 }}>
+                                    Green items show published posts. Click on them to view the full content.
+                                </p>
+                            </div>
+                            
+                            <div>
+                                <h4 style={{ margin: '0 0 8px 0', fontWeight: '600', color: '#23282d', fontSize: '14px' }}>
+                                    Navigation
+                                </h4>
+                                <p style={{ margin: 0 }}>
+                                    Use the arrow buttons to navigate between months and see your content timeline.
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>

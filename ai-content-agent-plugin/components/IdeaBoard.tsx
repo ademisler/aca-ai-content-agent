@@ -76,7 +76,8 @@ const IdeaCard: React.FC<{
             display: 'flex', 
             flexDirection: 'column', 
             gap: '15px',
-            transition: 'all 0.2s ease'
+            transition: 'all 0.2s ease',
+            minHeight: '140px'
         }}>
             {/* Idea Title */}
             <div style={{ flexGrow: 1 }}>
@@ -110,7 +111,8 @@ const IdeaCard: React.FC<{
                             border: '1px solid transparent',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '8px'
+                            gap: '8px',
+                            lineHeight: '1.4'
                         }}
                         title="Click to edit title"
                         onMouseEnter={(e) => {
@@ -123,7 +125,7 @@ const IdeaCard: React.FC<{
                         }}
                     >
                         <span style={{ flexGrow: 1 }}>{idea.title}</span>
-                        <Edit style={{ width: '14px', height: '14px', opacity: 0.5 }} />
+                        <Edit style={{ width: '14px', height: '14px', opacity: 0.5, flexShrink: 0 }} />
                     </div>
                 )}
             </div>
@@ -313,6 +315,7 @@ export const IdeaBoard: React.FC<IdeaBoardProps> = ({ ideas, onGenerate, onCreat
                 <div className="aca-card">
                     <div className="aca-card-header">
                         <h2 className="aca-card-title">
+                            <Lightbulb style={{ width: '20px', height: '20px', marginRight: '8px', fill: '#0073aa' }} />
                             Active Ideas ({activeIdeas.length})
                         </h2>
                     </div>
@@ -342,7 +345,7 @@ export const IdeaBoard: React.FC<IdeaBoardProps> = ({ ideas, onGenerate, onCreat
                         <h3 style={{ margin: '0 0 10px 0', fontSize: '18px', fontWeight: '500', color: '#23282d' }}>
                             No Active Ideas Yet
                         </h3>
-                        <p style={{ margin: '0 0 20px 0', fontSize: '14px', maxWidth: '400px', marginLeft: 'auto', marginRight: 'auto' }}>
+                        <p style={{ margin: '0 0 25px 0', fontSize: '14px', maxWidth: '400px', marginLeft: 'auto', marginRight: 'auto' }}>
                             Get started by generating AI-powered content ideas or adding your own manually.
                         </p>
                         <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -382,17 +385,17 @@ export const IdeaBoard: React.FC<IdeaBoardProps> = ({ ideas, onGenerate, onCreat
                         borderRadius: '4px',
                         border: '1px solid #ccd0d4'
                     }}>
-                        {archivedIdeas.map(idea => (
+                        {archivedIdeas.map((idea, index) => (
                             <div key={idea.id} style={{ 
                                 display: 'flex', 
                                 justifyContent: 'space-between', 
                                 alignItems: 'center',
-                                padding: '8px 0',
-                                borderBottom: '1px solid #e0e0e0',
+                                padding: '10px 0',
+                                borderBottom: index < archivedIdeas.length - 1 ? '1px solid #e0e0e0' : 'none',
                                 fontSize: '13px',
                                 color: '#646970'
                             }}>
-                                <span>{idea.title}</span>
+                                <span style={{ flexGrow: 1, marginRight: '15px' }}>{idea.title}</span>
                                 <div style={{ 
                                     fontSize: '11px', 
                                     fontWeight: '600', 
@@ -400,7 +403,8 @@ export const IdeaBoard: React.FC<IdeaBoardProps> = ({ ideas, onGenerate, onCreat
                                     borderRadius: '4px', 
                                     background: sourceStyles[idea.source].background,
                                     color: sourceStyles[idea.source].color,
-                                    border: `1px solid ${sourceStyles[idea.source].borderColor}`
+                                    border: `1px solid ${sourceStyles[idea.source].borderColor}`,
+                                    flexShrink: 0
                                 }}>
                                     {sourceNames[idea.source]}
                                 </div>

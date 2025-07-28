@@ -179,7 +179,7 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                         Automation Mode
                     </h2>
                 </div>
-                <p style={{ color: '#646970', marginBottom: '25px', fontSize: '13px' }}>
+                <p style={{ color: '#646970', marginBottom: '30px', fontSize: '13px' }}>
                     Choose how you want the AI Content Agent to operate. You can change this at any time.
                 </p>
                 
@@ -277,11 +277,11 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                         Integrations & Services
                     </h2>
                 </div>
-                <p style={{ color: '#646970', marginBottom: '25px', fontSize: '13px' }}>
+                <p style={{ color: '#646970', marginBottom: '30px', fontSize: '13px' }}>
                     Connect to external services and configure how content is generated and optimized.
                 </p>
                 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
                     {/* Google AI Integration */}
                     <IntegrationCard 
                         title="Google AI (Gemini)" 
@@ -327,11 +327,11 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                         icon={<Image style={{ width: '18px', height: '18px', fill: '#0073aa' }} />}
                         isConfigured={isImageSourceConfigured}
                     >
-                        <p style={{ fontSize: '13px', color: '#646970', marginBottom: '15px', margin: '0 0 15px 0' }}>
+                        <p style={{ fontSize: '13px', color: '#646970', marginBottom: '20px', margin: '0 0 20px 0' }}>
                             Select where to get featured images. For stock photo sites, an API key is required.
                         </p>
                         
-                        <div className="aca-grid aca-grid-2" style={{ gap: '10px', marginBottom: '20px' }}>
+                        <div className="aca-grid aca-grid-2" style={{ gap: '12px', marginBottom: '25px' }}>
                            {(['ai', 'pexels', 'unsplash', 'pixabay'] as ImageSourceProvider[]).map(provider => (
                                 <label 
                                     key={provider} 
@@ -616,7 +616,7 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                 display: 'flex', 
                 justifyContent: 'space-between', 
                 alignItems: 'center',
-                paddingTop: '20px',
+                paddingTop: '25px',
                 borderTop: '1px solid #f0f0f1'
             }}>
                 {isDirty && (

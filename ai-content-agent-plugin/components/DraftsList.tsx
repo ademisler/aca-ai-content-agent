@@ -217,7 +217,7 @@ export const DraftsList: React.FC<DraftsListProps> = ({ drafts, onSelectDraft, o
                         <h3 style={{ margin: '0 0 10px 0', fontSize: '18px', fontWeight: '500', color: '#23282d' }}>
                             No Drafts Created Yet
                         </h3>
-                        <p style={{ margin: '0 0 20px 0', fontSize: '14px', maxWidth: '400px', marginLeft: 'auto', marginRight: 'auto' }}>
+                        <p style={{ margin: '0 0 25px 0', fontSize: '14px', maxWidth: '400px', marginLeft: 'auto', marginRight: 'auto' }}>
                             Create content ideas first, then turn them into drafts to see them here.
                         </p>
                         <button 

@@ -163,7 +163,7 @@ export const PublishedList: React.FC<PublishedListProps> = ({ posts, onSelectPos
                         <h3 style={{ margin: '0 0 10px 0', fontSize: '18px', fontWeight: '500', color: '#23282d' }}>
                             No Published Posts Yet
                         </h3>
-                        <p style={{ margin: '0 0 20px 0', fontSize: '14px', maxWidth: '400px', marginLeft: 'auto', marginRight: 'auto' }}>
+                        <p style={{ margin: '0 0 25px 0', fontSize: '14px', maxWidth: '400px', marginLeft: 'auto', marginRight: 'auto' }}>
                             Create drafts and publish them to see your success stories here.
                         </p>
                         <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>

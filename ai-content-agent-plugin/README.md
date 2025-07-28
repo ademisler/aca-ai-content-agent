@@ -1,6 +1,6 @@
 # AI Content Agent (ACA) WordPress Plugin
 
-![Version](https://img.shields.io/badge/version-1.0.9-blue.svg)
+![Version](https://img.shields.io/badge/version-1.3.2-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-6.0+-green.svg)
 ![PHP](https://img.shields.io/badge/PHP-8.0+-purple.svg)
 ![React](https://img.shields.io/badge/React-18+-61DAFB.svg)
@@ -12,15 +12,18 @@
 ### 🤖 AI-Powered Content Creation
 - **Style Analysis**: Automatically analyzes your existing content to understand your unique writing style
 - **Idea Generation**: Creates content ideas based on your style guide and SEO best practices
-- **Full Draft Creation**: Generates complete blog posts (800-1500 words) with proper structure
+- **Full Draft Creation**: Generates complete blog posts (800-1500 words) with proper HTML structure
 - **SEO Optimization**: Automatic meta titles, descriptions, and focus keywords
+- **Content Formatting**: Smart Markdown to HTML conversion for perfect WordPress display
 
 ### 📝 WordPress Integration
-- **Native WordPress Posts**: Creates real WordPress draft posts
-- **Categories & Tags**: Automatically generates and assigns relevant categories and tags
+- **Native WordPress Posts**: Creates real WordPress draft posts with full metadata
+- **Smart Categories**: AI selects from existing categories or creates new ones intelligently
+- **Automatic Tags**: Generates and assigns relevant tags based on content
 - **Internal Linking**: Contextually adds internal links to your existing content
 - **Featured Images**: Supports AI-generated or stock photo integration
 - **Custom Meta Fields**: Stores SEO data and AI generation metadata
+- **Perfect Formatting**: Converts Markdown formatting to clean HTML automatically
 
 ### 🎯 Smart Workflow Management
 - **Dashboard Overview**: Real-time metrics and activity monitoring
@@ -28,18 +31,20 @@
 - **Draft Management**: Edit and schedule your AI-generated content
 - **Activity Logging**: Track all AI operations and content creation activities
 - **Bulk Operations**: Generate multiple ideas and drafts efficiently
+- **Error Recovery**: Advanced error handling with detailed logging
 
 ### 🔧 Advanced Configuration
 - **Google Gemini 2.0 Flash**: Latest AI model for superior content quality
 - **Style Guide Management**: Customizable writing style parameters
 - **Multi-Source Images**: AI generation, Pexels, Unsplash, or Pixabay integration
 - **Flexible Settings**: Automated or manual content creation workflows
+- **Debug Mode**: Comprehensive logging for troubleshooting
 
 ## 🚀 Quick Start
 
 ### Installation
 
-1. **Download** the latest `ai-content-agent.zip` file
+1. **Download** the latest `ai-content-agent-v1.3.2-markdown-fix.zip` file
 2. **Upload** to WordPress Admin → Plugins → Add New → Upload Plugin
 3. **Activate** the plugin
 4. **Configure** your Google Gemini API key in Settings
@@ -79,14 +84,16 @@
 ### Backend
 - **WordPress REST API** for all data operations
 - **Custom Database Tables** for plugin data
-- **Google Gemini AI** integration
+- **Google Gemini 2.0 Flash** integration
 - **Comprehensive Error Handling** and logging
+- **Smart Content Formatting** with Markdown to HTML conversion
 
 ### AI Integration
 - **Model**: Google Gemini 2.0 Flash
 - **Content Analysis**: Style guide generation from existing posts
-- **Content Generation**: Full blog posts with SEO optimization
-- **Smart Linking**: Contextual internal link placement
+- **Content Generation**: Full blog posts with SEO optimization and proper HTML formatting
+- **Smart Category Management**: Uses existing categories intelligently
+- **Advanced Error Recovery**: JSON parsing with fallback mechanisms
 
 ## 🔧 Development
 
@@ -94,7 +101,7 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-repo/ai-content-agent
+git clone https://github.com/ademisler/aca-ai-content-agent
 
 # Install dependencies
 cd ai-content-agent-plugin
@@ -119,8 +126,7 @@ zip -r ai-content-agent.zip ai-content-agent-plugin/ -x "*/node_modules/*" "*/.g
 ## 📚 Documentation
 
 - **[AGENTS.md](AGENTS.md)** - Comprehensive technical documentation for developers and AI agents
-- **[API Documentation](#)** - REST API endpoint reference
-- **[Troubleshooting Guide](#)** - Common issues and solutions
+- **[Troubleshooting Guide](#-troubleshooting)** - Common issues and solutions
 
 ## 🔍 Troubleshooting
 
@@ -141,6 +147,16 @@ zip -r ai-content-agent.zip ai-content-agent-plugin/ -x "*/node_modules/*" "*/.g
 - Check if ideas exist before creating drafts
 - Review activity logs for detailed error information
 
+**Content Formatting Issues**
+- Plugin automatically converts Markdown to HTML
+- Check browser console for formatting errors
+- Verify WordPress post content in admin
+
+**Category/Tag Issues**
+- Plugin uses existing categories when possible
+- New categories are created only when necessary
+- Check WordPress Categories admin for verification
+
 ### Debug Mode
 
 Enable WordPress debug mode for detailed error logging:
@@ -152,6 +168,23 @@ define('WP_DEBUG_LOG', true);
 ```
 
 Check logs at: `/wp-content/debug.log`
+
+### Recent Fixes (v1.3.x)
+
+**v1.3.2 - Content Formatting Fix**
+- Fixed Markdown formatting issues in generated content
+- Added automatic Markdown to HTML conversion
+- Improved content display in WordPress
+
+**v1.3.1 - JSON Response Fix**
+- Enhanced AI response parsing with fallback mechanisms
+- Fixed JSON syntax errors from AI responses
+- Added comprehensive error logging
+
+**v1.3.0 - Category Management Fix**
+- Fixed wp_create_category() fatal error
+- Implemented smart category selection from existing categories
+- Enhanced category management workflow
 
 ## 🤝 Contributing
 
@@ -175,28 +208,51 @@ This project is licensed under the GPL v2 or later - see the [LICENSE](LICENSE) 
 
 ## 🔄 Changelog
 
-### Version 1.0.9 (Current)
-- ✅ Fixed activity logs API parameter mismatch
-- ✅ Enhanced error handling for draft creation
-- ✅ Improved response handling with fallback mechanisms
-- ✅ Added comprehensive debug logging
+### Version 1.3.2 (Current) - Content Formatting Fix
+- 🎨 **FIXED**: Markdown formatting in generated content
+- ✅ **Added**: Automatic Markdown to HTML conversion
+- ✅ **Enhanced**: Content display in WordPress
+- ✅ **Improved**: AI prompt instructions for HTML output
+- ✅ **Added**: Fallback Markdown parser for legacy content
 
-### Version 1.0.8
-- ✅ Complete WordPress integration for drafts
-- ✅ Added categories and tags support
-- ✅ Internal linking implementation
-- ✅ SEO metadata integration
+### Version 1.3.1 - JSON Response Fix
+- 🔧 **FIXED**: Invalid JSON response from AI service
+- ✅ **Added**: Smart JSON cleaning and parsing
+- ✅ **Enhanced**: Error handling for AI responses
+- ✅ **Improved**: Debug logging for troubleshooting
 
-### Version 1.0.7
-- ✅ Activity logs endpoint fixes
-- ✅ Better error handling
+### Version 1.3.0 - Category Management Fix
+- 🎯 **FIXED**: Fatal error with wp_create_category() function
+- ✅ **Added**: Smart category selection from existing categories
+- ✅ **Enhanced**: Category management workflow
+- ✅ **Improved**: AI category selection process
 
-### Version 1.0.6
-- ✅ Gemini API model updates to 2.0 Flash
-- ✅ WordPress content analysis improvements
-- ✅ Style guide generation enhancements
+### Version 1.2.2 - Comprehensive Debug System
+- 🔍 **Added**: Extensive debug logging system
+- ✅ **Enhanced**: Error tracking and reporting
+- ✅ **Improved**: Fatal error handling
 
-[View Full Changelog](CHANGELOG.md)
+### Version 1.2.1 - Error Handling Improvements
+- ✅ **Fixed**: Activity logs API parameter mismatch
+- ✅ **Enhanced**: Error handling for draft creation
+- ✅ **Improved**: Response handling with fallback mechanisms
+
+### Version 1.2.0 - WordPress Integration
+- ✅ **Added**: Complete WordPress integration for drafts
+- ✅ **Added**: Categories and tags support
+- ✅ **Added**: Internal linking implementation
+- ✅ **Added**: SEO metadata integration
+
+### Version 1.1.0 - AI Model Update
+- ✅ **Updated**: Gemini API model to 2.0 Flash
+- ✅ **Enhanced**: WordPress content analysis
+- ✅ **Improved**: Style guide generation
+
+### Version 1.0.0 - Initial Release
+- ✅ **Initial**: Plugin structure and core functionality
+- ✅ **Added**: React frontend implementation
+- ✅ **Added**: Basic AI integration
+- ✅ **Added**: WordPress admin integration
 
 ## 🌟 Features in Detail
 
@@ -209,11 +265,12 @@ The plugin analyzes your last 20 published posts to understand:
 
 ### Content Generation
 AI creates comprehensive blog posts including:
-- **Structured Content**: H2/H3 headings, proper paragraphs
+- **Structured Content**: H2/H3 headings, proper paragraphs in HTML format
 - **SEO Elements**: Meta title, description, focus keywords
 - **Internal Links**: Contextual links to your existing content
-- **Categories & Tags**: Relevant taxonomies for organization
+- **Categories & Tags**: Smart selection from existing or creation of new ones
 - **Word Count**: 800-1500 words optimized for engagement
+- **Perfect Formatting**: Clean HTML output for WordPress
 
 ### WordPress Integration
 Seamlessly integrates with WordPress:
@@ -222,6 +279,14 @@ Seamlessly integrates with WordPress:
 - **Custom Fields**: Stores AI metadata and SEO data
 - **User Permissions**: Respects WordPress user capabilities
 - **Admin Interface**: Clean, intuitive admin experience
+- **Category Management**: Smart use of existing categories
+- **Content Formatting**: Perfect HTML output
+
+### Error Recovery & Debugging
+- **Comprehensive Logging**: Detailed error tracking
+- **Fallback Mechanisms**: Multiple recovery strategies
+- **User-Friendly Messages**: Clear error communication
+- **Debug Mode**: Extensive troubleshooting information
 
 ---
 

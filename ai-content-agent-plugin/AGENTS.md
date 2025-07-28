@@ -4,7 +4,7 @@
 
 **AI Content Agent** is a comprehensive WordPress plugin that automates content creation using Google Gemini AI. It provides a complete workflow from idea generation to published posts with WordPress integration.
 
-### Current Version: 1.0.9
+### Current Version: 1.3.2
 ### Last Updated: January 2025
 
 ---
@@ -22,11 +22,13 @@
    - WordPress REST API endpoints
    - Database integration
    - AI service integration
+   - Smart content formatting (Markdown to HTML)
 
 3. **AI Integration**
    - Google Gemini 2.0 Flash model
    - Content generation and analysis
    - Style guide creation
+   - Advanced error recovery
 
 ---
 
@@ -66,7 +68,10 @@ ai-content-agent-plugin/
 ├── index.tsx                       # React entry point
 ├── package.json                    # Node.js dependencies
 ├── types.ts                        # TypeScript type definitions
-└── vite.config.ts                  # Build configuration
+├── vite.config.ts                  # Build configuration
+├── README.md                       # User documentation
+├── AGENTS.md                       # This file - Agent documentation
+└── README.txt                      # WordPress plugin readme
 ```
 
 ---
@@ -144,12 +149,30 @@ All endpoints use prefix: `/wp-json/aca/v1/`
    - Creates full blog posts (800-1500 words)
    - Generates SEO metadata
    - Includes internal links
-   - Creates tags and categories
+   - Creates tags and selects categories intelligently
+   - Outputs proper HTML format (not Markdown)
 
 3. **Idea Generation** (`call_gemini_generate_ideas`)
    - Generates content ideas based on style guide
    - Avoids duplicate titles
    - SEO-optimized suggestions
+
+### Recent AI Enhancements (v1.3.x)
+
+#### v1.3.2 - Content Formatting
+- **HTML Output**: AI now generates proper HTML instead of Markdown
+- **Fallback Parser**: Automatic Markdown to HTML conversion for legacy responses
+- **Better Prompts**: Enhanced AI instructions for clean HTML output
+
+#### v1.3.1 - Response Parsing
+- **JSON Cleaning**: Smart JSON response cleaning and parsing
+- **Error Recovery**: Fallback mechanisms for malformed JSON
+- **Enhanced Logging**: Detailed response debugging
+
+#### v1.3.0 - Category Management
+- **Smart Categories**: AI selects from existing WordPress categories
+- **No Fatal Errors**: Removed deprecated `wp_create_category()` function
+- **Intelligent Selection**: AI chooses most appropriate existing categories
 
 ---
 
@@ -205,7 +228,7 @@ npm run build  # Production build
 
 ### WordPress Integration
 ```php
-// Enqueue compiled assets
+// Enqueue compiled assets with cache busting
 wp_enqueue_style('aca-styles', ACA_PLUGIN_URL . 'admin/css/index.css', array(), ACA_VERSION . '-' . filemtime(ACA_PLUGIN_PATH . 'admin/css/index.css'));
 wp_enqueue_script('aca-app', ACA_PLUGIN_URL . 'admin/js/index.js', array(), ACA_VERSION . '-' . filemtime(ACA_PLUGIN_PATH . 'admin/js/index.js'), true);
 ```
@@ -230,12 +253,13 @@ wp_enqueue_script('aca-app', ACA_PLUGIN_URL . 'admin/js/index.js', array(), ACA_
 
 3. **Draft Creation**
    - User clicks "Create Draft" on an idea
-   - AI generates full blog post content
+   - AI generates full blog post content in HTML format
+   - System fetches existing categories for AI selection
    - WordPress draft post is created with:
-     - Full content (800-1500 words)
+     - Full content (800-1500 words) in proper HTML
      - SEO metadata (title, description, keywords)
-     - Categories (auto-created if needed)
-     - Tags
+     - Categories (selected from existing ones)
+     - Tags (newly generated)
      - Internal links to existing posts
      - Featured image (if configured)
 
@@ -249,6 +273,7 @@ wp_enqueue_script('aca-app', ACA_PLUGIN_URL . 'admin/js/index.js', array(), ACA_
 
 ### PHP Error Logging
 ```php
+error_log('ACA DEBUG: Starting create_draft_from_idea for ID: ' . $idea_id);
 error_log('ACA Draft Creation Error: ' . $e->getMessage());
 error_log('ACA Draft Creation Stack Trace: ' . $e->getTraceAsString());
 ```
@@ -264,6 +289,58 @@ try {
 }
 ```
 
+### Recent Error Handling Improvements
+
+#### v1.3.2 - Content Formatting
+```php
+// Markdown to HTML conversion
+private function markdown_to_html($content) {
+    // Convert headings: ## → <h2>, ### → <h3>
+    $content = preg_replace('/^### (.+)$/m', '<h3>$1</h3>', $content);
+    $content = preg_replace('/^## (.+)$/m', '<h2>$1</h2>', $content);
+    
+    // Convert bold: **text** → <strong>text</strong>
+    $content = preg_replace('/\*\*(.+?)\*\*/', '<strong>$1</strong>', $content);
+    
+    // Convert links: [text](url) → <a href="url">text</a>
+    $content = preg_replace('/\[([^\]]+)\]\(([^)]+)\)/', '<a href="$2">$1</a>', $content);
+    
+    // Convert lists and paragraphs...
+}
+```
+
+#### v1.3.1 - JSON Response Cleaning
+```php
+private function clean_ai_json_response($response) {
+    // Remove markdown code blocks
+    $response = preg_replace('/^```json\s*/m', '', $response);
+    $response = preg_replace('/\s*```$/m', '', $response);
+    
+    // Fix trailing commas
+    $response = preg_replace('/,\s*}/', '}', $response);
+    $response = preg_replace('/,\s*]/', ']', $response);
+    
+    // More cleaning...
+}
+```
+
+#### v1.3.0 - Category Management
+```php
+// Smart category selection instead of creation
+$existing_categories = get_categories(array(
+    'hide_empty' => false,
+    'number' => 20
+));
+
+// AI selects from existing categories
+foreach ($draft_data['categoryIds'] as $category_id) {
+    $category = get_category($category_id);
+    if ($category && !is_wp_error($category)) {
+        $category_ids[] = $category_id;
+    }
+}
+```
+
 ### Common Issues & Solutions
 
 1. **Gemini API Errors**
@@ -276,7 +353,17 @@ try {
    - Check nonce verification
    - Ensure proper permissions
 
-3. **Cache Issues**
+3. **Content Formatting Issues**
+   - Plugin automatically converts Markdown to HTML
+   - Check AI response format in logs
+   - Verify HTML output in WordPress
+
+4. **Category/Tag Issues**
+   - Plugin uses existing categories intelligently
+   - Check category selection in debug logs
+   - Verify WordPress categories admin
+
+5. **Cache Issues**
    - Plugin version increment for cache busting
    - File modification time in asset URLs
 
@@ -293,6 +380,7 @@ try {
 ```php
 $title = sanitize_text_field($params['title']);
 $content = wp_kses_post($params['content']);
+$safe_category_name = sanitize_text_field($category_name);
 ```
 
 ### API Security
@@ -316,8 +404,9 @@ $content = wp_kses_post($params['content']);
 
 ### AI API
 - Request batching where possible
-- Timeout configurations (60 seconds)
+- Timeout configurations (90 seconds)
 - Error retry mechanisms
+- Smart response parsing
 
 ---
 
@@ -328,7 +417,7 @@ $content = wp_kses_post($params['content']);
 # Build and package
 npm run build
 cp dist/assets/* admin/
-zip -r ai-content-agent.zip ai-content-agent-plugin/ -x "*/node_modules/*" "*/.git/*" "*/dist/*"
+zip -r ai-content-agent-v1.3.2-markdown-fix.zip ai-content-agent-plugin/ -x "*/node_modules/*" "*/.git/*" "*/dist/*"
 ```
 
 ### Version Management
@@ -363,6 +452,16 @@ zip -r ai-content-agent.zip ai-content-agent-plugin/ -x "*/node_modules/*" "*/.g
    - Memory limit issues
    - Plugin conflicts
 
+4. **"Invalid JSON response from AI service"**
+   - Check AI response in logs
+   - JSON cleaning will attempt automatic fix
+   - Verify Gemini API key and model
+
+5. **"Call to undefined function wp_create_category()"**
+   - Fixed in v1.3.0
+   - Update to latest version
+   - Uses existing categories now
+
 ### Debug Steps
 
 1. **Enable WordPress Debug**
@@ -379,6 +478,11 @@ zip -r ai-content-agent.zip ai-content-agent-plugin/ -x "*/node_modules/*" "*/.g
 3. **PHP Error Logs**
    - Location: `/wp-content/debug.log`
    - Look for ACA prefixed errors
+
+4. **Plugin Debug Logs**
+   - Extensive `ACA DEBUG:` messages
+   - Step-by-step execution tracking
+   - AI response analysis
 
 ---
 
@@ -406,7 +510,7 @@ zip -r ai-content-agent.zip ai-content-agent-plugin/ -x "*/node_modules/*" "*/.g
 
 When working on this plugin:
 
-1. **Always check current version** in `ai-content-agent.php`
+1. **Always check current version** in `ai-content-agent.php` (Currently 1.3.2)
 2. **Run build process** after frontend changes
 3. **Update version number** for cache busting
 4. **Test both frontend and backend** functionality
@@ -419,44 +523,81 @@ When working on this plugin:
 3. `wordpressApi.ts` - Frontend API wrapper
 4. `types.ts` - TypeScript definitions
 
+### Recent Critical Fixes (v1.3.x)
+
+#### v1.3.2 - Content Formatting
+- **Problem**: AI generated Markdown, WordPress needed HTML
+- **Solution**: Added Markdown to HTML converter + better AI prompts
+- **Files**: `class-aca-rest-api.php` (markdown_to_html function)
+
+#### v1.3.1 - JSON Parsing
+- **Problem**: AI responses had invalid JSON syntax
+- **Solution**: Smart JSON cleaning with fallback parsing
+- **Files**: `class-aca-rest-api.php` (clean_ai_json_response function)
+
+#### v1.3.0 - Category Management
+- **Problem**: `wp_create_category()` function was deprecated/undefined
+- **Solution**: Smart selection from existing categories
+- **Files**: `class-aca-rest-api.php` (category management logic)
+
 ### Testing Workflow
 1. Install plugin in WordPress
 2. Configure Gemini API key
 3. Test style analysis
 4. Test idea generation
-5. Test draft creation
-6. Verify WordPress integration
+5. Test draft creation (check for proper HTML formatting)
+6. Verify WordPress integration (categories, tags, content display)
+7. Check error logs for any issues
 
 ---
 
 ## 📝 Change Log Summary
 
-### Version 1.0.9 (Current)
-- Fixed activity logs API parameter mismatch
-- Enhanced error handling for create draft
-- Improved response handling with fallback
-- Added comprehensive debug logging
+### Version 1.3.2 (Current) - Content Formatting Fix
+- 🎨 **FIXED**: Markdown formatting in generated content
+- ✅ **Added**: Automatic Markdown to HTML conversion
+- ✅ **Enhanced**: Content display in WordPress
+- ✅ **Improved**: AI prompt instructions for HTML output
+- ✅ **Added**: Fallback Markdown parser for legacy content
 
-### Version 1.0.8
-- Complete WordPress integration for drafts
-- Added categories and tags support
-- Internal linking implementation
-- SEO metadata integration
+### Version 1.3.1 - JSON Response Fix
+- 🔧 **FIXED**: Invalid JSON response from AI service
+- ✅ **Added**: Smart JSON cleaning and parsing
+- ✅ **Enhanced**: Error handling for AI responses
+- ✅ **Improved**: Debug logging for troubleshooting
 
-### Version 1.0.7
-- Activity logs endpoint fixes
-- Better error handling
+### Version 1.3.0 - Category Management Fix
+- 🎯 **FIXED**: Fatal error with wp_create_category() function
+- ✅ **Added**: Smart category selection from existing categories
+- ✅ **Enhanced**: Category management workflow
+- ✅ **Improved**: AI category selection process
 
-### Version 1.0.6
-- Gemini API model updates
-- WordPress content analysis
-- Style guide improvements
+### Version 1.2.2 - Comprehensive Debug System
+- 🔍 **Added**: Extensive debug logging system
+- ✅ **Enhanced**: Error tracking and reporting
+- ✅ **Improved**: Fatal error handling
 
-### Earlier Versions
-- Initial plugin structure
-- React frontend implementation
-- Basic AI integration
-- WordPress admin integration
+### Version 1.2.1 - Error Handling Improvements
+- ✅ **Fixed**: Activity logs API parameter mismatch
+- ✅ **Enhanced**: Error handling for draft creation
+- ✅ **Improved**: Response handling with fallback mechanisms
+
+### Version 1.2.0 - WordPress Integration
+- ✅ **Added**: Complete WordPress integration for drafts
+- ✅ **Added**: Categories and tags support
+- ✅ **Added**: Internal linking implementation
+- ✅ **Added**: SEO metadata integration
+
+### Version 1.1.0 - AI Model Update
+- ✅ **Updated**: Gemini API model to 2.0 Flash
+- ✅ **Enhanced**: WordPress content analysis
+- ✅ **Improved**: Style guide generation
+
+### Version 1.0.0 - Initial Release
+- ✅ **Initial**: Plugin structure and core functionality
+- ✅ **Added**: React frontend implementation
+- ✅ **Added**: Basic AI integration
+- ✅ **Added**: WordPress admin integration
 
 ---
 

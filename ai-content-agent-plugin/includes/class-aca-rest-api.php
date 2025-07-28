@@ -1177,14 +1177,26 @@ class ACA_Rest_Api {
             return new WP_Error('missing_date', 'Scheduled date is required', array('status' => 400));
         }
         
-        // Validate and parse the date
+        // Get current post to check its status
+        $current_post = get_post($post_id);
+        if (!$current_post) {
+            return new WP_Error('post_not_found', 'Post not found', array('status' => 404));
+        }
+        
+        // Parse the incoming date (usually in ISO format from JavaScript)
         $parsed_date = date_create($scheduled_date);
         if (!$parsed_date) {
             return new WP_Error('invalid_date', 'Invalid date format', array('status' => 400));
         }
         
+        // Get current WordPress time for comparison
+        $current_wp_time = current_time('timestamp');
+        $current_wp_date = current_time('Y-m-d H:i:s');
+        
+        error_log('ACA Schedule Draft: Current WP Time = ' . $current_wp_date);
+        error_log('ACA Schedule Draft: Received Date = ' . $parsed_date->format('Y-m-d H:i:s'));
+        
         // If the date doesn't include a time (just date from calendar), set it to a future time
-        $date_only = $parsed_date->format('Y-m-d');
         $time_part = $parsed_date->format('H:i:s');
         
         // If time is 00:00:00 (midnight), it means we got just a date from calendar drag-drop
@@ -1194,44 +1206,49 @@ class ACA_Rest_Api {
             error_log('ACA Schedule Draft: Set time to 9:00 AM for calendar date');
         }
         
-        // Format date for WordPress
-        $wordpress_date = $parsed_date->format('Y-m-d H:i:s');
+        // Convert to WordPress local time format
+        $local_date = $parsed_date->format('Y-m-d H:i:s');
+        $target_timestamp = $parsed_date->getTimestamp();
         
-        error_log('ACA Schedule Draft: WordPress Date = ' . $wordpress_date);
-        error_log('ACA Schedule Draft: Current Time = ' . current_time('mysql'));
+        error_log('ACA Schedule Draft: Target Local Date = ' . $local_date);
+        error_log('ACA Schedule Draft: Target Timestamp = ' . $target_timestamp);
+        error_log('ACA Schedule Draft: Current Timestamp = ' . $current_wp_time);
         
         // Update post meta for our plugin
         update_post_meta($post_id, '_aca_scheduled_for', $scheduled_date);
         
-        // Always schedule for future if it's a calendar date, don't publish immediately
-        $current_time = current_time('mysql');
-        $today = date('Y-m-d');
-        $target_date = $parsed_date->format('Y-m-d');
+        // Prepare update data
+        $update_data = array(
+            'ID' => $post_id,
+            'post_date' => $local_date,
+            'post_date_gmt' => get_gmt_from_date($local_date),
+            'edit_date' => true  // This is crucial for WordPress to accept date changes on drafts
+        );
         
-        error_log('ACA Schedule Draft: Today = ' . $today . ', Target Date = ' . $target_date);
-        
-        // If target date is today or future, schedule it; if past date, just update the date
-        if ($target_date >= $today) {
+        // Determine post status based on timing
+        if ($target_timestamp > $current_wp_time) {
+            // Future date - schedule it
+            $update_data['post_status'] = 'future';
             error_log('ACA Schedule Draft: Setting post status to FUTURE');
-            // Schedule for future - set post status to 'future' and update post_date
-            $update_result = wp_update_post(array(
-                'ID' => $post_id,
-                'post_status' => 'future',
-                'post_date' => $wordpress_date,
-                'post_date_gmt' => get_gmt_from_date($wordpress_date)
-            ));
         } else {
-            error_log('ACA Schedule Draft: Past date - keeping as draft');
-            // Date is in the past - just update the date but keep as draft
-            $update_result = wp_update_post(array(
-                'ID' => $post_id,
-                'post_date' => $wordpress_date,
-                'post_date_gmt' => get_gmt_from_date($wordpress_date)
-            ));
+            // Past or current date - keep as draft but update the date
+            $update_data['post_status'] = 'draft';
+            error_log('ACA Schedule Draft: Past/current date - keeping as draft');
         }
         
+        error_log('ACA Schedule Draft: Update Data = ' . json_encode($update_data));
+        
+        // Update the post
+        $update_result = wp_update_post($update_data);
+        
         if (is_wp_error($update_result)) {
+            error_log('ACA Schedule Draft: wp_update_post failed: ' . $update_result->get_error_message());
             return new WP_Error('update_failed', 'Failed to schedule post: ' . $update_result->get_error_message(), array('status' => 500));
+        }
+        
+        if ($update_result === 0) {
+            error_log('ACA Schedule Draft: wp_update_post returned 0');
+            return new WP_Error('update_failed', 'Failed to update post - wp_update_post returned 0', array('status' => 500));
         }
         
         // Get the updated post and format it for API response
@@ -1242,7 +1259,13 @@ class ACA_Rest_Api {
         
         $formatted_post = $this->format_post_for_api($updated_post);
         
-        $this->add_activity_log('draft_scheduled', "Scheduled draft: \"{$updated_post->post_title}\" for " . $parsed_date->format('M j, Y g:i A'), 'Calendar');
+        // Log the successful scheduling
+        $readable_date = $parsed_date->format('M j, Y g:i A');
+        $this->add_activity_log('draft_scheduled', "Scheduled draft: \"{$updated_post->post_title}\" for {$readable_date}", 'Calendar');
+        
+        error_log('ACA Schedule Draft: Successfully updated post. Final status = ' . $updated_post->post_status);
+        error_log('ACA Schedule Draft: Final post_date = ' . $updated_post->post_date);
+        error_log('ACA Schedule Draft: Final post_date_gmt = ' . $updated_post->post_date_gmt);
         
         return rest_ensure_response($formatted_post);
     }

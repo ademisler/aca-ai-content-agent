@@ -5,6 +5,44 @@ All notable changes to the AI Content Agent WordPress plugin will be documented 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.5] - 2025-01-28 - COMPREHENSIVE SCHEDULING FIX
+
+### 🎯 MAJOR FIXES
+- **CRITICAL**: Completely rewrote draft scheduling to properly handle WordPress timezone management
+- **WordPress Integration**: Fixed improper use of date/time functions causing posts to publish immediately
+- **Timezone Handling**: Now properly uses WordPress `current_time()` and `get_gmt_from_date()` functions
+- **Date Setting**: Added crucial `edit_date => true` parameter for WordPress to accept date changes on drafts
+- **Post Status Logic**: Fixed logic that was incorrectly setting post status based on server timezone instead of WordPress timezone
+
+### 🔧 TECHNICAL IMPROVEMENTS
+- **WordPress Best Practices**: Implemented proper WordPress date/time handling as recommended by WordPress Codex
+- **Timezone Conversion**: Proper conversion between local time and GMT using WordPress functions
+- **Date Validation**: Enhanced date parsing and validation with comprehensive error handling
+- **Debug Logging**: Added extensive debug logging to track scheduling process step-by-step
+- **Error Handling**: Improved error messages and validation for troubleshooting
+
+### 📝 DETAILED TECHNICAL CHANGES
+- Replaced manual date/time calculations with WordPress `current_time('timestamp')`
+- Added proper `post_date_gmt` field using `get_gmt_from_date()`
+- Implemented `edit_date => true` parameter for draft date updates
+- Fixed timezone offset issues by using WordPress timezone functions
+- Enhanced timestamp comparison logic for future vs current dates
+- Improved post status determination based on proper WordPress time
+
+### 🚨 BREAKING CHANGE RESOLUTION
+This version completely resolves the critical issue where:
+- Dragging drafts to future dates caused immediate publishing instead of scheduling
+- Posts were not properly scheduled due to timezone mishandling
+- Calendar dates were not being applied to posts correctly
+- Scheduled posts disappeared from calendar after drag-and-drop
+
+### 🧪 TESTING NOTES
+After this update, scheduled posts should:
+- Properly appear on calendar dates with yellow background
+- Show correct scheduling time in WordPress admin (future status)
+- Automatically publish at the scheduled time via WordPress cron
+- Maintain proper post dates that match the calendar selection
+
 ## [1.3.4] - 2025-01-28 - Critical Scheduling Fix
 
 ### 🎯 Fixed

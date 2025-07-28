@@ -275,23 +275,20 @@ const App: React.FC = () => {
           addToast({ message: "Auto-pilot: Starting content cycle...", type: "info" });
           setIsLoading(prev => ({ ...prev, auto: true }));
           try {
-            const existingTitles = [...posts.map(p => p.title), ...ideas.map(i => i.title)];
-             const searchConsoleData = settings.searchConsoleUser
-                ? {
-                    topQueries: ['AI for content marketing', 'how to write blog posts faster', 'wordpress automation tools'],
-                    underperformingPages: ['/blog/old-seo-tips', '/blog/2022-social-media-trends']
-                  }
-                : undefined;
+            // Generate 1 new idea using WordPress API
+            const newIdeas = await ideasApi.generate(1);
             
-            const ideasResult = await geminiService.generateIdeas(JSON.stringify(styleGuide), existingTitles, 1, searchConsoleData);
-            const parsedIdeas = JSON.parse(ideasResult);
-            const newTitle = parsedIdeas[0];
-            if (!newTitle) throw new Error("Failed to generate a unique idea.");
+            if (newIdeas.length === 0) {
+                throw new Error("Failed to generate a unique idea.");
+            }
+            
+            const newIdea = newIdeas[0];
+            addToast({ message: `Auto-pilot: Generated idea "${newIdea.title}"`, type: "info" });
+            
+            // Add idea to local state temporarily for createDraft to work
+            setIdeas(prev => [newIdea, ...prev]);
     
-            const ideaObject: ContentIdea = { id: Date.now(), title: newTitle, status: "new", source: 'ai' };
-            addToast({ message: `Auto-pilot: Generated idea "${newTitle}"`, type: "info" });
-    
-            const newDraft = await handleCreateDraft(ideaObject);
+            const newDraft = await handleCreateDraft(newIdea);
             if (newDraft && settings.autoPublish) {
               addToast({ message: `Auto-pilot: Publishing post...`, type: "info" });
               setTimeout(() => handlePublishPost(newDraft.id), 1500);

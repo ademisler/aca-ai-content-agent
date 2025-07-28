@@ -43,6 +43,10 @@ export const settingsApi = {
     method: 'POST',
     body: JSON.stringify(settings),
   }),
+  update: (settings: any) => apiFetch('settings', {
+    method: 'POST',
+    body: JSON.stringify(settings),
+  }),
 };
 
 // Style Guide API
@@ -50,6 +54,10 @@ export const styleGuideApi = {
   get: () => apiFetch('style-guide'),
   analyze: () => apiFetch('style-guide/analyze', { method: 'POST' }),
   save: (styleGuide: any) => apiFetch('style-guide', {
+    method: 'POST',
+    body: JSON.stringify(styleGuide),
+  }),
+  update: (styleGuide: any) => apiFetch('style-guide', {
     method: 'POST',
     body: JSON.stringify(styleGuide),
   }),
@@ -62,17 +70,17 @@ export const ideasApi = {
     method: 'POST',
     body: JSON.stringify({ count }),
   }),
-  generateSimilar: (baseTitle: string) => apiFetch('ideas/similar', {
+  generateSimilar: (ideaId: number) => apiFetch('ideas/similar', {
     method: 'POST',
-    body: JSON.stringify({ baseTitle }),
+    body: JSON.stringify({ ideaId }),
   }),
-  add: (title: string) => apiFetch('ideas', {
+  create: (idea: any) => apiFetch('ideas', {
     method: 'POST',
-    body: JSON.stringify({ title }),
+    body: JSON.stringify(idea),
   }),
-  update: (id: number, title: string) => apiFetch(`ideas/${id}`, {
+  update: (id: number, updates: any) => apiFetch(`ideas/${id}`, {
     method: 'PUT',
-    body: JSON.stringify({ title }),
+    body: JSON.stringify(updates),
   }),
   delete: (id: number) => apiFetch(`ideas/${id}`, { method: 'DELETE' }),
 };
@@ -80,7 +88,7 @@ export const ideasApi = {
 // Drafts API
 export const draftsApi = {
   get: () => apiFetch('drafts'),
-  create: (ideaId: number) => apiFetch('drafts/create', {
+  createFromIdea: (ideaId: number) => apiFetch('drafts/create', {
     method: 'POST',
     body: JSON.stringify({ ideaId }),
   }),
@@ -88,19 +96,25 @@ export const draftsApi = {
     method: 'PUT',
     body: JSON.stringify(updates),
   }),
-  publish: (id: number) => apiFetch(`drafts/${id}/publish`, { method: 'POST' }),
-  schedule: (id: number, date: string) => apiFetch(`drafts/${id}/schedule`, {
+  schedule: (id: number, scheduledDate: string) => apiFetch(`drafts/${id}/schedule`, {
     method: 'POST',
-    body: JSON.stringify({ date }),
+    body: JSON.stringify({ scheduledDate }),
   }),
 };
 
 // Published posts API
 export const publishedApi = {
   get: () => apiFetch('published'),
+  publish: (draftId: number) => apiFetch(`drafts/${draftId}/publish`, { 
+    method: 'POST' 
+  }),
 };
 
 // Activity logs API
 export const activityApi = {
   get: () => apiFetch('activity-logs'),
+  create: (log: any) => apiFetch('activity-logs', {
+    method: 'POST',
+    body: JSON.stringify(log),
+  }),
 };

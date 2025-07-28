@@ -1422,7 +1422,7 @@ class ACA_Rest_Api {
             ),
             'generationConfig' => array(
                 'temperature' => 0.7,
-                'maxOutputTokens' => 2048,
+                'maxOutputTokens' => 8192, // Increased for longer content
                 'responseMimeType' => 'application/json'
             )
         ));

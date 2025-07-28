@@ -865,6 +865,19 @@ class ACA_Rest_Api {
                     throw new Exception('AI response metaDescription field must be string');
                 }
                 
+                // Convert Markdown to HTML if needed
+                error_log('ACA DEBUG: Content before conversion (first 200 chars): ' . substr($draft_data['content'], 0, 200));
+                if (strpos($draft_data['content'], '**') !== false || 
+                    strpos($draft_data['content'], '*') !== false || 
+                    strpos($draft_data['content'], '[') !== false ||
+                    strpos($draft_data['content'], '##') !== false) {
+                    error_log('ACA DEBUG: Markdown detected, converting to HTML');
+                    $draft_data['content'] = $this->markdown_to_html($draft_data['content']);
+                    error_log('ACA DEBUG: Content after conversion (first 200 chars): ' . substr($draft_data['content'], 0, 200));
+                } else {
+                    error_log('ACA DEBUG: No Markdown detected, using content as-is');
+                }
+                
                 // Log what we received from AI
                 error_log('ACA DEBUG: AI response keys: ' . implode(', ', array_keys($draft_data)));
                 if (isset($draft_data['categoryIds'])) {
@@ -1498,14 +1511,23 @@ Requirements:
 - Engaging introduction and compelling conclusion
 - SEO-optimized content matching the style guide
 - Include 2-3 internal links to the provided existing posts where contextually relevant
-- Use markdown format for links: [anchor text](URL)
 - For categories: ONLY use category IDs from the provided list above. Select 1-2 most relevant ones.
 - For tags: Create new relevant tags as strings
+
+CONTENT FORMAT REQUIREMENTS:
+- Use ONLY HTML formatting, NOT Markdown
+- For headings: <h2>Heading</h2>, <h3>Subheading</h3>
+- For paragraphs: <p>Text content</p>
+- For bold text: <strong>Bold text</strong>
+- For italic text: <em>Italic text</em>
+- For lists: <ul><li>Item 1</li><li>Item 2</li></ul>
+- For links: <a href=\"URL\">Link text</a>
+- NO Markdown syntax like *, **, [text](url), ##, etc.
 
 IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not include any text before or after the JSON:
 
 {
-  \"content\": \"The full blog post content in HTML format with proper headings (H2, H3), paragraphs, internal links, and formatting. Escape all quotes and newlines properly.\",
+  \"content\": \"The full blog post content in proper HTML format with <h2>, <h3>, <p>, <strong>, <ul>, <li>, <a> tags. NO Markdown syntax.\",
   \"metaTitle\": \"SEO-optimized title (50-60 characters)\",
   \"metaDescription\": \"Compelling meta description (150-160 characters)\",
   \"focusKeywords\": [\"keyword1\", \"keyword2\", \"keyword3\", \"keyword4\", \"keyword5\"],
@@ -1714,5 +1736,51 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         }, $response);
         
         return trim($response);
+    }
+    
+    /**
+     * Convert Markdown content to HTML
+     */
+    private function markdown_to_html($content) {
+        // Convert headings
+        $content = preg_replace('/^### (.+)$/m', '<h3>$1</h3>', $content);
+        $content = preg_replace('/^## (.+)$/m', '<h2>$1</h2>', $content);
+        
+        // Convert bold text
+        $content = preg_replace('/\*\*(.+?)\*\*/', '<strong>$1</strong>', $content);
+        
+        // Convert italic text
+        $content = preg_replace('/\*(.+?)\*/', '<em>$1</em>', $content);
+        
+        // Convert links
+        $content = preg_replace('/\[([^\]]+)\]\(([^)]+)\)/', '<a href="$2">$1</a>', $content);
+        
+        // Convert unordered lists
+        $content = preg_replace_callback('/(?:^|\n)(\* .+(?:\n\* .+)*)/m', function($matches) {
+            $list_items = explode("\n", trim($matches[1]));
+            $html_items = '';
+            foreach ($list_items as $item) {
+                $item = preg_replace('/^\* /', '', $item);
+                $html_items .= '<li>' . trim($item) . '</li>';
+            }
+            return '<ul>' . $html_items . '</ul>';
+        }, $content);
+        
+        // Convert paragraphs (split by double newlines)
+        $paragraphs = preg_split('/\n\s*\n/', trim($content));
+        $html_content = '';
+        
+        foreach ($paragraphs as $paragraph) {
+            $paragraph = trim($paragraph);
+            if (!empty($paragraph)) {
+                // Skip if already wrapped in HTML tags
+                if (!preg_match('/^<(h[1-6]|ul|ol|li|div|p)/', $paragraph)) {
+                    $paragraph = '<p>' . $paragraph . '</p>';
+                }
+                $html_content .= $paragraph . "\n\n";
+            }
+        }
+        
+        return trim($html_content);
     }
 }

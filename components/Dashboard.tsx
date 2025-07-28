@@ -1,7 +1,7 @@
 
 import React, { memo } from 'react';
 import type { View, ActivityLog } from '../types';
-import { Lightbulb, BookOpen, FileText, Send, Spinner, CheckCircle } from './Icons';
+import { Lightbulb, BookOpen, FileText, Send, CheckCircle } from './Icons';
 import { ActivityLogList } from './ActivityLog';
 
 interface DashboardProps {
@@ -32,18 +32,17 @@ const ActionButton: React.FC<{
         <button
             onClick={onClick}
             disabled={disabled || isLoading}
+            className="aca-action-button"
             aria-label={isLoading ? loadingTitle : title}
-            aria-describedby={`action-desc-${title.replace(/\s+/g, '-').toLowerCase()}`}
-            className="bg-slate-800 p-6 rounded-lg border border-slate-700/80 shadow-md flex flex-col items-start text-left w-full hover:bg-slate-700/50 hover:border-slate-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-950"
         >
-            <div className="bg-blue-600 p-3 rounded-lg mb-4">
+            <div className="aca-action-icon">
                 {icon}
             </div>
-            <h3 className="text-lg font-semibold text-white mb-1 flex items-center">
-                <span>{isLoading ? loadingTitle : title}</span>
-                {isLoading && <Spinner className="h-5 w-5 ml-2" />}
+            <h3 className="aca-action-title">
+                {isLoading ? (loadingTitle || 'Loading...') : title}
+                {isLoading && <span className="aca-spinner" style={{ marginLeft: '8px' }}></span>}
             </h3>
-            <p id={`action-desc-${title.replace(/\s+/g, '-').toLowerCase()}`} className="text-slate-400 text-sm">{description}</p>
+            <p className="aca-action-description">{description}</p>
         </button>
     );
 });
@@ -56,141 +55,157 @@ const PipelineItem: React.FC<{
     view: View;
     onNavigate: (view: View) => void;
 }> = memo(({ icon, title, count, description, view, onNavigate }) => (
-    <div className="flex items-center justify-between p-4 bg-slate-900/50 rounded-lg border border-slate-700/60">
-        <div className="flex items-center gap-4">
-            {icon}
+    <div className="aca-stat-item">
+        <div className="aca-stat-info">
+            <div className="aca-stat-icon">{icon}</div>
             <div>
-                <p className="font-semibold text-white">{title}</p>
-                <p className="text-sm text-slate-400">{count} {description}</p>
+                <h4 className="aca-stat-title">{title}</h4>
+                <p className="aca-stat-count">{count} {description}</p>
             </div>
         </div>
         <button 
             onClick={() => onNavigate(view)} 
+            className="aca-button"
             aria-label={`View ${title.toLowerCase()}`}
-            className="bg-slate-600 text-white px-4 py-1.5 rounded-md text-sm font-semibold hover:bg-slate-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-950"
         >
             View
         </button>
     </div>
 ));
 
-
-export const Dashboard: React.FC<DashboardProps> = ({ stats, lastAnalyzed, activityLogs, onNavigate, onGenerateIdeas, onUpdateStyleGuide, isLoadingIdeas, isLoadingStyle }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ 
+    stats, 
+    lastAnalyzed, 
+    activityLogs, 
+    onNavigate, 
+    onGenerateIdeas, 
+    onUpdateStyleGuide, 
+    isLoadingIdeas, 
+    isLoadingStyle 
+}) => {
     const isStyleGuideReady = !!lastAnalyzed;
 
     return (
-        <div className="space-y-8 animate-fade-in-fast">
-            <header>
-                <h1 className="text-3xl font-bold text-white border-b border-slate-700 pb-3 mb-6">Dashboard</h1>
-                <p className="text-slate-400 -mt-2">Welcome back! Here's a quick overview of your content pipeline.</p>
-            </header>
+        <div className="aca-fade-in">
+            <div className="aca-page-header">
+                <h1 className="aca-page-title">Dashboard</h1>
+                <p className="aca-page-description">Welcome back! Here's a quick overview of your content pipeline.</p>
+            </div>
 
             {!isStyleGuideReady && (
-                 <div className="bg-blue-900/20 border border-blue-700/50 text-blue-300 px-6 py-5 rounded-lg flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div className="flex items-center">
-                        <Lightbulb className="h-8 w-8 text-blue-400 flex-shrink-0 mr-4" />
-                        <div>
-                            <h4 className="font-bold text-white">Get Started with AI Content Agent</h4>
-                            <p className="text-sm">Create your Style Guide first to enable all features and generate on-brand content.</p>
+                <div className="aca-alert info">
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '15px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                            <Lightbulb style={{ width: '24px', height: '24px', marginRight: '12px', flexShrink: 0 }} />
+                            <div>
+                                <h4 style={{ margin: '0 0 5px 0', fontWeight: '600', color: '#0073aa' }}>Get Started with AI Content Agent</h4>
+                                <p style={{ margin: 0, fontSize: '13px' }}>Create your Style Guide first to enable all features and generate on-brand content.</p>
+                            </div>
                         </div>
+                        <button 
+                            onClick={() => onNavigate('style-guide')} 
+                            className="aca-button large"
+                            style={{ flexShrink: 0 }}
+                        >
+                            Create Style Guide
+                        </button>
                     </div>
-                    <button onClick={() => onNavigate('style-guide')} className="bg-blue-600 text-white font-bold py-2 px-5 rounded-lg hover:bg-blue-700 transition-colors flex-shrink-0 w-full sm:w-auto">
-                        Create Style Guide
-                    </button>
                 </div>
             )}
-            
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Left Column */}
-                <div className="lg:col-span-2 space-y-8">
-                    <section aria-labelledby="quick-actions-heading">
-                        <h2 id="quick-actions-heading" className="text-xl font-semibold text-white mb-4">Quick Actions</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <ActionButton
-                                icon={<BookOpen className="h-6 w-6 text-white" />}
-                                title={isStyleGuideReady ? 'Update Style Guide' : 'Learn My Style'}
-                                description="Analyze your content to define or refine your brand's voice."
-                                onClick={onUpdateStyleGuide}
-                                isLoading={isLoadingStyle}
-                                loadingTitle="Scanning..."
-                            />
-                            <ActionButton
-                                icon={<Lightbulb className="h-6 w-6 text-white" />}
-                                title="Generate New Ideas"
-                                description="Create a fresh batch of content ideas based on your style."
-                                onClick={onGenerateIdeas}
-                                disabled={!isStyleGuideReady}
-                                isLoading={isLoadingIdeas}
-                                loadingTitle="Generating..."
-                            />
-                        </div>
-                    </section>
-                    
-                    <section aria-labelledby="content-pipeline-heading">
-                        <h2 id="content-pipeline-heading" className="text-xl font-semibold text-white mb-4">Content Pipeline</h2>
-                        <div className="bg-slate-800 p-4 sm:p-5 rounded-lg border border-slate-700/80 space-y-4">
-                           <PipelineItem
-                                icon={<div className="p-3 rounded-lg bg-yellow-900/30"><Lightbulb className="h-6 w-6 text-yellow-400" /></div>}
-                                title="Pending Ideas"
-                                count={stats.ideas}
-                                description="ideas waiting"
-                                view="ideas"
-                                onNavigate={onNavigate}
-                           />
-                           <PipelineItem
-                                icon={<div className="p-3 rounded-lg bg-sky-900/30"><FileText className="h-6 w-6 text-sky-400" /></div>}
-                                title="Drafts"
-                                count={stats.drafts}
-                                description="drafts to review"
-                                view="drafts"
-                                onNavigate={onNavigate}
-                           />
-                           <PipelineItem
-                                icon={<div className="p-3 rounded-lg bg-green-900/30"><Send className="h-6 w-6 text-green-400" /></div>}
-                                title="Published Posts"
-                                count={stats.published}
-                                description="posts are live"
-                                view="published"
-                                onNavigate={onNavigate}
-                           />
-                        </div>
-                    </section>
+
+            <div className="aca-grid aca-grid-2" style={{ marginBottom: '30px' }}>
+                <div className="aca-card">
+                    <div className="aca-card-header">
+                        <h2 className="aca-card-title">Quick Actions</h2>
+                    </div>
+                    <div className="aca-grid aca-grid-2">
+                        <ActionButton
+                            icon={<Lightbulb />}
+                            title="Generate Ideas"
+                            description="Create fresh content ideas based on your style guide"
+                            onClick={onGenerateIdeas}
+                            disabled={!isStyleGuideReady}
+                            isLoading={isLoadingIdeas}
+                            loadingTitle="Generating Ideas..."
+                        />
+                        <ActionButton
+                            icon={<BookOpen />}
+                            title="Update Style Guide"
+                            description="Analyze your site content to refresh your style guide"
+                            onClick={onUpdateStyleGuide}
+                            isLoading={isLoadingStyle}
+                            loadingTitle="Analyzing Style..."
+                        />
+                    </div>
                 </div>
 
-                {/* Right Column */}
-                <div className="lg:col-span-1 space-y-8">
-                    <section aria-labelledby="status-heading">
-                         <h2 id="status-heading" className="text-xl font-semibold text-white mb-4">Status</h2>
-                         <div className="bg-slate-800 p-5 rounded-lg border border-slate-700/80">
-                            <div className="flex items-center gap-4">
-                                <div className="p-3 rounded-full bg-slate-700">
-                                    <BookOpen className="h-6 w-6 text-purple-400" />
-                                </div>
-                                <div>
-                                    <p className="font-semibold text-white">Style Guide</p>
-                                    {isStyleGuideReady ? (
-                                        <p className="text-sm text-green-400 flex items-center gap-1.5"><CheckCircle className="h-4 w-4" /> Ready</p>
-                                    ) : (
-                                        <p className="text-sm text-yellow-400">Not Set</p>
-                                    )}
-                                </div>
-                            </div>
-                            {lastAnalyzed && (
-                                <div className="mt-4 pt-4 border-t border-slate-700/60">
-                                    <p className="text-xs text-slate-400">Last Scanned:</p>
-                                    <p className="text-sm font-medium text-slate-300">{new Date(lastAnalyzed).toLocaleString()}</p>
-                                </div>
-                            )}
-                         </div>
-                    </section>
-                    
-                    <section aria-labelledby="recent-activity-heading">
-                        <h2 id="recent-activity-heading" className="text-xl font-semibold text-white mb-4">Recent Activity</h2>
-                        <div className="bg-slate-800 p-4 sm:p-5 rounded-lg border border-slate-700/80 h-96 overflow-y-auto">
-                           <ActivityLogList logs={activityLogs} />
-                        </div>
-                    </section>
+                <div className="aca-card">
+                    <div className="aca-card-header">
+                        <h2 className="aca-card-title">Content Pipeline</h2>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        <PipelineItem
+                            icon={<Lightbulb />}
+                            title="Ideas"
+                            count={stats.ideas}
+                            description="content ideas"
+                            view="ideas"
+                            onNavigate={onNavigate}
+                        />
+                        <PipelineItem
+                            icon={<FileText />}
+                            title="Drafts"
+                            count={stats.drafts}
+                            description="draft posts"
+                            view="drafts"
+                            onNavigate={onNavigate}
+                        />
+                        <PipelineItem
+                            icon={<Send />}
+                            title="Published"
+                            count={stats.published}
+                            description="published posts"
+                            view="published"
+                            onNavigate={onNavigate}
+                        />
+                    </div>
                 </div>
+            </div>
+
+            {isStyleGuideReady && (
+                <div className="aca-card">
+                    <div className="aca-card-header">
+                        <h2 className="aca-card-title">
+                            <CheckCircle style={{ width: '20px', height: '20px', marginRight: '8px', fill: '#00a32a' }} />
+                            Style Guide Active
+                        </h2>
+                    </div>
+                    <p style={{ margin: '0 0 15px 0', color: '#646970' }}>
+                        Last analyzed: {new Date(lastAnalyzed).toLocaleDateString()} at {new Date(lastAnalyzed).toLocaleTimeString()}
+                    </p>
+                    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                        <button 
+                            onClick={() => onNavigate('style-guide')} 
+                            className="aca-button secondary"
+                        >
+                            View Style Guide
+                        </button>
+                        <button 
+                            onClick={onUpdateStyleGuide} 
+                            className="aca-button secondary"
+                            disabled={isLoadingStyle}
+                        >
+                            {isLoadingStyle ? 'Updating...' : 'Refresh Analysis'}
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            <div className="aca-card">
+                <div className="aca-card-header">
+                    <h2 className="aca-card-title">Recent Activity</h2>
+                </div>
+                <ActivityLogList logs={activityLogs.slice(0, 10)} />
             </div>
         </div>
     );

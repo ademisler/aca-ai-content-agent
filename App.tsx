@@ -98,363 +98,227 @@ const App: React.FC = () => {
     const addLogEntry = useCallback((type: ActivityLogType, details: string, icon: IconName) => {
         const newLog: ActivityLog = {
             id: Date.now(),
-            timestamp: new Date().toISOString(),
             type,
             details,
-            icon,
+            timestamp: new Date().toISOString(),
+            icon
         };
-        setActivityLogs(prevLogs => [newLog, ...prevLogs]);
+        setActivityLogs(prev => [newLog, ...prev.slice(0, 49)]);
+        
+        // Save to WordPress
+        activityApi.create(newLog).catch(console.error);
     }, []);
-    
 
+    const removeToast = useCallback((id: number) => {
+        setToasts(currentToasts => currentToasts.filter(toast => toast.id !== id));
+    }, []);
 
-    const removeToast = (id: number) => {
-        setToasts(currentToasts => currentToasts.filter(t => t.id !== id));
-    };
-
-    const handleAnalyzeStyle = useCallback(async (isAuto: boolean = false) => {
-        if (!settings.geminiApiKey) {
-            addToast({ message: 'Please set your Google AI API Key in Settings first.', type: 'warning' });
-            if (!isAuto) {
-                setView('settings');
-            }
-            return;
-        }
+    const handleAnalyzeStyle = useCallback(async (showToast = true) => {
         setIsLoading(prev => ({ ...prev, style: true }));
         try {
-            const analysis = await styleGuideApi.analyze();
-            setStyleGuide(analysis);
-            addLogEntry('style_updated', 'Style Guide was successfully updated.', 'BookOpen');
-            if (!isAuto) {
-                addToast({ message: 'Style Guide successfully updated!', type: 'success' });
-                setView('style-guide');
-            } else {
-                 addToast({ message: 'Style Guide automatically refreshed.', type: 'info' });
+            const updatedStyleGuide = await styleGuideApi.analyze();
+            setStyleGuide(updatedStyleGuide);
+            if (showToast) {
+                addToast({ message: 'Style guide updated successfully!', type: 'success' });
             }
+            addLogEntry('style_analyzed', 'Style guide analyzed and updated', 'BookOpen');
         } catch (error) {
-            console.error(error);
-            const errorMessage = error instanceof Error ? error.message : 'Failed to analyze style.';
-            addToast({ message: errorMessage, type: 'error' });
+            const errorMessage = error instanceof Error ? error.message : 'Failed to analyze style guide';
+            if (showToast) {
+                addToast({ message: errorMessage, type: 'error' });
+            }
         } finally {
             setIsLoading(prev => ({ ...prev, style: false }));
         }
-    }, [addToast, setView, settings.geminiApiKey]);
+    }, [addToast, addLogEntry]);
 
-    const handleGenerateIdeas = async (isAuto: boolean = false, count: number = 5) => {
-        if (!settings.geminiApiKey) {
-            addToast({ message: 'Please set your Google AI API Key in Settings first.', type: 'warning' });
-            if (!isAuto) {
-                setView('settings');
-            }
-            return;
+    const handleSaveStyleGuide = useCallback(async (updatedGuide: Partial<StyleGuide>) => {
+        try {
+            const savedGuide = await styleGuideApi.update(updatedGuide);
+            setStyleGuide(savedGuide);
+            addToast({ message: 'Style guide saved successfully!', type: 'success' });
+            addLogEntry('style_updated', 'Style guide manually updated', 'BookOpen');
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Failed to save style guide';
+            addToast({ message: errorMessage, type: 'error' });
         }
+    }, [addToast, addLogEntry]);
+
+    const handleGenerateIdeas = useCallback(async (showToast = true, count = 5) => {
         if (!styleGuide) {
-            addToast({ message: 'Please generate a Style Guide first.', type: 'warning' });
+            addToast({ message: 'Please create a style guide first', type: 'warning' });
             return;
         }
+
         setIsLoading(prev => ({ ...prev, ideas: true }));
         try {
             const newIdeas = await ideasApi.generate(count);
-
-            if (newIdeas.length > 0) {
-                setIdeas(prev => [...newIdeas, ...prev]);
-                const message = isAuto ? `Semi-auto: ${newIdeas.length} new ideas generated!` : `${newIdeas.length} new ideas generated!`;
-                addToast({ message, type: isAuto ? 'info' : 'success' });
-                addLogEntry('ideas_generated', `Generated ${newIdeas.length} new content ideas.`, 'Lightbulb');
-                if (!isAuto) {
-                    setView('ideas');
-                }
-            } else if (!isAuto) {
-                 addToast({ message: 'No new unique ideas could be generated. Try again later.', type: 'warning' });
+            setIdeas(prev => [...newIdeas, ...prev]);
+            if (showToast) {
+                addToast({ message: `Generated ${newIdeas.length} new ideas!`, type: 'success' });
             }
+            addLogEntry('ideas_generated', `Generated ${newIdeas.length} new content ideas`, 'Lightbulb');
         } catch (error) {
-            console.error(error);
-            const errorMessage = error instanceof Error ? error.message : 'Failed to generate ideas.';
-            addToast({ message: errorMessage, type: 'error' });
+            const errorMessage = error instanceof Error ? error.message : 'Failed to generate ideas';
+            if (showToast) {
+                addToast({ message: errorMessage, type: 'error' });
+            }
         } finally {
             setIsLoading(prev => ({ ...prev, ideas: false }));
         }
-    };
-    
-    const handleGenerateSimilarIdeas = async (baseIdea: ContentIdea) => {
-        if (!settings.geminiApiKey) {
-            addToast({ message: 'Please set your Google AI API Key in Settings first.', type: 'warning' });
-            setView('settings');
+    }, [styleGuide, addToast, addLogEntry]);
+
+    const handleGenerateSimilarIdeas = useCallback(async (baseIdea: ContentIdea) => {
+        if (!styleGuide) {
+            addToast({ message: 'Please create a style guide first', type: 'warning' });
             return;
         }
-        setIsLoading(prev => ({ ...prev, [`similar-${baseIdea.id}`]: true }));
-        try {
-            const similarIdeas = await ideasApi.generateSimilar(baseIdea.title);
-            
-            if (similarIdeas.length > 0) {
-                setIdeas(prev => [...similarIdeas, ...prev]);
-                addToast({ message: `Generated ${similarIdeas.length} ideas similar to "${baseIdea.title}"`, type: 'success' });
-                addLogEntry('ideas_generated', `Generated ${similarIdeas.length} similar ideas.`, 'Sparkles');
-            } else {
-                addToast({ message: 'Could not generate similar ideas.', type: 'warning' });
-            }
 
+        setIsLoading(prev => ({ ...prev, [`similar_${baseIdea.id}`]: true }));
+        try {
+            const similarIdeas = await ideasApi.generateSimilar(baseIdea.id);
+            setIdeas(prev => [...similarIdeas, ...prev]);
+            addToast({ message: `Generated ${similarIdeas.length} similar ideas!`, type: 'success' });
+            addLogEntry('similar_ideas_generated', `Generated ${similarIdeas.length} ideas similar to "${baseIdea.title}"`, 'Lightbulb');
         } catch (error) {
-            console.error(error);
-            const errorMessage = error instanceof Error ? error.message : 'Failed to generate similar ideas.';
+            const errorMessage = error instanceof Error ? error.message : 'Failed to generate similar ideas';
             addToast({ message: errorMessage, type: 'error' });
         } finally {
-            setIsLoading(prev => ({ ...prev, [`similar-${baseIdea.id}`]: false }));
+            setIsLoading(prev => ({ ...prev, [`similar_${baseIdea.id}`]: false }));
         }
-    };
+    }, [styleGuide, addToast, addLogEntry]);
 
-    const handleCreateDraft = async (idea: ContentIdea): Promise<Draft | null> => {
-        if (!settings.geminiApiKey) {
-            addToast({ message: 'Please set your Google AI API Key in Settings first.', type: 'warning' });
-            setView('settings');
-            return null;
-        }
+    const handleCreateDraft = useCallback(async (ideaId: number) => {
         if (!styleGuide) {
-            addToast({ message: 'Cannot create draft without a Style Guide.', type: 'warning' });
-            return null;
+            addToast({ message: 'Please create a style guide first', type: 'warning' });
+            return;
         }
-        setIsLoading(prev => ({ ...prev, [`draft-${idea.id}`]: true }));
-        try {
-            const newDraft = await draftsApi.create(idea.id);
-            
-            // Update local state
-            setPosts(prev => [newDraft, ...prev]);
-            setIdeas(prev => prev.filter(i => i.id !== idea.id));
-            addToast({ message: `Draft "${idea.title}" created successfully!`, type: 'success' });
-            addLogEntry('draft_created', `Created draft: "${idea.title}"`, 'FileText');
-            if (settings.mode !== 'full-automatic') {
-                setView('drafts');
-            }
-            return newDraft;
 
+        const idea = ideas.find(i => i.id === ideaId);
+        if (!idea) return;
+
+        setIsLoading(prev => ({ ...prev, [`draft_${ideaId}`]: true }));
+        try {
+            const draft = await draftsApi.createFromIdea(ideaId);
+            setPosts(prev => [draft, ...prev]);
+            
+            // Archive the idea
+            const updatedIdea = { ...idea, status: 'archived' as const };
+            await ideasApi.update(ideaId, updatedIdea);
+            setIdeas(prev => prev.map(i => i.id === ideaId ? updatedIdea : i));
+            
+            addToast({ message: 'Draft created successfully!', type: 'success' });
+            addLogEntry('draft_created', `Created draft: "${draft.title}"`, 'FileText');
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-            addToast({ message: `Failed to create draft: ${errorMessage}`, type: 'error' });
-            console.error(error);
-            return null;
+            const errorMessage = error instanceof Error ? error.message : 'Failed to create draft';
+            addToast({ message: errorMessage, type: 'error' });
         } finally {
-            setIsLoading(prev => ({ ...prev, [`draft-${idea.id}`]: false }));
+            setIsLoading(prev => ({ ...prev, [`draft_${ideaId}`]: false }));
         }
-    };
-    
-    // Auto Style Guide Analysis (runs on mount and periodically)
-    useEffect(() => {
-        if(settings.geminiApiKey) {
-            handleAnalyzeStyle(true); // Initial analysis
-            const styleInterval = setInterval(() => handleAnalyzeStyle(true), 30 * 60 * 1000); // every 30 mins
-            return () => clearInterval(styleInterval);
-        }
-        return undefined;
-    }, [handleAnalyzeStyle, settings.geminiApiKey]);
-    
-    // Semi-Automatic Mode: Generate Ideas periodically
-    useEffect(() => {
-        let intervalId: number | undefined;
-        if (settings.mode === 'semi-automatic' && styleGuide && settings.geminiApiKey) {
-            intervalId = window.setInterval(() => handleGenerateIdeas(true, 5), 15 * 60 * 1000); // every 15 mins
-            addToast({ message: "Semi-Automatic mode activated. Will generate ideas periodically.", type: "info" });
-        }
-        return () => {
-            if (intervalId) {
-                clearInterval(intervalId);
-                addToast({ message: "Semi-Automatic mode deactivated.", type: "info" });
-            }
-        };
-    }, [settings.mode, styleGuide, settings.geminiApiKey, addToast, handleGenerateIdeas]);
+    }, [ideas, styleGuide, addToast, addLogEntry]);
 
-    // Full-Automatic Mode: Full content cycle periodically
-    useEffect(() => {
-        let intervalId: number | undefined;
-        const runAutoProcess = async () => {
-          if (!settings.geminiApiKey) {
-            addToast({ message: "Auto-pilot paused: Please set your Google AI API Key in Settings.", type: "warning" });
-            return;
-          }
-          if (!styleGuide) {
-            console.warn("Auto-pilot paused: Style Guide must be set.");
-            return;
-          }
-          addToast({ message: "Auto-pilot: Starting content cycle...", type: "info" });
-          setIsLoading(prev => ({ ...prev, auto: true }));
-          try {
-            // Generate 1 new idea using WordPress API
-            const newIdeas = await ideasApi.generate(1);
-            
-            if (newIdeas.length === 0) {
-                throw new Error("Failed to generate a unique idea.");
-            }
-            
-            const newIdea = newIdeas[0];
-            addToast({ message: `Auto-pilot: Generated idea "${newIdea.title}"`, type: "info" });
-            
-            // Add idea to local state temporarily for createDraft to work
-            setIdeas(prev => [newIdea, ...prev]);
-    
-            const newDraft = await handleCreateDraft(newIdea);
-            if (newDraft && settings.autoPublish) {
-              addToast({ message: `Auto-pilot: Publishing post...`, type: "info" });
-              setTimeout(() => handlePublishPost(newDraft.id), 1500);
-            }
-          } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-            console.error("Auto-pilot process failed:", errorMessage);
-            addToast({ message: `Auto-pilot error: ${errorMessage}`, type: "error" });
-          } finally {
-            setIsLoading(prev => ({ ...prev, auto: false }));
-          }
-        };
-    
-        if (settings.mode === 'full-automatic') {
-          intervalId = window.setInterval(runAutoProcess, 30 * 60 * 1000); // every 30 mins
-          addToast({ message: "Full-Automatic mode activated.", type: "info" });
-        }
-    
-        return () => {
-          if (intervalId) {
-            clearInterval(intervalId);
-            if (settings.mode === 'full-automatic') {
-                addToast({ message: "Full-Automatic mode deactivated.", type: "info" });
-            }
-          }
-        };
-      }, [settings, styleGuide, addToast, handleCreateDraft, ideas, posts]);
-
-
-    const handlePublishPost = async (id: number) => {
-        setPublishingId(id);
+    const handleUpdateDraft = useCallback(async (draftId: number, updates: Partial<Draft>) => {
         try {
-            await draftsApi.publish(id);
-            
-            // Update local state
-            setPosts(currentPosts =>
-                currentPosts.map(p => {
-                    if (p.id === id) {
-                        return { ...p, status: 'published', publishedAt: new Date().toISOString() };
-                    }
-                    return p;
-                })
-            );
+            const updatedDraft = await draftsApi.update(draftId, updates);
+            setPosts(prev => prev.map(p => p.id === draftId ? updatedDraft : p));
+            addToast({ message: 'Draft updated successfully!', type: 'success' });
+            addLogEntry('draft_updated', `Updated draft: "${updatedDraft.title}"`, 'FileText');
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Failed to update draft';
+            addToast({ message: errorMessage, type: 'error' });
+        }
+    }, [addToast, addLogEntry]);
 
-            const post = posts.find(p => p.id === id);
-            if (post) {
-                addToast({ message: `Post "${post.title}" published!`, type: 'success' });
-                addLogEntry('post_published', `Published post: "${post.title}"`, 'Send');
-            }
+    const handlePublishPost = useCallback(async (draftId: number) => {
+        setPublishingId(draftId);
+        try {
+            const publishedPost = await publishedApi.publish(draftId);
+            setPosts(prev => prev.map(p => p.id === draftId ? publishedPost : p));
+            addToast({ message: 'Post published successfully!', type: 'success' });
+            addLogEntry('post_published', `Published post: "${publishedPost.title}"`, 'Send');
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Failed to publish post';
             addToast({ message: errorMessage, type: 'error' });
         } finally {
             setPublishingId(null);
         }
-    };
+    }, [addToast, addLogEntry]);
 
-    const handleUpdateDraft = async (id: number, updates: Partial<Draft>) => {
+    const handleScheduleDraft = useCallback(async (draftId: number, scheduledDate: string) => {
         try {
-            await draftsApi.update(id, updates);
-            
-            setPosts(currentPosts =>
-                currentPosts.map(p => (p.id === id ? { ...p, ...updates } : p))
-            );
-            setSelectedDraft(prev => prev ? { ...prev, ...updates } : null);
-            addToast({ message: `Draft "${updates.title || 'post'}" has been updated.`, type: 'success' });
-            addLogEntry('draft_updated', `Updated draft: "${updates.title}"`, 'Pencil');
-        } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'Failed to update draft';
-            addToast({ message: errorMessage, type: 'error' });
-        }
-    };
-    
-    const handleScheduleDraft = async (id: number, date: string) => {
-        try {
-            await draftsApi.schedule(id, date);
-            
-            setPosts(currentPosts =>
-                currentPosts.map(p => {
-                    if (p.id === id) {
-                        addToast({ message: `Draft "${p.title}" scheduled for ${new Date(date).toLocaleDateString()}.`, type: 'info' });
-                        addLogEntry('draft_scheduled', `Scheduled draft: "${p.title}"`, 'Calendar');
-                        return { ...p, scheduledFor: date };
-                    }
-                    return p;
-                })
-            );
+            const scheduledDraft = await draftsApi.schedule(draftId, scheduledDate);
+            setPosts(prev => prev.map(p => p.id === draftId ? scheduledDraft : p));
+            addToast({ message: 'Draft scheduled successfully!', type: 'success' });
+            addLogEntry('draft_scheduled', `Scheduled draft: "${scheduledDraft.title}" for ${new Date(scheduledDate).toLocaleDateString()}`, 'Calendar');
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Failed to schedule draft';
             addToast({ message: errorMessage, type: 'error' });
         }
-    };
+    }, [addToast, addLogEntry]);
 
-    const handleSaveSettings = async (newSettings: AppSettings) => {
+    const handleArchiveIdea = useCallback(async (ideaId: number) => {
         try {
-            await settingsApi.save(newSettings);
-            setSettings(newSettings);
-            addToast({ message: 'Settings saved successfully!', type: 'success' });
-            addLogEntry('settings_saved', 'Application settings were updated.', 'Settings');
-        } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'Failed to save settings';
-            addToast({ message: errorMessage, type: 'error' });
-        }
-    };
+            const idea = ideas.find(i => i.id === ideaId);
+            if (!idea) return;
 
-    const handleSaveStyleGuide = async (newGuide: StyleGuide) => {
-        try {
-            await styleGuideApi.save(newGuide);
-            setStyleGuide(newGuide);
-            addToast({ message: 'Style Guide saved successfully!', type: 'success' });
-            addLogEntry('style_updated', 'Style Guide was manually edited and saved.', 'BookOpen');
-        } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'Failed to save style guide';
-            addToast({ message: errorMessage, type: 'error' });
-        }
-    };
-
-    const handleArchiveIdea = async (id: number) => {
-        const idea = ideas.find(i => i.id === id);
-        try {
-            await ideasApi.delete(id);
-            setIdeas(prev => prev.filter(i => i.id !== id));
-            addToast({ message: 'Idea archived.', type: 'info' });
-            if (idea) {
-                addLogEntry('idea_archived', `Archived idea: "${idea.title}"`, 'Trash');
-            }
+            const updatedIdea = { ...idea, status: 'archived' as const };
+            await ideasApi.update(ideaId, updatedIdea);
+            setIdeas(prev => prev.map(i => i.id === ideaId ? updatedIdea : i));
+            addToast({ message: 'Idea archived successfully!', type: 'success' });
+            addLogEntry('idea_archived', `Archived idea: "${idea.title}"`, 'Archive');
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Failed to archive idea';
             addToast({ message: errorMessage, type: 'error' });
         }
-    };
+    }, [ideas, addToast, addLogEntry]);
 
-    const handleUpdateIdeaTitle = async (id: number, newTitle: string) => {
+    const handleUpdateIdeaTitle = useCallback(async (ideaId: number, newTitle: string) => {
         try {
-            await ideasApi.update(id, newTitle);
-            setIdeas(currentIdeas =>
-                currentIdeas.map(idea =>
-                    idea.id === id ? { ...idea, title: newTitle } : idea
-                )
-            );
-            addToast({ message: 'Idea title updated.', type: 'info' });
-            addLogEntry('idea_title_updated', `Updated idea title to "${newTitle}"`, 'Pencil');
+            const idea = ideas.find(i => i.id === ideaId);
+            if (!idea) return;
+
+            const updatedIdea = { ...idea, title: newTitle };
+            await ideasApi.update(ideaId, updatedIdea);
+            setIdeas(prev => prev.map(i => i.id === ideaId ? updatedIdea : i));
+            addToast({ message: 'Idea updated successfully!', type: 'success' });
+            addLogEntry('idea_updated', `Updated idea title to: "${newTitle}"`, 'Edit');
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Failed to update idea';
             addToast({ message: errorMessage, type: 'error' });
         }
-    };
+    }, [ideas, addToast, addLogEntry]);
 
-    const handleAddIdea = async (title: string) => {
-        if (!title.trim()) {
-            addToast({ message: 'Idea title cannot be empty.', type: 'warning' });
-            return;
-        }
-
+    const handleSaveSettings = useCallback(async (newSettings: AppSettings) => {
         try {
-            const newIdea = await ideasApi.add(title.trim());
-            setIdeas(prev => [newIdea, ...prev]);
+            await settingsApi.update(newSettings);
+            setSettings(newSettings);
+            addToast({ message: 'Settings saved successfully!', type: 'success' });
+            addLogEntry('settings_updated', 'Plugin settings updated', 'Settings');
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Failed to save settings';
+            addToast({ message: errorMessage, type: 'error' });
+        }
+    }, [addToast, addLogEntry]);
+
+    const handleAddIdea = useCallback(async (title: string, description?: string) => {
+        try {
+            const newIdea: Omit<ContentIdea, 'id'> = {
+                title: title.trim(),
+                description: description?.trim() || '',
+                status: 'active',
+                createdAt: new Date().toISOString(),
+                tags: []
+            };
+            
+            const createdIdea = await ideasApi.create(newIdea);
+            setIdeas(prev => [createdIdea, ...prev]);
             addToast({ message: 'Idea added successfully!', type: 'success' });
             addLogEntry('idea_added', `Manually added idea: "${title.trim()}"`, 'PlusCircle');
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Failed to add idea';
             addToast({ message: errorMessage, type: 'error' });
         }
-    };
+    }, [addToast, addLogEntry]);
 
 
     const renderView = () => {
@@ -488,38 +352,59 @@ const App: React.FC = () => {
 
     return (
         <>
-                <div className="flex h-screen bg-transparent text-slate-300 font-sans">
-                    {isSidebarOpen && (
-                        <div onClick={() => setIsSidebarOpen(false)} className="fixed inset-0 bg-black/60 z-10 sm:hidden" aria-hidden="true"></div>
-                    )}
-                    <Sidebar currentView={view} setView={setView} isOpen={isSidebarOpen} closeSidebar={() => setIsSidebarOpen(false)} />
+            <div className="aca-container">
+                {/* Mobile overlay */}
+                <div 
+                    className={`aca-overlay ${isSidebarOpen ? 'show' : ''}`}
+                    onClick={() => setIsSidebarOpen(false)}
+                />
+                
+                {/* Sidebar */}
+                <Sidebar 
+                    currentView={view} 
+                    setView={setView} 
+                    isOpen={isSidebarOpen} 
+                    closeSidebar={() => setIsSidebarOpen(false)} 
+                />
+                
+                {/* Main content */}
+                <div className="aca-main">
+                    {/* Mobile header */}
+                    <div className="aca-mobile-header">
+                        <button 
+                            onClick={() => setIsSidebarOpen(true)} 
+                            className="aca-menu-toggle"
+                            aria-label="Open menu"
+                        >
+                            <Menu className="h-6 w-6" />
+                        </button>
+                        <span className="font-semibold text-white">AI Content Agent</span>
+                    </div>
                     
-                    <div className="flex-1 flex flex-col overflow-hidden">
-                        <header className="sm:hidden bg-slate-800/80 backdrop-blur-sm border-b border-slate-700 p-2 flex items-center">
-                            <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-slate-300 hover:text-white">
-                                <Menu className="h-6 w-6" />
-                            </button>
-                            <span className="ml-2 font-semibold text-white">AI Content Agent</span>
-                        </header>
-                        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
-                            {renderView()}
-                        </main>
+                    {/* Page content */}
+                    <div className="aca-fade-in">
+                        {renderView()}
                     </div>
                 </div>
-                {selectedDraft && (
-                    <DraftModal
-                        draft={selectedDraft}
-                        onClose={() => setSelectedDraft(null)}
-                        onSave={handleUpdateDraft}
-                        settings={settings}
-                    />
-                )}
-                <div className="fixed bottom-5 right-5 z-50 w-full max-w-sm space-y-3">
-                                         {toasts.map(toast => (
-                         <Toast key={toast.id} {...toast} onDismiss={removeToast} />
-                     ))}
-                 </div>
-         </>
+            </div>
+            
+            {/* Draft modal */}
+            {selectedDraft && (
+                <DraftModal
+                    draft={selectedDraft}
+                    onClose={() => setSelectedDraft(null)}
+                    onSave={handleUpdateDraft}
+                    settings={settings}
+                />
+            )}
+            
+            {/* Toast notifications */}
+            <div className="aca-toast-container">
+                {toasts.map(toast => (
+                    <Toast key={toast.id} {...toast} onDismiss={removeToast} />
+                ))}
+            </div>
+        </>
     );
 };
 

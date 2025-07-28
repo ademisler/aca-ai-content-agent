@@ -170,7 +170,7 @@ class ACA_Rest_Api {
         $settings = $request->get_json_params();
         update_option('aca_settings', $settings);
         
-        $this->add_activity_log('settings_saved', 'Application settings were updated.', 'Settings');
+        $this->add_activity_log('settings_updated', 'Application settings were updated.', 'Settings');
         
         return rest_ensure_response(array('success' => true));
     }
@@ -212,7 +212,7 @@ class ACA_Rest_Api {
             update_option('aca_style_guide', $parsed_analysis);
             
             $message = $is_auto ? 'Style Guide automatically refreshed.' : 'Style Guide was successfully updated.';
-            $this->add_activity_log('style_updated', $message, 'BookOpen');
+            $this->add_activity_log('style_analyzed', $message, 'BookOpen');
             
             return rest_ensure_response($parsed_analysis);
             
@@ -324,9 +324,11 @@ class ACA_Rest_Api {
                     $saved_ideas[] = array(
                         'id' => $wpdb->insert_id,
                         'title' => $title,
-                        'status' => 'new',
+                        'status' => 'active',
                         'source' => $source,
-                        'created_at' => current_time('c')
+                        'createdAt' => current_time('c'),
+                        'description' => '',
+                        'tags' => array()
                     );
                 }
             }
@@ -350,7 +352,24 @@ class ACA_Rest_Api {
         }
         
         $params = $request->get_json_params();
-        $base_title = $params['baseTitle'];
+        $idea_id = isset($params['ideaId']) ? $params['ideaId'] : $params['baseTitle'];
+        
+        // If we received an idea ID, get the title from database
+        if (is_numeric($idea_id)) {
+            global $wpdb;
+            $idea = $wpdb->get_row($wpdb->prepare(
+                "SELECT title FROM {$wpdb->prefix}aca_ideas WHERE id = %d",
+                $idea_id
+            ));
+            
+            if (!$idea) {
+                return new WP_Error('idea_not_found', 'Idea not found', array('status' => 404));
+            }
+            
+            $base_title = $idea->title;
+        } else {
+            $base_title = $idea_id; // It's actually a title string
+        }
         
         $settings = get_option('aca_settings', array());
         
@@ -392,14 +411,16 @@ class ACA_Rest_Api {
                     $saved_ideas[] = array(
                         'id' => $wpdb->insert_id,
                         'title' => $title,
-                        'status' => 'new',
+                        'status' => 'active',
                         'source' => 'similar',
-                        'created_at' => current_time('c')
+                        'createdAt' => current_time('c'),
+                        'description' => '',
+                        'tags' => array()
                     );
                 }
             }
             
-            $this->add_activity_log('ideas_generated', "Generated " . count($saved_ideas) . " similar ideas.", 'Sparkles');
+            $this->add_activity_log('similar_ideas_generated', "Generated " . count($saved_ideas) . " similar ideas.", 'Sparkles');
             
             return rest_ensure_response($saved_ideas);
             
@@ -445,9 +466,11 @@ class ACA_Rest_Api {
             $idea = array(
                 'id' => $wpdb->insert_id,
                 'title' => $title,
-                'status' => 'new',
+                'status' => 'active',
                 'source' => 'manual',
-                'created_at' => current_time('c')
+                'createdAt' => current_time('c'),
+                'description' => '',
+                'tags' => array()
             );
             
             $this->add_activity_log('idea_added', "Manually added idea: \"$title\"", 'PlusCircle');
@@ -479,7 +502,7 @@ class ACA_Rest_Api {
         );
         
         if ($result !== false) {
-            $this->add_activity_log('idea_title_updated', "Updated idea title to \"$new_title\"", 'Pencil');
+            $this->add_activity_log('idea_updated', "Updated idea title to \"$new_title\"", 'Edit');
             return rest_ensure_response(array('success' => true));
         }
         
@@ -512,7 +535,7 @@ class ACA_Rest_Api {
         
         if ($result) {
             if ($idea) {
-                $this->add_activity_log('idea_archived', "Archived idea: \"{$idea->title}\"", 'Trash');
+                $this->add_activity_log('idea_archived', "Archived idea: \"{$idea->title}\"", 'Archive');
             }
             return rest_ensure_response(array('success' => true));
         }
@@ -727,7 +750,7 @@ class ACA_Rest_Api {
             update_post_meta($post_id, '_aca_focus_keywords', $params['focusKeywords']);
         }
         
-        $this->add_activity_log('draft_updated', "Updated draft: \"{$params['title']}\"", 'Pencil');
+        $this->add_activity_log('draft_updated', "Updated draft: \"{$params['title']}\"", 'Edit');
         
         return rest_ensure_response(array('success' => true));
     }
@@ -1086,7 +1109,7 @@ class ACA_Rest_Api {
      * Make actual API call to Gemini
      */
     private function call_gemini_api($api_key, $prompt) {
-        $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' . $api_key;
+        $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=' . $api_key;
         
         $body = json_encode(array(
             'contents' => array(

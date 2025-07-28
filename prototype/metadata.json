@@ -1,6 +1,0 @@
-{
-  "name": "ACA - AI Content Agent",
-  "description": "An intelligent content generation and management assistant for WordPress. ACA analyzes your existing content to learn your site's unique voice and style, then uses that knowledge to generate high-quality, SEO-friendly blog posts, automating content creation while maintaining brand identity.",
-  "requestFramePermissions": [],
-  "prompt": ""
-}

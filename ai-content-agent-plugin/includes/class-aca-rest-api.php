@@ -675,11 +675,6 @@ class ACA_Rest_Api {
      * Create draft from idea
      */
     public function create_draft($request) {
-        // Prevent any output before response
-        if (ob_get_level()) {
-            ob_clean();
-        }
-        
         $nonce_check = $this->verify_nonce($request);
         if (is_wp_error($nonce_check)) {
             return $nonce_check;
@@ -711,11 +706,6 @@ class ACA_Rest_Api {
      * Create draft from idea (internal method)
      */
     public function create_draft_from_idea($idea_id, $is_auto = false) {
-        // Clean any output buffer to prevent interference
-        if (ob_get_level()) {
-            ob_clean();
-        }
-        
         global $wpdb;
         
         // Get the idea
@@ -923,15 +913,8 @@ class ACA_Rest_Api {
                 }
             }
             
-            // Return a more user-friendly error message
-            $user_message = 'Draft creation failed. Please check your API key and try again.';
-            if (strpos($e->getMessage(), 'API') !== false) {
-                $user_message = 'AI service is temporarily unavailable. Please try again in a moment.';
-            } elseif (strpos($e->getMessage(), 'WordPress post') !== false) {
-                $user_message = 'Failed to save draft to WordPress. Please check your permissions.';
-            }
-            
-            return new WP_Error('creation_failed', $user_message, array('status' => 500));
+            // Return the actual error message for debugging
+            return new WP_Error('creation_failed', 'DETAILED ERROR: ' . $e->getMessage(), array('status' => 500));
         }
     }
     
@@ -1422,7 +1405,7 @@ class ACA_Rest_Api {
             ),
             'generationConfig' => array(
                 'temperature' => 0.7,
-                'maxOutputTokens' => 8192, // Increased for longer content
+                'maxOutputTokens' => 2048,
                 'responseMimeType' => 'application/json'
             )
         ));

@@ -107,6 +107,26 @@
   fill: currentColor;
 }
 
+/* Fix for icons in main content area - they should be blue, not black */
+.aca-main .aca-nav-item-icon {
+  fill: #0073aa;
+}
+
+/* Icons in buttons should be white */
+.aca-button .aca-nav-item-icon {
+  fill: #ffffff;
+}
+
+/* Icons in secondary buttons should be blue */
+.aca-button.secondary .aca-nav-item-icon {
+  fill: #0073aa;
+}
+
+/* Icons in list items should be blue */
+.aca-list-item .aca-nav-item-icon {
+  fill: #0073aa;
+}
+
 /* Main content area */
 .aca-main {
   flex: 1;
@@ -221,7 +241,7 @@
   padding: 8px 16px;
   border: 1px solid #0073aa;
   background: #0073aa;
-  color: #ffffff;
+  color: #ffffff !important;
   text-decoration: none;
   border-radius: 3px;
   font-size: 13px;
@@ -232,7 +252,7 @@
 .aca-button:hover {
   background: #005a87;
   border-color: #005a87;
-  color: #ffffff;
+  color: #ffffff !important;
 }
 
 .aca-button:focus {
@@ -242,11 +262,13 @@
 
 .aca-button.secondary {
   background: #ffffff;
-  color: #0073aa;
+  color: #0073aa !important;
+  border-color: #0073aa;
 }
 
 .aca-button.secondary:hover {
   background: #f6f7f7;
+  color: #005a87 !important;
 }
 
 .aca-button.large {
@@ -255,9 +277,9 @@
 }
 
 .aca-button:disabled {
-  background: #f6f7f7;
+  background: #f6f7f7 !important;
   border-color: #dcdcde;
-  color: #a7aaad;
+  color: #a7aaad !important;
   cursor: not-allowed;
 }
 

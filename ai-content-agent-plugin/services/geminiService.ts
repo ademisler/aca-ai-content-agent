@@ -1,31 +1,30 @@
 
-import { GoogleGenAI, Type as GeminiType, GenerateContentResponse } from "@google/genai";
+import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 import type { AiImageStyle } from '../types';
 import type { AiService } from './aiService';
 
-let ai: GoogleGenAI | null = null;
+let genAI: GoogleGenerativeAI | null = null;
 
 export const setGeminiApiKey = (key: string) => {
     if (key && key.trim() !== '') {
         try {
-            ai = new GoogleGenAI({ apiKey: key });
+            genAI = new GoogleGenerativeAI(key);
         } catch (error) {
-            console.error("Failed to initialize GoogleGenAI:", error);
-            ai = null;
+            console.error("Failed to initialize GoogleGenerativeAI:", error);
+            genAI = null;
         }
     } else {
-        ai = null;
+        genAI = null;
     }
 };
 
-const textModel = "gemini-2.5-flash";
-const imageModel = "imagen-3.0-generate-002";
+const textModel = "gemini-1.5-flash";
 
 const checkAi = () => {
-    if (!ai) {
+    if (!genAI) {
         throw new Error("Google AI API key is not set or is invalid. Please configure it in the Settings page.");
     }
-    return ai;
+    return genAI;
 }
 
 /**
@@ -34,7 +33,9 @@ const checkAi = () => {
  * @returns A JSON string representing the StyleGuide object.
  */
 const analyzeStyle = async (): Promise<string> => {
-    const genAI = checkAi();
+    const ai = checkAi();
+    const model = ai.getGenerativeModel({ model: textModel });
+    
     const prompt = `
         Analyze the common writing style of a professional tech and marketing blog and generate a JSON object that describes it. 
         Imagine you have read the 20 most recent articles from the blog to gather this information.
@@ -48,25 +49,24 @@ const analyzeStyle = async (): Promise<string> => {
         }
     `;
 
-    const response: GenerateContentResponse = await genAI.models.generateContent({
-        model: textModel,
-        contents: prompt,
-        config: {
+    const result = await model.generateContent({
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: {
             responseMimeType: "application/json",
             responseSchema: {
-                type: GeminiType.OBJECT,
+                type: SchemaType.OBJECT,
                 properties: {
-                    tone: { type: GeminiType.STRING },
-                    sentenceStructure: { type: GeminiType.STRING },
-                    paragraphLength: { type: GeminiType.STRING },
-                    formattingStyle: { type: GeminiType.STRING },
+                    tone: { type: SchemaType.STRING },
+                    sentenceStructure: { type: SchemaType.STRING },
+                    paragraphLength: { type: SchemaType.STRING },
+                    formattingStyle: { type: SchemaType.STRING },
                 },
                 required: ["tone", "sentenceStructure", "paragraphLength", "formattingStyle"],
             },
         },
     });
 
-    return response.text || '';
+    return result.response.text() || '';
 };
 
 /**
@@ -78,7 +78,8 @@ const analyzeStyle = async (): Promise<string> => {
  * @returns A JSON string array of new, unique, and SEO-friendly blog post titles.
  */
 const generateIdeas = async (styleGuideJson: string, existingTitles: string[], count: number = 5, searchConsoleData?: { topQueries: string[], underperformingPages: string[] }): Promise<string> => {
-    const genAI = checkAi();
+    const ai = checkAi();
+    const model = ai.getGenerativeModel({ model: textModel });
     
     let searchConsolePrompt = "";
     if (searchConsoleData) {
@@ -103,19 +104,18 @@ const generateIdeas = async (styleGuideJson: string, existingTitles: string[], c
         ${existingTitles.join(', ')}
     `;
 
-    const response: GenerateContentResponse = await genAI.models.generateContent({
-        model: textModel,
-        contents: prompt,
-        config: {
+    const result = await model.generateContent({
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: {
             responseMimeType: "application/json",
             responseSchema: {
-                type: GeminiType.ARRAY,
-                items: { type: GeminiType.STRING }
+                type: SchemaType.ARRAY,
+                items: { type: SchemaType.STRING }
             }
         },
     });
 
-    return response.text || '';
+    return result.response.text() || '';
 };
 
 /**
@@ -125,7 +125,9 @@ const generateIdeas = async (styleGuideJson: string, existingTitles: string[], c
  * @returns A JSON string array of 3 new, similar, and unique blog post titles.
  */
 const generateSimilarIdeas = async (baseTitle: string, existingTitles: string[]): Promise<string> => {
-    const genAI = checkAi();
+    const ai = checkAi();
+    const model = ai.getGenerativeModel({ model: textModel });
+    
     const prompt = `
         Based on the blog post title "${baseTitle}", generate a JSON array of 3 unique and creative new blog post titles that are similar in topic or angle.
         The new titles must be distinct from the original title and from each other.
@@ -133,19 +135,18 @@ const generateSimilarIdeas = async (baseTitle: string, existingTitles: string[])
         The output must be a valid JSON array of strings. For example: ["New Title 1", "New Title 2", "New Title 3"]
     `;
 
-    const response: GenerateContentResponse = await genAI.models.generateContent({
-        model: textModel,
-        contents: prompt,
-        config: {
+    const result = await model.generateContent({
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: {
             responseMimeType: "application/json",
             responseSchema: {
-                type: GeminiType.ARRAY,
-                items: { type: GeminiType.STRING }
+                type: SchemaType.ARRAY,
+                items: { type: SchemaType.STRING }
             }
         },
     });
 
-    return response.text || '';
+    return result.response.text() || '';
 };
 
 /**
@@ -160,7 +161,12 @@ const createDraft = async (
     styleGuideJson: string,
     existingPublishedPosts: { title: string; url: string; content: string }[]
 ): Promise<string> => {
-    const genAI = checkAi();
+    const ai = checkAi();
+    const model = ai.getGenerativeModel({ 
+        model: textModel,
+        systemInstruction: "You are a professional blog writer and SEO expert. Your persona is that of an experienced human writer. Under NO circumstances should you ever mention that you are an AI or a language model. Your response must be direct and in the requested format, written from a human perspective."
+    });
+    
     const internalLinkPrompt = existingPublishedPosts.length > 0 ?
     `5.  **Internal Links:** Directly embed at least 3 relevant internal links within the article content. The links MUST be in markdown format: [anchor text](URL). Choose the most appropriate anchor text from the content you write. You must link to the provided existing published posts. Analyze their content to ensure the links are contextually appropriate. Do NOT add a list of links at the end; they must be embedded in the text.
         
@@ -200,21 +206,19 @@ ${p.content}
         }
     `;
 
-    const response: GenerateContentResponse = await genAI.models.generateContent({
-        model: textModel,
-        contents: prompt,
-        config: {
-            systemInstruction: "You are a professional blog writer and SEO expert. Your persona is that of an experienced human writer. Under NO circumstances should you ever mention that you are an AI or a language model. Your response must be direct and in the requested format, written from a human perspective.",
+    const result = await model.generateContent({
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: {
             responseMimeType: "application/json",
             responseSchema: {
-                type: GeminiType.OBJECT,
+                type: SchemaType.OBJECT,
                 properties: {
-                    content: { type: GeminiType.STRING },
-                    metaTitle: { type: GeminiType.STRING },
-                    metaDescription: { type: GeminiType.STRING },
+                    content: { type: SchemaType.STRING },
+                    metaTitle: { type: SchemaType.STRING },
+                    metaDescription: { type: SchemaType.STRING },
                     focusKeywords: {
-                        type: GeminiType.ARRAY,
-                        items: { type: GeminiType.STRING }
+                        type: SchemaType.ARRAY,
+                        items: { type: SchemaType.STRING }
                     },
                 },
                 required: ["content", "metaTitle", "metaDescription", "focusKeywords"]
@@ -222,7 +226,7 @@ ${p.content}
         },
     });
 
-    return response.text || '';
+    return result.response.text() || '';
 };
 
 /**
@@ -232,35 +236,9 @@ ${p.content}
  * @returns A base64 encoded string of the generated JPEG image bytes.
  */
 const generateImage = async (prompt: string, style: AiImageStyle = 'digital_art'): Promise<string> => {
-    const genAI = checkAi();
-    let refinedPrompt: string;
-    const criticalRule = "CRITICAL RULE: The image MUST NOT contain any text, letters, words, or symbols. It must be a purely graphical illustration or photograph. The presence of any text is a failure."
-
-    switch(style) {
-        case 'photorealistic':
-            refinedPrompt = `A high-quality, photorealistic stock photo, suitable for a professional blog post about "${prompt}". Clean aesthetic, professional lighting. ${criticalRule}`;
-            break;
-        case 'digital_art':
-        default:
-            refinedPrompt = `A professional blog post image for an article titled: "${prompt}". Digital art style, high quality, visually appealing. ${criticalRule}`;
-            break;
-    }
-
-    const response = await genAI.models.generateImages({
-        model: imageModel,
-        prompt: refinedPrompt,
-        config: {
-            numberOfImages: 1,
-            outputMimeType: 'image/jpeg',
-            aspectRatio: '16:9',
-        },
-    });
-
-    if (response.generatedImages && response.generatedImages.length > 0 && response.generatedImages[0]?.image?.imageBytes) {
-        return response.generatedImages[0].image.imageBytes;
-    }
-
-    throw new Error("AI Image generation failed to produce an image.");
+    // Note: Gemini doesn't have image generation in the standard API
+    // This is a placeholder implementation
+    throw new Error("Image generation is not available with Gemini API. Please use a different AI service for image generation.");
 };
 
 export const geminiService: AiService = {

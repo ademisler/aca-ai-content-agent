@@ -908,63 +908,228 @@ class ACA_Rest_Api {
         return $attachment_id;
     }
     
-    // AI Service calls (these would need to be implemented with actual API calls)
+    // AI Service calls - Real Gemini API integration
     
     private function call_gemini_analyze_style($api_key) {
-        // This is a simplified version - you would implement the actual Gemini API call here
-        // For now, return a mock response
-        return json_encode(array(
-            'tone' => 'Friendly and conversational',
-            'sentenceStructure' => 'Mix of short, punchy sentences and longer, more descriptive ones',
-            'paragraphLength' => 'Short, 2-3 sentences per paragraph',
-            'formattingStyle' => 'Uses bullet points, bold text for emphasis, and subheadings (H2, H3)'
-        ));
+        $prompt = '
+            Analyze the common writing style of a professional tech and marketing blog and generate a JSON object that describes it. 
+            Imagine you have read the 20 most recent articles from the blog to gather this information.
+            This JSON object will be used as a "Style Guide" for generating new content.
+            The JSON object must strictly follow this schema:
+            {
+              "tone": "string (e.g., \'Friendly and conversational\', \'Formal and professional\', \'Technical and informative\', \'Witty and humorous\')",
+              "sentenceStructure": "string (e.g., \'Mix of short, punchy sentences and longer, more descriptive ones\', \'Primarily short and direct sentences\', \'Complex sentences with multiple clauses\')",
+              "paragraphLength": "string (e.g., \'Short, 2-3 sentences per paragraph\', \'Medium, 4-6 sentences per paragraph\')",
+              "formattingStyle": "string (e.g., \'Uses bullet points, bold text for emphasis, and subheadings (H2, H3)\', \'Minimal formatting, relies on plain text paragraphs\')"
+            }
+        ';
+        
+        return $this->call_gemini_api($api_key, $prompt);
     }
     
     private function call_gemini_generate_ideas($api_key, $style_guide, $existing_titles, $count, $search_console_data) {
-        // Mock response - implement actual API call
-        $ideas = array(
-            'How to Use AI for Content Marketing in 2024',
-            'WordPress Automation Tools That Save Time',
-            'The Future of Blog Writing with AI',
-            'Content Strategy Tips for Small Businesses',
-            'SEO Best Practices for AI-Generated Content'
-        );
+        $prompt = "
+            Based on this style guide: {$style_guide}
+            
+            Generate {$count} unique, engaging blog post titles that match the style and tone described in the guide.
+            
+            Avoid these existing titles: " . json_encode($existing_titles) . "
+            
+            Return ONLY a JSON array of strings (the titles), nothing else.
+            Example format: [\"Title 1\", \"Title 2\", \"Title 3\"]
+        ";
+
+        if ($search_console_data) {
+            $prompt .= "
+            
+            Also consider these SEO insights:
+            - Top performing queries: " . json_encode($search_console_data['topQueries']) . "
+            - Underperforming pages that could be improved: " . json_encode($search_console_data['underperformingPages']) . "
+            
+            Incorporate relevant keywords from the top queries and create content that could improve upon the underperforming topics.
+            ";
+        }
         
-        return json_encode(array_slice($ideas, 0, $count));
+        return $this->call_gemini_api($api_key, $prompt);
     }
     
     private function call_gemini_generate_similar_ideas($api_key, $base_title, $existing_titles) {
-        // Mock response - implement actual API call
-        $similar_ideas = array(
-            'Advanced ' . $base_title . ' Techniques',
-            $base_title . ': A Complete Guide',
-            'Common Mistakes in ' . $base_title
-        );
+        $prompt = "
+            Generate 3-5 blog post titles that are similar to this idea: \"{$base_title}\"
+            
+            The similar titles should:
+            - Cover the same general topic but from different angles
+            - Be unique and engaging
+            - Not duplicate any of these existing titles: " . json_encode($existing_titles) . "
+            
+            Return ONLY a JSON array of strings (the titles), nothing else.
+            Example format: [\"Similar Title 1\", \"Similar Title 2\", \"Similar Title 3\"]
+        ";
         
-        return json_encode($similar_ideas);
+        return $this->call_gemini_api($api_key, $prompt);
     }
     
     private function call_gemini_create_draft($api_key, $title, $style_guide, $existing_posts) {
-        // Mock response - implement actual API call
-        $content = "# " . $title . "\n\nThis is a comprehensive guide about " . strtolower($title) . ".\n\n## Introduction\n\nIn today's digital landscape, understanding this topic is crucial for success.\n\n## Main Content\n\nHere are the key points you need to know:\n\n- Important point 1\n- Important point 2\n- Important point 3\n\n## Conclusion\n\nBy following these guidelines, you'll be well on your way to mastering this subject.";
+        $context_string = '';
+        if (!empty($existing_posts)) {
+            $context_string = "Here are some recently published posts for context:\n";
+            foreach ($existing_posts as $post) {
+                $context_string .= "Title: {$post['title']}\nURL: {$post['url']}\nContent snippet: {$post['content']}...\n\n";
+            }
+        }
+
+        $prompt = "
+            Create a comprehensive blog post based on this idea: \"{$title}\"
+            
+            Use this style guide: {$style_guide}
+            
+            {$context_string}
+            
+            The blog post should be:
+            - Well-structured with clear headings and subheadings
+            - Engaging and informative
+            - 800-1500 words in length
+            - SEO-optimized
+            - Match the tone and style described in the style guide
+            
+            Return a JSON object with this exact structure:
+            {
+              \"content\": \"The full HTML content of the blog post with proper headings (H2, H3), paragraphs, and formatting\",
+              \"metaTitle\": \"SEO-optimized title (50-60 characters)\",
+              \"metaDescription\": \"Compelling meta description (150-160 characters)\",
+              \"focusKeywords\": [\"keyword1\", \"keyword2\", \"keyword3\"]
+            }
+        ";
         
-        return json_encode(array(
-            'content' => $content,
-            'metaTitle' => substr($title, 0, 60),
-            'metaDescription' => 'Learn everything you need to know about ' . strtolower($title) . ' in this comprehensive guide.',
-            'focusKeywords' => array(strtolower($title), 'guide', 'tips', 'best practices', '2024')
-        ));
+        return $this->call_gemini_api($api_key, $prompt);
     }
     
     private function call_gemini_generate_image($api_key, $title, $style) {
-        // Mock response - in real implementation, call Gemini image API
-        // Return base64 encoded image data
-        return base64_encode('mock_image_data_' . $title);
+        $style_prompts = array(
+            'photorealistic' => 'photorealistic, high quality, professional photography',
+            'digital_art' => 'digital art, illustration, creative, artistic'
+        );
+        
+        $style_prompt = isset($style_prompts[$style]) ? $style_prompts[$style] : $style_prompts['digital_art'];
+        $prompt = "Create a {$style_prompt} image for a blog post titled: \"{$title}\". The image should be relevant to the topic, visually appealing, and suitable for use as a featured image on a professional blog.";
+        
+        // Note: This is a simplified implementation for image generation
+        // In a real implementation, you would use the Gemini image API
+        // For now, we'll return a placeholder
+        return base64_encode('placeholder_image_for_' . sanitize_title($title));
     }
     
     private function fetch_stock_photo($query, $provider, $api_key) {
-        // Mock response - implement actual stock photo API calls
-        return base64_encode('mock_stock_photo_' . $query);
+        $url = '';
+        $headers = array();
+        
+        switch ($provider) {
+            case 'pexels':
+                $url = 'https://api.pexels.com/v1/search?query=' . urlencode($query) . '&per_page=1&orientation=landscape';
+                $headers = array('Authorization' => $api_key);
+                break;
+            case 'unsplash':
+                $url = 'https://api.unsplash.com/search/photos?query=' . urlencode($query) . '&per_page=1&orientation=landscape';
+                $headers = array('Authorization' => 'Client-ID ' . $api_key);
+                break;
+            case 'pixabay':
+                $url = 'https://pixabay.com/api/?key=' . $api_key . '&q=' . urlencode($query) . '&image_type=photo&orientation=horizontal&per_page=3&safesearch=true';
+                break;
+        }
+        
+        if (empty($url)) {
+            throw new Exception('Unsupported stock photo provider');
+        }
+        
+        $response = wp_remote_get($url, array('headers' => $headers));
+        
+        if (is_wp_error($response)) {
+            throw new Exception('Failed to fetch from ' . $provider . ': ' . $response->get_error_message());
+        }
+        
+        $body = wp_remote_retrieve_body($response);
+        $data = json_decode($body, true);
+        
+        $image_url = '';
+        switch ($provider) {
+            case 'pexels':
+                if (!empty($data['photos'][0]['src']['large'])) {
+                    $image_url = $data['photos'][0]['src']['large'];
+                }
+                break;
+            case 'unsplash':
+                if (!empty($data['results'][0]['urls']['regular'])) {
+                    $image_url = $data['results'][0]['urls']['regular'];
+                }
+                break;
+            case 'pixabay':
+                if (!empty($data['hits'][0]['webformatURL'])) {
+                    $image_url = $data['hits'][0]['webformatURL'];
+                }
+                break;
+        }
+        
+        if (empty($image_url)) {
+            throw new Exception('No images found for query: ' . $query);
+        }
+        
+        // Download and convert to base64
+        $image_response = wp_remote_get($image_url);
+        if (is_wp_error($image_response)) {
+            throw new Exception('Failed to download image');
+        }
+        
+        return base64_encode(wp_remote_retrieve_body($image_response));
+    }
+    
+    /**
+     * Make actual API call to Gemini
+     */
+    private function call_gemini_api($api_key, $prompt) {
+        $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' . $api_key;
+        
+        $body = json_encode(array(
+            'contents' => array(
+                array(
+                    'parts' => array(
+                        array('text' => $prompt)
+                    )
+                )
+            ),
+            'generationConfig' => array(
+                'temperature' => 0.7,
+                'maxOutputTokens' => 2048
+            )
+        ));
+        
+        $response = wp_remote_post($url, array(
+            'headers' => array(
+                'Content-Type' => 'application/json'
+            ),
+            'body' => $body,
+            'timeout' => 30
+        ));
+        
+        if (is_wp_error($response)) {
+            throw new Exception('Gemini API request failed: ' . $response->get_error_message());
+        }
+        
+        $response_code = wp_remote_retrieve_response_code($response);
+        if ($response_code !== 200) {
+            throw new Exception('Gemini API returned error code: ' . $response_code);
+        }
+        
+        $response_body = wp_remote_retrieve_body($response);
+        $data = json_decode($response_body, true);
+        
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new Exception('Invalid JSON response from Gemini API');
+        }
+        
+        if (empty($data['candidates'][0]['content']['parts'][0]['text'])) {
+            throw new Exception('No content returned from Gemini API');
+        }
+        
+        return $data['candidates'][0]['content']['parts'][0]['text'];
     }
 }

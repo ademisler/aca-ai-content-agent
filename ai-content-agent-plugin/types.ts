@@ -15,8 +15,11 @@ export type IdeaSource = 'ai' | 'search-console' | 'similar' | 'manual';
 export interface ContentIdea {
     id: number;
     title: string;
-    status: 'new' | 'archived';
+    description?: string;
+    status: 'active' | 'archived';
     source: IdeaSource;
+    createdAt: string;
+    tags: string[];
 }
 
 export interface Draft {
@@ -55,17 +58,19 @@ export interface AppSettings {
 
 export type ActivityLogType = 
     | 'style_updated' 
+    | 'style_analyzed'
     | 'ideas_generated' 
+    | 'similar_ideas_generated'
     | 'draft_created' 
     | 'post_published' 
-    | 'settings_saved'
+    | 'settings_updated'
     | 'idea_archived'
-    | 'idea_title_updated'
+    | 'idea_updated'
     | 'draft_updated'
     | 'draft_scheduled'
     | 'idea_added';
 
-export type IconName = 'BookOpen' | 'Lightbulb' | 'FileText' | 'Send' | 'Settings' | 'Trash' | 'Pencil' | 'Calendar' | 'Sparkles' | 'PlusCircle';
+export type IconName = 'BookOpen' | 'Lightbulb' | 'FileText' | 'Send' | 'Settings' | 'Archive' | 'Edit' | 'Calendar' | 'Sparkles' | 'PlusCircle';
 
 export interface ActivityLog {
     id: number;

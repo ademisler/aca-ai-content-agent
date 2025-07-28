@@ -20,38 +20,28 @@ const DraggableDraft: React.FC<{ draft: Draft }> = ({ draft }) => {
         <div
             draggable
             onDragStart={handleDragStart}
+            className="aca-action-button"
             style={{
                 background: '#e3f2fd',
                 border: '1px solid #2196f3',
                 color: '#0d47a1',
                 padding: '8px 10px',
-                borderRadius: '4px',
                 fontSize: '12px',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
+                whiteSpace: 'nowrap' as const,
                 cursor: 'grab',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px',
-                transition: 'all 0.2s ease',
-                fontWeight: '500'
+                fontWeight: '500',
+                margin: 0
             }}
             onMouseDown={(e) => {
                 e.currentTarget.style.cursor = 'grabbing';
-                e.currentTarget.style.transform = 'scale(1.02)';
             }}
             onMouseUp={(e) => {
                 e.currentTarget.style.cursor = 'grab';
-                e.currentTarget.style.transform = 'scale(1)';
-            }}
-            onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
-                e.currentTarget.style.background = '#bbdefb';
-            }}
-            onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow = 'none';
-                e.currentTarget.style.background = '#e3f2fd';
             }}
         >
             <FileText style={{ width: '12px', height: '12px', flexShrink: 0 }} />
@@ -127,19 +117,14 @@ export const ContentCalendar: React.FC<ContentCalendarProps> = ({ drafts, publis
                     <div className="aca-card-header">
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <h2 className="aca-card-title">
-                                <CalendarIcon style={{ width: '20px', height: '20px', marginRight: '8px', fill: '#0073aa' }} />
+                                <CalendarIcon className="aca-nav-item-icon" />
                                 {currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
                             </h2>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                 <button 
                                     onClick={prevMonth} 
                                     className="aca-button secondary"
-                                    style={{ 
-                                        padding: '8px', 
-                                        display: 'flex', 
-                                        alignItems: 'center',
-                                        minWidth: 'auto'
-                                    }}
+                                    style={{ padding: '8px', minWidth: 'auto' }}
                                     title="Previous month"
                                 >
                                     <ChevronLeft style={{ width: '16px', height: '16px' }} />
@@ -147,12 +132,7 @@ export const ContentCalendar: React.FC<ContentCalendarProps> = ({ drafts, publis
                                 <button 
                                     onClick={nextMonth} 
                                     className="aca-button secondary"
-                                    style={{ 
-                                        padding: '8px', 
-                                        display: 'flex', 
-                                        alignItems: 'center',
-                                        minWidth: 'auto'
-                                    }}
+                                    style={{ padding: '8px', minWidth: 'auto' }}
                                     title="Next month"
                                 >
                                     <ChevronRight style={{ width: '16px', height: '16px' }} />
@@ -173,15 +153,17 @@ export const ContentCalendar: React.FC<ContentCalendarProps> = ({ drafts, publis
                         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, index) => (
                             <div 
                                 key={day} 
+                                className="aca-card-header"
                                 style={{ 
-                                    textAlign: 'center', 
+                                    textAlign: 'center' as const, 
                                     fontWeight: '600', 
                                     fontSize: '13px', 
                                     padding: '12px 8px', 
                                     borderBottom: '1px solid #ccd0d4',
                                     borderRight: index < 6 ? '1px solid #ccd0d4' : 'none',
                                     color: '#646970', 
-                                    background: '#f6f7f7' 
+                                    background: '#f6f7f7',
+                                    margin: 0
                                 }}
                             >
                                 {day}
@@ -211,7 +193,6 @@ export const ContentCalendar: React.FC<ContentCalendarProps> = ({ drafts, publis
                                         flexDirection: 'column',
                                         gap: '4px',
                                         overflowY: 'auto',
-                                        transition: 'background-color 0.2s ease',
                                         background: day ? (dragOverDate === day.toISOString() ? '#f0f6fc' : '#ffffff') : '#f9f9f9'
                                     }}
                                 >
@@ -252,30 +233,22 @@ export const ContentCalendar: React.FC<ContentCalendarProps> = ({ drafts, publis
                                                     <div 
                                                         key={post.id} 
                                                         onClick={() => onSelectPost(post)} 
+                                                        className="aca-action-button"
                                                         style={{
                                                             background: '#e6f7e6',
                                                             border: '1px solid #28a745',
                                                             color: '#0a5d0a',
                                                             padding: '8px 10px',
-                                                            borderRadius: '4px',
                                                             fontSize: '12px',
                                                             overflow: 'hidden',
                                                             textOverflow: 'ellipsis',
-                                                            whiteSpace: 'nowrap',
+                                                            whiteSpace: 'nowrap' as const,
                                                             cursor: 'pointer',
                                                             display: 'flex',
                                                             alignItems: 'center',
                                                             gap: '6px',
-                                                            transition: 'all 0.2s ease',
-                                                            fontWeight: '500'
-                                                        }}
-                                                        onMouseEnter={(e) => {
-                                                            e.currentTarget.style.background = '#d4edda';
-                                                            e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
-                                                        }}
-                                                        onMouseLeave={(e) => {
-                                                            e.currentTarget.style.background = '#e6f7e6';
-                                                            e.currentTarget.style.boxShadow = 'none';
+                                                            fontWeight: '500',
+                                                            margin: 0
                                                         }}
                                                     >
                                                         <Send style={{ width: '12px', height: '12px', flexShrink: 0 }} />
@@ -299,19 +272,18 @@ export const ContentCalendar: React.FC<ContentCalendarProps> = ({ drafts, publis
                     <div className="aca-card">
                         <div className="aca-card-header">
                             <h2 className="aca-card-title">
-                                <FileText style={{ width: '20px', height: '20px', marginRight: '8px', fill: '#0073aa' }} />
+                                <FileText className="aca-nav-item-icon" />
                                 Unscheduled Drafts
                             </h2>
                         </div>
                         
-                        <div style={{ 
+                        <div className="aca-card" style={{ 
                             background: '#f6f7f7', 
-                            padding: '15px', 
-                            borderRadius: '4px', 
                             border: '1px solid #ccd0d4', 
                             minHeight: '200px',
                             maxHeight: '300px',
-                            overflowY: 'auto'
+                            overflowY: 'auto',
+                            margin: 0
                         }}>
                             {unscheduledDrafts.length > 0 ? (
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -327,14 +299,12 @@ export const ContentCalendar: React.FC<ContentCalendarProps> = ({ drafts, publis
                                     justifyContent: 'center', 
                                     height: '100%', 
                                     color: '#646970', 
-                                    textAlign: 'center',
+                                    textAlign: 'center' as const,
                                     padding: '20px'
                                 }}>
                                     <FileText style={{ width: '40px', height: '40px', marginBottom: '15px', fill: '#a7aaad' }} />
-                                    <h4 style={{ margin: '0 0 8px 0', fontWeight: '500', color: '#23282d' }}>
-                                        No Unscheduled Drafts
-                                    </h4>
-                                    <p style={{ fontSize: '13px', margin: 0 }}>
+                                    <h4 className="aca-card-title">No Unscheduled Drafts</h4>
+                                    <p className="aca-page-description" style={{ margin: 0 }}>
                                         All your drafts are scheduled or you haven't created any yet.
                                     </p>
                                 </div>
@@ -346,34 +316,28 @@ export const ContentCalendar: React.FC<ContentCalendarProps> = ({ drafts, publis
                     <div className="aca-card">
                         <div className="aca-card-header">
                             <h2 className="aca-card-title">
-                                <Info style={{ width: '20px', height: '20px', marginRight: '8px', fill: '#0073aa' }} />
+                                <Info className="aca-nav-item-icon" />
                                 How to Use
                             </h2>
                         </div>
                         
-                        <div style={{ fontSize: '13px', color: '#646970', lineHeight: '1.5' }}>
+                        <div className="aca-page-description">
                             <div style={{ marginBottom: '20px' }}>
-                                <h4 style={{ margin: '0 0 8px 0', fontWeight: '600', color: '#23282d', fontSize: '14px' }}>
-                                    Scheduling Drafts
-                                </h4>
+                                <h4 className="aca-label">Scheduling Drafts</h4>
                                 <p style={{ margin: 0 }}>
                                     Drag any unscheduled draft from the sidebar and drop it onto a calendar date to schedule it for that day.
                                 </p>
                             </div>
                             
                             <div style={{ marginBottom: '20px' }}>
-                                <h4 style={{ margin: '0 0 8px 0', fontWeight: '600', color: '#23282d', fontSize: '14px' }}>
-                                    Published Posts
-                                </h4>
+                                <h4 className="aca-label">Published Posts</h4>
                                 <p style={{ margin: 0 }}>
                                     Green items show published posts. Click on them to view the full content.
                                 </p>
                             </div>
                             
                             <div>
-                                <h4 style={{ margin: '0 0 8px 0', fontWeight: '600', color: '#23282d', fontSize: '14px' }}>
-                                    Navigation
-                                </h4>
+                                <h4 className="aca-label">Navigation</h4>
                                 <p style={{ margin: 0 }}>
                                     Use the arrow buttons to navigate between months and see your content timeline.
                                 </p>

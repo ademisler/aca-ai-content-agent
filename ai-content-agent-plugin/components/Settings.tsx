@@ -22,23 +22,11 @@ const RadioCard: React.FC<{
             className="aca-card"
             style={{
                 margin: 0,
-                padding: '20px',
                 border: '2px solid',
                 borderColor: isChecked ? '#0073aa' : '#ccd0d4',
                 background: isChecked ? '#f0f6fc' : '#ffffff',
                 boxShadow: isChecked ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none',
-                transition: 'all 0.2s ease',
                 cursor: 'pointer'
-            }}
-            onMouseEnter={(e) => {
-                if (!isChecked) {
-                    e.currentTarget.style.borderColor = '#8c8f94';
-                }
-            }}
-            onMouseLeave={(e) => {
-                if (!isChecked) {
-                    e.currentTarget.style.borderColor = '#ccd0d4';
-                }
             }}
         >
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
@@ -56,11 +44,11 @@ const RadioCard: React.FC<{
                         flexShrink: 0
                     }}
                 />
-                <div style={{ fontSize: '13px' }}>
-                    <h4 style={{ fontWeight: '600', color: '#23282d', margin: '0 0 8px 0', fontSize: '16px' }}>
+                <div>
+                    <h4 className="aca-card-title" style={{ marginBottom: '8px' }}>
                         {title}
                     </h4>
-                    <p style={{ color: '#646970', margin: 0, lineHeight: '1.4' }}>
+                    <p className="aca-page-description" style={{ margin: 0 }}>
                         {description}
                     </p>
                 </div>
@@ -78,26 +66,19 @@ const IntegrationCard: React.FC<{
     <div className="aca-card" style={{ margin: 0 }}>
         <div className="aca-card-header">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h3 style={{ 
-                    fontWeight: '600', 
-                    color: '#23282d', 
-                    margin: 0,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    fontSize: '16px'
-                }}>
+                <h3 className="aca-card-title">
                     {icon}
                     {title}
                 </h3>
                 {isConfigured && (
-                    <div style={{ 
+                    <div className="aca-alert success" style={{ 
                         display: 'flex', 
                         alignItems: 'center', 
                         fontSize: '12px', 
-                        color: '#00a32a',
                         fontWeight: '600',
-                        gap: '6px'
+                        gap: '6px',
+                        padding: '4px 8px',
+                        margin: 0
                     }}>
                         <CheckCircle style={{ width: '14px', height: '14px' }} />
                         Configured
@@ -175,11 +156,11 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
             <div className="aca-card">
                 <div className="aca-card-header">
                     <h2 className="aca-card-title">
-                        <Zap style={{ width: '20px', height: '20px', marginRight: '8px', fill: '#0073aa' }} />
+                        <Zap className="aca-nav-item-icon" />
                         Automation Mode
                     </h2>
                 </div>
-                <p style={{ color: '#646970', marginBottom: '30px', fontSize: '13px' }}>
+                <p className="aca-page-description">
                     Choose how you want the AI Content Agent to operate. You can change this at any time.
                 </p>
                 
@@ -202,12 +183,10 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                     {/* Full Automatic with Auto-Publish Option */}
                     <div className="aca-card" style={{
                         margin: 0,
-                        padding: '20px',
                         border: '2px solid',
                         borderColor: currentSettings.mode === 'full-automatic' ? '#0073aa' : '#ccd0d4',
                         background: currentSettings.mode === 'full-automatic' ? '#f0f6fc' : '#ffffff',
-                        boxShadow: currentSettings.mode === 'full-automatic' ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none',
-                        transition: 'all 0.2s ease'
+                        boxShadow: currentSettings.mode === 'full-automatic' ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none'
                     }}>
                         <label htmlFor="full-automatic-radio" style={{ display: 'flex', alignItems: 'flex-start', cursor: 'pointer', gap: '12px' }}>
                             <input 
@@ -224,22 +203,23 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                                     flexShrink: 0
                                 }}
                             />
-                            <div style={{ fontSize: '13px' }}>
-                                <h4 style={{ fontWeight: '600', color: '#23282d', margin: '0 0 8px 0', fontSize: '16px' }}>
+                            <div>
+                                <h4 className="aca-card-title" style={{ marginBottom: '8px' }}>
                                     Full-Automatic Mode (Set & Forget)
                                 </h4>
-                                <p style={{ color: '#646970', margin: 0, lineHeight: '1.4' }}>
+                                <p className="aca-page-description" style={{ margin: 0 }}>
                                     The AI handles everything: generates ideas, picks the best ones, and creates drafts automatically.
                                 </p>
                             </div>
                         </label>
                         
                         {currentSettings.mode === 'full-automatic' && (
-                            <div style={{ 
+                            <div className="aca-form-group" style={{ 
                                 paddingLeft: '30px', 
                                 paddingTop: '20px', 
                                 marginTop: '20px', 
-                                borderTop: '1px solid #e0e0e0' 
+                                borderTop: '1px solid #e0e0e0',
+                                marginBottom: 0
                             }}>
                                 <label htmlFor="auto-publish" style={{ display: 'flex', alignItems: 'flex-start', cursor: 'pointer', gap: '12px' }}>
                                     <input 
@@ -255,10 +235,8 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                                         }}
                                     />
                                     <div>
-                                        <span style={{ fontWeight: '500', color: '#23282d', fontSize: '14px' }}>
-                                            Enable Auto-Publish
-                                        </span>
-                                        <p style={{ fontSize: '13px', color: '#646970', marginTop: '5px', margin: '5px 0 0 0' }}>
+                                        <span className="aca-label">Enable Auto-Publish</span>
+                                        <p className="aca-page-description" style={{ marginTop: '5px', margin: '5px 0 0 0' }}>
                                             When enabled, the AI will not only create drafts but also publish them automatically.
                                         </p>
                                     </div>
@@ -273,11 +251,11 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
             <div className="aca-card">
                 <div className="aca-card-header">
                     <h2 className="aca-card-title">
-                        <Shield style={{ width: '20px', height: '20px', marginRight: '8px', fill: '#0073aa' }} />
+                        <Shield className="aca-nav-item-icon" />
                         Integrations & Services
                     </h2>
                 </div>
-                <p style={{ color: '#646970', marginBottom: '30px', fontSize: '13px' }}>
+                <p className="aca-page-description">
                     Connect to external services and configure how content is generated and optimized.
                 </p>
                 
@@ -285,7 +263,7 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                     {/* Google AI Integration */}
                     <IntegrationCard 
                         title="Google AI (Gemini)" 
-                        icon={<Google style={{ width: '18px', height: '18px', fill: '#0073aa' }} />}
+                        icon={<Google className="aca-nav-item-icon" />}
                         isConfigured={!!currentSettings.geminiApiKey}
                     >
                         <div className="aca-form-group">
@@ -302,18 +280,12 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                                 href="https://aistudio.google.com/app/apikey" 
                                 target="_blank" 
                                 rel="noopener noreferrer" 
+                                className="aca-page-description"
                                 style={{ 
-                                    fontSize: '12px', 
                                     color: '#0073aa', 
                                     textDecoration: 'none', 
                                     marginTop: '8px', 
                                     display: 'block' 
-                                }}
-                                onMouseEnter={(e) => {
-                                    e.currentTarget.style.textDecoration = 'underline';
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.currentTarget.style.textDecoration = 'none';
                                 }}
                             >
                                 → Get your Google AI API key
@@ -324,43 +296,23 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                     {/* Image Source Integration */}
                     <IntegrationCard 
                         title="Featured Image Source" 
-                        icon={<Image style={{ width: '18px', height: '18px', fill: '#0073aa' }} />}
+                        icon={<Image className="aca-nav-item-icon" />}
                         isConfigured={isImageSourceConfigured}
                     >
-                        <p style={{ fontSize: '13px', color: '#646970', marginBottom: '20px', margin: '0 0 20px 0' }}>
+                        <p className="aca-page-description">
                             Select where to get featured images. For stock photo sites, an API key is required.
                         </p>
                         
-                        <div className="aca-grid aca-grid-2" style={{ gap: '12px', marginBottom: '25px' }}>
+                        <div className="aca-grid aca-grid-2" style={{ marginBottom: '25px' }}>
                            {(['ai', 'pexels', 'unsplash', 'pixabay'] as ImageSourceProvider[]).map(provider => (
                                 <label 
                                     key={provider} 
-                                    className="aca-button secondary"
+                                    className={`aca-button ${currentSettings.imageSourceProvider === provider ? '' : 'secondary'}`}
                                     style={{
-                                        textTransform: 'capitalize',
-                                        padding: '12px 16px',
-                                        fontSize: '13px',
-                                        fontWeight: '500',
+                                        textTransform: 'capitalize' as const,
                                         cursor: 'pointer',
-                                        transition: 'all 0.2s ease',
-                                        background: currentSettings.imageSourceProvider === provider ? '#0073aa' : '#ffffff',
-                                        color: currentSettings.imageSourceProvider === provider ? '#ffffff' : '#646970',
-                                        border: '1px solid',
-                                        borderColor: currentSettings.imageSourceProvider === provider ? '#0073aa' : '#ccd0d4',
-                                        textAlign: 'center',
+                                        textAlign: 'center' as const,
                                         margin: 0
-                                    }}
-                                    onMouseEnter={(e) => {
-                                        if (currentSettings.imageSourceProvider !== provider) {
-                                            e.currentTarget.style.background = '#f6f7f7';
-                                            e.currentTarget.style.borderColor = '#8c8f94';
-                                        }
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        if (currentSettings.imageSourceProvider !== provider) {
-                                            e.currentTarget.style.background = '#ffffff';
-                                            e.currentTarget.style.borderColor = '#ccd0d4';
-                                        }
                                     }}
                                 >
                                     <input 
@@ -378,7 +330,7 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
 
                         {/* Provider-specific settings */}
                         {currentSettings.imageSourceProvider === 'ai' && (
-                            <div className="aca-form-group" style={{ animation: 'aca-fade-in 0.3s ease-out' }}>
+                            <div className="aca-form-group aca-fade-in">
                                 <label htmlFor="ai-image-style" className="aca-label">AI Image Style</label>
                                 <select 
                                     id="ai-image-style" 
@@ -393,7 +345,7 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                             </div>
                         )}
                         {currentSettings.imageSourceProvider === 'pexels' && (
-                            <div className="aca-form-group" style={{ animation: 'aca-fade-in 0.3s ease-out' }}>
+                            <div className="aca-form-group aca-fade-in">
                                 <label htmlFor="pexels-api-key" className="aca-label">Pexels API Key</label>
                                 <input 
                                     id="pexels-api-key" 
@@ -407,18 +359,12 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                                     href="https://www.pexels.com/api/" 
                                     target="_blank" 
                                     rel="noopener noreferrer" 
+                                    className="aca-page-description"
                                     style={{ 
-                                        fontSize: '12px', 
                                         color: '#0073aa', 
                                         textDecoration: 'none', 
                                         marginTop: '8px', 
                                         display: 'block' 
-                                    }}
-                                    onMouseEnter={(e) => {
-                                        e.currentTarget.style.textDecoration = 'underline';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.textDecoration = 'none';
                                     }}
                                 >
                                     → Get your Pexels API key
@@ -426,7 +372,7 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                             </div>
                         )}
                         {currentSettings.imageSourceProvider === 'unsplash' && (
-                            <div className="aca-form-group" style={{ animation: 'aca-fade-in 0.3s ease-out' }}>
+                            <div className="aca-form-group aca-fade-in">
                                 <label htmlFor="unsplash-api-key" className="aca-label">Unsplash Access Key</label>
                                 <input 
                                     id="unsplash-api-key" 
@@ -440,18 +386,12 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                                     href="https://unsplash.com/developers" 
                                     target="_blank" 
                                     rel="noopener noreferrer" 
+                                    className="aca-page-description"
                                     style={{ 
-                                        fontSize: '12px', 
                                         color: '#0073aa', 
                                         textDecoration: 'none', 
                                         marginTop: '8px', 
                                         display: 'block' 
-                                    }}
-                                    onMouseEnter={(e) => {
-                                        e.currentTarget.style.textDecoration = 'underline';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.textDecoration = 'none';
                                     }}
                                 >
                                     → Get your Unsplash Access key
@@ -459,7 +399,7 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                             </div>
                         )}
                          {currentSettings.imageSourceProvider === 'pixabay' && (
-                            <div className="aca-form-group" style={{ animation: 'aca-fade-in 0.3s ease-out' }}>
+                            <div className="aca-form-group aca-fade-in">
                                 <label htmlFor="pixabay-api-key" className="aca-label">Pixabay API Key</label>
                                 <input 
                                     id="pixabay-api-key" 
@@ -473,18 +413,12 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                                     href="https://pixabay.com/api/docs/" 
                                     target="_blank" 
                                     rel="noopener noreferrer" 
+                                    className="aca-page-description"
                                     style={{ 
-                                        fontSize: '12px', 
                                         color: '#0073aa', 
                                         textDecoration: 'none', 
                                         marginTop: '8px', 
                                         display: 'block' 
-                                    }}
-                                    onMouseEnter={(e) => {
-                                        e.currentTarget.style.textDecoration = 'underline';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.textDecoration = 'none';
                                     }}
                                 >
                                     → Get your Pixabay API key
@@ -496,7 +430,7 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                     {/* SEO Integration */}
                     <IntegrationCard 
                         title="SEO Integration" 
-                        icon={<SettingsIcon style={{ width: '18px', height: '18px', fill: '#0073aa' }} />}
+                        icon={<SettingsIcon className="aca-nav-item-icon" />}
                         isConfigured={currentSettings.seoPlugin !== 'none'}
                     >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '15px', flexWrap: 'wrap' }}>
@@ -517,14 +451,9 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                                 onClick={handleAutoDetectSeo} 
                                 disabled={isDetectingSeo} 
                                 className="aca-button secondary"
-                                style={{ 
-                                    display: 'flex', 
-                                    alignItems: 'center',
-                                    gap: '8px',
-                                    flexShrink: 0 
-                                }}
+                                style={{ flexShrink: 0 }}
                             >
-                                {isDetectingSeo && <Spinner style={{ width: '14px', height: '14px' }} />}
+                                {isDetectingSeo && <span className="aca-spinner"></span>}
                                 {isDetectingSeo ? "Detecting..." : "Auto-Detect"}
                             </button>
                         </div>
@@ -533,13 +462,13 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                     {/* Google Search Console */}
                     <IntegrationCard 
                         title="Google Search Console" 
-                        icon={<Google style={{ width: '18px', height: '18px', fill: '#0073aa' }} />}
+                        icon={<Google className="aca-nav-item-icon" />}
                         isConfigured={!!currentSettings.searchConsoleUser}
                     >
                         <div className="aca-stat-item" style={{ margin: 0 }}>
                             <div className="aca-stat-info">
                                 <div className="aca-stat-icon">
-                                    <Google style={{ fill: '#23282d' }} />
+                                    <Google />
                                 </div>
                                 <div>
                                     <h4 className="aca-stat-title">Connection Status</h4>
@@ -559,18 +488,9 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                                     onClick={() => handleSettingChange('searchConsoleUser', null)} 
                                     className="aca-button"
                                     style={{ 
-                                        fontSize: '13px',
                                         flexShrink: 0,
                                         background: '#d63638',
                                         borderColor: '#d63638'
-                                    }}
-                                    onMouseEnter={(e) => {
-                                        e.currentTarget.style.background = '#b32d2e';
-                                        e.currentTarget.style.borderColor = '#b32d2e';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.background = '#d63638';
-                                        e.currentTarget.style.borderColor = '#d63638';
                                     }}
                                 >
                                     Disconnect
@@ -581,28 +501,12 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                                     disabled={isConnecting} 
                                     className="aca-button"
                                     style={{ 
-                                        fontSize: '13px',
                                         flexShrink: 0,
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '8px',
                                         background: '#00a32a',
                                         borderColor: '#00a32a'
                                     }}
-                                    onMouseEnter={(e) => {
-                                        if (!isConnecting) {
-                                            e.currentTarget.style.background = '#008a20';
-                                            e.currentTarget.style.borderColor = '#008a20';
-                                        }
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        if (!isConnecting) {
-                                            e.currentTarget.style.background = '#00a32a';
-                                            e.currentTarget.style.borderColor = '#00a32a';
-                                        }
-                                    }}
                                 >
-                                    {isConnecting && <Spinner style={{ width: '16px', height: '16px' }} />}
+                                    {isConnecting && <span className="aca-spinner"></span>}
                                     {isConnecting ? 'Connecting...' : 'Connect'}
                                 </button>
                             )}
@@ -620,13 +524,14 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                 borderTop: '1px solid #f0f0f1'
             }}>
                 {isDirty && (
-                    <div style={{ 
+                    <div className="aca-alert warning" style={{ 
                         display: 'flex',
                         alignItems: 'center',
                         fontSize: '13px', 
-                        color: '#dba617',
                         fontWeight: '500',
-                        gap: '8px'
+                        gap: '8px',
+                        padding: '8px 12px',
+                        margin: 0
                     }}>
                         <div style={{ 
                             width: '8px', 
@@ -642,14 +547,8 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                         onClick={handleSave}
                         disabled={!isDirty || isSaving}
                         className="aca-button large"
-                        style={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            minWidth: '140px',
-                            justifyContent: 'center'
-                        }}
                     >
-                        {isSaving && <Spinner style={{ marginRight: '8px', width: '16px', height: '16px' }} />}
+                        {isSaving && <span className="aca-spinner"></span>}
                         {isSaving ? 'Saving...' : 'Save Settings'}
                     </button>
                 </div>

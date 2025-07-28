@@ -102,18 +102,18 @@ export const StyleGuideManager: React.FC<StyleGuideManagerProps> = ({ styleGuide
             <div className="aca-card">
                 <div className="aca-card-header">
                     <h2 className="aca-card-title">
-                        <RefreshCw style={{ width: '20px', height: '20px', marginRight: '8px', fill: '#0073aa' }} />
+                        <RefreshCw className="aca-nav-item-icon" />
                         Content Analysis
                     </h2>
                 </div>
-                <p style={{ color: '#646970', marginBottom: '25px', fontSize: '13px' }}>
+                <p className="aca-page-description">
                     The AI periodically scans your published content to understand your writing style and automatically updates your guide.
                 </p>
                 
                 <div className="aca-stat-item">
                     <div className="aca-stat-info">
                         <div className="aca-stat-icon">
-                            <CheckCircle style={{ fill: styleGuide?.lastAnalyzed ? '#00a32a' : '#a7aaad' }} />
+                            <CheckCircle />
                         </div>
                         <div>
                             <h4 className="aca-stat-title">Analysis Status</h4>
@@ -129,14 +129,8 @@ export const StyleGuideManager: React.FC<StyleGuideManagerProps> = ({ styleGuide
                         onClick={onAnalyze}
                         disabled={isLoading}
                         className="aca-button large"
-                        style={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            minWidth: '160px',
-                            justifyContent: 'center'
-                        }}
                     >
-                        {isLoading && <Spinner style={{ marginRight: '8px', width: '16px', height: '16px' }} />}
+                        {isLoading && <span className="aca-spinner"></span>}
                         {isLoading ? 'Analyzing...' : 'Analyze Content'}
                     </button>
                 </div>
@@ -146,59 +140,28 @@ export const StyleGuideManager: React.FC<StyleGuideManagerProps> = ({ styleGuide
             <div className="aca-card">
                 <div className="aca-card-header">
                     <h2 className="aca-card-title">
-                        <BookOpen style={{ width: '20px', height: '20px', marginRight: '8px', fill: '#0073aa' }} />
+                        <BookOpen className="aca-nav-item-icon" />
                         Your Style Guide
                     </h2>
                 </div>
-                <p style={{ color: '#646970', marginBottom: '30px', fontSize: '13px' }}>
+                <p className="aca-page-description">
                     Review and customize the AI-generated style guide below. These settings will influence all future content generation.
                 </p>
                 
                 {editableGuide ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+                    <div className="aca-grid" style={{ gap: '30px' }}>
                         {/* Tone Selection */}
                         <div className="aca-form-group">
-                            <label className="aca-label" style={{ marginBottom: '15px' }}>
+                            <label className="aca-label">
                                 Writing Tone & Voice
                             </label>
-                            <div style={{ 
-                                display: 'grid', 
-                                gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', 
-                                gap: '12px',
-                                padding: '20px',
-                                background: '#f6f7f7',
-                                borderRadius: '4px',
-                                border: '1px solid #ccd0d4'
-                            }}>
+                            <div className="aca-grid aca-grid-3" style={{ padding: '20px', background: '#f6f7f7', borderRadius: '4px', border: '1px solid #ccd0d4' }}>
                                 {PREDEFINED_TONES.map(tone => (
                                     <button 
                                         key={tone} 
                                         onClick={() => handleToneToggle(tone)}
-                                        style={{
-                                            padding: '12px 16px',
-                                            fontSize: '13px',
-                                            fontWeight: '500',
-                                            borderRadius: '4px',
-                                            cursor: 'pointer',
-                                            transition: 'all 0.2s ease',
-                                            border: '1px solid',
-                                            background: selectedTones.has(tone) ? '#0073aa' : '#ffffff',
-                                            color: selectedTones.has(tone) ? '#ffffff' : '#646970',
-                                            borderColor: selectedTones.has(tone) ? '#0073aa' : '#ccd0d4',
-                                            textAlign: 'center'
-                                        }}
-                                        onMouseEnter={(e) => {
-                                            if (!selectedTones.has(tone)) {
-                                                e.currentTarget.style.background = '#f0f0f1';
-                                                e.currentTarget.style.borderColor = '#8c8f94';
-                                            }
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            if (!selectedTones.has(tone)) {
-                                                e.currentTarget.style.background = '#ffffff';
-                                                e.currentTarget.style.borderColor = '#ccd0d4';
-                                            }
-                                        }}
+                                        className={`aca-button ${selectedTones.has(tone) ? '' : 'secondary'}`}
+                                        style={{ textAlign: 'center' as const }}
                                     >
                                         {tone}
                                     </button>
@@ -208,7 +171,7 @@ export const StyleGuideManager: React.FC<StyleGuideManagerProps> = ({ styleGuide
 
                         {/* Sentence Structure Slider */}
                         <div className="aca-form-group">
-                            <label className="aca-label" style={{ marginBottom: '15px' }}>
+                            <label className="aca-label">
                                 Sentence Structure Preference
                             </label>
                             <div style={{ 
@@ -224,39 +187,23 @@ export const StyleGuideManager: React.FC<StyleGuideManagerProps> = ({ styleGuide
                                     step="25"
                                     value={sentenceSliderValue}
                                     onChange={handleSliderChange}
+                                    className="aca-input"
                                     style={{ 
                                         width: '100%', 
                                         height: '8px', 
                                         background: '#ddd', 
                                         borderRadius: '4px', 
-                                        appearance: 'none', 
+                                        appearance: 'none' as const, 
                                         cursor: 'pointer',
                                         outline: 'none'
                                     }}
                                 />
-                                <div style={{ 
-                                    display: 'flex', 
-                                    justifyContent: 'space-between', 
-                                    fontSize: '11px', 
-                                    color: '#646970', 
-                                    marginTop: '12px',
-                                    fontWeight: '500'
-                                }}>
+                                <div className="aca-grid aca-grid-3" style={{ fontSize: '11px', color: '#646970', marginTop: '12px', fontWeight: '500', textAlign: 'center' as const }}>
                                     <span>Short & Simple</span>
                                     <span>Balanced Mix</span>
                                     <span>Long & Complex</span>
                                 </div>
-                                <div style={{ 
-                                    fontSize: '13px', 
-                                    textAlign: 'center', 
-                                    color: '#0073aa', 
-                                    marginTop: '15px', 
-                                    padding: '12px', 
-                                    background: '#f0f6fc', 
-                                    borderRadius: '4px',
-                                    border: '1px solid #c3c4c7',
-                                    fontWeight: '500'
-                                }}>
+                                <div className="aca-alert info" style={{ marginTop: '15px', textAlign: 'center' as const, fontWeight: '500' }}>
                                     {sentenceStructureMap[sentenceSliderValue as keyof typeof sentenceStructureMap]}
                                 </div>
                             </div>
@@ -287,23 +234,15 @@ export const StyleGuideManager: React.FC<StyleGuideManagerProps> = ({ styleGuide
                         </div>
                     </div>
                 ) : (
-                    <div style={{ 
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        minHeight: '200px',
-                        textAlign: 'center',
+                    <div className="aca-card" style={{ 
+                        textAlign: 'center' as const,
                         border: '2px dashed #ccd0d4',
-                        borderRadius: '4px',
                         background: '#f9f9f9',
                         padding: '40px 20px'
                     }}>
                         <BookOpen style={{ width: '48px', height: '48px', marginBottom: '15px', fill: '#a7aaad' }} />
-                        <h4 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: '500', color: '#23282d' }}>
-                            No Style Guide Yet
-                        </h4>
-                        <p style={{ margin: 0, fontSize: '13px', color: '#646970' }}>
+                        <h4 className="aca-card-title">No Style Guide Yet</h4>
+                        <p className="aca-page-description">
                             Run your first content analysis to generate your personalized style guide.
                         </p>
                     </div>
@@ -321,13 +260,14 @@ export const StyleGuideManager: React.FC<StyleGuideManagerProps> = ({ styleGuide
                         gap: '15px'
                     }}>
                         {isDirty && (
-                            <div style={{ 
+                            <div className="aca-alert warning" style={{ 
                                 display: 'flex',
                                 alignItems: 'center',
                                 fontSize: '13px', 
-                                color: '#dba617',
                                 fontWeight: '500',
-                                gap: '8px'
+                                gap: '8px',
+                                padding: '8px 12px',
+                                margin: 0
                             }}>
                                 <div style={{ 
                                     width: '8px', 
@@ -342,15 +282,9 @@ export const StyleGuideManager: React.FC<StyleGuideManagerProps> = ({ styleGuide
                             onClick={handleSave}
                             disabled={!isDirty || isSaving}
                             className="aca-button large"
-                            style={{ 
-                                display: 'flex', 
-                                alignItems: 'center', 
-                                minWidth: '140px',
-                                justifyContent: 'center',
-                                marginLeft: 'auto'
-                            }}
+                            style={{ marginLeft: 'auto' }}
                         >
-                            {isSaving && <Spinner style={{ marginRight: '8px', width: '16px', height: '16px' }} />}
+                            {isSaving && <span className="aca-spinner"></span>}
                             {isSaving ? 'Saving...' : 'Save Changes'}
                         </button>
                     </div>

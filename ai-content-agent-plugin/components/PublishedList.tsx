@@ -15,44 +15,34 @@ const PublishedPostCard: React.FC<{
     return (
         <div className="aca-card" style={{ margin: 0 }}>
             {/* Post Header */}
-            <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'flex-start',
-                marginBottom: '15px',
-                gap: '15px'
-            }}>
-                <div style={{ flexGrow: 1 }}>
-                    <h3 style={{ 
-                        fontSize: '18px', 
-                        fontWeight: '600', 
-                        color: '#00a32a', 
-                        margin: '0 0 8px 0',
-                        lineHeight: '1.3'
-                    }}>
-                        {post.title}
-                    </h3>
-                    <div style={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        gap: '15px', 
-                        fontSize: '13px', 
-                        color: '#646970',
-                        flexWrap: 'wrap'
-                    }}>
+            <div style={{ marginBottom: '15px' }}>
+                <h3 className="aca-card-title" style={{ 
+                    color: '#00a32a', 
+                    marginBottom: '8px'
+                }}>
+                    {post.title}
+                </h3>
+                <div className="aca-page-description" style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '15px', 
+                    flexWrap: 'wrap'
+                }}>
+                    <span>
+                        Published: {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : 'N/A'}
+                    </span>
+                    {post.publishedAt && (
                         <span>
-                            Published: {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : 'N/A'}
+                            {new Date(post.publishedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
-                        {post.publishedAt && (
-                            <span>
-                                {new Date(post.publishedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                            </span>
-                        )}
-                    </div>
+                    )}
                 </div>
                 
                 {/* Status Badge */}
                 <div style={{ 
+                    position: 'absolute',
+                    top: '20px',
+                    right: '20px',
                     fontSize: '11px', 
                     fontWeight: '600', 
                     padding: '6px 12px', 
@@ -61,7 +51,6 @@ const PublishedPostCard: React.FC<{
                     background: '#e6f7e6',
                     color: '#0a5d0a',
                     borderColor: '#28a745',
-                    flexShrink: 0,
                     display: 'flex',
                     alignItems: 'center',
                     gap: '6px'
@@ -72,27 +61,12 @@ const PublishedPostCard: React.FC<{
             </div>
 
             {/* Actions */}
-            <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '10px',
-                paddingTop: '15px',
-                borderTop: '1px solid #f0f0f1',
-                flexWrap: 'wrap',
-                justifyContent: 'flex-end'
-            }}>
+            <div className="aca-list-item" style={{ padding: '15px 0 0 0', margin: 0, justifyContent: 'flex-end' }}>
                 <button
                     onClick={() => onSelectPost(post)}
                     className="aca-button secondary"
-                    style={{ 
-                        fontSize: '13px',
-                        padding: '8px 16px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px'
-                    }}
                 >
-                    <Eye style={{ width: '14px', height: '14px' }} />
+                    <Eye className="aca-nav-item-icon" />
                     View Content
                 </button>
                 
@@ -100,16 +74,11 @@ const PublishedPostCard: React.FC<{
                 {/* <button
                     className="aca-button"
                     style={{ 
-                        fontSize: '13px',
-                        padding: '8px 16px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
                         background: '#0073aa',
                         borderColor: '#0073aa'
                     }}
                 >
-                    <ExternalLink style={{ width: '14px', height: '14px' }} />
+                    <ExternalLink className="aca-nav-item-icon" />
                     View Live
                 </button> */}
             </div>
@@ -138,11 +107,11 @@ export const PublishedList: React.FC<PublishedListProps> = ({ posts, onSelectPos
                 <div className="aca-card">
                     <div className="aca-card-header">
                         <h2 className="aca-card-title">
-                            <Send style={{ width: '20px', height: '20px', marginRight: '8px', fill: '#0073aa' }} />
+                            <Send className="aca-nav-item-icon" />
                             Your Published Content ({posts.length})
                         </h2>
                     </div>
-                    <div className="aca-grid aca-grid-2" style={{ gap: '20px' }}>
+                    <div className="aca-grid aca-grid-2">
                         {sortedPosts.map(post => (
                             <PublishedPostCard
                                 key={post.id}
@@ -154,27 +123,16 @@ export const PublishedList: React.FC<PublishedListProps> = ({ posts, onSelectPos
                 </div>
             ) : (
                 <div className="aca-card">
-                    <div style={{ 
-                        textAlign: 'center', 
-                        padding: '60px 20px', 
-                        color: '#646970'
-                    }}>
+                    <div style={{ textAlign: 'center', padding: '60px 20px', color: '#646970' }}>
                         <Send style={{ margin: '0 auto 20px auto', width: '48px', height: '48px', fill: '#a7aaad' }} />
-                        <h3 style={{ margin: '0 0 10px 0', fontSize: '18px', fontWeight: '500', color: '#23282d' }}>
-                            No Published Posts Yet
-                        </h3>
-                        <p style={{ margin: '0 0 25px 0', fontSize: '14px', maxWidth: '400px', marginLeft: 'auto', marginRight: 'auto' }}>
+                        <h3 className="aca-card-title">No Published Posts Yet</h3>
+                        <p className="aca-page-description" style={{ maxWidth: '400px', marginLeft: 'auto', marginRight: 'auto' }}>
                             Create drafts and publish them to see your success stories here.
                         </p>
                         <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
                             <button 
                                 onClick={() => window.location.hash = '#drafts'} 
                                 className="aca-button large"
-                                style={{ 
-                                    display: 'inline-flex', 
-                                    alignItems: 'center',
-                                    gap: '8px'
-                                }}
                             >
                                 <Send style={{ width: '16px', height: '16px' }} />
                                 Go to Drafts

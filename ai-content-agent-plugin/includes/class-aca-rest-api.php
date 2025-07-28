@@ -654,10 +654,10 @@ class ACA_Rest_Api {
      * Get published posts
      */
     public function get_published_posts($request) {
+        // Get all published posts, not just ACA-created ones
         $posts = get_posts(array(
             'post_type' => 'post',
             'post_status' => 'publish',
-            'meta_key' => '_aca_meta_title',
             'numberposts' => -1,
             'orderby' => 'date',
             'order' => 'DESC'

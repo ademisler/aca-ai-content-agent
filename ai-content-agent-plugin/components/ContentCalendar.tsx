@@ -161,7 +161,8 @@ export const ContentCalendar: React.FC<ContentCalendarProps> = ({ drafts, publis
                                             padding: '8px',
                                             position: 'relative',
                                             border: isToday ? '2px solid #2196f3' : 'none',
-                                            cursor: 'pointer'
+                                            cursor: 'pointer',
+                                            overflow: 'hidden'
                                         }}
                                     >
                                         {/* Date number */}
@@ -171,21 +172,48 @@ export const ContentCalendar: React.FC<ContentCalendarProps> = ({ drafts, publis
                                             left: '8px',
                                             fontWeight: isToday ? '700' : '600',
                                             fontSize: '16px',
-                                            color: isToday ? '#2196f3' : '#333'
+                                            color: isToday ? '#2196f3' : '#333',
+                                            zIndex: 1
                                         }}>
                                             {date.getDate()}
                                         </div>
                                         
-                                        {/* Content */}
+                                        {/* Post count indicator for days with many posts */}
+                                        {(scheduled.length + published.length) > 3 && (
+                                            <div style={{
+                                                position: 'absolute',
+                                                top: '8px',
+                                                right: '8px',
+                                                background: '#ff9800',
+                                                color: 'white',
+                                                borderRadius: '50%',
+                                                width: '20px',
+                                                height: '20px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                fontSize: '10px',
+                                                fontWeight: 'bold',
+                                                zIndex: 1
+                                            }}>
+                                                {scheduled.length + published.length}
+                                            </div>
+                                        )}
+                                        
+                                        {/* Content - Scrollable for many items */}
                                         <div style={{ 
                                             display: 'flex', 
                                             flexDirection: 'column', 
-                                            gap: '4px', 
+                                            gap: '3px', 
                                             marginTop: '28px',
-                                            flex: 1
+                                            flex: 1,
+                                            maxHeight: '85px',
+                                            overflowY: 'auto',
+                                            overflowX: 'hidden',
+                                            paddingRight: '2px'
                                         }}>
                                             {/* Scheduled Drafts */}
-                                            {scheduled.map(draft => (
+                                            {scheduled.map((draft, index) => (
                                                 <div 
                                                     key={`scheduled-${draft.id}`}
                                                     draggable
@@ -196,31 +224,33 @@ export const ContentCalendar: React.FC<ContentCalendarProps> = ({ drafts, publis
                                                         background: '#fff3cd',
                                                         border: '1px solid #ffc107',
                                                         color: '#856404',
-                                                        padding: '6px 8px',
-                                                        fontSize: '11px',
+                                                        padding: '4px 6px',
+                                                        fontSize: '10px',
                                                         overflow: 'hidden',
                                                         textOverflow: 'ellipsis',
                                                         whiteSpace: 'nowrap' as const,
                                                         cursor: 'pointer',
                                                         display: 'flex',
                                                         alignItems: 'center',
-                                                        gap: '4px',
+                                                        gap: '3px',
                                                         fontWeight: '500',
                                                         margin: 0,
-                                                        borderRadius: '4px'
+                                                        borderRadius: '3px',
+                                                        minHeight: '22px',
+                                                        opacity: index > 2 ? 0.8 : 1
                                                     }}
-                                                    title={`Scheduled: ${draft.title} (Click to edit, drag to reschedule)`}
+                                                    title={`Scheduled: ${draft.title || `Draft ${draft.id}`} (Click to edit, drag to reschedule)`}
                                                 >
-                                                    <Clock style={{ width: '12px', height: '12px' }} />
+                                                    <Clock style={{ width: '10px', height: '10px', flexShrink: 0 }} />
                                                     <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                                         {draft.title || `Draft ${draft.id}`}
                                                     </span>
-                                                    <Edit style={{ width: '10px', height: '10px' }} />
+                                                    <Edit style={{ width: '8px', height: '8px', flexShrink: 0 }} />
                                                 </div>
                                             ))}
                                             
                                             {/* Published Posts */}
-                                            {published.map(post => (
+                                            {published.map((post, index) => (
                                                 <div 
                                                     key={`published-${post.id}`}
                                                     onClick={() => openWordPressEditor(post.id)}
@@ -229,26 +259,28 @@ export const ContentCalendar: React.FC<ContentCalendarProps> = ({ drafts, publis
                                                         background: '#d4edda',
                                                         border: '1px solid #28a745',
                                                         color: '#155724',
-                                                        padding: '6px 8px',
-                                                        fontSize: '11px',
+                                                        padding: '4px 6px',
+                                                        fontSize: '10px',
                                                         overflow: 'hidden',
                                                         textOverflow: 'ellipsis',
                                                         whiteSpace: 'nowrap' as const,
                                                         cursor: 'pointer',
                                                         display: 'flex',
                                                         alignItems: 'center',
-                                                        gap: '4px',
+                                                        gap: '3px',
                                                         fontWeight: '500',
                                                         margin: 0,
-                                                        borderRadius: '4px'
+                                                        borderRadius: '3px',
+                                                        minHeight: '22px',
+                                                        opacity: index > 2 ? 0.8 : 1
                                                     }}
-                                                    title={`Published: ${post.title} (Click to edit)`}
+                                                    title={`Published: ${post.title || `Post ${post.id}`} (Click to edit)`}
                                                 >
-                                                    <Eye style={{ width: '12px', height: '12px' }} />
+                                                    <Eye style={{ width: '10px', height: '10px', flexShrink: 0 }} />
                                                     <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                                         {post.title || `Post ${post.id}`}
                                                     </span>
-                                                    <Edit style={{ width: '10px', height: '10px' }} />
+                                                    <Edit style={{ width: '8px', height: '8px', flexShrink: 0 }} />
                                                 </div>
                                             ))}
                                         </div>

@@ -5,6 +5,34 @@ All notable changes to the AI Content Agent WordPress plugin will be documented 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.7] - 2025-01-28 - Published Posts Fix + Multi-Post UI
+
+### 🎯 CRITICAL FIXES
+- **Published Posts Now Visible**: Fixed `get_published_posts` API to include ALL WordPress posts, not just ACA-created ones
+- **Meta Key Dependency Removed**: Published posts no longer require `_aca_meta_title` meta key to appear in calendar
+- **Existing Content Integration**: All your existing WordPress posts now appear in the calendar
+
+### 🎨 MULTI-POST UI ENHANCEMENTS
+- **Scrollable Calendar Cells**: Days with many posts now have scrollable content areas
+- **Post Count Indicator**: Orange badge shows total post count when more than 3 posts per day
+- **Compact Design**: Smaller post items (22px height) to fit more content
+- **Visual Hierarchy**: Posts beyond the 3rd have reduced opacity for better focus
+- **Improved Spacing**: Tighter gaps (3px) and better padding for dense content
+
+### 🔧 TECHNICAL IMPROVEMENTS
+- **Overflow Handling**: Proper overflow management for calendar cells
+- **Performance**: Better handling of large numbers of posts per day
+- **Z-Index Management**: Proper layering of date numbers and post count indicators
+- **Responsive Scrolling**: Smooth scrolling with hidden scrollbars for clean appearance
+
+### 📱 UX IMPROVEMENTS
+- **Better Tooltips**: More descriptive tooltips with fallback titles
+- **Icon Sizing**: Optimized icon sizes (10px/8px) for compact layout
+- **Flexible Layout**: Icons with `flexShrink: 0` to prevent compression
+- **Visual Feedback**: Opacity changes for secondary items
+
+Now ALL your WordPress content appears in the calendar with a clean, scalable interface!
+
 ## [1.3.6] - 2025-01-28 - ENHANCED CALENDAR UX
 
 ### 🎯 MAJOR IMPROVEMENTS

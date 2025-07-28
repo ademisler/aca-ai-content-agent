@@ -126,9 +126,16 @@ class ACA_Rest_Api {
         
         // Activity logs endpoint
         register_rest_route('aca/v1', '/activity-logs', array(
-            'methods' => 'GET',
-            'callback' => array($this, 'get_activity_logs'),
-            'permission_callback' => array($this, 'check_permissions')
+            array(
+                'methods' => 'GET',
+                'callback' => array($this, 'get_activity_logs'),
+                'permission_callback' => array($this, 'check_permissions')
+            ),
+            array(
+                'methods' => 'POST',
+                'callback' => array($this, 'add_activity_log_endpoint'),
+                'permission_callback' => array($this, 'check_permissions')
+            )
         ));
     }
     
@@ -892,6 +899,26 @@ class ACA_Rest_Api {
         );
         
         return rest_ensure_response($logs);
+    }
+    
+    /**
+     * Add activity log via REST API
+     */
+    public function add_activity_log_endpoint($request) {
+        $nonce_check = $this->verify_nonce($request);
+        if (is_wp_error($nonce_check)) {
+            return $nonce_check;
+        }
+        
+        $params = $request->get_json_params();
+        
+        if (empty($params['type']) || empty($params['message']) || empty($params['icon'])) {
+            return new WP_Error('missing_params', 'Missing required parameters: type, message, icon', array('status' => 400));
+        }
+        
+        $this->add_activity_log($params['type'], $params['message'], $params['icon']);
+        
+        return rest_ensure_response(array('success' => true));
     }
     
     // Helper methods

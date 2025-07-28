@@ -2,7 +2,7 @@
 /**
  * Plugin Name: AI Content Agent (ACA)
  * Description: AI-powered content creation and management plugin that generates blog posts, ideas, and manages your content workflow automatically.
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: AI Content Agent Team
  * License: GPL v2 or later
  * Text Domain: ai-content-agent
@@ -15,7 +15,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Plugin constants
-define('ACA_VERSION', '1.0.0');
+define('ACA_VERSION', '1.0.1');
 define('ACA_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('ACA_PLUGIN_PATH', plugin_dir_path(__FILE__));
 
@@ -84,8 +84,8 @@ class AI_Content_Agent {
         }
         
         // Enqueue the compiled React app
-        wp_enqueue_style('aca-styles', ACA_PLUGIN_URL . 'admin/css/index.css', array(), ACA_VERSION);
-        wp_enqueue_script('aca-app', ACA_PLUGIN_URL . 'admin/js/index.js', array(), ACA_VERSION, true);
+        wp_enqueue_style('aca-styles', ACA_PLUGIN_URL . 'admin/css/index.css', array(), ACA_VERSION . '-' . filemtime(ACA_PLUGIN_PATH . 'admin/css/index.css'));
+        wp_enqueue_script('aca-app', ACA_PLUGIN_URL . 'admin/js/index.js', array(), ACA_VERSION . '-' . filemtime(ACA_PLUGIN_PATH . 'admin/js/index.js'), true);
         
         // Pass data to React app
         wp_localize_script('aca-app', 'aca_object', array(

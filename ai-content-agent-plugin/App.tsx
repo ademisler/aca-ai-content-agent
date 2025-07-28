@@ -195,11 +195,18 @@ const App: React.FC = () => {
         }
 
         const idea = ideas.find(i => i.id === ideaId);
-        if (!idea) return;
+        if (!idea) {
+            addToast({ message: 'Idea not found', type: 'error' });
+            return;
+        }
 
+        console.log('Creating draft for idea:', idea);
         setIsLoading(prev => ({ ...prev, [`draft_${ideaId}`]: true }));
         try {
+            console.log('Calling draftsApi.createFromIdea with ideaId:', ideaId);
             const draft = await draftsApi.createFromIdea(ideaId);
+            console.log('Draft created successfully:', draft);
+            
             setPosts(prev => [draft, ...prev]);
             
             // Archive the idea
@@ -207,11 +214,15 @@ const App: React.FC = () => {
             await ideasApi.update(ideaId, updatedIdea);
             setIdeas(prev => prev.map(i => i.id === ideaId ? updatedIdea : i));
             
-            addToast({ message: 'Draft created successfully!', type: 'success' });
-            addLogEntry('draft_created', `Created draft: "${draft.title}"`, 'FileText');
+            addToast({ 
+                message: `Draft "${draft.title}" created successfully with ${draft.tags?.length || 0} tags and ${draft.categories?.length || 0} categories!`, 
+                type: 'success' 
+            });
+            addLogEntry('draft_created', `Created draft: "${draft.title}" with full WordPress integration`, 'FileText');
         } catch (error) {
+            console.error('Error creating draft:', error);
             const errorMessage = error instanceof Error ? error.message : 'Failed to create draft';
-            addToast({ message: errorMessage, type: 'error' });
+            addToast({ message: `Failed to create draft: ${errorMessage}`, type: 'error' });
         } finally {
             setIsLoading(prev => ({ ...prev, [`draft_${ideaId}`]: false }));
         }

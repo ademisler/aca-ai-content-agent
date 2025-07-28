@@ -748,24 +748,52 @@ class ACA_Rest_Api {
             // Generate or fetch image
             $image_data = $this->get_featured_image($idea->title, $settings);
             
-            // Create WordPress post
+            // Create WordPress post with enhanced content
             $post_data = array(
                 'post_title' => $idea->title,
                 'post_content' => $draft_data['content'],
+                'post_excerpt' => isset($draft_data['excerpt']) ? $draft_data['excerpt'] : '',
                 'post_status' => 'draft',
                 'post_type' => 'post',
                 'meta_input' => array(
                     '_aca_meta_title' => $draft_data['metaTitle'],
                     '_aca_meta_description' => $draft_data['metaDescription'],
                     '_aca_focus_keywords' => $draft_data['focusKeywords'],
-                    '_aca_created_from_idea' => $idea_id
+                    '_aca_created_from_idea' => $idea_id,
+                    '_aca_ai_generated' => true,
+                    '_aca_generation_date' => current_time('mysql')
                 )
             );
             
             $post_id = wp_insert_post($post_data);
             
             if (is_wp_error($post_id)) {
-                throw new Exception('Failed to create WordPress post');
+                throw new Exception('Failed to create WordPress post: ' . $post_id->get_error_message());
+            }
+            
+            // Add categories
+            if (isset($draft_data['categories']) && is_array($draft_data['categories'])) {
+                $category_ids = array();
+                foreach ($draft_data['categories'] as $category_name) {
+                    $category = get_category_by_slug(sanitize_title($category_name));
+                    if (!$category) {
+                        // Create category if it doesn't exist
+                        $category_id = wp_create_category($category_name);
+                        if (!is_wp_error($category_id)) {
+                            $category_ids[] = $category_id;
+                        }
+                    } else {
+                        $category_ids[] = $category->term_id;
+                    }
+                }
+                if (!empty($category_ids)) {
+                    wp_set_post_categories($post_id, $category_ids);
+                }
+            }
+            
+            // Add tags
+            if (isset($draft_data['tags']) && is_array($draft_data['tags'])) {
+                wp_set_post_tags($post_id, $draft_data['tags']);
             }
             
             // Set featured image if we have one
@@ -948,19 +976,42 @@ class ACA_Rest_Api {
             }
         }
         
+        // Get categories
+        $categories = get_the_category($post->ID);
+        $category_names = array();
+        if ($categories) {
+            foreach ($categories as $category) {
+                $category_names[] = $category->name;
+            }
+        }
+        
+        // Get tags
+        $tags = get_the_tags($post->ID);
+        $tag_names = array();
+        if ($tags) {
+            foreach ($tags as $tag) {
+                $tag_names[] = $tag->name;
+            }
+        }
+        
         return array(
             'id' => $post->ID,
             'title' => $post->post_title,
             'content' => $post->post_content,
+            'excerpt' => $post->post_excerpt,
             'metaTitle' => get_post_meta($post->ID, '_aca_meta_title', true),
             'metaDescription' => get_post_meta($post->ID, '_aca_meta_description', true),
             'focusKeywords' => get_post_meta($post->ID, '_aca_focus_keywords', true),
+            'categories' => $category_names,
+            'tags' => $tag_names,
             'featuredImage' => $featured_image,
             'createdAt' => $post->post_date,
             'status' => $post->post_status,
             'publishedAt' => $post->post_status === 'publish' ? $post->post_date : null,
             'url' => $post->post_status === 'publish' ? get_permalink($post->ID) : null,
-            'scheduledFor' => get_post_meta($post->ID, '_aca_scheduled_for', true)
+            'scheduledFor' => get_post_meta($post->ID, '_aca_scheduled_for', true),
+            'aiGenerated' => get_post_meta($post->ID, '_aca_ai_generated', true),
+            'generationDate' => get_post_meta($post->ID, '_aca_generation_date', true)
         );
     }
     
@@ -1084,7 +1135,7 @@ class ACA_Rest_Api {
     private function call_gemini_create_draft($api_key, $title, $style_guide, $existing_posts) {
         $context_string = '';
         if (!empty($existing_posts)) {
-            $context_string = "Here are some recently published posts for context:\n";
+            $context_string = "Here are some recently published posts for context and internal linking:\n";
             foreach ($existing_posts as $post) {
                 $context_string .= "Title: {$post['title']}\nURL: {$post['url']}\nContent snippet: {$post['content']}...\n\n";
             }
@@ -1097,19 +1148,24 @@ class ACA_Rest_Api {
             
             {$context_string}
             
-            The blog post should be:
-            - Well-structured with clear headings and subheadings
-            - Engaging and informative
+            Requirements:
+            - Write a well-structured blog post with clear H2 and H3 headings
             - 800-1500 words in length
-            - SEO-optimized
-            - Match the tone and style described in the style guide
+            - Engaging introduction and compelling conclusion
+            - SEO-optimized content matching the style guide
+            - Include 2-3 internal links to the provided existing posts where contextually relevant
+            - Use markdown format for links: [anchor text](URL)
+            - Generate relevant tags and categories
             
             Return a JSON object with this exact structure:
             {
-              \"content\": \"The full HTML content of the blog post with proper headings (H2, H3), paragraphs, and formatting\",
+              \"content\": \"The full blog post content in HTML format with proper headings (H2, H3), paragraphs, internal links, and formatting\",
               \"metaTitle\": \"SEO-optimized title (50-60 characters)\",
               \"metaDescription\": \"Compelling meta description (150-160 characters)\",
-              \"focusKeywords\": [\"keyword1\", \"keyword2\", \"keyword3\"]
+              \"focusKeywords\": [\"keyword1\", \"keyword2\", \"keyword3\", \"keyword4\", \"keyword5\"],
+              \"tags\": [\"tag1\", \"tag2\", \"tag3\", \"tag4\", \"tag5\"],
+              \"categories\": [\"category1\", \"category2\"],
+              \"excerpt\": \"Brief excerpt for the post (150 characters)\"
             }
         ";
         

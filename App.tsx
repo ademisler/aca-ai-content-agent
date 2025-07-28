@@ -1,5 +1,6 @@
 
 import React, { useState, useCallback, useEffect } from 'react';
+import { settingsApi, styleGuideApi, ideasApi, draftsApi, publishedApi, activityApi } from './services/wordpressApi';
 import { geminiService, setGeminiApiKey } from './services/geminiService';
 import { fetchStockPhotoAsBase64 } from './services/stockPhotoService';
 import type { StyleGuide, ContentIdea, Draft, View, AppSettings, ActivityLog, ActivityLogType, IconName, IdeaSource } from './types';
@@ -46,6 +47,48 @@ const App: React.FC = () => {
         setGeminiApiKey(settings.geminiApiKey);
     }, [settings.geminiApiKey]);
 
+    // Load initial data from WordPress
+    useEffect(() => {
+        const loadInitialData = async () => {
+            try {
+                const [settingsData, styleGuideData, ideasData, draftsData, publishedData, activityData] = await Promise.all([
+                    settingsApi.get(),
+                    styleGuideApi.get(),
+                    ideasApi.get(),
+                    draftsApi.get(),
+                    publishedApi.get(),
+                    activityApi.get()
+                ]);
+                
+                setSettings(settingsData || {
+                    mode: 'manual',
+                    autoPublish: false,
+                    searchConsoleUser: null,
+                    imageSourceProvider: 'ai',
+                    aiImageStyle: 'photorealistic',
+                    pexelsApiKey: '',
+                    unsplashApiKey: '',
+                    pixabayApiKey: '',
+                    seoPlugin: 'none',
+                    geminiApiKey: '',
+                });
+                
+                if (styleGuideData) {
+                    setStyleGuide(styleGuideData);
+                }
+                
+                setIdeas(ideasData || []);
+                setPosts([...(draftsData || []), ...(publishedData || [])]);
+                setActivityLogs(activityData || []);
+            } catch (error) {
+                console.error('Failed to load initial data:', error);
+                addToast({ message: 'Failed to load plugin data', type: 'error' });
+            }
+        };
+        
+        loadInitialData();
+    }, []);
+
     const addToast = useCallback((toast: Omit<ToastData, 'id'>) => {
         const id = Date.now() + Math.random();
         setToasts(currentToasts => [...currentToasts, { ...toast, id }]);
@@ -61,6 +104,8 @@ const App: React.FC = () => {
         };
         setActivityLogs(prevLogs => [newLog, ...prevLogs]);
     }, []);
+    
+
 
     const removeToast = (id: number) => {
         setToasts(currentToasts => currentToasts.filter(t => t.id !== id));
@@ -76,9 +121,8 @@ const App: React.FC = () => {
         }
         setIsLoading(prev => ({ ...prev, style: true }));
         try {
-            const analysis = await geminiService.analyzeStyle();
-            const parsedAnalysis = JSON.parse(analysis);
-            setStyleGuide({ ...parsedAnalysis, lastAnalyzed: new Date().toISOString() });
+            const analysis = await styleGuideApi.analyze();
+            setStyleGuide(analysis);
             addLogEntry('style_updated', 'Style Guide was successfully updated.', 'BookOpen');
             if (!isAuto) {
                 addToast({ message: 'Style Guide successfully updated!', type: 'success' });
@@ -93,7 +137,7 @@ const App: React.FC = () => {
         } finally {
             setIsLoading(prev => ({ ...prev, style: false }));
         }
-    }, [addToast, setView, addLogEntry, settings.geminiApiKey]);
+    }, [addToast, setView, settings.geminiApiKey]);
 
     const handleGenerateIdeas = async (isAuto: boolean = false, count: number = 5) => {
         if (!settings.geminiApiKey) {
@@ -109,24 +153,13 @@ const App: React.FC = () => {
         }
         setIsLoading(prev => ({ ...prev, ideas: true }));
         try {
-            const existingTitles = [...ideas.map(i => i.title), ...posts.map(p => p.title)];
-            const searchConsoleData = settings.searchConsoleUser
-                ? {
-                    topQueries: ['AI for content marketing', 'how to write blog posts faster', 'wordpress automation tools'],
-                    underperformingPages: ['/blog/old-seo-tips', '/blog/2022-social-media-trends']
-                  }
-                : undefined;
-            
-            const newIdeasResult = await geminiService.generateIdeas(JSON.stringify(styleGuide), existingTitles, count, searchConsoleData);
-            const parsedIdeas = JSON.parse(newIdeasResult);
+            const newIdeas = await ideasApi.generate(count);
 
-            if (parsedIdeas.length > 0) {
-                const ideaSource: IdeaSource = searchConsoleData ? 'search-console' : 'ai';
-                const newIdeaObjects: ContentIdea[] = parsedIdeas.map((title: string) => ({ id: Date.now() + Math.random(), title, status: 'new', source: ideaSource }));
-                setIdeas(prev => [...newIdeaObjects, ...prev]);
-                const message = isAuto ? `Semi-auto: ${parsedIdeas.length} new ideas generated!` : `${parsedIdeas.length} new ideas generated!`;
+            if (newIdeas.length > 0) {
+                setIdeas(prev => [...newIdeas, ...prev]);
+                const message = isAuto ? `Semi-auto: ${newIdeas.length} new ideas generated!` : `${newIdeas.length} new ideas generated!`;
                 addToast({ message, type: isAuto ? 'info' : 'success' });
-                addLogEntry('ideas_generated', `Generated ${parsedIdeas.length} new content ideas.`, 'Lightbulb');
+                addLogEntry('ideas_generated', `Generated ${newIdeas.length} new content ideas.`, 'Lightbulb');
                 if (!isAuto) {
                     setView('ideas');
                 }
@@ -150,15 +183,12 @@ const App: React.FC = () => {
         }
         setIsLoading(prev => ({ ...prev, [`similar-${baseIdea.id}`]: true }));
         try {
-            const existingTitles = [...ideas.map(i => i.title), ...posts.map(p => p.title)];
-            const similarIdeasResult = await geminiService.generateSimilarIdeas(baseIdea.title, existingTitles);
-            const parsedIdeas = JSON.parse(similarIdeasResult);
+            const similarIdeas = await ideasApi.generateSimilar(baseIdea.title);
             
-            if (parsedIdeas.length > 0) {
-                const newIdeaObjects: ContentIdea[] = parsedIdeas.map((title: string) => ({ id: Date.now() + Math.random(), title, status: 'new', source: 'similar' }));
-                setIdeas(prev => [...newIdeaObjects, ...prev]);
-                addToast({ message: `Generated ${parsedIdeas.length} ideas similar to "${baseIdea.title}"`, type: 'success' });
-                addLogEntry('ideas_generated', `Generated ${parsedIdeas.length} similar ideas.`, 'Sparkles');
+            if (similarIdeas.length > 0) {
+                setIdeas(prev => [...similarIdeas, ...prev]);
+                addToast({ message: `Generated ${similarIdeas.length} ideas similar to "${baseIdea.title}"`, type: 'success' });
+                addLogEntry('ideas_generated', `Generated ${similarIdeas.length} similar ideas.`, 'Sparkles');
             } else {
                 addToast({ message: 'Could not generate similar ideas.', type: 'warning' });
             }
@@ -184,57 +214,18 @@ const App: React.FC = () => {
         }
         setIsLoading(prev => ({ ...prev, [`draft-${idea.id}`]: true }));
         try {
-            const publishedPostContext = posts
-                .filter(p => p.status === 'published' && p.url && p.content)
-                .map(p => ({
-                    title: p.title,
-                    url: p.url!,
-                    content: p.content,
-                }));
+            const newDraft = await draftsApi.create(idea.id);
             
-            const draftContentResult = await geminiService.createDraft(idea.title, JSON.stringify(styleGuide), publishedPostContext);
-            const draftData = JSON.parse(draftContentResult);
-            
-            let imageResult: string | null = null;
-            const { imageSourceProvider, aiImageStyle, pexelsApiKey, unsplashApiKey, pixabayApiKey } = settings;
-
-            if (imageSourceProvider === 'ai') {
-                imageResult = await geminiService.generateImage(idea.title, aiImageStyle);
-            } else {
-                const apiKeys = { pexels: pexelsApiKey, unsplash: unsplashApiKey, pixabay: pixabayApiKey };
-                const apiKey = apiKeys[imageSourceProvider];
-
-                if (!apiKey) {
-                    addToast({ message: `API key for ${imageSourceProvider} is not set. Please add it in Settings.`, type: 'warning' });
-                    setIsLoading(prev => ({ ...prev, [`draft-${idea.id}`]: false }));
-                    return null;
-                }
-                imageResult = await fetchStockPhotoAsBase64(idea.title, imageSourceProvider, apiKey);
-            }
-            
-            if (!imageResult) {
-                throw new Error("Failed to generate or fetch a featured image.");
-            }
-
-            const newPost: Draft = {
-                id: Date.now(),
-                title: idea.title,
-                content: draftData.content,
-                metaTitle: draftData.metaTitle,
-                metaDescription: draftData.metaDescription,
-                focusKeywords: draftData.focusKeywords,
-                featuredImage: `data:image/jpeg;base64,${imageResult}`,
-                createdAt: new Date().toISOString(),
-                status: 'draft',
-            };
-            setPosts(prev => [newPost, ...prev]);
+            // Update local state
+            setPosts(prev => [newDraft, ...prev]);
             setIdeas(prev => prev.filter(i => i.id !== idea.id));
             addToast({ message: `Draft "${idea.title}" created successfully!`, type: 'success' });
             addLogEntry('draft_created', `Created draft: "${idea.title}"`, 'FileText');
             if (settings.mode !== 'full-automatic') {
                 setView('drafts');
             }
-            return newPost;
+            return newDraft;
+
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
             addToast({ message: `Failed to create draft: ${errorMessage}`, type: 'error' });
@@ -284,23 +275,20 @@ const App: React.FC = () => {
           addToast({ message: "Auto-pilot: Starting content cycle...", type: "info" });
           setIsLoading(prev => ({ ...prev, auto: true }));
           try {
-            const existingTitles = [...posts.map(p => p.title), ...ideas.map(i => i.title)];
-             const searchConsoleData = settings.searchConsoleUser
-                ? {
-                    topQueries: ['AI for content marketing', 'how to write blog posts faster', 'wordpress automation tools'],
-                    underperformingPages: ['/blog/old-seo-tips', '/blog/2022-social-media-trends']
-                  }
-                : undefined;
+            // Generate 1 new idea using WordPress API
+            const newIdeas = await ideasApi.generate(1);
             
-            const ideasResult = await geminiService.generateIdeas(JSON.stringify(styleGuide), existingTitles, 1, searchConsoleData);
-            const parsedIdeas = JSON.parse(ideasResult);
-            const newTitle = parsedIdeas[0];
-            if (!newTitle) throw new Error("Failed to generate a unique idea.");
+            if (newIdeas.length === 0) {
+                throw new Error("Failed to generate a unique idea.");
+            }
+            
+            const newIdea = newIdeas[0];
+            addToast({ message: `Auto-pilot: Generated idea "${newIdea.title}"`, type: "info" });
+            
+            // Add idea to local state temporarily for createDraft to work
+            setIdeas(prev => [newIdea, ...prev]);
     
-            const ideaObject: ContentIdea = { id: Date.now(), title: newTitle, status: "new", source: 'ai' };
-            addToast({ message: `Auto-pilot: Generated idea "${newTitle}"`, type: "info" });
-    
-            const newDraft = await handleCreateDraft(ideaObject);
+            const newDraft = await handleCreateDraft(newIdea);
             if (newDraft && settings.autoPublish) {
               addToast({ message: `Auto-pilot: Publishing post...`, type: "info" });
               setTimeout(() => handlePublishPost(newDraft.id), 1500);
@@ -329,108 +317,141 @@ const App: React.FC = () => {
         };
       }, [settings, styleGuide, addToast, handleCreateDraft, ideas, posts]);
 
-    const handlePublishPost = (id: number) => {
-        setPublishingId(id);
-        let postTitle = '';
 
-        // Simulate network latency for publishing
-        setTimeout(() => {
+    const handlePublishPost = async (id: number) => {
+        setPublishingId(id);
+        try {
+            await draftsApi.publish(id);
+            
+            // Update local state
             setPosts(currentPosts =>
                 currentPosts.map(p => {
                     if (p.id === id) {
-                        postTitle = p.title;
-                        const slug = p.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-                        const url = `/blog/${slug}-${p.id}`; // Add ID for uniqueness
-                        return { ...p, status: 'published', publishedAt: new Date().toISOString(), url };
+                        return { ...p, status: 'published', publishedAt: new Date().toISOString() };
                     }
                     return p;
                 })
             );
 
-            if (postTitle) {
-                addToast({ message: `Post "${postTitle}" published!`, type: 'success' });
-                addLogEntry('post_published', `Published post: "${postTitle}"`, 'Send');
+            const post = posts.find(p => p.id === id);
+            if (post) {
+                addToast({ message: `Post "${post.title}" published!`, type: 'success' });
+                addLogEntry('post_published', `Published post: "${post.title}"`, 'Send');
             }
-            
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Failed to publish post';
+            addToast({ message: errorMessage, type: 'error' });
+        } finally {
             setPublishingId(null);
-        }, 1500); // 1.5 second delay to make the loading state visible
+        }
     };
 
-    const handleUpdateDraft = (id: number, updates: Partial<Draft>) => {
-        setPosts(currentPosts =>
-            currentPosts.map(p => (p.id === id ? { ...p, ...updates } : p))
-        );
-        setSelectedDraft(prev => prev ? { ...prev, ...updates } : null);
-        addToast({ message: `Draft "${updates.title || 'post'}" has been updated.`, type: 'success' });
-        addLogEntry('draft_updated', `Updated draft: "${updates.title}"`, 'Pencil');
+    const handleUpdateDraft = async (id: number, updates: Partial<Draft>) => {
+        try {
+            await draftsApi.update(id, updates);
+            
+            setPosts(currentPosts =>
+                currentPosts.map(p => (p.id === id ? { ...p, ...updates } : p))
+            );
+            setSelectedDraft(prev => prev ? { ...prev, ...updates } : null);
+            addToast({ message: `Draft "${updates.title || 'post'}" has been updated.`, type: 'success' });
+            addLogEntry('draft_updated', `Updated draft: "${updates.title}"`, 'Pencil');
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Failed to update draft';
+            addToast({ message: errorMessage, type: 'error' });
+        }
     };
     
-    const handleScheduleDraft = (id: number, date: string) => {
-        setPosts(currentPosts =>
-            currentPosts.map(p => {
-                if (p.id === id) {
-                    addToast({ message: `Draft "${p.title}" scheduled for ${new Date(date).toLocaleDateString()}.`, type: 'info' });
-                    addLogEntry('draft_scheduled', `Scheduled draft: "${p.title}"`, 'Calendar');
-                    return { ...p, scheduledFor: date };
-                }
-                return p;
-            })
-        );
-    };
-
-    const handleSaveSettings = (newSettings: AppSettings) => {
-        setSettings(newSettings);
-        addToast({ message: 'Settings saved successfully!', type: 'success' });
-        addLogEntry('settings_saved', 'Application settings were updated.', 'Settings');
-    };
-
-    const handleSaveStyleGuide = (newGuide: StyleGuide) => {
-        setStyleGuide(newGuide);
-        addToast({ message: 'Style Guide saved successfully!', type: 'success' });
-        addLogEntry('style_updated', 'Style Guide was manually edited and saved.', 'BookOpen');
-    };
-
-    const handleArchiveIdea = (id: number) => {
-        const idea = ideas.find(i => i.id === id);
-        if (idea) {
-            addLogEntry('idea_archived', `Archived idea: "${idea.title}"`, 'Trash');
+    const handleScheduleDraft = async (id: number, date: string) => {
+        try {
+            await draftsApi.schedule(id, date);
+            
+            setPosts(currentPosts =>
+                currentPosts.map(p => {
+                    if (p.id === id) {
+                        addToast({ message: `Draft "${p.title}" scheduled for ${new Date(date).toLocaleDateString()}.`, type: 'info' });
+                        addLogEntry('draft_scheduled', `Scheduled draft: "${p.title}"`, 'Calendar');
+                        return { ...p, scheduledFor: date };
+                    }
+                    return p;
+                })
+            );
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Failed to schedule draft';
+            addToast({ message: errorMessage, type: 'error' });
         }
-        setIdeas(prev => prev.filter(i => i.id !== id));
-        addToast({ message: 'Idea archived.', type: 'info' });
     };
 
-    const handleUpdateIdeaTitle = (id: number, newTitle: string) => {
-        setIdeas(currentIdeas =>
-            currentIdeas.map(idea =>
-                idea.id === id ? { ...idea, title: newTitle } : idea
-            )
-        );
-        addToast({ message: 'Idea title updated.', type: 'info' });
-        addLogEntry('idea_title_updated', `Updated idea title to "${newTitle}"`, 'Pencil');
+    const handleSaveSettings = async (newSettings: AppSettings) => {
+        try {
+            await settingsApi.save(newSettings);
+            setSettings(newSettings);
+            addToast({ message: 'Settings saved successfully!', type: 'success' });
+            addLogEntry('settings_saved', 'Application settings were updated.', 'Settings');
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Failed to save settings';
+            addToast({ message: errorMessage, type: 'error' });
+        }
     };
 
-    const handleAddIdea = (title: string) => {
+    const handleSaveStyleGuide = async (newGuide: StyleGuide) => {
+        try {
+            await styleGuideApi.save(newGuide);
+            setStyleGuide(newGuide);
+            addToast({ message: 'Style Guide saved successfully!', type: 'success' });
+            addLogEntry('style_updated', 'Style Guide was manually edited and saved.', 'BookOpen');
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Failed to save style guide';
+            addToast({ message: errorMessage, type: 'error' });
+        }
+    };
+
+    const handleArchiveIdea = async (id: number) => {
+        const idea = ideas.find(i => i.id === id);
+        try {
+            await ideasApi.delete(id);
+            setIdeas(prev => prev.filter(i => i.id !== id));
+            addToast({ message: 'Idea archived.', type: 'info' });
+            if (idea) {
+                addLogEntry('idea_archived', `Archived idea: "${idea.title}"`, 'Trash');
+            }
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Failed to archive idea';
+            addToast({ message: errorMessage, type: 'error' });
+        }
+    };
+
+    const handleUpdateIdeaTitle = async (id: number, newTitle: string) => {
+        try {
+            await ideasApi.update(id, newTitle);
+            setIdeas(currentIdeas =>
+                currentIdeas.map(idea =>
+                    idea.id === id ? { ...idea, title: newTitle } : idea
+                )
+            );
+            addToast({ message: 'Idea title updated.', type: 'info' });
+            addLogEntry('idea_title_updated', `Updated idea title to "${newTitle}"`, 'Pencil');
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Failed to update idea';
+            addToast({ message: errorMessage, type: 'error' });
+        }
+    };
+
+    const handleAddIdea = async (title: string) => {
         if (!title.trim()) {
             addToast({ message: 'Idea title cannot be empty.', type: 'warning' });
             return;
         }
 
-        const existingTitles = [...ideas.map(i => i.title), ...posts.map(p => p.title)];
-        if (existingTitles.some(t => t.toLowerCase() === title.trim().toLowerCase())) {
-            addToast({ message: 'This idea title already exists.', type: 'warning' });
-            return;
+        try {
+            const newIdea = await ideasApi.add(title.trim());
+            setIdeas(prev => [newIdea, ...prev]);
+            addToast({ message: 'Idea added successfully!', type: 'success' });
+            addLogEntry('idea_added', `Manually added idea: "${title.trim()}"`, 'PlusCircle');
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Failed to add idea';
+            addToast({ message: errorMessage, type: 'error' });
         }
-        
-        const newIdea: ContentIdea = {
-            id: Date.now(),
-            title: title.trim(),
-            status: 'new',
-            source: 'manual'
-        };
-        
-        setIdeas(prev => [newIdea, ...prev]);
-        addToast({ message: 'Idea added successfully!', type: 'success' });
-        addLogEntry('idea_added', `Manually added idea: "${title.trim()}"`, 'PlusCircle');
     };
 
 

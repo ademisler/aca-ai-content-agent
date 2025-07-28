@@ -1,105 +1,169 @@
+/**
+ * Stock photo service for fetching images from various providers
+ */
 
-import type { ImageSourceProvider } from '../types';
+export type StockPhotoProvider = 'pexels' | 'unsplash' | 'pixabay';
+
+interface PexelsResponse {
+    photos: Array<{
+        id: number;
+        src: {
+            original: string;
+            large2x: string;
+            large: string;
+            medium: string;
+        };
+    }>;
+}
+
+interface UnsplashResponse {
+    results: Array<{
+        id: string;
+        urls: {
+            raw: string;
+            full: string;
+            regular: string;
+            small: string;
+        };
+    }>;
+}
+
+interface PixabayResponse {
+    hits: Array<{
+        id: number;
+        webformatURL: string;
+        largeImageURL: string;
+        fullHDURL: string;
+    }>;
+}
 
 /**
- * Fetches an image from a URL and converts it to a base64 string.
- * @param url The URL of the image to fetch.
- * @returns A promise that resolves with the base64-encoded image data, without the data URL prefix.
+ * Converts an image URL to base64 string
  */
-const imageUrlToBase64 = (url: string): Promise<string> => {
-    return new Promise(async (resolve, reject) => {
-        try {
-            // NOTE: In a real-world scenario, fetching images directly from a third-party
-            // URL on the client-side may be blocked by CORS policies. A server-side
-            // proxy would be required to reliably bypass this. For this example,
-            // we assume direct fetching is possible.
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const blob = await response.blob();
+const urlToBase64 = async (url: string): Promise<string> => {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch image: ${response.statusText}`);
+        }
+        
+        const blob = await response.blob();
+        return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onloadend = () => {
-                // reader.result is "data:[<mediatype>];base64,<data>"
-                // We only want the <data> part.
-                const base64data = reader.result as string;
-                resolve(base64data.split(',')[1]);
+                const base64 = reader.result as string;
+                // Remove the data:image/jpeg;base64, prefix
+                const base64Data = base64.split(',')[1];
+                resolve(base64Data);
             };
             reader.onerror = reject;
             reader.readAsDataURL(blob);
-        } catch (error) {
-            reject(error);
-        }
-    });
-}
-
-const fetchFromPexels = async (query: string, apiKey: string): Promise<string | null> => {
-    const response = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=1&orientation=landscape`, {
-        headers: {
-            Authorization: apiKey
-        }
-    });
-    if (!response.ok) throw new Error(`Pexels API error: ${response.statusText}`);
-    const data = await response.json();
-    return data.photos?.[0]?.src?.large2x ?? null;
-};
-
-const fetchFromUnsplash = async (query: string, apiKey: string): Promise<string | null> => {
-    const response = await fetch(`https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=1&orientation=landscape`, {
-        headers: {
-            Authorization: `Client-ID ${apiKey}`
-        }
-    });
-    if (!response.ok) throw new Error(`Unsplash API error: ${response.statusText}`);
-    const data = await response.json();
-    return data.results?.[0]?.urls?.regular ?? null;
-};
-
-const fetchFromPixabay = async (query: string, apiKey: string): Promise<string | null> => {
-    const response = await fetch(`https://pixabay.com/api/?key=${apiKey}&q=${encodeURIComponent(query)}&image_type=photo&per_page=3&orientation=horizontal`);
-    if (!response.ok) throw new Error(`Pixabay API error: ${response.statusText}`);
-    const data = await response.json();
-    return data.hits?.[0]?.largeImageURL ?? null;
+        });
+    } catch (error) {
+        console.error('Error converting image to base64:', error);
+        throw new Error('Failed to process image');
+    }
 };
 
 /**
- * Fetches a stock photo from the specified provider, converts it to base64.
- * @param query The search term for the image, typically the article title.
- * @param provider The stock photo service to use.
- * @param apiKey The API key for the selected service.
- * @returns A promise that resolves to a base64 string of the image, or null if failed.
+ * Fetch image from Pexels
+ */
+const fetchFromPexels = async (query: string, apiKey: string): Promise<string> => {
+    const url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=1&orientation=landscape`;
+    
+    const response = await fetch(url, {
+        headers: {
+            'Authorization': apiKey
+        }
+    });
+
+    if (!response.ok) {
+        throw new Error(`Pexels API error: ${response.statusText}`);
+    }
+
+    const data: PexelsResponse = await response.json();
+    
+    if (!data.photos || data.photos.length === 0) {
+        throw new Error('No images found on Pexels for this query');
+    }
+
+    const imageUrl = data.photos[0].src.large;
+    return urlToBase64(imageUrl);
+};
+
+/**
+ * Fetch image from Unsplash
+ */
+const fetchFromUnsplash = async (query: string, apiKey: string): Promise<string> => {
+    const url = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=1&orientation=landscape`;
+    
+    const response = await fetch(url, {
+        headers: {
+            'Authorization': `Client-ID ${apiKey}`
+        }
+    });
+
+    if (!response.ok) {
+        throw new Error(`Unsplash API error: ${response.statusText}`);
+    }
+
+    const data: UnsplashResponse = await response.json();
+    
+    if (!data.results || data.results.length === 0) {
+        throw new Error('No images found on Unsplash for this query');
+    }
+
+    const imageUrl = data.results[0].urls.regular;
+    return urlToBase64(imageUrl);
+};
+
+/**
+ * Fetch image from Pixabay
+ */
+const fetchFromPixabay = async (query: string, apiKey: string): Promise<string> => {
+    const url = `https://pixabay.com/api/?key=${apiKey}&q=${encodeURIComponent(query)}&image_type=photo&orientation=horizontal&per_page=3&safesearch=true`;
+    
+    const response = await fetch(url);
+
+    if (!response.ok) {
+        throw new Error(`Pixabay API error: ${response.statusText}`);
+    }
+
+    const data: PixabayResponse = await response.json();
+    
+    if (!data.hits || data.hits.length === 0) {
+        throw new Error('No images found on Pixabay for this query');
+    }
+
+    const imageUrl = data.hits[0].webformatURL;
+    return urlToBase64(imageUrl);
+};
+
+/**
+ * Main function to fetch stock photo as base64 string
  */
 export const fetchStockPhotoAsBase64 = async (
-    query: string,
-    provider: ImageSourceProvider,
+    query: string, 
+    provider: StockPhotoProvider, 
     apiKey: string
-): Promise<string | null> => {
-    let imageUrl: string | null = null;
+): Promise<string> => {
+    if (!apiKey || !apiKey.trim()) {
+        throw new Error(`API key is required for ${provider}`);
+    }
+
     try {
         switch (provider) {
             case 'pexels':
-                imageUrl = await fetchFromPexels(query, apiKey);
-                break;
+                return await fetchFromPexels(query, apiKey);
             case 'unsplash':
-                imageUrl = await fetchFromUnsplash(query, apiKey);
-                break;
+                return await fetchFromUnsplash(query, apiKey);
             case 'pixabay':
-                imageUrl = await fetchFromPixabay(query, apiKey);
-                break;
+                return await fetchFromPixabay(query, apiKey);
             default:
-                return null; // Should not happen if called correctly
+                throw new Error(`Unsupported provider: ${provider}`);
         }
-
-        if (imageUrl) {
-            const base64Data = await imageUrlToBase64(imageUrl);
-            return base64Data;
-        }
-        
-        console.warn(`No image found on ${provider} for query: "${query}"`);
-        return null;
-
     } catch (error) {
-        console.error(`Error fetching image from ${provider}:`, error);
-        throw error; // Re-throw to be caught by the caller
+        console.error(`Stock photo fetch failed for ${provider}:`, error);
+        throw error;
     }
 };

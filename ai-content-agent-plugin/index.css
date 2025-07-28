@@ -127,6 +127,50 @@
   fill: #0073aa;
 }
 
+/* Dashboard action button icons - fix alignment and colors */
+.aca-action-button .aca-action-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 12px auto;
+  background: #f0f6ff;
+  border-radius: 8px;
+}
+
+.aca-action-button .aca-action-icon svg {
+  fill: #0073aa !important;
+  width: 24px;
+  height: 24px;
+}
+
+.aca-action-button:hover .aca-action-icon {
+  background: #e3f2fd;
+}
+
+.aca-action-button:hover .aca-action-icon svg {
+  fill: #005a87 !important;
+}
+
+/* Pipeline item icons - fix alignment and colors */
+.aca-stat-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: #f0f6ff;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.aca-stat-icon svg {
+  fill: #0073aa !important;
+  width: 20px;
+  height: 20px;
+}
+
 /* Main content area */
 .aca-main {
   flex: 1;

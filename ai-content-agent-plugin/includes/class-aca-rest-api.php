@@ -818,13 +818,19 @@ class ACA_Rest_Api {
                 }
             }
             
-            // Remove the idea from ideas table
-            $wpdb->delete(
+            // Update idea status instead of deleting (safer approach)
+            $wpdb->update(
                 $wpdb->prefix . 'aca_ideas',
+                array('status' => 'archived'),
                 array('id' => $idea_id)
             );
             
-            $this->add_activity_log('draft_created', "Created draft: \"{$idea->title}\"", 'FileText');
+            // Add activity log with error handling
+            try {
+                $this->add_activity_log('draft_created', "Created draft: \"{$idea->title}\"", 'FileText');
+            } catch (Exception $log_error) {
+                error_log('ACA Activity Log Error: ' . $log_error->getMessage());
+            }
             
             // Return the created post
             $created_post = get_post($post_id);
@@ -852,7 +858,17 @@ class ACA_Rest_Api {
         } catch (Exception $e) {
             error_log('ACA Draft Creation Error: ' . $e->getMessage());
             error_log('ACA Draft Creation Stack Trace: ' . $e->getTraceAsString());
-            return new WP_Error('creation_failed', 'Draft creation failed: ' . $e->getMessage(), array('status' => 500));
+            error_log('ACA Draft Creation Context - Idea ID: ' . $idea_id . ', Settings: ' . print_r($settings, true));
+            
+            // Return a more user-friendly error message
+            $user_message = 'Draft creation failed. Please check your API key and try again.';
+            if (strpos($e->getMessage(), 'API') !== false) {
+                $user_message = 'AI service is temporarily unavailable. Please try again in a moment.';
+            } elseif (strpos($e->getMessage(), 'WordPress post') !== false) {
+                $user_message = 'Failed to save draft to WordPress. Please check your permissions.';
+            }
+            
+            return new WP_Error('creation_failed', $user_message, array('status' => 500));
         }
     }
     
@@ -1306,14 +1322,16 @@ class ACA_Rest_Api {
             )
         ));
         
-        $response = wp_remote_post($url, array(
-            'headers' => array(
-                'Content-Type' => 'application/json',
-                'x-goog-api-key' => $api_key
-            ),
-            'body' => $body,
-            'timeout' => 60
-        ));
+                        $response = wp_remote_post($url, array(
+                    'headers' => array(
+                        'Content-Type' => 'application/json',
+                        'x-goog-api-key' => $api_key
+                    ),
+                    'body' => $body,
+                    'timeout' => 90, // Increased timeout for content generation
+                    'blocking' => true,
+                    'sslverify' => true
+                ));
         
         if (is_wp_error($response)) {
             throw new Exception('Gemini API request failed: ' . $response->get_error_message());

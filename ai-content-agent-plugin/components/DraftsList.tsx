@@ -66,11 +66,16 @@ const DraftCard: React.FC<{
             </div>
 
             {/* Actions */}
-            <div className="aca-list-item" style={{ padding: '15px 0 0 0', margin: 0, justifyContent: 'flex-end' }}>
+            <div className="aca-list-item" style={{ padding: '15px 0 0 0', margin: 0, justifyContent: 'flex-end', gap: '12px' }}>
                 <button
-                    onClick={() => onSelectDraft(draft)}
+                    onClick={() => {
+                        // Open WordPress edit page in new tab
+                        const editUrl = `${(window as any).aca_object?.admin_url}post.php?post=${draft.id}&action=edit`;
+                        window.open(editUrl, '_blank');
+                    }}
                     disabled={isPublishing}
                     className="aca-button secondary"
+                    style={{ minWidth: '110px' }}
                 >
                     <Eye className="aca-nav-item-icon" />
                     View Draft

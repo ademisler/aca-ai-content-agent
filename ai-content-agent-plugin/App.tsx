@@ -223,6 +223,9 @@ const App: React.FC = () => {
                 type: 'success' 
             });
             addLogEntry('draft_created', `Created draft: "${draft.title}" with full WordPress integration`, 'FileText');
+            
+            // Navigate to drafts page after successful creation
+            setView('drafts');
         } catch (error) {
             console.error('Error creating draft:', error);
             const errorMessage = error instanceof Error ? error.message : 'Failed to create draft';

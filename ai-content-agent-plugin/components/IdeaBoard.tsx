@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import type { ContentIdea, IdeaSource } from '../types';
-import { Spinner, Lightbulb, Trash, Sparkles, PlusCircle } from './Icons';
+import { Spinner, Lightbulb, Trash, Sparkles, PlusCircle, Edit } from './Icons';
 
 interface IdeaBoardProps {
     ideas: ContentIdea[];
@@ -70,27 +70,16 @@ const IdeaCard: React.FC<{
     const sourceStyle = sourceStyles[idea.source];
 
     return (
-        <div style={{ 
-            background: '#ffffff', 
-            padding: '20px', 
-            borderRadius: '4px', 
-            border: '1px solid #ccd0d4', 
+        <div className="aca-card" style={{ 
+            margin: 0,
+            padding: '20px',
             display: 'flex', 
             flexDirection: 'column', 
-            justifyContent: 'space-between', 
-            alignItems: 'flex-start', 
-            gap: '15px', 
-            transition: 'box-shadow 0.2s ease',
-            boxShadow: '0 1px 1px rgba(0, 0, 0, 0.04)'
-        }}
-        onMouseEnter={(e) => {
-            e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
-        }}
-        onMouseLeave={(e) => {
-            e.currentTarget.style.boxShadow = '0 1px 1px rgba(0, 0, 0, 0.04)';
-        }}
-        >
-            <div style={{ flexGrow: 1, width: '100%' }}>
+            gap: '15px',
+            transition: 'all 0.2s ease'
+        }}>
+            {/* Idea Title */}
+            <div style={{ flexGrow: 1 }}>
                 {isEditing ? (
                     <input
                         ref={inputRef}
@@ -100,129 +89,136 @@ const IdeaCard: React.FC<{
                         onBlur={handleSave}
                         onKeyDown={handleKeyDown}
                         className="aca-input"
-                        style={{ width: '100%' }}
+                        style={{ 
+                            width: '100%',
+                            fontSize: '16px',
+                            fontWeight: '500'
+                        }}
                     />
                 ) : (
-                    <p 
+                    <div 
                         onClick={() => setIsEditing(true)} 
                         style={{ 
                             color: '#23282d', 
+                            fontSize: '16px',
                             fontWeight: '500', 
-                            flexGrow: 1, 
                             cursor: 'pointer', 
-                            padding: '8px', 
+                            padding: '8px 12px', 
                             borderRadius: '4px', 
-                            margin: 0,
-                            transition: 'background 0.2s ease'
+                            margin: '-8px -12px',
+                            transition: 'background 0.2s ease',
+                            border: '1px solid transparent',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px'
                         }}
-                        title="Click to edit"
+                        title="Click to edit title"
                         onMouseEnter={(e) => {
                             e.currentTarget.style.background = '#f6f7f7';
+                            e.currentTarget.style.borderColor = '#ccd0d4';
                         }}
                         onMouseLeave={(e) => {
                             e.currentTarget.style.background = 'transparent';
+                            e.currentTarget.style.borderColor = 'transparent';
                         }}
                     >
-                        {idea.title}
-                    </p>
+                        <span style={{ flexGrow: 1 }}>{idea.title}</span>
+                        <Edit style={{ width: '14px', height: '14px', opacity: 0.5 }} />
+                    </div>
                 )}
             </div>
-            <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+
+            {/* Meta Info and Actions */}
+            <div style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center',
+                paddingTop: '15px',
+                borderTop: '1px solid #f0f0f1',
+                gap: '15px',
+                flexWrap: 'wrap'
+            }}>
+                {/* Source Tag */}
                 <div style={{ 
                     fontSize: '11px', 
                     fontWeight: '600', 
-                    padding: '4px 8px', 
-                    borderRadius: '20px', 
+                    padding: '6px 12px', 
+                    borderRadius: '4px', 
                     border: '1px solid',
                     background: sourceStyle.background,
                     color: sourceStyle.color,
-                    borderColor: sourceStyle.borderColor
+                    borderColor: sourceStyle.borderColor,
+                    flexShrink: 0
                 }}>
                     {sourceNames[idea.source]}
                 </div>
+
+                {/* Action Buttons */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
                     <button
                         onClick={() => onGenerateSimilar(idea)}
                         disabled={isGeneratingSimilar || isLoading}
+                        className="aca-button secondary"
                         style={{
-                            background: isGeneratingSimilar ? '#f6f7f7' : '#f3e5f5',
-                            color: isGeneratingSimilar ? '#a7aaad' : '#4a148c',
-                            padding: '6px 12px',
-                            borderRadius: '4px',
                             fontSize: '12px',
-                            fontWeight: '600',
-                            border: '1px solid',
-                            borderColor: isGeneratingSimilar ? '#ccd0d4' : '#9c27b0',
-                            cursor: isGeneratingSimilar ? 'not-allowed' : 'pointer',
-                            transition: 'all 0.2s ease',
+                            padding: '6px 12px',
                             display: 'flex',
-                            alignItems: 'center'
+                            alignItems: 'center',
+                            gap: '6px',
+                            opacity: isGeneratingSimilar ? 0.6 : 1
                         }}
                         title="Generate similar ideas"
-                        onMouseEnter={(e) => {
-                            if (!isGeneratingSimilar && !isLoading) {
-                                e.currentTarget.style.background = '#e1bee7';
-                            }
-                        }}
-                        onMouseLeave={(e) => {
-                            if (!isGeneratingSimilar && !isLoading) {
-                                e.currentTarget.style.background = '#f3e5f5';
-                            }
-                        }}
                     >
-                        {isGeneratingSimilar ? <Spinner style={{ width: '14px', height: '14px' }} /> : <Sparkles style={{ width: '14px', height: '14px' }} />}
+                        {isGeneratingSimilar ? (
+                            <Spinner style={{ width: '14px', height: '14px' }} />
+                        ) : (
+                            <Sparkles style={{ width: '14px', height: '14px' }} />
+                        )}
+                        Similar
                     </button>
+                    
                     <button
                         onClick={() => onCreateDraft(idea)}
                         disabled={isLoading || isGeneratingSimilar}
                         className="aca-button"
                         style={{ 
                             fontSize: '12px',
-                            padding: '6px 12px',
+                            padding: '6px 16px',
                             display: 'flex',
                             alignItems: 'center',
+                            gap: '6px',
                             background: '#00a32a',
                             borderColor: '#00a32a'
                         }}
+                    >
+                        {isLoading ? (
+                            <Spinner style={{ width: '14px', height: '14px' }} />
+                        ) : (
+                            'Create Draft'
+                        )}
+                    </button>
+                    
+                    <button 
+                        onClick={() => onArchive(idea.id)} 
+                        className="aca-button secondary"
+                        style={{
+                            fontSize: '12px',
+                            padding: '6px',
+                            minWidth: 'auto',
+                            color: '#646970'
+                        }}
+                        title="Archive idea"
                         onMouseEnter={(e) => {
-                            if (!isLoading && !isGeneratingSimilar) {
-                                e.currentTarget.style.background = '#008a20';
-                                e.currentTarget.style.borderColor = '#008a20';
-                            }
+                            e.currentTarget.style.color = '#d63638';
+                            e.currentTarget.style.borderColor = '#d63638';
                         }}
                         onMouseLeave={(e) => {
-                            if (!isLoading && !isGeneratingSimilar) {
-                                e.currentTarget.style.background = '#00a32a';
-                                e.currentTarget.style.borderColor = '#00a32a';
-                            }
+                            e.currentTarget.style.color = '#646970';
+                            e.currentTarget.style.borderColor = '#ccd0d4';
                         }}
                     >
-                        {isLoading ? <Spinner style={{ width: '14px', height: '14px' }} /> : "Create Draft"}
+                        <Trash style={{ width: '14px', height: '14px' }} />
                     </button>
-                    <div style={{ position: 'relative', display: 'inline-block' }}>
-                        <button 
-                            onClick={() => onArchive(idea.id)} 
-                            style={{
-                                color: '#646970',
-                                padding: '6px',
-                                borderRadius: '4px',
-                                border: 'none',
-                                background: 'transparent',
-                                cursor: 'pointer',
-                                transition: 'all 0.2s ease'
-                            }}
-                            onMouseEnter={(e) => {
-                                e.currentTarget.style.background = '#fcf0f1';
-                                e.currentTarget.style.color = '#d63638';
-                            }}
-                            onMouseLeave={(e) => {
-                                e.currentTarget.style.background = 'transparent';
-                                e.currentTarget.style.color = '#646970';
-                            }}
-                        >
-                            <Trash style={{ width: '14px', height: '14px' }} />
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>
@@ -240,39 +236,58 @@ export const IdeaBoard: React.FC<IdeaBoardProps> = ({ ideas, onGenerate, onCreat
         }
     };
 
+    const activeIdeas = ideas.filter(idea => idea.status === 'active');
+    const archivedIdeas = ideas.filter(idea => idea.status === 'archived');
+
     return (
         <div className="aca-fade-in">
-            <div className="aca-page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '20px' }}>
-                <div>
-                    <h1 className="aca-page-title">Idea Board</h1>
-                    <p className="aca-page-description">Generate new topics, edit their titles, and turn your favorites into drafts.</p>
+            <div className="aca-page-header">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '20px' }}>
+                    <div>
+                        <h1 className="aca-page-title">Idea Board</h1>
+                        <p className="aca-page-description">
+                            Generate fresh content ideas and turn your favorites into drafts. Click any title to edit it.
+                        </p>
+                    </div>
+                    <button
+                        onClick={onGenerate}
+                        disabled={isLoading}
+                        className="aca-button large"
+                        style={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            flexShrink: 0,
+                            minWidth: '180px',
+                            justifyContent: 'center'
+                        }}
+                    >
+                        {isLoading && <Spinner style={{ marginRight: '8px', width: '16px', height: '16px' }} />}
+                        <Lightbulb style={{ width: '16px', height: '16px', marginRight: '8px' }} />
+                        {isLoading ? 'Generating...' : 'Generate Ideas'}
+                    </button>
                 </div>
-                <button
-                    onClick={onGenerate}
-                    disabled={isLoading}
-                    className="aca-button large"
-                    style={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        flexShrink: 0,
-                        minWidth: '180px'
-                    }}
-                >
-                    {isLoading && <Spinner style={{ marginRight: '8px', width: '16px', height: '16px' }} />}
-                    {isLoading ? 'Generating...' : 'Generate New Ideas'}
-                </button>
             </div>
 
+            {/* Add New Idea */}
             <div className="aca-card">
-                <form onSubmit={handleAddIdeaSubmit} style={{ display: 'flex', gap: '10px', marginBottom: '25px', paddingBottom: '25px', borderBottom: '1px solid #f0f0f1' }}>
-                    <input
-                        type="text"
-                        value={newIdeaTitle}
-                        onChange={(e) => setNewIdeaTitle(e.target.value)}
-                        placeholder="Or add your own idea manually..."
-                        className="aca-input"
-                        style={{ flexGrow: 1 }}
-                    />
+                <div className="aca-card-header">
+                    <h2 className="aca-card-title">
+                        <PlusCircle style={{ width: '20px', height: '20px', marginRight: '8px', fill: '#0073aa' }} />
+                        Add Your Own Idea
+                    </h2>
+                </div>
+                <form onSubmit={handleAddIdeaSubmit} style={{ display: 'flex', gap: '12px', alignItems: 'flex-end' }}>
+                    <div className="aca-form-group" style={{ flexGrow: 1, marginBottom: 0 }}>
+                        <label className="aca-label" htmlFor="new-idea-input">Idea Title</label>
+                        <input
+                            id="new-idea-input"
+                            type="text"
+                            value={newIdeaTitle}
+                            onChange={(e) => setNewIdeaTitle(e.target.value)}
+                            placeholder="Enter your content idea..."
+                            className="aca-input"
+                        />
+                    </div>
                     <button
                         type="submit"
                         disabled={!newIdeaTitle.trim()}
@@ -280,30 +295,29 @@ export const IdeaBoard: React.FC<IdeaBoardProps> = ({ ideas, onGenerate, onCreat
                         style={{ 
                             display: 'flex', 
                             alignItems: 'center',
+                            gap: '8px',
                             background: '#00a32a',
                             borderColor: '#00a32a',
-                            flexShrink: 0
-                        }}
-                        onMouseEnter={(e) => {
-                            if (newIdeaTitle.trim()) {
-                                e.currentTarget.style.background = '#008a20';
-                                e.currentTarget.style.borderColor = '#008a20';
-                            }
-                        }}
-                        onMouseLeave={(e) => {
-                            if (newIdeaTitle.trim()) {
-                                e.currentTarget.style.background = '#00a32a';
-                                e.currentTarget.style.borderColor = '#00a32a';
-                            }
+                            flexShrink: 0,
+                            padding: '8px 16px'
                         }}
                     >
-                        <PlusCircle style={{ width: '16px', height: '16px', marginRight: '8px' }} /> Add Idea
+                        <PlusCircle style={{ width: '16px', height: '16px' }} />
+                        Add Idea
                     </button>
                 </form>
+            </div>
 
-                {ideas.length > 0 ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                        {ideas.map(idea => (
+            {/* Active Ideas */}
+            {activeIdeas.length > 0 ? (
+                <div className="aca-card">
+                    <div className="aca-card-header">
+                        <h2 className="aca-card-title">
+                            Active Ideas ({activeIdeas.length})
+                        </h2>
+                    </div>
+                    <div className="aca-grid aca-grid-2" style={{ gap: '20px' }}>
+                        {activeIdeas.map(idea => (
                             <IdeaCard
                                 key={idea.id}
                                 idea={idea}
@@ -316,20 +330,85 @@ export const IdeaBoard: React.FC<IdeaBoardProps> = ({ ideas, onGenerate, onCreat
                             />
                         ))}
                     </div>
-                ) : (
+                </div>
+            ) : (
+                <div className="aca-card">
                     <div style={{ 
                         textAlign: 'center', 
                         padding: '60px 20px', 
-                        color: '#646970', 
-                        border: '2px dashed #ccd0d4', 
-                        borderRadius: '4px' 
+                        color: '#646970'
                     }}>
-                        <Lightbulb style={{ margin: '0 auto 15px auto', width: '48px', height: '48px', fill: '#a7aaad' }} />
-                        <p style={{ margin: '0 0 5px 0', fontSize: '16px', fontWeight: '500', color: '#23282d' }}>Your Idea Board is Empty</p>
-                        <p style={{ margin: 0, fontSize: '13px' }}>Click "Generate New Ideas" or add one manually to get started!</p>
+                        <Lightbulb style={{ margin: '0 auto 20px auto', width: '48px', height: '48px', fill: '#a7aaad' }} />
+                        <h3 style={{ margin: '0 0 10px 0', fontSize: '18px', fontWeight: '500', color: '#23282d' }}>
+                            No Active Ideas Yet
+                        </h3>
+                        <p style={{ margin: '0 0 20px 0', fontSize: '14px', maxWidth: '400px', marginLeft: 'auto', marginRight: 'auto' }}>
+                            Get started by generating AI-powered content ideas or adding your own manually.
+                        </p>
+                        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                            <button
+                                onClick={onGenerate}
+                                disabled={isLoading}
+                                className="aca-button large"
+                                style={{ 
+                                    display: 'flex', 
+                                    alignItems: 'center',
+                                    gap: '8px'
+                                }}
+                            >
+                                {isLoading ? (
+                                    <Spinner style={{ width: '16px', height: '16px' }} />
+                                ) : (
+                                    <Lightbulb style={{ width: '16px', height: '16px' }} />
+                                )}
+                                {isLoading ? 'Generating...' : 'Generate Ideas'}
+                            </button>
+                        </div>
                     </div>
-                )}
-            </div>
+                </div>
+            )}
+
+            {/* Archived Ideas */}
+            {archivedIdeas.length > 0 && (
+                <div className="aca-card">
+                    <div className="aca-card-header">
+                        <h2 className="aca-card-title">
+                            Archived Ideas ({archivedIdeas.length})
+                        </h2>
+                    </div>
+                    <div style={{ 
+                        padding: '15px',
+                        background: '#f6f7f7',
+                        borderRadius: '4px',
+                        border: '1px solid #ccd0d4'
+                    }}>
+                        {archivedIdeas.map(idea => (
+                            <div key={idea.id} style={{ 
+                                display: 'flex', 
+                                justifyContent: 'space-between', 
+                                alignItems: 'center',
+                                padding: '8px 0',
+                                borderBottom: '1px solid #e0e0e0',
+                                fontSize: '13px',
+                                color: '#646970'
+                            }}>
+                                <span>{idea.title}</span>
+                                <div style={{ 
+                                    fontSize: '11px', 
+                                    fontWeight: '600', 
+                                    padding: '4px 8px', 
+                                    borderRadius: '4px', 
+                                    background: sourceStyles[idea.source].background,
+                                    color: sourceStyles[idea.source].color,
+                                    border: `1px solid ${sourceStyles[idea.source].borderColor}`
+                                }}>
+                                    {sourceNames[idea.source]}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

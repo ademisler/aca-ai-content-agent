@@ -1164,8 +1164,14 @@ class ACA_Rest_Api {
         $post_id = $request['id'];
         $params = $request->get_json_params();
         
+        // Debug logging
+        error_log('ACA Schedule Draft: Post ID = ' . $post_id);
+        error_log('ACA Schedule Draft: Params = ' . json_encode($params));
+        
         // Handle both 'date' and 'scheduledDate' parameters for compatibility
         $scheduled_date = isset($params['scheduledDate']) ? $params['scheduledDate'] : (isset($params['date']) ? $params['date'] : null);
+        
+        error_log('ACA Schedule Draft: Scheduled Date = ' . $scheduled_date);
         
         if (empty($scheduled_date)) {
             return new WP_Error('missing_date', 'Scheduled date is required', array('status' => 400));
@@ -1177,15 +1183,36 @@ class ACA_Rest_Api {
             return new WP_Error('invalid_date', 'Invalid date format', array('status' => 400));
         }
         
+        // If the date doesn't include a time (just date from calendar), set it to a future time
+        $date_only = $parsed_date->format('Y-m-d');
+        $time_part = $parsed_date->format('H:i:s');
+        
+        // If time is 00:00:00 (midnight), it means we got just a date from calendar drag-drop
+        if ($time_part === '00:00:00') {
+            // Set to 9:00 AM of that date to ensure it's in the future for scheduling
+            $parsed_date->setTime(9, 0, 0);
+            error_log('ACA Schedule Draft: Set time to 9:00 AM for calendar date');
+        }
+        
         // Format date for WordPress
         $wordpress_date = $parsed_date->format('Y-m-d H:i:s');
+        
+        error_log('ACA Schedule Draft: WordPress Date = ' . $wordpress_date);
+        error_log('ACA Schedule Draft: Current Time = ' . current_time('mysql'));
         
         // Update post meta for our plugin
         update_post_meta($post_id, '_aca_scheduled_for', $scheduled_date);
         
-        // Update WordPress post to actually schedule it
+        // Always schedule for future if it's a calendar date, don't publish immediately
         $current_time = current_time('mysql');
-        if ($wordpress_date > $current_time) {
+        $today = date('Y-m-d');
+        $target_date = $parsed_date->format('Y-m-d');
+        
+        error_log('ACA Schedule Draft: Today = ' . $today . ', Target Date = ' . $target_date);
+        
+        // If target date is today or future, schedule it; if past date, just update the date
+        if ($target_date >= $today) {
+            error_log('ACA Schedule Draft: Setting post status to FUTURE');
             // Schedule for future - set post status to 'future' and update post_date
             $update_result = wp_update_post(array(
                 'ID' => $post_id,
@@ -1194,7 +1221,8 @@ class ACA_Rest_Api {
                 'post_date_gmt' => get_gmt_from_date($wordpress_date)
             ));
         } else {
-            // Date is in the past or now - just update our meta field
+            error_log('ACA Schedule Draft: Past date - keeping as draft');
+            // Date is in the past - just update the date but keep as draft
             $update_result = wp_update_post(array(
                 'ID' => $post_id,
                 'post_date' => $wordpress_date,

@@ -5,6 +5,28 @@ All notable changes to the AI Content Agent WordPress plugin will be documented 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.4] - 2025-01-28 - Critical Scheduling Fix
+
+### 🎯 Fixed
+- **CRITICAL**: Fixed drag-and-drop scheduling that was publishing posts immediately instead of scheduling
+- **Date Detection**: Fixed issue where calendar dates at midnight (00:00:00) were treated as past dates
+- **Time Setting**: Calendar scheduling now sets posts to 9:00 AM of the target date to ensure proper scheduling
+- **Status Logic**: Improved logic to always use 'future' status for today and future dates
+
+### 🔧 Enhanced
+- **Debug Logging**: Added comprehensive debug logging for troubleshooting scheduling issues
+- **Date Handling**: Better handling of date-only inputs from calendar drag-and-drop
+- **WordPress Integration**: More robust WordPress post status management
+
+### 📝 Technical Details
+- Fixed date comparison logic in `schedule_draft()` function
+- Added automatic time setting (9:00 AM) for calendar dates without specific times
+- Enhanced date validation and processing for calendar drag-and-drop operations
+- Added debug logging to track scheduling process step-by-step
+
+### 🚨 Breaking Change Fix
+This version fixes a critical issue where dragging drafts to calendar dates would publish them immediately instead of scheduling them for the target date.
+
 ## [1.3.3] - 2025-01-28 - Content Calendar Fix
 
 ### 🎯 Fixed

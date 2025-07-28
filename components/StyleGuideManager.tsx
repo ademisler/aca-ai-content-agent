@@ -26,14 +26,12 @@ const getClosestSliderValue = (description: string) => {
     return entry ? parseInt(entry[0], 10) : 50;
 };
 
-
 export const StyleGuideManager: React.FC<StyleGuideManagerProps> = ({ styleGuide, onAnalyze, onSaveStyleGuide, isLoading }) => {
     const [editableGuide, setEditableGuide] = useState<StyleGuide | null>(styleGuide);
     const [isDirty, setIsDirty] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [selectedTones, setSelectedTones] = useState<Set<string>>(new Set());
     const [sentenceSliderValue, setSentenceSliderValue] = useState(50);
-
 
     useEffect(() => {
         setEditableGuide(styleGuide);
@@ -94,93 +92,169 @@ export const StyleGuideManager: React.FC<StyleGuideManagerProps> = ({ styleGuide
     };
     
     return (
-        <div className="space-y-8 max-w-4xl mx-auto">
-            <header>
-                <h2 className="text-3xl font-bold text-white border-b border-slate-700 pb-3 mb-6">Brand Style Guide</h2>
-                <p className="text-slate-400 -mt-2">Define your brand's unique voice. The AI automatically scans your site and keeps this guide updated.</p>
-            </header>
+        <div className="aca-fade-in">
+            <div className="aca-page-header">
+                <h1 className="aca-page-title">Style Guide</h1>
+                <p className="aca-page-description">Define your brand's unique voice. The AI automatically scans your site and keeps this guide updated.</p>
+            </div>
             
-            <div className="bg-slate-800 rounded-lg border border-slate-700/80">
-                <div className="p-6">
-                    <h3 className="text-xl font-semibold mb-1 text-white">Analysis Status</h3>
-                    <p className="text-slate-400 mb-4 text-sm">The agent periodically scans your site content to learn your style. You can also trigger a manual scan.</p>
-                    <div className="bg-slate-900/50 p-4 rounded-lg flex flex-col sm:flex-row items-center justify-between gap-4">
-                        <div className="text-center sm:text-left">
-                            <p className="text-sm text-slate-400">Last Scanned</p>
-                            <p className="font-semibold text-white">
-                                {styleGuide?.lastAnalyzed ? new Date(styleGuide.lastAnalyzed).toLocaleString() : 'Never'}
-                            </p>
-                        </div>
-                        <button
-                            onClick={onAnalyze}
-                            disabled={isLoading}
-                            className="w-full sm:w-auto bg-blue-600 text-white font-bold py-2.5 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center disabled:bg-slate-600 disabled:cursor-not-allowed"
-                        >
-                            {isLoading ? <><Spinner className="mr-2 h-5 w-5" /> Scanning...</> : 'Scan Site Content Now'}
-                        </button>
+            <div className="aca-card">
+                <div className="aca-card-header">
+                    <h2 className="aca-card-title">Analysis Status</h2>
+                </div>
+                <p style={{ color: '#646970', marginBottom: '20px', fontSize: '13px' }}>The agent periodically scans your site content to learn your style. You can also trigger a manual scan.</p>
+                <div style={{ background: '#f6f7f7', padding: '20px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '20px', flexWrap: 'wrap' }}>
+                    <div>
+                        <p style={{ fontSize: '13px', color: '#646970', margin: '0 0 5px 0' }}>Last Scanned</p>
+                        <p style={{ fontWeight: '600', color: '#23282d', margin: 0 }}>
+                            {styleGuide?.lastAnalyzed ? new Date(styleGuide.lastAnalyzed).toLocaleString() : 'Never'}
+                        </p>
                     </div>
+                    <button
+                        onClick={onAnalyze}
+                        disabled={isLoading}
+                        className="aca-button large"
+                        style={{ display: 'flex', alignItems: 'center', minWidth: '160px' }}
+                    >
+                        {isLoading && <Spinner style={{ marginRight: '8px', width: '16px', height: '16px' }} />}
+                        {isLoading ? 'Scanning...' : 'Scan Site Content Now'}
+                    </button>
                 </div>
             </div>
 
-            <div className="bg-slate-800 rounded-lg border border-slate-700/80">
-                <div className="p-6">
-                    <h3 className="text-xl font-semibold mb-1 text-white">Review & Refine Your Guide</h3>
-                    <p className="text-slate-400 mb-6 text-sm">The AI-generated guide is shown below. You can edit the fields at any time to fine-tune the AI's output.</p>
-                    {editableGuide ? (
-                        <div className="space-y-6">
-                            <div>
-                                <label className="block text-sm font-medium text-slate-300 mb-2">Tone</label>
-                                <div className="flex flex-wrap gap-2">
-                                    {PREDEFINED_TONES.map(tone => (
-                                        <button key={tone} onClick={() => handleToneToggle(tone)} className={`px-3 py-1.5 text-sm font-semibold rounded-full cursor-pointer transition-colors ${selectedTones.has(tone) ? 'bg-blue-600 text-white' : 'bg-slate-700 hover:bg-slate-600 text-slate-300'}`}>
-                                            {tone}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-slate-300 mb-2">Sentence Structure</label>
-                                <div className="px-2">
-                                     <input
-                                        type="range"
-                                        min="0"
-                                        max="100"
-                                        step="25"
-                                        value={sentenceSliderValue}
-                                        onChange={handleSliderChange}
-                                        className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer"
-                                    />
-                                    <div className="flex justify-between text-xs text-slate-400 mt-2">
-                                        <span>Short & Simple</span>
-                                        <span>Balanced</span>
-                                        <span>Long & Complex</span>
-                                    </div>
-                                    <p className="text-sm text-center text-blue-300 mt-2 p-2 bg-slate-900/50 rounded-md">{sentenceStructureMap[sentenceSliderValue as keyof typeof sentenceStructureMap]}</p>
-                                </div>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-slate-300 mb-1">Paragraph Length</label>
-                                <input type="text" value={editableGuide.paragraphLength} onChange={(e) => handleFieldChange('paragraphLength', e.target.value)} className="w-full bg-slate-700 border border-slate-600 rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500"/>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-slate-300 mb-1">Formatting Style</label>
-                                <input type="text" value={editableGuide.formattingStyle} onChange={(e) => handleFieldChange('formattingStyle', e.target.value)} className="w-full bg-slate-700 border border-slate-600 rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500"/>
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="flex flex-col items-center justify-center h-full text-slate-500 border-2 border-dashed border-slate-700 rounded-md py-10">
-                            <BookOpen className="h-10 w-10 mb-2" />
-                            <p>Your guide will appear here after the first scan.</p>
-                        </div>
-                    )}
+            <div className="aca-card">
+                <div className="aca-card-header">
+                    <h2 className="aca-card-title">Review & Refine Your Guide</h2>
                 </div>
-                <div className="px-6 py-4 bg-slate-800/50 border-t border-slate-700/80 flex justify-end items-center">
+                <p style={{ color: '#646970', marginBottom: '25px', fontSize: '13px' }}>The AI-generated guide is shown below. You can edit the fields at any time to fine-tune the AI's output.</p>
+                {editableGuide ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
+                        <div className="aca-form-group">
+                            <label className="aca-label">Tone</label>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                {PREDEFINED_TONES.map(tone => (
+                                    <button 
+                                        key={tone} 
+                                        onClick={() => handleToneToggle(tone)}
+                                        style={{
+                                            padding: '6px 12px',
+                                            fontSize: '12px',
+                                            fontWeight: '600',
+                                            borderRadius: '20px',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s ease',
+                                            border: '1px solid',
+                                            background: selectedTones.has(tone) ? '#0073aa' : '#ffffff',
+                                            color: selectedTones.has(tone) ? '#ffffff' : '#646970',
+                                            borderColor: selectedTones.has(tone) ? '#0073aa' : '#ccd0d4'
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            if (!selectedTones.has(tone)) {
+                                                e.currentTarget.style.background = '#f6f7f7';
+                                                e.currentTarget.style.borderColor = '#8c8f94';
+                                            }
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            if (!selectedTones.has(tone)) {
+                                                e.currentTarget.style.background = '#ffffff';
+                                                e.currentTarget.style.borderColor = '#ccd0d4';
+                                            }
+                                        }}
+                                    >
+                                        {tone}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="aca-form-group">
+                            <label className="aca-label">Sentence Structure</label>
+                            <div style={{ padding: '0 8px' }}>
+                                <input
+                                    type="range"
+                                    min="0"
+                                    max="100"
+                                    step="25"
+                                    value={sentenceSliderValue}
+                                    onChange={handleSliderChange}
+                                    style={{ 
+                                        width: '100%', 
+                                        height: '8px', 
+                                        background: '#f6f7f7', 
+                                        borderRadius: '4px', 
+                                        appearance: 'none', 
+                                        cursor: 'pointer',
+                                        outline: 'none'
+                                    }}
+                                />
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#646970', marginTop: '8px' }}>
+                                    <span>Short & Simple</span>
+                                    <span>Balanced</span>
+                                    <span>Long & Complex</span>
+                                </div>
+                                <p style={{ 
+                                    fontSize: '13px', 
+                                    textAlign: 'center', 
+                                    color: '#0073aa', 
+                                    marginTop: '10px', 
+                                    padding: '10px', 
+                                    background: '#f0f6fc', 
+                                    borderRadius: '4px',
+                                    margin: '10px 0 0 0'
+                                }}>
+                                    {sentenceStructureMap[sentenceSliderValue as keyof typeof sentenceStructureMap]}
+                                </p>
+                            </div>
+                        </div>
+                        <div className="aca-form-group">
+                            <label className="aca-label">Paragraph Length</label>
+                            <input 
+                                type="text" 
+                                value={editableGuide.paragraphLength} 
+                                onChange={(e) => handleFieldChange('paragraphLength', e.target.value)} 
+                                className="aca-input"
+                            />
+                        </div>
+                        <div className="aca-form-group">
+                            <label className="aca-label">Formatting Style</label>
+                            <input 
+                                type="text" 
+                                value={editableGuide.formattingStyle} 
+                                onChange={(e) => handleFieldChange('formattingStyle', e.target.value)} 
+                                className="aca-input"
+                            />
+                        </div>
+                    </div>
+                ) : (
+                    <div style={{ 
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                        alignItems: 'center', 
+                        justifyContent: 'center', 
+                        height: '200px', 
+                        color: '#646970', 
+                        border: '2px dashed #ccd0d4', 
+                        borderRadius: '4px', 
+                        padding: '40px',
+                        textAlign: 'center'
+                    }}>
+                        <BookOpen style={{ width: '40px', height: '40px', marginBottom: '10px', fill: '#a7aaad' }} />
+                        <p style={{ margin: 0, fontSize: '14px' }}>Your guide will appear here after the first scan.</p>
+                    </div>
+                )}
+                <div style={{ 
+                    marginTop: '25px', 
+                    paddingTop: '20px', 
+                    borderTop: '1px solid #f0f0f1', 
+                    display: 'flex', 
+                    justifyContent: 'flex-end' 
+                }}>
                     <button
                         onClick={handleSave}
                         disabled={!isDirty || isSaving}
-                        className="bg-blue-600 text-white font-bold py-2 px-5 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center disabled:bg-slate-600 disabled:cursor-not-allowed"
+                        className="aca-button large"
+                        style={{ display: 'flex', alignItems: 'center', minWidth: '140px' }}
                     >
-                        {isSaving ? <Spinner className="mr-2 h-5 w-5" /> : null}
+                        {isSaving && <Spinner style={{ marginRight: '8px', width: '16px', height: '16px' }} />}
                         {isSaving ? 'Saving...' : 'Save Changes'}
                     </button>
                 </div>

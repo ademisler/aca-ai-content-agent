@@ -20,10 +20,30 @@ const DraggableDraft: React.FC<{ draft: Draft }> = ({ draft }) => {
         <div
             draggable
             onDragStart={handleDragStart}
-            className="bg-sky-900/50 border border-sky-700/60 text-sky-200 p-1.5 rounded-md text-xs truncate cursor-grab active:cursor-grabbing flex items-center gap-2"
+            style={{
+                background: '#e3f2fd',
+                border: '1px solid #2196f3',
+                color: '#0d47a1',
+                padding: '6px',
+                borderRadius: '4px',
+                fontSize: '11px',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                cursor: 'grab',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+            }}
+            onMouseDown={(e) => {
+                e.currentTarget.style.cursor = 'grabbing';
+            }}
+            onMouseUp={(e) => {
+                e.currentTarget.style.cursor = 'grab';
+            }}
         >
-            <FileText className="h-3 w-3 flex-shrink-0" />
-            <span className="flex-grow truncate">{draft.title}</span>
+            <FileText style={{ width: '12px', height: '12px', flexShrink: 0 }} />
+            <span style={{ flexGrow: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>{draft.title}</span>
         </div>
     );
 };
@@ -81,74 +101,189 @@ export const ContentCalendar: React.FC<ContentCalendarProps> = ({ drafts, publis
     const prevMonth = () => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
 
     return (
-        <div className="flex flex-col lg:flex-row gap-8 h-full">
-            <div className="flex-grow flex flex-col">
-                <header className="flex justify-between items-center mb-6">
-                    <h2 className="text-3xl font-bold text-white">{currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}</h2>
-                    <div className="flex items-center gap-2">
-                        <button onClick={prevMonth} className="p-2 rounded-md bg-slate-700 hover:bg-slate-600"><ChevronLeft className="h-5 w-5"/></button>
-                        <button onClick={nextMonth} className="p-2 rounded-md bg-slate-700 hover:bg-slate-600"><ChevronRight className="h-5 w-5"/></button>
-                    </div>
-                </header>
-
-                <div className="grid grid-cols-7 flex-grow border-t border-l border-slate-700">
-                    {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                        <div key={day} className="text-center font-bold text-sm py-2 border-b border-r border-slate-700 text-slate-400 bg-slate-800/50">{day}</div>
-                    ))}
-                    {daysInMonth.map((day, index) => {
-                        const isToday = day && day.toDateString() === new Date().toDateString();
-                        
-                        const scheduledDrafts = day ? drafts.filter(d => d.scheduledFor && new Date(d.scheduledFor).toDateString() === day.toDateString()) : [];
-                        const postsToday = day ? publishedPosts.filter(p => p.publishedAt && new Date(p.publishedAt).toDateString() === day.toDateString()) : [];
-
-                        return (
-                            <div
-                                key={index}
-                                onDrop={(e) => day && handleDrop(e, day)}
-                                onDragOver={handleDragOver}
-                                onDragEnter={(e) => day && handleDragEnter(e, day)}
-                                onDragLeave={handleDragLeave}
-                                className={`relative p-2 min-h-[8rem] border-b border-r border-slate-700 flex flex-col gap-1 overflow-y-auto transition-colors duration-200 ${day && dragOverDate === day.toISOString() ? 'bg-slate-700/50' : ''}`}
-                            >
-                                {day && (
-                                    <span className={`absolute top-1.5 right-1.5 text-xs font-semibold ${isToday ? 'bg-blue-600 text-white rounded-full h-6 w-6 flex items-center justify-center' : 'text-slate-500'}`}>
-                                        {day.getDate()}
-                                    </span>
-                                )}
-                                <div className="space-y-1.5 mt-6">
-                                    {scheduledDrafts.map(draft => <DraggableDraft key={draft.id} draft={draft} />)}
-                                    {postsToday.map(post => (
-                                         <div key={post.id} onClick={() => onSelectPost(post)} className="bg-green-900/50 border border-green-700/60 text-green-200 p-1.5 rounded-md text-xs truncate cursor-pointer flex items-center gap-2">
-                                             <Send className="h-3 w-3 flex-shrink-0" />
-                                             <span className="flex-grow truncate">{post.title}</span>
-                                         </div>
-                                    ))}
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
+        <div className="aca-fade-in">
+            <div className="aca-page-header">
+                <h1 className="aca-page-title">Content Calendar</h1>
+                <p className="aca-page-description">Schedule your drafts and view published content on the calendar.</p>
             </div>
 
-            <aside className="lg:w-72 flex-shrink-0">
-                <h3 className="text-xl font-bold text-white mb-4">Unscheduled Drafts</h3>
-                <div className="bg-slate-800 p-4 rounded-lg border border-slate-700/80 h-96 overflow-y-auto">
-                    {unscheduledDrafts.length > 0 ? (
-                        <div className="space-y-2">
-                            {unscheduledDrafts.map(draft => <DraggableDraft key={draft.id} draft={draft} />)}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div className="aca-card" style={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+                    <div className="aca-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <h2 className="aca-card-title">{currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}</h2>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <button 
+                                onClick={prevMonth} 
+                                className="aca-button secondary"
+                                style={{ padding: '8px', display: 'flex', alignItems: 'center' }}
+                            >
+                                <ChevronLeft style={{ width: '16px', height: '16px' }} />
+                            </button>
+                            <button 
+                                onClick={nextMonth} 
+                                className="aca-button secondary"
+                                style={{ padding: '8px', display: 'flex', alignItems: 'center' }}
+                            >
+                                <ChevronRight style={{ width: '16px', height: '16px' }} />
+                            </button>
                         </div>
-                    ) : (
-                        <div className="flex flex-col items-center justify-center h-full text-slate-500 text-center">
-                            <FileText className="h-10 w-10 mb-2" />
-                            <p className="text-sm">No unscheduled drafts.</p>
-                        </div>
-                    )}
+                    </div>
+
+                    <div style={{ 
+                        display: 'grid', 
+                        gridTemplateColumns: 'repeat(7, 1fr)', 
+                        flexGrow: 1, 
+                        border: '1px solid #ccd0d4',
+                        borderRadius: '4px',
+                        overflow: 'hidden'
+                    }}>
+                        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, index) => (
+                            <div 
+                                key={day} 
+                                style={{ 
+                                    textAlign: 'center', 
+                                    fontWeight: '600', 
+                                    fontSize: '13px', 
+                                    padding: '10px', 
+                                    borderBottom: '1px solid #ccd0d4',
+                                    borderRight: index < 6 ? '1px solid #ccd0d4' : 'none',
+                                    color: '#646970', 
+                                    background: '#f6f7f7' 
+                                }}
+                            >
+                                {day}
+                            </div>
+                        ))}
+                        {daysInMonth.map((day, index) => {
+                            const isToday = day && day.toDateString() === new Date().toDateString();
+                            const scheduledDrafts = day ? drafts.filter(d => d.scheduledFor && new Date(d.scheduledFor).toDateString() === day.toDateString()) : [];
+                            const postsToday = day ? publishedPosts.filter(p => p.publishedAt && new Date(p.publishedAt).toDateString() === day.toDateString()) : [];
+
+                            return (
+                                <div
+                                    key={index}
+                                    onDrop={(e) => day && handleDrop(e, day)}
+                                    onDragOver={handleDragOver}
+                                    onDragEnter={(e) => day && handleDragEnter(e, day)}
+                                    onDragLeave={handleDragLeave}
+                                    style={{
+                                        position: 'relative',
+                                        padding: '8px',
+                                        minHeight: '120px',
+                                        borderBottom: Math.floor(index / 7) < Math.floor((daysInMonth.length - 1) / 7) ? '1px solid #ccd0d4' : 'none',
+                                        borderRight: (index % 7) < 6 ? '1px solid #ccd0d4' : 'none',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: '4px',
+                                        overflowY: 'auto',
+                                        transition: 'background-color 0.2s ease',
+                                        background: day && dragOverDate === day.toISOString() ? '#f0f6fc' : '#ffffff'
+                                    }}
+                                >
+                                    {day && (
+                                        <span style={{
+                                            position: 'absolute',
+                                            top: '6px',
+                                            right: '6px',
+                                            fontSize: '11px',
+                                            fontWeight: '600',
+                                            background: isToday ? '#0073aa' : 'transparent',
+                                            color: isToday ? '#ffffff' : '#646970',
+                                            borderRadius: isToday ? '50%' : '0',
+                                            width: isToday ? '20px' : 'auto',
+                                            height: isToday ? '20px' : 'auto',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center'
+                                        }}>
+                                            {day.getDate()}
+                                        </span>
+                                    )}
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '24px' }}>
+                                        {scheduledDrafts.map(draft => <DraggableDraft key={draft.id} draft={draft} />)}
+                                        {postsToday.map(post => (
+                                            <div 
+                                                key={post.id} 
+                                                onClick={() => onSelectPost(post)} 
+                                                style={{
+                                                    background: '#e6f7e6',
+                                                    border: '1px solid #28a745',
+                                                    color: '#0a5d0a',
+                                                    padding: '6px',
+                                                    borderRadius: '4px',
+                                                    fontSize: '11px',
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis',
+                                                    whiteSpace: 'nowrap',
+                                                    cursor: 'pointer',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '6px',
+                                                    transition: 'background 0.2s ease'
+                                                }}
+                                                onMouseEnter={(e) => {
+                                                    e.currentTarget.style.background = '#d4edda';
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                    e.currentTarget.style.background = '#e6f7e6';
+                                                }}
+                                            >
+                                                <Send style={{ width: '12px', height: '12px', flexShrink: 0 }} />
+                                                <span style={{ flexGrow: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>{post.title}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
                 </div>
-                 <div className="mt-6 text-sm text-slate-400 p-4 bg-slate-900/50 rounded-lg border border-slate-700">
-                    <p className="font-bold text-slate-300 mb-1">How to use:</p>
-                    <p>Drag and drop an unscheduled draft onto a date in the calendar to schedule it.</p>
+
+                <div className="aca-card" style={{ maxWidth: '350px' }}>
+                    <div className="aca-card-header">
+                        <h2 className="aca-card-title">Unscheduled Drafts</h2>
+                    </div>
+                    <div style={{ 
+                        background: '#f6f7f7', 
+                        padding: '15px', 
+                        borderRadius: '4px', 
+                        border: '1px solid #ccd0d4', 
+                        height: '300px', 
+                        overflowY: 'auto' 
+                    }}>
+                        {unscheduledDrafts.length > 0 ? (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                {unscheduledDrafts.map(draft => <DraggableDraft key={draft.id} draft={draft} />)}
+                            </div>
+                        ) : (
+                            <div style={{ 
+                                display: 'flex', 
+                                flexDirection: 'column', 
+                                alignItems: 'center', 
+                                justifyContent: 'center', 
+                                height: '100%', 
+                                color: '#646970', 
+                                textAlign: 'center' 
+                            }}>
+                                <FileText style={{ width: '40px', height: '40px', marginBottom: '10px', fill: '#a7aaad' }} />
+                                <p style={{ fontSize: '13px', margin: 0 }}>No unscheduled drafts.</p>
+                            </div>
+                        )}
+                    </div>
+                    <div style={{ 
+                        marginTop: '15px', 
+                        fontSize: '13px', 
+                        color: '#646970', 
+                        padding: '15px', 
+                        background: '#f0f6fc', 
+                        borderRadius: '4px', 
+                        border: '1px solid #ccd0d4' 
+                    }}>
+                        <p style={{ fontWeight: '600', color: '#23282d', margin: '0 0 5px 0' }}>How to use:</p>
+                        <p style={{ margin: 0 }}>Drag and drop an unscheduled draft onto a date in the calendar to schedule it.</p>
+                    </div>
                 </div>
-            </aside>
+            </div>
         </div>
     );
 };

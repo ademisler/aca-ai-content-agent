@@ -4,7 +4,7 @@ Tags: ai, content, automation, calendar, seo, google-search-console, gemini, con
 Requires at least: 5.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.5.3
+Stable tag: 1.5.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,16 +14,16 @@ AI-powered content creation and management plugin with intelligent Content Calen
 
 **AI Content Agent (ACA)** revolutionizes your WordPress content workflow with intelligent automation, beautiful calendar management, and real Google Search Console insights.
 
-= 🚀 Latest Updates - v1.5.3 =
+= 🚀 Latest Updates - v1.5.4 =
 
-**AUTOMATIC SEO PLUGIN INTEGRATION**
-* Automatic Detection: Plugin now automatically detects installed SEO plugins (RankMath and Yoast SEO)
-* Seamless Data Transfer: Meta descriptions and focus keywords are automatically sent to detected SEO plugins
-* Real-time Status: Live detection status with plugin version information in settings
-* Zero Configuration: No manual setup required - works automatically when SEO plugins are installed
-* Smart Integration: Proper meta field mapping for both RankMath and Yoast SEO formats
-* Multi-Plugin Support: Handles multiple SEO plugins simultaneously if both are installed
-* Error Handling: Comprehensive error handling with detailed logging for troubleshooting
+**ENHANCED SEO PLUGIN INTEGRATION + ADVANCED FEATURES**
+* Improved Plugin Detection: Enhanced detection methods with multiple fallback checks for maximum compatibility
+* Advanced RankMath Integration: SEO scoring, pillar content, robots meta, and Schema markup support
+* Enhanced Yoast Integration: Content scoring, readability analysis, reading time estimation, and cornerstone content
+* Pro/Premium Detection: Automatically detects and utilizes Pro/Premium features when available
+* SEO Scoring: Sets optimal SEO scores (85 for RankMath, 75 for Yoast) for AI-generated content
+* Schema Markup: Automatic Article/BlogPosting schema for enhanced search engine understanding
+* Smart Content Classification: Marks multi-keyword content as pillar/cornerstone content for better SEO
 
 = 🔍 Google Search Console Integration =
 

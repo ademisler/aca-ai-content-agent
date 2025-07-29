@@ -1,4 +1,4 @@
-# SEO Integration Guide - v1.5.3
+# SEO Integration Guide - v1.5.4
 
 This guide explains the automatic SEO plugin detection and integration system in the AI Content Agent plugin.
 
@@ -13,18 +13,28 @@ The AI Content Agent plugin now automatically detects and integrates with popula
 - **Detection Method**: Checks for plugin activation and `RankMath` class
 - **Version Detection**: Uses `RANK_MATH_VERSION` constant
 - **Meta Fields Supported**:
+  - `rank_math_title` - SEO title
   - `rank_math_description` - Meta description
   - `rank_math_focus_keyword` - Primary focus keyword
+  - `rank_math_seo_score` - SEO score (0-100)
+  - `rank_math_robots` - Robots meta directives
   - `rank_math_pillar_content` - Pillar content flag
+  - `rank_math_rich_snippet` - Schema markup type
+  - `rank_math_snippet_article_type` - Article schema type
 
 ### 🟢 Yoast SEO
 - **Plugin File**: `wordpress-seo/wp-seo.php`
 - **Detection Method**: Checks for plugin activation and `WPSEO_Options` class
 - **Version Detection**: Uses `WPSEO_VERSION` constant
 - **Meta Fields Supported**:
+  - `_yoast_wpseo_title` - SEO title
   - `_yoast_wpseo_metadesc` - Meta description
   - `_yoast_wpseo_focuskw` - Focus keyword
-  - `_yoast_wpseo_title` - SEO title
+  - `_yoast_wpseo_content_score` - Content score (0-100)
+  - `_yoast_wpseo_readability-score` - Readability score
+  - `_yoast_wpseo_estimated-reading-time-minutes` - Reading time
+  - `_yoast_wpseo_is_cornerstone` - Cornerstone content flag
+  - `_yoast_wpseo_focuskeywords` - Additional keywords (Premium)
 
 ## 🔄 How It Works
 
@@ -195,6 +205,6 @@ Look for log entries starting with:
 
 ---
 
-**Last Updated**: January 28, 2025 - v1.5.3
+**Last Updated**: January 28, 2025 - v1.5.4
 **Compatibility**: WordPress 5.0+, PHP 7.4+
 **SEO Plugin Versions**: RankMath 1.0+, Yoast SEO 19.0+

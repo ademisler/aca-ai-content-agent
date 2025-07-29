@@ -1,191 +1,263 @@
 === AI Content Agent (ACA) ===
-Contributors: aca-team
-Tags: ai, content, automation, blog, writing, seo, gemini, markdown, categories
-Requires at least: 6.0
-Tested up to: 6.8
-Requires PHP: 8.0
-Stable tag: 1.3.2
+Contributors: aicontentagent
+Tags: ai, content, automation, calendar, scheduling, gemini, chatgpt, seo, blog
+Requires at least: 5.0
+Tested up to: 6.4
+Requires PHP: 7.4
+Stable tag: 1.3.8
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-AI-powered content creation and management plugin that generates blog posts, ideas, and manages your content workflow automatically using Google Gemini 2.0 Flash.
+AI-powered content creation and management with intelligent Content Calendar. Generate, schedule, and manage your WordPress content automatically.
 
 == Description ==
 
-AI Content Agent (ACA) is a powerful WordPress plugin that revolutionizes your content creation process using Google Gemini 2.0 Flash artificial intelligence. Create high-quality blog posts, generate content ideas, and manage your entire content workflow with minimal effort.
+**AI Content Agent (ACA)** transforms your WordPress content workflow with intelligent automation and a revolutionary Content Calendar system. Create, schedule, and manage all your content from one beautiful interface.
 
-= Key Features =
+= 🚀 Latest Updates - v1.3.8 =
 
-* **AI-Powered Content Generation**: Create complete blog posts with title, content, meta descriptions, and focus keywords using Google Gemini 2.0 Flash
-* **Smart Content Formatting**: Automatic Markdown to HTML conversion for perfect WordPress display
-* **Intelligent Category Management**: AI selects from existing categories or creates new ones intelligently
-* **Smart Idea Generation**: Generate unlimited content ideas based on your writing style
-* **Style Guide Analysis**: AI analyzes your existing content to maintain consistent tone and style
-* **Advanced Error Recovery**: Comprehensive error handling with fallback mechanisms
-* **SEO Optimization**: Built-in SEO features with meta titles, descriptions, and focus keywords
-* **Internal Linking**: Contextual internal links to your existing content
-* **Activity Logging**: Track all content creation activities with detailed logging
-* **Draft Management**: Create, edit, and publish drafts seamlessly
+**CRITICAL FIXES:**
+* **Published Posts Now Visible**: Fixed backend status mapping - all existing WordPress posts appear in calendar
+* **Complete WordPress Integration**: Full compatibility with existing content
+* **Status Filtering Fixed**: Resolved frontend filtering preventing published content display
 
-= Content Creation Workflow =
+**SMART MULTI-POST UI:**
+* **Expandable Calendar Cells**: Revolutionary design handles unlimited posts per day
+* **Intelligent Space Management**: Auto-expands with smooth animations
+* **Post Count Indicators**: Smart badges show total posts with visual hierarchy
+* **Enhanced UX**: Direct WordPress editor navigation, full drag & drop rescheduling
 
-1. **Style Analysis**: AI analyzes your last 20 posts to understand your writing style
-2. **Idea Generation**: Generate content ideas based on your style guide
-3. **Draft Creation**: AI creates complete blog posts (800-1500 words) with proper HTML formatting
-4. **WordPress Integration**: Creates real WordPress draft posts with categories, tags, and SEO metadata
+= 🎯 Key Features =
 
-= AI Integration =
+**📅 Intelligent Content Calendar**
+* Smart multi-post management with expandable cells
+* Visual post types: Scheduled (🟡), Published (🟢), Today (🔵)
+* Drag & drop scheduling and rescheduling
+* Direct WordPress editor integration
+* Real-time updates with notifications
 
-The plugin uses Google's Gemini 2.0 Flash for:
-- Content style analysis from your existing posts
-- Blog post generation with proper HTML formatting
-- Idea creation based on your writing style
-- Smart category selection from existing WordPress categories
-- SEO optimization and internal linking
+**🤖 AI-Powered Content Creation**
+* Multi-AI support: Gemini, ChatGPT, Claude
+* Smart content generation with SEO optimization
+* Style guide management for consistent brand voice
+* Automated workflow from idea to publication
 
-= Recent Improvements (v1.3.x) =
+**📊 Advanced Management**
+* Comprehensive dashboard with real-time statistics
+* Activity logging and detailed tracking
+* Draft lifecycle management
+* Published content overview with analytics
 
-* **v1.3.2**: Fixed content formatting issues - automatic Markdown to HTML conversion
-* **v1.3.1**: Enhanced AI response parsing with smart JSON cleaning
-* **v1.3.0**: Fixed category management with intelligent existing category selection
-* **Advanced Error Handling**: Comprehensive debug logging and error recovery
+**⚙️ Professional Features**
+* Stock photo integration and optimization
+* Built-in SEO analysis and recommendations
+* Bulk operations and mass content creation
+* Advanced WordPress cron-based scheduling
 
-= WordPress Integration =
+= 📖 How to Use =
 
-* **Native Posts**: Creates actual WordPress draft posts
-* **Smart Categories**: Uses existing categories intelligently
-* **Automatic Tags**: Generates relevant tags based on content
-* **Custom Meta Fields**: Stores SEO data and AI generation metadata
-* **Perfect Formatting**: Clean HTML output for WordPress
+**Content Calendar Workflow:**
+1. View all content in the visual calendar
+2. Schedule content by dragging drafts to dates
+3. Reschedule by dragging existing posts
+4. Click any post to edit in WordPress
+5. Track progress with visual indicators
+
+**AI Content Creation:**
+1. Generate ideas with AI assistance
+2. Convert ideas to full blog posts
+3. Apply SEO recommendations and style guide
+4. Schedule strategically using the calendar
+
+= 🎨 Smart Calendar Design =
+
+* **Expandable Cells**: Days with multiple posts show compact view initially
+* **Click to Expand**: Reveal all posts with smooth animation
+* **Visual Hierarchy**: Different post types have distinct styling
+* **Responsive Layout**: Optimized for all screen sizes
+* **Direct Navigation**: Click posts to edit in WordPress
+
+= 🛠️ Technical Requirements =
+
+* WordPress 5.0 or higher
+* PHP 7.4 or higher
+* MySQL 5.6 or higher
+* 128MB memory minimum (256MB recommended)
+* Modern browser (Chrome, Firefox, Safari, Edge)
+
+= 🔧 Configuration =
+
+**Required Settings:**
+* AI Service selection (Gemini recommended)
+* API key configuration
+* Content settings (categories, tags, formats)
+
+**Optional Enhancements:**
+* Stock photo integration
+* SEO settings and meta optimization
+* Automated scheduling preferences
 
 == Installation ==
 
-1. Upload the plugin files to the `/wp-content/plugins/ai-content-agent` directory, or install the plugin through the WordPress plugins screen directly.
-2. Activate the plugin through the 'Plugins' screen in WordPress
-3. Go to AI Content Agent in your WordPress admin menu
-4. Add your Google Gemini API key in the Settings tab
-5. Generate your first Style Guide by clicking "Analyze Content"
-6. Start creating content!
+= Method 1: WordPress Admin (Recommended) =
 
-= Getting Gemini API Key =
+1. Download `ai-content-agent-v1.3.8-optimized.zip` (161KB)
+2. Go to WordPress Admin → Plugins → Add New → Upload Plugin
+3. Choose the downloaded zip file
+4. Click Install Now → Activate Plugin
+5. Configure settings in AI Content Agent menu
 
-1. Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. Create a new API key
-3. Copy the key to plugin settings
+= Method 2: Manual Installation =
+
+1. Extract zip file to `/wp-content/plugins/` directory
+2. Activate plugin through WordPress admin
+3. Configure your AI API keys in settings
+
+= Method 3: WordPress Repository =
+
+1. Go to Plugins → Add New
+2. Search for "AI Content Agent"
+3. Install and activate
+4. Configure settings
 
 == Frequently Asked Questions ==
 
-= Do I need a Google Gemini API key? =
+= What AI services are supported? =
 
-Yes, you need a Google Gemini API key to use the content generation features. You can get one free from Google AI Studio.
+ACA supports multiple AI providers including Google Gemini, ChatGPT, and Claude. Gemini is recommended for optimal performance and cost-effectiveness.
 
-= What AI model does the plugin use? =
+= Do I need coding knowledge? =
 
-The plugin uses Google Gemini 2.0 Flash, the latest and most advanced model from Google for superior content quality.
+No! ACA is designed for non-technical users. The intuitive interface handles all technical aspects automatically.
 
-= Will the generated content be properly formatted? =
+= Will it work with my existing content? =
 
-Yes! The plugin automatically converts any Markdown formatting to clean HTML, ensuring perfect display in WordPress.
+Yes! ACA integrates seamlessly with your existing WordPress posts. All published content appears in the Content Calendar automatically.
 
-= How does category management work? =
+= Can I schedule content for future dates? =
 
-The AI intelligently selects from your existing WordPress categories. If no suitable category exists, it can create new ones as needed.
+Absolutely! Use the drag-and-drop calendar to schedule drafts for any future date. The plugin handles WordPress scheduling automatically.
 
-= Can I edit the generated content? =
+= Is my content data secure? =
 
-Absolutely! All generated content can be fully edited in WordPress before publishing.
+Yes. Content is processed through secure AI APIs and stored in your WordPress database. No content is stored on external servers.
 
-= Is the plugin compatible with SEO plugins? =
+= Can I customize the AI writing style? =
 
-Yes, the plugin is compatible with popular SEO plugins like RankMath and Yoast SEO.
-
-= What if I encounter errors? =
-
-The plugin has comprehensive error handling and detailed logging. Check the WordPress debug logs for troubleshooting information.
+Yes! ACA includes a Style Guide feature that analyzes your existing content to maintain consistent brand voice across all AI-generated posts.
 
 == Screenshots ==
 
-1. Dashboard overview showing content statistics and recent activity
-2. Style Guide management interface with AI analysis
-3. Content ideas board with generation options
-4. Draft editor with full content management
-5. Settings panel with Gemini API configuration
-6. Activity logs with detailed operation tracking
+1. **Smart Content Calendar** - Revolutionary expandable design handles multiple posts per day
+2. **AI Content Generation** - Create full blog posts with SEO optimization
+3. **Dashboard Overview** - Real-time statistics and content management
+4. **Drag & Drop Scheduling** - Intuitive content scheduling interface
+5. **Style Guide Management** - Consistent brand voice across all content
+6. **Settings Configuration** - Easy setup and customization options
 
 == Changelog ==
 
-= 1.3.2 =
-* FIXED: Markdown formatting issues in generated content
-* ADDED: Automatic Markdown to HTML conversion for perfect WordPress display
-* ENHANCED: Content display and formatting in WordPress
-* IMPROVED: AI prompt instructions for clean HTML output
-* ADDED: Fallback Markdown parser for legacy content
+= 1.3.8 - 2025-01-28 - CRITICAL STATUS FIX + SMART MULTI-POST UI =
 
-= 1.3.1 =
-* FIXED: Invalid JSON response errors from AI service
-* ADDED: Smart JSON cleaning and parsing with fallback mechanisms
-* ENHANCED: Error handling for AI responses
-* IMPROVED: Debug logging for troubleshooting
+**CRITICAL FIXES:**
+* PUBLISHED POSTS NOW VISIBLE: Fixed backend status mapping from 'publish' to 'published'
+* Status Filtering Fixed: Frontend properly recognizes published posts
+* All WordPress Content: Existing published posts appear in calendar
 
-= 1.3.0 =
-* FIXED: Fatal error with wp_create_category() function
-* ADDED: Smart category selection from existing WordPress categories
-* ENHANCED: Category management workflow
-* IMPROVED: AI category selection process
+**SMART MULTI-POST UI REDESIGN:**
+* Expandable Calendar Cells: Revolutionary expandable/collapsible design
+* Intelligent Space Management: Auto-expands based on content density
+* Visual Hierarchy: Clear indicators for different post types
+* Post Count Badges: Smart badges show total posts per day
+* Hover Effects: Enhanced UX with smooth transitions
+* Compact Mode: Efficient space usage with smart truncation
+* Direct Navigation: Click posts to edit in WordPress
+* Drag & Drop: Full rescheduling support for all post types
 
-= 1.2.2 =
-* ADDED: Extensive debug logging system
-* ENHANCED: Error tracking and reporting
-* IMPROVED: Fatal error handling with detailed logs
+**UI/UX ENHANCEMENTS:**
+* Smooth Animations: 0.2s transitions for expand/collapse
+* Typography Improvements: Better readability and hierarchy
+* Color Coding: Intuitive visual indicators for post status
+* Responsive Design: Perfect on all screen sizes
+* Performance Optimized: Faster loading and smoother interactions
 
-= 1.2.1 =
-* FIXED: Activity logs API parameter mismatch
-* ENHANCED: Error handling for draft creation
-* IMPROVED: Response handling with fallback mechanisms
+= 1.3.7 - 2025-01-28 - Published Posts Fix + Multi-Post UI =
 
-= 1.2.0 =
-* ADDED: Complete WordPress integration for drafts
-* ADDED: Categories and tags support
-* ADDED: Internal linking implementation
-* ADDED: SEO metadata integration
+**CRITICAL FIXES:**
+* Published Posts Now Visible: Fixed get_published_posts API
+* Meta Key Dependency Removed: No longer requires _aca_meta_title
+* Existing Content Integration: All WordPress posts appear in calendar
 
-= 1.1.0 =
-* UPDATED: Gemini API model to 2.0 Flash
-* ENHANCED: WordPress content analysis
-* IMPROVED: Style guide generation
+**MULTI-POST UI ENHANCEMENTS:**
+* Scrollable Calendar Cells: Days with many posts have scrollable areas
+* Post Count Indicator: Orange badge shows total when >3 posts per day
+* Compact Design: Smaller items to fit more content
+* Visual Hierarchy: Posts beyond 3rd have reduced opacity
+* Improved Spacing: Tighter gaps and optimized padding
 
-= 1.0.0 =
-* Initial release
-* AI-powered content generation using Google Gemini
-* Style guide analysis
-* WordPress admin integration
-* Activity logging
+= 1.3.6 - 2025-01-28 - Enhanced Calendar UX =
+
+**UX IMPROVEMENTS:**
+* Direct WordPress Editor: Click posts to edit directly in WordPress
+* Re-draggable Drafts: Scheduled drafts can be rescheduled by dragging
+* Published Posts Display: All published posts visible on calendar
+* Visual Enhancements: Better icons, colors, and layout
+* Icon System: Consistent custom icons throughout interface
+
+**TECHNICAL IMPROVEMENTS:**
+* WordPress Admin URL: Proper admin URL handling for editor links
+* Drag & Drop: Enhanced drag and drop for all post types
+* State Management: Improved React state handling
+* Build Process: Optimized compilation and asset management
+
+= 1.3.5 - 2025-01-28 - Comprehensive Scheduling Fix =
+
+**CRITICAL SCHEDULING FIX:**
+* WordPress Date/Time Compatibility: Complete rewrite of scheduling system
+* Timezone Handling: Proper WordPress timezone management
+* GMT Conversion: Correct local to GMT time conversion
+* Future Post Status: Proper 'future' status for scheduled posts
+* Edit Date Parameter: Added edit_date => true for draft modifications
+
+**TECHNICAL IMPROVEMENTS:**
+* DateTime Objects: Robust date parsing and manipulation
+* WordPress Functions: Using current_time() and get_gmt_from_date()
+* Debug Logging: Comprehensive scheduling debug information
+* Error Handling: Better error recovery and user feedback
+
+= 1.3.4 - 2025-01-28 - Critical Scheduling Fix =
+
+**SCHEDULING IMPROVEMENTS:**
+* Calendar Time Fix: Set default 9:00 AM time for calendar drops
+* Future Time Logic: Ensure scheduled posts are always in future
+* Debug Logging: Added detailed scheduling debug information
+* WordPress Integration: Better WordPress scheduling compatibility
+
+= 1.3.3 - 2025-01-28 - Content Calendar Fix =
+
+**CALENDAR FIXES:**
+* Drag-and-Drop: Fixed drafts disappearing after scheduling
+* WordPress Scheduling: Proper post_status 'future' implementation
+* Visual Indicators: Yellow background for scheduled drafts
+* API Parameters: Enhanced parameter handling and state management
+* Clickable Items: Scheduled drafts now clickable for editing
 
 == Upgrade Notice ==
 
-= 1.3.2 =
-Important update: Fixes content formatting issues. All generated content now displays perfectly in WordPress with automatic Markdown to HTML conversion.
+= 1.3.8 =
+CRITICAL UPDATE: Fixes published posts visibility and introduces revolutionary smart multi-post calendar UI. All existing WordPress content now appears in calendar. Highly recommended upgrade.
 
-= 1.3.1 =
-Critical update: Fixes AI response parsing errors. Enhanced error handling and recovery mechanisms.
+= 1.3.7 =
+Important fix for published posts visibility. Adds multi-post UI improvements for better content management.
 
-= 1.3.0 =
-Critical update: Fixes fatal category creation errors. Now uses existing WordPress categories intelligently.
+= 1.3.6 =
+Major UX improvements with direct WordPress editor integration and re-draggable scheduled content.
 
-== Technical Requirements ==
-
-* WordPress 6.0 or higher
-* PHP 8.0 or higher
-* Google Gemini API key (free from Google AI Studio)
-* Modern web browser for admin interface
+= 1.3.5 =
+Critical scheduling fix with complete WordPress date/time compatibility rewrite. Essential for proper content scheduling.
 
 == Support ==
 
-For support and documentation:
-* Check the plugin's comprehensive documentation
-* Review debug logs in WordPress
-* Visit our GitHub repository for technical details
+For support, documentation, and feature requests, please visit our plugin settings page which includes comprehensive help sections and troubleshooting guides.
 
-== Privacy ==
-
-This plugin sends content to Google Gemini AI for analysis and generation. Please review Google's privacy policy for AI services. No user data is stored by the plugin beyond what's necessary for WordPress functionality.
+**Transform your WordPress content workflow with intelligent automation!**

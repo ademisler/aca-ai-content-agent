@@ -62,19 +62,19 @@ AI-powered content creation and management plugin that generates blog posts, ide
 - **Error Handling**: Enhanced error handling throughout the application
 - **Performance**: Optimized performance for all new features
 
-## 🚀 Previous Updates - v1.6.9 - UI/UX IMPROVEMENTS & BUG FIXES 🚀
+## 🚀 Previous Updates - v1.7.0 - COMPREHENSIVE FEATURE ENHANCEMENTS & IMPROVEMENTS 🚀
 
-### 🔧 **CRITICAL BUG FIXES**
-- **View Draft Button Fix**: Fixed "View Draft" button in Content Drafts page not navigating to correct WordPress edit page
-- **WordPress Data Integration**: Updated all components to use `window.acaData` instead of deprecated `window.aca_object`
-- **Calendar Auto-Publish**: Fixed calendar drag-and-drop to automatically publish drafts when dropped on past dates
-- **URL Generation**: Improved WordPress admin URL generation with proper error handling and validation
+### 🎯 **IDEA BOARD ARCHIVE SYSTEM OVERHAUL**
+- **Complete Archive Fix**: Fixed idea board archive system to show all generated ideas including archived ones
+- **Restore Functionality**: Added ability to restore archived ideas back to active status
+- **Permanent Delete**: Added option to permanently delete ideas from archive with confirmation
+- **Enhanced API**: Updated backend API to properly handle idea archiving vs permanent deletion
+- **Better Organization**: Improved archived ideas interface with restore and delete buttons
 
-### 🎨 **ICON CONTRAST IMPROVEMENTS**
-- **Enhanced Visibility**: Fixed low contrast icons on dark backgrounds (sidebar, buttons, cards)
-- **Better Accessibility**: Improved icon contrast ratios for better accessibility compliance
-- **Dynamic Color Adaptation**: Icons now automatically adapt colors based on background context
-- **Hover State Improvements**: Enhanced hover states for better visual feedback
+### ⚡ **ENHANCED NAVIGATION & USER FLOW**
+- **Smart Navigation**: Quick Actions "Generate Ideas" button now automatically navigates to Idea Board after completion
+- **Improved User Journey**: Streamlined workflow from dashboard to idea management
+- **Better UX Flow**: Enhanced user experience with logical navigation patterns
 
 ### 📋 **IDEA MANAGEMENT ENHANCEMENTS**
 - **Archive Management**: Added ability to restore archived ideas back to active status
@@ -95,12 +95,12 @@ AI-powered content creation and management plugin that generates blog posts, ide
 - **User Confirmation**: Added confirmation dialogs for auto-publish actions
 
 ### ✅ **PRODUCTION READINESS**
-- **Enhanced Error Handling**: Better error messages and user guidance throughout the interface
-- **Improved Accessibility**: Better contrast ratios and keyboard navigation support
-- **Performance Optimizations**: Optimized animations and loading states for better performance
-- **Cross-Browser Compatibility**: Tested and verified across all major browsers
+- **Comprehensive Testing**: All new features thoroughly tested
+- **Backward Compatibility**: Maintained compatibility with existing installations
+- **Error Handling**: Enhanced error handling throughout the application
+- **Performance**: Optimized performance for all new features
 
-## 🚀 Previous Updates - v1.6.8 - GEMINI API RETRY LOGIC & IMPROVED ERROR HANDLING 🚀
+## 🚀 Previous Updates - v1.6.9 - UI/UX IMPROVEMENTS & BUG FIXES 🚀
 
 ### 🔄 **GEMINI API RETRY LOGIC IMPLEMENTATION**
 - **Intelligent Retry System**: Added comprehensive retry logic with exponential backoff for 503/429 errors
@@ -174,7 +174,7 @@ AI-powered content creation and management plugin that generates blog posts, ide
 ## 🛠️ Installation
 
 ### Automatic Installation (Recommended)
-1. Download the latest release: `releases/ai-content-agent-v1.8.0-comprehensive-feature-enhancements-and-improvements.zip`
+1. Download the latest release from the releases directory
 2. Go to WordPress Admin → Plugins → Add New → Upload Plugin
 3. Choose the downloaded zip file and click "Install Now"
 4. Activate the plugin

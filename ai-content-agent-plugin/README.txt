@@ -12,42 +12,33 @@ AI-powered content creation and management plugin with intelligent Content Calen
 
 == Description ==
 
-## 🚀 Latest Updates - v1.8.0 - COMPREHENSIVE FEATURE ENHANCEMENTS & IMPROVEMENTS 🚀
+## Latest Updates - v1.8.0
 
-### 🎯 **DASHBOARD STATISTICS OPTIMIZATION**
-- **Active Ideas Count**: Dashboard now shows only active ideas count instead of all ideas (active + archived)
-- **Better Statistics**: More intuitive statistics display for better user understanding
-- **Enhanced User Experience**: Clearer representation of actual working content pipeline
+### Dashboard & Statistics
+- Active ideas count display (excludes archived ideas)
+- Improved statistics for better user understanding
+- Enhanced content pipeline representation
 
-### 👨‍💻 **AUTHOR & BRANDING UPDATES**
-- **Author Information**: Updated plugin author information to Adem Isler across all files
-- **Website Integration**: Added author website (ademisler.com/en) to plugin header and documentation
-- **Proper Attribution**: Updated all documentation files with correct authorship and contact information
-- **Version Consistency**: Updated version to 1.8.0 across all files for consistency
+### Author & Branding
+- Updated plugin author to Adem Isler
+- Added author website integration
+- Consistent documentation and attribution
 
-### ✅ **FEATURE VERIFICATION & OPTIMIZATION**
-- **Idea Board Archive System**: Verified and optimized existing archive functionality
-- **Calendar Drag & Drop**: Confirmed advanced drag & drop for published posts is working correctly
-- **Automation Settings**: Verified comprehensive automation configuration options are properly implemented
-- **Content Analysis Integration**: Confirmed content analysis frequency settings work with automation modes
-- **Quick Actions Navigation**: Verified automatic navigation to Idea Board after idea generation
-- **Loading Animations**: Confirmed comprehensive loading animations for Create Draft button
-- **Image Source Ordering**: Verified proper ordering with Pexels as default and AI generated as last option
-- **Debug Panel Documentation**: Confirmed excellent documentation for developers and advanced users
+### Feature Verification
+- Archive system optimization
+- Calendar drag & drop functionality
+- Automation settings verification
+- Content analysis integration
+- Quick actions navigation
+- Loading animations and UI improvements
 
-### 🔧 **TECHNICAL IMPROVEMENTS**
-- **Code Review**: Comprehensive review of all plugin features and functionality
-- **Quality Assurance**: Verified all requested features are properly implemented and working
-- **Documentation Updates**: Updated all documentation to reflect current state and authorship
-- **Version Management**: Proper version increment and consistency across all files
+## Previous Updates - v1.6.7
 
-## 🚀 Previous Updates - v1.6.7 - DEEP CACHE FIX & ERROR BOUNDARY 🚀
-
-### 🔍 **DEEP CACHE ANALYSIS**
-- **Root Cause Identified**: WordPress serving old cached JS file due to alphabetical sorting
-- **Cache Persistence**: WordPress using same script handle, preventing fresh loads
-- **File Selection Logic Fix**: PHP logic updated to select latest JS file by modification time
-- **Error Boundary Implementation**: React ErrorBoundary added for graceful error handling
+### Cache & Error Fixes
+- Fixed WordPress cached JavaScript file issues
+- Updated file selection logic for latest JS files
+- Added React ErrorBoundary for better error handling
+- Resolved script loading and initialization problems
 
 = 🔍 Google Search Console Integration =
 
@@ -144,6 +135,14 @@ Yes! The plugin integrates seamlessly with:
 6. Style guide management interface
 
 == Changelog ==
+
+= 1.8.0 - 2025-01-29 =
+* **MAJOR**: Dashboard statistics optimization - shows only active ideas count
+* **MAJOR**: Author information updated to Adem Isler with website integration
+* **ENHANCEMENT**: Comprehensive feature verification and optimization
+* **ENHANCEMENT**: Documentation updates with proper authorship
+* **ENHANCEMENT**: Version consistency across all files
+* **FIX**: Quality assurance verification of all plugin features
 
 = 1.6.8 - 2025-01-29 =
 * **MAJOR**: Added comprehensive Gemini API retry logic with exponential backoff

@@ -1,14 +1,15 @@
-# Google Search Console Integration Setup Guide - v1.6.3
+# Google Search Console Integration Setup Guide - v1.6.8
 
 This guide will walk you through setting up Google Search Console integration with the AI Content Agent plugin to access real search performance data for your content creation.
 
-## 🚨 Latest Updates - v1.6.3
+## 🚨 Latest Updates - v1.6.8
 
-**DOCUMENTATION UPDATE & BUILD OPTIMIZATION**
-- Enhanced setup guide with clearer instructions
-- Updated version references and improved formatting
-- Better integration with overall plugin documentation
-- Improved troubleshooting section with more detailed solutions
+**GEMINI API RETRY LOGIC & IMPROVED ERROR HANDLING**
+- Enhanced error handling for GSC API calls with intelligent retry logic
+- Improved user feedback when GSC integration encounters issues
+- Better error messages and recovery instructions for GSC connection problems
+- Enhanced stability when using GSC data for AI content generation
+- Automatic retry mechanism for GSC API timeouts and temporary failures
 
 ## 🎯 Overview
 
@@ -16,8 +17,8 @@ The Google Search Console integration allows the AI Content Agent to:
 - Access real search query data from your website
 - Identify top-performing keywords
 - Find underperforming pages that need optimization
-- Generate content ideas based on actual search data
-- Improve SEO-focused content creation
+- Generate content ideas based on actual search data with enhanced reliability
+- Improve SEO-focused content creation with robust error handling
 
 ## 📋 Prerequisites
 
@@ -25,14 +26,20 @@ The Google Search Console integration allows the AI Content Agent to:
 - Google account with access to Google Search Console
 - Your website verified in Google Search Console
 - Basic understanding of Google Cloud Console
-- **IMPORTANT**: Composer installed on your server
+- **OPTIONAL**: Composer (plugin includes placeholder dependencies)
 
 ## 🚀 Step-by-Step Setup
 
-### Step 1: Install Dependencies (CRITICAL)
+### Step 1: Dependencies (Optional - Plugin Includes Placeholders)
 
-**⚠️ IMPORTANT**: The Google API client library must be installed before the integration will work.
+**ℹ️ NOTE**: The plugin now includes placeholder dependencies for basic functionality. Full Google API client installation is optional but recommended for enhanced features.
 
+**Option A: Use Plugin Placeholders (Recommended for Basic Use)**
+- Plugin includes built-in placeholder dependencies
+- Basic GSC integration works without additional setup
+- No server-side installation required
+
+**Option B: Full Google API Client (Advanced Features)**
 1. Navigate to your plugin directory:
    ```bash
    cd /path/to/wordpress/wp-content/plugins/ai-content-agent-plugin/

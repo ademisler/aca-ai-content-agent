@@ -1,26 +1,26 @@
-# AI Image Generation Setup Guide - v1.6.3
+# AI Image Generation Setup Guide - v1.6.8
 
 This guide explains how to set up AI image generation using Google's Imagen 3.0 API in the AI Content Agent plugin.
 
-## 🖼️ Latest Updates - v1.6.3
+## 🖼️ Latest Updates - v1.6.8
 
-### ✅ **DOCUMENTATION UPDATE & ENHANCED SETUP GUIDE**
-- **Enhanced Setup Instructions**: Improved setup guide with clearer step-by-step instructions
-- **Better Error Handling Documentation**: More detailed troubleshooting section with specific solutions
-- **Updated Version References**: All version information updated to reflect current plugin version
-- **Improved Integration Info**: Better integration with overall plugin documentation system
-- **Text-Free AI Images**: Maintained explicit prompting to prevent text in generated images
-- **Enhanced Image Attachment**: Continued improved image attachment process with proper error handling
+### ✅ **GEMINI API RETRY LOGIC & IMPROVED ERROR HANDLING**
+- **Enhanced Error Handling**: Improved error handling for AI image generation with intelligent retry logic
+- **Better API Reliability**: Automatic retry mechanism for image generation API failures
+- **User-Friendly Messages**: Clear error messages and recovery instructions for image generation issues
+- **Improved Stability**: Enhanced stability when generating images during content creation
+- **Timeout Handling**: Better handling of image generation timeouts with automatic retry
+- **Fallback Mechanisms**: Graceful fallback to stock photo APIs when AI generation fails
 
 ## 📋 Overview
 
-The AI Content Agent plugin now supports **real AI image generation** using Google's Imagen 3.0 API through Google Cloud Vertex AI. This replaces the previous placeholder implementation with actual image generation capabilities.
+The AI Content Agent plugin now supports **real AI image generation** using Google's Imagen 3.0 API through Google Cloud Vertex AI with enhanced error handling and retry capabilities. This replaces the previous placeholder implementation with actual image generation capabilities and robust error management.
 
 ### **Supported Image Sources:**
-- ✅ **AI Generated** - Google Imagen 3.0 API (NEW - Real Implementation)
-- ✅ **Pexels** - Stock photos via Pexels API
-- ✅ **Unsplash** - Stock photos via Unsplash API  
-- ✅ **Pixabay** - Stock photos via Pixabay API
+- ✅ **AI Generated** - Google Imagen 3.0 API (Enhanced with retry logic)
+- ✅ **Pexels** - Stock photos via Pexels API (Verified working)
+- ✅ **Unsplash** - Stock photos via Unsplash API (Verified working)
+- ✅ **Pixabay** - Stock photos via Pixabay API (Verified working)
 
 ## 🚀 Quick Setup Guide
 

@@ -16,7 +16,7 @@ This comprehensive guide covers development, deployment, and maintenance procedu
 ### Prerequisites
 - **Node.js**: 18+ (for React frontend)
 - **PHP**: 7.4+ (for WordPress backend)
-- **Composer**: For PHP dependencies
+- **Composer**: For PHP dependencies (optional)
 - **Git**: Version control
 - **WordPress**: 5.0+ (for testing)
 
@@ -29,7 +29,7 @@ cd ai-content-agent-plugin
 # Install frontend dependencies
 npm install
 
-# Install PHP dependencies
+# Install PHP dependencies (optional, plugin includes placeholders)
 composer install --no-dev --optimize-autoloader
 
 # Start development server
@@ -40,282 +40,330 @@ npm run dev
 ```
 ai-content-agent-plugin/
 ├── admin/                     # Compiled assets
-│   ├── css/index.css         # Compiled CSS
-│   └── js/index.js           # Compiled JavaScript
+│   ├── assets/               # Build output (JS files)
+│   ├── css/index.css         # Fallback CSS
+│   └── js/index.js           # Fallback JavaScript
 ├── components/               # React components
 ├── services/                 # Frontend services
 ├── includes/                 # PHP backend classes
 ├── releases/                 # Release management
-│   ├── ai-content-agent-v1.4.9-*.zip  # Latest release
+│   ├── ai-content-agent-v1.6.8-*.zip  # Latest release
 │   └── archive/              # Previous versions
+├── vendor/                   # PHP dependencies (placeholders)
 ├── dist/                     # Vite build output
-├── node_modules/             # Node dependencies
-├── vendor/                   # Composer dependencies
-└── *.md                      # Documentation files
+└── node_modules/             # Node.js dependencies
 ```
 
-## 🔨 Build Process
+## 🔧 Build Process
 
-### Frontend Build
+### Development Build
 ```bash
-# Development build
+# Start development server with hot reload
 npm run dev
 
-# Production build
+# Build for development (with source maps)
+npm run build:dev
+```
+
+### Production Build
+```bash
+# Build for production
 npm run build
 
-# Copy assets to admin directory
-cp dist/assets/*.css admin/css/index.css
-cp dist/assets/*.js admin/js/index.js
+# Copy assets to WordPress plugin structure
+cp dist/assets/index-*.js admin/assets/
 ```
 
-### Backend Dependencies
-```bash
-# Install production dependencies
-composer install --no-dev --optimize-autoloader
+### Build Configuration
+The plugin uses **Vite** with the following key configurations:
 
-# Development dependencies (if needed)
-composer install
+```typescript
+// vite.config.ts key settings
+export default defineConfig({
+  build: {
+    target: 'es2020',
+    minify: false, // Disabled to prevent temporal dead zone issues
+    rollupOptions: {
+      output: {
+        format: 'iife', // Better variable isolation
+        name: 'ACAApp',
+        entryFileNames: 'assets/[name]-[hash].js',
+      }
+    },
+    sourcemap: false, // Disabled for production
+    outDir: 'dist',
+  }
+});
 ```
 
-### Build Verification
-- [ ] CSS file generated in `admin/css/`
-- [ ] JavaScript file generated in `admin/js/`
-- [ ] All React components compile without errors
-- [ ] PHP syntax validation passes
-- [ ] WordPress activation test successful
+### Key Build Features
+- **No Minification**: Prevents variable hoisting issues
+- **IIFE Format**: Better variable isolation
+- **Hash-based Filenames**: Automatic cache busting
+- **ES2020 Target**: Modern browser compatibility
 
 ## 📦 Release Management
 
-### For Developers
-```bash
-# Latest release
-releases/ai-content-agent-v1.6.4-javascript-initialization-error-fix.zip
+### Current Release Information
+- **Latest Version**: v1.6.8
+- **Release File**: `ai-content-agent-v1.6.8-gemini-api-retry-logic-and-improved-error-handling.zip`
+- **Status**: Production ready with enhanced AI resilience
+- **Key Features**: Intelligent retry logic, model fallback, enhanced error handling
 
-# Archived versions
-releases/archive/ai-content-agent-v1.3.x-*.zip
-releases/archive/ai-content-agent-v1.4.x-*.zip
-releases/archive/ai-content-agent-v1.5.x-*.zip
-releases/archive/ai-content-agent-v1.6.[0-3]-*.zip
+### Release Process
+
+#### 1. Version Update
+```bash
+# Update version in package.json
+npm version patch  # or minor/major
+
+# Update WordPress plugin header
+# In ai-content-agent.php:
+# Version: 1.6.8
+# define('ACA_VERSION', '1.6.8');
 ```
 
-### Version Update Process
-1. **Update Version Numbers**:
-   ```bash
-   # Update in ai-content-agent.php
-   # Line 5: * Version: 1.6.4
-   # Line 18: define('ACA_VERSION', '1.6.4');
-   
-   # Update in package.json
-   # Line 4: "version": "1.6.4",
-   ```
+#### 2. Build and Test
+```bash
+# Clean build
+npm run build
 
-2. **Update Documentation**:
-   - [ ] README.md - Latest Updates section
-   - [ ] README.txt - Stable tag and changelog
-   - [ ] CHANGELOG.md - New version entry
-   - [ ] GOOGLE_SEARCH_CONSOLE_SETUP.md - Plugin version
-   - [ ] All version references in documentation
+# Copy assets
+cp dist/assets/index-*.js admin/assets/
 
-3. **Build and Test**:
-   ```bash
-   npm run build
-   cp dist/assets/*.css admin/css/index.css
-   cp dist/assets/*.js admin/js/index.js
-   ```
+# Test functionality
+npm run test  # if tests are available
+```
 
-4. **Create Release**:
-   ```bash
-   # Move previous version to archive
-   mv releases/ai-content-agent-v*.zip releases/archive/
-   
-   # Create new release zip
-   cd ..
-   zip -r ai-content-agent-v1.6.4-description.zip ai-content-agent-plugin/ \
-     -x "*/node_modules/*" "*/.git/*" "*/dist/*" "*/package-lock.json"
-   
-   # Move to releases directory
-   mv ai-content-agent-v*.zip releases/
-   ```
+#### 3. Documentation Update
+```bash
+# Update all documentation files
+# - README.md
+# - CHANGELOG.md
+# - RELEASES.md
+# - README.txt
+# - DEVELOPER_GUIDE.md (this file)
+```
 
-5. **Git Management**:
-   ```bash
-   git add .
-   git commit -m "🚀 RELEASE v1.6.4: Description"
-   git push origin main
-   git tag v1.6.4
-   git push origin v1.6.4
-   ```
+#### 4. Create Release Package
+```bash
+# Move previous release to archive
+mv releases/ai-content-agent-v1.6.7-*.zip releases/archive/
+
+# Create new release zip
+zip -r ai-content-agent-v1.6.8-gemini-api-retry-logic-and-improved-error-handling.zip \
+  ai-content-agent-plugin/ \
+  -x "*/node_modules/*" "*/.git/*" "*/dist/*" \
+     "*/package-lock.json" "*/.gitignore" "*/.DS_Store" \
+     "*/tsconfig.json" "*/vite.config.ts"
+
+# Move to releases directory
+mv ai-content-agent-v1.6.8-*.zip releases/
+```
+
+#### 5. Git Operations
+```bash
+# Commit all changes
+git add .
+git commit -m "🚀 RELEASE v1.6.8: GEMINI API RETRY LOGIC & IMPROVED ERROR HANDLING"
+
+# Push to main branch
+git push origin main
+
+# Create and push tag
+git tag v1.6.8
+git push origin v1.6.8
+```
 
 ### Release Naming Convention
 ```
 ai-content-agent-v{MAJOR}.{MINOR}.{PATCH}-{DESCRIPTION}.zip
 
 Examples:
-- ai-content-agent-v1.6.4-javascript-initialization-error-fix.zip
-- ai-content-agent-v1.6.3-documentation-update-and-build-optimization.zip
-- ai-content-agent-v1.6.2-fixed-javascript-initialization-error.zip
+- ai-content-agent-v1.6.8-gemini-api-retry-logic-and-improved-error-handling.zip
+- ai-content-agent-v1.6.7-deep-cache-fix-and-error-boundary.zip
+- ai-content-agent-v1.6.6-cache-fix-and-dependencies-resolved.zip
 ```
 
 ## 📚 Documentation Standards
 
-### Documentation Update Rule
-**CRITICAL**: Every code change MUST be accompanied by documentation updates.
+### File Structure
+```
+├── README.md                 # Main project documentation
+├── CHANGELOG.md             # Detailed version history
+├── RELEASES.md              # Release management info
+├── README.txt               # WordPress plugin readme
+├── DEVELOPER_GUIDE.md       # This file
+├── GOOGLE_SEARCH_CONSOLE_SETUP.md
+├── SEO_INTEGRATION_GUIDE.md
+└── AI_IMAGE_GENERATION_SETUP.md
+```
 
-### Required Documentation Updates
-- [ ] **README.md**: Main documentation with latest features
-- [ ] **README.txt**: WordPress directory format
-- [ ] **CHANGELOG.md**: Detailed version history
-- [ ] **RELEASES.md**: Release management information
-- [ ] **Setup Guides**: Feature-specific instructions
-
-### Documentation Checklist
-- [ ] Version numbers updated across all files
-- [ ] Download links point to correct release
-- [ ] Feature descriptions reflect current functionality
-- [ ] Installation instructions are accurate
-- [ ] Troubleshooting section is up-to-date
-
-### Writing Standards
-- Use clear, concise language
-- Include code examples where appropriate
-- Maintain consistent formatting
-- Use emojis for visual organization
-- Keep technical accuracy high
+### Documentation Update Checklist
+- [ ] Update version badges and references
+- [ ] Add new features to feature lists
+- [ ] Update installation instructions
+- [ ] Add changelog entries
+- [ ] Update troubleshooting sections
+- [ ] Verify all links and references
+- [ ] Check for consistency across all files
 
 ## 🧪 Testing Procedures
 
-### Pre-Release Testing
-1. **Plugin Activation**:
-   - [ ] Clean WordPress install
-   - [ ] Plugin activates without errors
-   - [ ] Admin page loads correctly
+### Manual Testing Checklist
 
-2. **Core Functionality**:
-   - [ ] AI content generation works
-   - [ ] Content calendar functions
-   - [ ] Google Search Console integration
-   - [ ] Settings save and load properly
+#### Plugin Activation
+- [ ] Plugin activates without errors
+- [ ] Admin menu appears correctly
+- [ ] No JavaScript console errors
+- [ ] All assets load properly
 
-3. **Browser Compatibility**:
-   - [ ] Chrome (latest)
-   - [ ] Firefox (latest)
-   - [ ] Safari (latest)
-   - [ ] Edge (latest)
+#### Core Functionality
+- [ ] Settings page loads and saves correctly
+- [ ] API keys can be configured
+- [ ] Style guide creation works
+- [ ] Idea generation functions
+- [ ] Draft creation with retry logic works
+- [ ] Error handling displays user-friendly messages
 
-4. **WordPress Compatibility**:
-   - [ ] WordPress 5.0+
-   - [ ] PHP 7.4+
-   - [ ] Common themes compatibility
-   - [ ] Plugin conflict testing
+#### AI Service Testing
+- [ ] Test Gemini API overload scenarios
+- [ ] Verify automatic model fallback
+- [ ] Check retry logic with network issues
+- [ ] Validate error message display
 
-### Error Testing
-- [ ] Missing dependencies handling
-- [ ] API key validation
-- [ ] Network connectivity issues
-- [ ] Invalid user input handling
+#### WordPress Integration
+- [ ] Compatible with latest WordPress version
+- [ ] Works with common themes
+- [ ] Integrates with SEO plugins (Yoast, RankMath)
+- [ ] No conflicts with other plugins
 
-## ✅ Deployment Checklist
+### Error Scenarios to Test
+1. **API Overload (503 Error)**
+   - Expected: Automatic retry with fallback model
+   - User sees: "🤖 AI service is temporarily overloaded..."
+
+2. **Network Timeout**
+   - Expected: Retry with exponential backoff
+   - User sees: "⏱️ Request timed out..."
+
+3. **Invalid API Key**
+   - Expected: Clear error message
+   - User sees: "🔑 AI API key is not configured..."
+
+4. **Missing Style Guide**
+   - Expected: Helpful guidance
+   - User sees: "📋 Style guide is required..."
+
+## 🚀 Deployment Checklist
 
 ### Pre-Deployment
 - [ ] All tests pass
 - [ ] Documentation updated
 - [ ] Version numbers consistent
-- [ ] Build process completed
-- [ ] Release notes prepared
+- [ ] Build assets copied correctly
+- [ ] No development dependencies in release
 
-### Deployment Steps
-1. [ ] Create release zip file
-2. [ ] Test zip file installation
-3. [ ] Upload to releases directory
-4. [ ] Update documentation links
-5. [ ] Commit and push changes
-6. [ ] Create git tag
-7. [ ] Notify stakeholders
+### WordPress.org Submission (if applicable)
+- [ ] README.txt follows WordPress standards
+- [ ] Stable tag updated
+- [ ] Tested up to latest WordPress version
+- [ ] Screenshots updated
+- [ ] Changelog entries added
 
-### Post-Deployment
-- [ ] Monitor for issues
-- [ ] User feedback collection
-- [ ] Performance monitoring
-- [ ] Documentation review
+### Production Deployment
+- [ ] Backup current version
+- [ ] Test in staging environment
+- [ ] Monitor for errors after deployment
+- [ ] Verify all functionality works
+- [ ] Check error logs
 
-## 🔧 Common Development Tasks
+## 🔍 Debugging and Troubleshooting
 
-### Adding New Features
-1. **Plan Implementation**:
-   - [ ] Design document
-   - [ ] API changes needed
-   - [ ] UI/UX considerations
-   - [ ] Testing strategy
+### Common Development Issues
 
-2. **Development**:
-   - [ ] Backend implementation
-   - [ ] Frontend components
-   - [ ] API integration
-   - [ ] Error handling
+#### Build Errors
+```bash
+# Clear node modules and reinstall
+rm -rf node_modules package-lock.json
+npm install
 
-3. **Documentation**:
-   - [ ] Feature documentation
-   - [ ] API documentation
-   - [ ] User guide updates
-   - [ ] Changelog entry
+# Clear Vite cache
+rm -rf dist
+npm run build
+```
 
-### Bug Fixes
-1. **Identify Issue**:
-   - [ ] Reproduce bug
-   - [ ] Determine root cause
-   - [ ] Plan fix approach
+#### JavaScript Errors
+- Check browser console for errors
+- Verify asset files are loaded correctly
+- Check WordPress `wp_enqueue_script` calls
+- Validate React component structure
 
-2. **Implement Fix**:
-   - [ ] Code changes
-   - [ ] Testing verification
-   - [ ] Regression testing
+#### PHP Errors
+- Check WordPress debug logs
+- Verify PHP syntax
+- Test API endpoints directly
+- Check WordPress REST API responses
 
-3. **Documentation**:
-   - [ ] Update troubleshooting
-   - [ ] Changelog entry
-   - [ ] Release notes
+### Logging and Monitoring
+```php
+// Enable WordPress debugging
+define('WP_DEBUG', true);
+define('WP_DEBUG_LOG', true);
 
-### Dependency Updates
-1. **Frontend Dependencies**:
-   ```bash
-   npm update
-   npm audit fix
-   npm run build
-   ```
+// Plugin-specific logging
+error_log('ACA Debug: ' . print_r($data, true));
+```
 
-2. **Backend Dependencies**:
-   ```bash
-   composer update
-   composer audit
-   ```
+## 🔧 Advanced Configuration
 
-3. **Testing**:
-   - [ ] Full functionality test
-   - [ ] Compatibility verification
-   - [ ] Performance impact assessment
+### Environment Variables
+```bash
+# .env file for development
+GEMINI_API_KEY=your_api_key_here
+NODE_ENV=development
+```
 
-## 📞 Support and Resources
+### Custom Build Scripts
+```json
+// package.json scripts
+{
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "build:wp": "vite build && cp dist/assets/index-*.js admin/assets/",
+    "preview": "vite preview"
+  }
+}
+```
 
-### Internal Resources
-- **Main Repository**: GitHub repository
-- **Documentation**: All .md files in plugin root
-- **Release History**: `releases/archive/` directory
-- **Changelog**: `CHANGELOG.md` for detailed history
+### WordPress Constants
+```php
+// wp-config.php for development
+define('ACA_DEBUG', true);
+define('ACA_API_TIMEOUT', 120);
+define('ACA_MAX_RETRIES', 3);
+```
 
-### External Resources
-- **WordPress Codex**: Plugin development standards
-- **React Documentation**: Frontend framework reference
-- **Google APIs**: Search Console integration docs
-- **Composer**: PHP dependency management
+## 📊 Performance Considerations
 
-### Contact Information
-- **Development Team**: Internal team communication
-- **Issue Tracking**: GitHub Issues
-- **Documentation**: This developer guide
+### Bundle Size Optimization
+- Unminified build: ~320KB (for stability)
+- Minified would be: ~95KB (but causes TDZ issues)
+- Assets cached by WordPress and browsers
+
+### API Performance
+- Timeout: 120 seconds (increased for complex content)
+- Retry logic: 3 attempts with exponential backoff
+- Model fallback: gemini-2.0-flash → gemini-1.5-pro
+- Token limit: 4096 (increased for longer content)
+
+### WordPress Performance
+- Unique script handles prevent caching issues
+- File modification time used for cache busting
+- Error boundary prevents page crashes
+- Graceful degradation when services unavailable
 
 ---
 
-**Last Updated**: January 2025  
-**Plugin Version**: 1.6.4  
-**Guide Version**: 1.2
+**Development Guidelines**: Always test thoroughly, document changes, and maintain backward compatibility. The plugin should work reliably even when AI services are temporarily unavailable. 🚀

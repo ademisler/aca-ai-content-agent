@@ -1,99 +1,68 @@
 # AI Content Agent (ACA) WordPress Plugin
 
-![Version](https://img.shields.io/badge/version-1.6.6-blue.svg)
+![Version](https://img.shields.io/badge/version-1.6.8-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-blue.svg)
 ![License](https://img.shields.io/badge/license-GPL%20v2%2B-green.svg)
 
 AI-powered content creation and management plugin that generates blog posts, ideas, and manages your content workflow automatically with an intelligent Content Calendar system and **real Google Search Console integration**.
 
-## 🚀 Latest Updates - v1.6.6 - CACHE FIX & DEPENDENCIES RESOLVED 🚀
+## 🚀 Latest Updates - v1.6.8 - GEMINI API RETRY LOGIC & IMPROVED ERROR HANDLING 🚀
 
-### 🔧 **CACHE ISSUE RESOLVED**
-- **Asset Path Fixed**: Corrected JavaScript file loading to use admin/assets instead of admin/js
-- **WordPress Cache Bypass**: Implemented proper file versioning with timestamp to bypass WordPress cache
-- **File Structure Optimized**: Reorganized asset structure for better WordPress integration
-- **Unminified Build Working**: Confirmed unminified JavaScript loads without temporal dead zone errors
+### 🔄 **GEMINI API RETRY LOGIC IMPLEMENTATION**
+- **Intelligent Retry System**: Added comprehensive retry logic with exponential backoff for 503/429 errors
+- **Model Fallback Strategy**: Automatic fallback from gemini-2.0-flash to gemini-1.5-pro when overloaded
+- **Enhanced Error Detection**: Smart detection for overload, timeout, and API key configuration issues
+- **Maximum Retry Attempts**: Up to 3 retry attempts with intelligent delay strategy (2s, 4s, 8s)
+- **Production Resilience**: Enhanced API call resilience for stable production environments
 
-### 📦 **DEPENDENCIES RESOLVED**
-- **Google API Placeholder**: Created vendor/autoload.php placeholder to satisfy dependency checks
-- **Composer Dependencies**: Added basic Google API client stubs to prevent fatal errors
-- **Dependency Warning Removed**: Eliminated "Google API Dependencies: Required libraries are missing" warning
-- **Manual Installation Guide**: Provided clear instructions for proper Google API setup when needed
+### 🛡️ **ERROR HANDLING IMPROVEMENTS**
+- **User-Friendly Messages**: Contextual error messages with emojis and clear action guidance
+- **Specific Error Scenarios**: Tailored messages for different failure types (overload, timeout, API key)
+- **Better Timeout Handling**: Increased timeout limits (120 seconds) for complex content generation
+- **Enhanced Token Limits**: Increased maxOutputTokens to 4096 for longer, more detailed content
+- **Graceful Degradation**: Smooth user experience even when AI services are temporarily unavailable
 
-### ✅ **VERIFIED FUNCTIONALITY**
-- **Plugin Interface Loads**: Admin interface now loads correctly without JavaScript errors
-- **Cache Issues Resolved**: WordPress no longer serves cached minified files
-- **Dependency Checks Pass**: All dependency validation passes without warnings
-- **Cross-Browser Compatible**: Tested across different browsers and WordPress versions
-- **Production Ready**: Stable release ready for production deployment
+### 💡 **FRONTEND ENHANCEMENTS**
+- **Intelligent Error Parsing**: Smart error message analysis for better user feedback
+- **Context-Aware Guidance**: Specific instructions based on error type and user context
+- **Improved Loading States**: Better visual feedback during retry attempts and fallback operations
+- **Recovery Instructions**: Clear guidance for users on how to resolve common issues
 
-## 🚀 Previous Updates - v1.6.3 - DOCUMENTATION UPDATE & BUILD OPTIMIZATION 🚀
+### 🔧 **BACKEND OPTIMIZATIONS**
+- **Enhanced PHP Retry Logic**: Robust server-side retry mechanism with model fallback support
+- **Improved Error Logging**: Comprehensive error tracking and debugging capabilities
+- **Better API Response Validation**: Enhanced validation and error propagation throughout the system
+- **Optimized Performance**: Better timeout and token limits for improved content generation speed
 
-### 📚 **COMPREHENSIVE DOCUMENTATION UPDATE**
-- **Complete Documentation Review**: All documentation files thoroughly reviewed and updated
-- **Version Consistency**: Updated all version references across documentation to v1.6.3
-- **Enhanced Setup Guides**: Improved setup instructions for all integrations
-- **Developer Guide Enhancement**: Updated build processes and deployment procedures
-- **Release Management**: Updated release information and archive organization
+### ✅ **PRODUCTION READINESS**
+- **Robust Overload Handling**: Automatic handling of Gemini API overload situations without user intervention
+- **Automatic Model Switching**: Seamless fallback to stable models when primary model is unavailable
+- **Enhanced User Experience**: Minimal disruption during AI service fluctuations
+- **Comprehensive Monitoring**: Detailed error logging for system administrators and debugging
 
-### 🔧 **BUILD SYSTEM OPTIMIZATION**
-- **Clean Build Process**: Optimized build system with latest dependencies
-- **Asset Management**: Improved asset copying and deployment workflow
-- **File Organization**: Better file structure and organization for releases
-- **Performance Improvements**: Enhanced build performance and output quality
-- **Documentation Integration**: Better integration between code and documentation
+## 🚀 Previous Updates - v1.6.7 - DEEP CACHE FIX & ERROR BOUNDARY 🚀
 
-### ✅ **VERIFIED FUNCTIONALITY**
-- **All Features Working**: Confirmed all plugin features functioning correctly
-- **Build Process**: Clean build process with optimized output
-- **Documentation Accuracy**: All documentation reflects current functionality
-- **Release Preparation**: Proper release preparation and archive management
-- **Version Consistency**: All files updated with consistent version information
+### 🔍 **DEEP CACHE ANALYSIS**
+- **Root Cause Identified**: WordPress serving old cached JS file due to alphabetical sorting and `end()` function
+- **Cache Persistence**: WordPress using same script handle, preventing fresh loads
+- **File Selection Logic Fix**: PHP logic updated to select latest JS file by modification time
+- **Cache Bypass Strategy**: Unique script handle generated using MD5 hash for `wp_enqueue_script`
 
-## 🚀 Previous Updates - v1.6.2 - COMPLETELY FIXED JAVASCRIPT INITIALIZATION ERROR 🚀
-
-### 🚀 **COMPLETELY FIXED JAVASCRIPT INITIALIZATION ERROR**
-- **Temporal Dead Zone Fix**: Resolved "Cannot access 'D' before initialization" error by switching to Terser minifier
-- **Build Target Update**: Changed from ES2015 to ES2020 for better modern browser compatibility
-- **Minifier Switch**: Replaced ESBuild with Terser minifier for safer variable scoping
-- **Variable Scoping**: Fixed variable hoisting issues that caused initialization errors
-- **WordPress Integration**: Updated plugin to automatically use latest built assets
-
-### 🔧 **OPTIMIZED BUILD SYSTEM**
-- **Terser Minification**: Using Terser with optimized settings for better code generation
-- **Safe Variable Names**: Configured to keep function and class names for better debugging
-- **ES2020 Target**: Modern JavaScript target for enhanced browser compatibility
-- **Automatic Asset Management**: WordPress plugin automatically detects and uses latest build
-- **Build Scripts**: Added `npm run build:wp` for WordPress-specific builds
-
-### 🎯 **ADVANCED SEO FEATURES**
-- **Social Media Ready**: Automatic Facebook OpenGraph and Twitter Card meta generation
-- **Enhanced Schema Support**: Improved schema markup for posts, pages, and custom post types
-- **Primary Category Support**: Automatic primary category assignment for better content organization
-- **Pro/Premium Features**: Full utilization of advanced features in Pro/Premium plugin versions
-- **Canonical URL Management**: Automatic canonical URL setting to prevent duplicate content issues
-
-### ✅ **ALL STOCK PHOTO APIS CONFIRMED WORKING**
-- **Pexels API**: ✅ Verified correct `Authorization: {API_KEY}` header implementation
-- **Unsplash API**: ✅ Verified correct `Authorization: Client-ID {API_KEY}` header implementation
-- **Pixabay API**: ✅ Verified correct `?key={API_KEY}` query parameter implementation
-- **No Changes Needed**: All stock photo integrations confirmed working correctly
-
-### 🔍 **GOOGLE SEARCH CONSOLE INTEGRATION - FULLY FUNCTIONAL**
-- **Real GSC Data**: Complete integration with actual Google Search Console API
-- **OAuth2 Authentication**: Secure OAuth2 flow for connecting to user's GSC account
-- **Live Search Analytics**: Access to real search queries, clicks, impressions, CTR, and position data
-- **Dynamic Content Ideas**: AI content generation now uses actual search performance data
-- **Error Handling**: Comprehensive error handling with graceful degradation when dependencies are missing
+### 🔧 **IMPLEMENTED SOLUTIONS**
+- **Error Boundary Implementation**: React ErrorBoundary added to `index.tsx` for graceful error handling
+- **File Cleanup**: Old problematic `index-CX3QSqoW.js` file removed
+- **WordPress Cache Bypass**: Implemented robust caching solution for JavaScript files
+- **Production Stability**: Enhanced stability for production WordPress environments
 
 ## 📋 Features
 
 ### 🤖 **AI-Powered Content Creation**
-- **Gemini AI Integration**: Advanced content generation using Google's Gemini AI
+- **Gemini AI Integration**: Advanced content generation using Google's Gemini AI with retry logic
 - **Smart Idea Generation**: AI suggests content ideas based on your niche and trends
-- **Auto-Draft Creation**: Transform ideas into full blog posts automatically
+- **Auto-Draft Creation**: Transform ideas into full blog posts automatically with error resilience
 - **SEO Optimization**: Built-in SEO analysis and optimization suggestions
+- **Robust API Handling**: Intelligent error handling and automatic retry mechanisms
 
 ### 📅 **Intelligent Content Calendar**
 - **Drag & Drop Scheduling**: Intuitive drag-and-drop interface for content scheduling
@@ -126,7 +95,7 @@ AI-powered content creation and management plugin that generates blog posts, ide
 ## 🛠️ Installation
 
 ### Automatic Installation (Recommended)
-1. Download the latest release: `releases/ai-content-agent-v1.6.4-javascript-initialization-error-fix.zip`
+1. Download the latest release: `releases/ai-content-agent-v1.6.8-gemini-api-retry-logic-and-improved-error-handling.zip`
 2. Go to WordPress Admin → Plugins → Add New → Upload Plugin
 3. Choose the downloaded zip file and click "Install Now"
 4. Activate the plugin
@@ -141,25 +110,25 @@ AI-powered content creation and management plugin that generates blog posts, ide
 ## 📁 Release Management
 
 ### Current Release
-- **Latest Version**: v1.6.4 (Located in `/releases/`)
-- **File**: `ai-content-agent-v1.6.4-javascript-initialization-error-fix.zip`
-- **Status**: Stable, ready for production
+- **Latest Version**: v1.6.8 (Located in `/releases/`)
+- **File**: `ai-content-agent-v1.6.8-gemini-api-retry-logic-and-improved-error-handling.zip`
+- **Status**: Stable, ready for production with enhanced AI resilience
 
 ### Archive
 - **Previous Versions**: All older versions are stored in `/releases/archive/`
-- **Total Archived**: 22 previous versions
+- **Total Archived**: 25 previous versions
 - **Purpose**: Development history and rollback capability
 
 ### For Developers
 ```bash
 # Latest release
-releases/ai-content-agent-v1.6.4-javascript-initialization-error-fix.zip
+releases/ai-content-agent-v1.6.8-gemini-api-retry-logic-and-improved-error-handling.zip
 
 # Archived versions
 releases/archive/ai-content-agent-v1.3.x-*.zip
 releases/archive/ai-content-agent-v1.4.x-*.zip
 releases/archive/ai-content-agent-v1.5.x-*.zip
-releases/archive/ai-content-agent-v1.6.[0-3]-*.zip
+releases/archive/ai-content-agent-v1.6.[0-7]-*.zip
 ```
 
 ## ⚡ Quick Start
@@ -173,14 +142,14 @@ releases/archive/ai-content-agent-v1.6.[0-3]-*.zip
    - Connect your GSC account for real search data
 4. **Choose Your Mode**:
    - Manual: Full control
-   - Semi-Auto: AI assistance
-   - Full-Auto: Complete automation
+   - Semi-Auto: AI assistance with retry logic
+   - Full-Auto: Complete automation with error resilience
 5. **Start Creating**: Use the Idea Board to generate and manage content ideas
 
 ## 🔧 Configuration
 
 ### Required
-- **Gemini AI API Key**: For content generation
+- **Gemini AI API Key**: For content generation with automatic retry support
 - **WordPress 5.0+**: Minimum WordPress version
 - **PHP 7.4+**: Minimum PHP version
 
@@ -194,6 +163,7 @@ releases/archive/ai-content-agent-v1.6.[0-3]-*.zip
 - **AI Image Setup**: `AI_IMAGE_GENERATION_SETUP.md` - Complete guide for Google Imagen 3.0 integration
 - **GSC Setup Guide**: `GOOGLE_SEARCH_CONSOLE_SETUP.md` - Complete GSC integration guide
 - **Developer Guide**: `DEVELOPER_GUIDE.md` - Comprehensive development and deployment guide
+- **SEO Integration**: `SEO_INTEGRATION_GUIDE.md` - Complete SEO plugin integration guide
 - **Release Management**: `RELEASES.md` - Release organization and management
 - **Changelog**: `CHANGELOG.md` - Detailed version history
 
@@ -201,20 +171,25 @@ releases/archive/ai-content-agent-v1.6.[0-3]-*.zip
 
 ### Common Issues
 
-1. **Plugin Activation Error**
-   - **Solution**: Use v1.4.9 which fixes all activation errors
-   - **Cause**: Previous versions had PHP syntax errors
+1. **Gemini API Overload (503 Error)**
+   - **Solution**: Plugin automatically retries with fallback model (v1.6.8 feature)
+   - **Expected**: User sees friendly message: "🤖 AI service is temporarily overloaded. Please wait a moment and try again."
+   - **Automatic**: Plugin tries gemini-1.5-pro as fallback, then retries with exponential backoff
 
-2. **JavaScript Initialization Errors**
-   - **Solution**: "Cannot access 'D' before initialization" error completely fixed in v1.6.2
-   - **Root Cause**: Temporal Dead Zone issues with minified variables resolved by switching to Terser
+2. **Plugin Activation Error**
+   - **Solution**: Use latest v1.6.8 which includes all previous fixes
+   - **Cause**: Previous versions had various compatibility issues
+
+3. **JavaScript Initialization Errors**
+   - **Solution**: All JavaScript errors completely fixed in v1.6.7+
+   - **Root Cause**: Cache and minification issues resolved with error boundary implementation
    - **Expected**: No JavaScript errors should appear in browser console
 
-3. **GSC Integration Issues**
-   - **Solution**: Follow the detailed setup guide
+4. **GSC Integration Issues**
+   - **Solution**: Follow the detailed setup guide in `GOOGLE_SEARCH_CONSOLE_SETUP.md`
    - **Requirements**: Google API client library (auto-installed)
 
-4. **Missing Dependencies**
+5. **Missing Dependencies**
    - **Solution**: Plugin automatically detects and offers to install
    - **Manual**: Run `composer install` in plugin directory
 
@@ -223,6 +198,7 @@ releases/archive/ai-content-agent-v1.6.[0-3]-*.zip
 - **GitHub Issues**: Report bugs and request features
 - **Documentation**: Comprehensive guides included
 - **Version History**: Full changelog available
+- **Error Handling**: Enhanced error messages guide users to solutions
 
 ## 📄 License
 
@@ -230,7 +206,11 @@ This plugin is licensed under the GPL v2 or later.
 
 ## 🔄 Version History
 
-- **v1.6.4**: Critical JavaScript initialization error fix (Latest)
+- **v1.6.8**: Gemini API retry logic & improved error handling (Latest)
+- **v1.6.7**: Deep cache fix & error boundary implementation
+- **v1.6.6**: Cache fix & dependencies resolved
+- **v1.6.5**: Temporal dead zone fix
+- **v1.6.4**: Critical JavaScript initialization error fix
 - **v1.6.3**: Documentation update and build optimization
 - **v1.6.2**: Fixed JavaScript initialization error
 - **v1.6.1**: Fixed window object consistency
@@ -246,4 +226,4 @@ For complete version history, see `CHANGELOG.md`.
 
 ---
 
-**Ready to revolutionize your content workflow?** Download v1.6.4 and start creating smarter content today! 🚀
+**Ready to revolutionize your content workflow with enhanced AI resilience?** Download v1.6.8 and start creating smarter content with robust error handling today! 🚀

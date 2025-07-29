@@ -9,6 +9,70 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Current Release
 
+## [1.6.8] - 2025-01-29 - GEMINI API RETRY LOGIC & IMPROVED ERROR HANDLING 🤖
+
+### 🔄 **GEMINI API RETRY LOGIC IMPLEMENTATION**
+- **Intelligent Retry System**: Added comprehensive retry logic with exponential backoff for 503/429 API errors
+- **Model Fallback Strategy**: Automatic fallback from gemini-2.0-flash to gemini-1.5-pro when primary model is overloaded
+- **Enhanced Error Detection**: Smart detection for overload, timeout, API key configuration, and service unavailability issues
+- **Maximum Retry Attempts**: Up to 3 retry attempts with intelligent delay strategy (2s, 4s, 8s exponential backoff)
+- **Production Resilience**: Enhanced API call resilience for stable production environments with minimal user disruption
+
+### 🛡️ **ERROR HANDLING IMPROVEMENTS**
+- **User-Friendly Messages**: Contextual error messages with emojis and clear action guidance for different scenarios
+- **Specific Error Scenarios**: Tailored messages for overload (🤖), timeout (⏱️), API key issues (🔑), and retry attempts (🔄)
+- **Better Timeout Handling**: Increased timeout limits from 90s to 120s for complex content generation requests
+- **Enhanced Token Limits**: Increased maxOutputTokens from 2048 to 4096 for longer, more detailed content generation
+- **Graceful Degradation**: Smooth user experience even when AI services are temporarily unavailable
+
+### 💡 **FRONTEND ENHANCEMENTS**
+- **Intelligent Error Parsing**: Smart error message analysis in App.tsx for better user feedback and guidance
+- **Context-Aware Guidance**: Specific instructions based on error type and user context for faster problem resolution
+- **Improved Loading States**: Better visual feedback during retry attempts and fallback operations
+- **Recovery Instructions**: Clear guidance for users on how to resolve common issues and when to retry
+
+### 🔧 **BACKEND OPTIMIZATIONS**
+- **Enhanced PHP Retry Logic**: Robust server-side retry mechanism with model fallback support in call_gemini_api()
+- **Improved Error Logging**: Comprehensive error tracking and debugging capabilities for system administrators
+- **Better API Response Validation**: Enhanced validation and error propagation throughout the WordPress REST API system
+- **Optimized Performance**: Better timeout and token limits for improved content generation speed and reliability
+
+### 🎯 **TYPESCRIPT SERVICE IMPROVEMENTS**
+- **makeApiCallWithRetry Function**: New centralized retry logic function in geminiService.ts for all API calls
+- **Model Configuration**: Centralized model configuration with primary/fallback model definitions
+- **Enhanced Error Handling**: Better error detection and classification for different types of API failures
+- **Service Reliability**: All AI service functions (analyzeStyle, generateIdeas, createDraft) now use retry logic
+
+### ✅ **PRODUCTION READINESS**
+- **Robust Overload Handling**: Automatic handling of Gemini API overload situations without requiring user intervention
+- **Automatic Model Switching**: Seamless fallback to stable models when primary model is unavailable or overloaded
+- **Enhanced User Experience**: Minimal disruption during AI service fluctuations with transparent retry mechanisms
+- **Comprehensive Monitoring**: Detailed error logging for system administrators and debugging purposes
+
+### 🔬 **TECHNICAL IMPLEMENTATION DETAILS**
+- **Frontend Retry Logic**: TypeScript implementation with exponential backoff and model fallback
+- **Backend Retry Logic**: PHP implementation with sleep() delays and comprehensive error handling
+- **Error Classification**: Intelligent classification of 503, 429, timeout, and API key errors
+- **Logging Enhancement**: Detailed logging of retry attempts, model switches, and final outcomes
+- **User Feedback**: Real-time user feedback with appropriate icons and actionable messages
+
+## [1.6.7] - 2025-01-29 - DEEP CACHE FIX & ERROR BOUNDARY 🔧
+
+### 🔍 **DEEP CACHE ANALYSIS**
+- **Root Cause Identified**: WordPress serving old cached JS file due to alphabetical sorting and `end()` function
+- **Cache Persistence**: WordPress using same script handle, preventing fresh loads
+- **File Selection Logic Fix**: PHP logic updated to select latest JS file by modification time
+- **Cache Bypass Strategy**: Unique script handle generated using MD5 hash for `wp_enqueue_script`
+- **Error Boundary Implementation**: React ErrorBoundary added to `index.tsx` for graceful error handling
+- **File Cleanup**: Old problematic `index-CX3QSqoW.js` file removed
+
+### ✅ **VERIFIED FUNCTIONALITY**
+- **Plugin Interface Loads**: Admin interface now loads correctly without JavaScript errors
+- **Cache Issues Resolved**: WordPress no longer serves cached minified files
+- **Dependency Checks Pass**: All dependency validation passes without warnings
+- **Cross-Browser Compatible**: Tested across different browsers and WordPress versions
+- **Production Ready**: Stable release ready for production deployment
+
 ## [1.6.6] - 2025-01-29 - CACHE FIX & DEPENDENCIES RESOLVED 🔧
 
 ### 🔧 **CACHE ISSUE RESOLVED**

@@ -203,6 +203,9 @@ AI-powered content creation and management plugin that generates blog posts, ide
 # Latest release
 releases/ai-content-agent-v1.8.0-comprehensive-feature-enhancements-and-improvements.zip
 
+# Development build (after making changes)
+npm run build:wp  # Builds and copies to both admin/assets/ and admin/js/
+
 # Archived versions
 releases/archive/ai-content-agent-v1.3.x-*.zip
 releases/archive/ai-content-agent-v1.4.x-*.zip
@@ -210,6 +213,8 @@ releases/archive/ai-content-agent-v1.5.x-*.zip
 releases/archive/ai-content-agent-v1.6.x-*.zip
 releases/archive/ai-content-agent-v1.7.x-*.zip
 ```
+
+**⚠️ Important for Developers**: When making style changes or any frontend modifications, always use `npm run build:wp` to ensure both asset locations are updated. See `DEVELOPER_GUIDE.md` for detailed build instructions.
 
 ## ⚡ Quick Start
 

@@ -66,13 +66,46 @@ npm run build:dev
 ```
 
 ### Production Build
+
+#### Option 1: Use WordPress Build Script (Recommended)
+```bash
+# Build and copy to both locations automatically
+npm run build:wp
+```
+
+#### Option 2: Manual Build Process
 ```bash
 # Build for production
 npm run build
 
-# Copy assets to WordPress plugin structure
+# CRITICAL: Copy assets to BOTH locations for WordPress compatibility
+# 1. Copy to admin/assets/ (primary location)
 cp dist/assets/index-*.js admin/assets/
+
+# 2. Copy to admin/js/index.js (fallback location)
+cp dist/assets/index-*.js admin/js/index.js
 ```
+
+### ⚠️ IMPORTANT: Asset Management
+WordPress plugin uses a **dual-asset system**:
+
+1. **Primary**: `admin/assets/index-[hash].js` - Main build file with cache busting
+2. **Fallback**: `admin/js/index.js` - Fallback file for compatibility
+
+**BOTH files must be updated** when making style changes or any frontend modifications:
+
+```bash
+# After any style changes, ALWAYS run:
+npm run build
+rm admin/assets/index-*.js  # Remove old files
+cp dist/assets/index-*.js admin/assets/  # Copy new build
+cp dist/assets/index-*.js admin/js/index.js  # Update fallback
+```
+
+**Why Both Files Are Needed:**
+- `admin/assets/` - Used when build files are detected (cache busting)
+- `admin/js/` - Used as fallback when assets directory is not available
+- Plugin automatically selects the most recent file by modification time
 
 ### Build Configuration
 The plugin uses **Vite** with the following key configurations:
@@ -105,10 +138,10 @@ export default defineConfig({
 ## 📦 Release Management
 
 ### Current Release Information
-- **Latest Version**: v1.6.8
-- **Release File**: `ai-content-agent-v1.6.8-gemini-api-retry-logic-and-improved-error-handling.zip`
-- **Status**: Production ready with enhanced AI resilience
-- **Key Features**: Intelligent retry logic, model fallback, enhanced error handling
+- **Latest Version**: v1.8.0
+- **Release File**: `ai-content-agent-v1.8.0-comprehensive-feature-enhancements-and-improvements.zip`
+- **Status**: Production ready with comprehensive feature enhancements and improvements
+- **Key Features**: Author updates, dashboard optimization, feature verification, quality assurance
 
 ### Release Process
 
@@ -128,8 +161,14 @@ npm version patch  # or minor/major
 # Clean build
 npm run build
 
-# Copy assets
+# CRITICAL: Copy assets to BOTH locations
+# Remove old files first
+rm admin/assets/index-*.js
+rm admin/js/index.js
+
+# Copy new build to both locations
 cp dist/assets/index-*.js admin/assets/
+cp dist/assets/index-*.js admin/js/index.js
 
 # Test functionality
 npm run test  # if tests are available

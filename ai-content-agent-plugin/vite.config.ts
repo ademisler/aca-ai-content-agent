@@ -23,38 +23,22 @@ export default defineConfig(({ mode }) => {
       },
       build: {
         target: 'es2020',
-        minify: 'terser',
+        minify: false, // Disable minification to avoid hoisting issues
         rollupOptions: {
           output: {
             manualChunks: undefined,
             format: 'iife',
-            inlineDynamicImports: true
+            name: 'ACAApp',
+            inlineDynamicImports: true,
+            entryFileNames: 'assets/[name]-[hash].js',
+            chunkFileNames: 'assets/[name]-[hash].js',
+            assetFileNames: 'assets/[name]-[hash].[ext]'
           }
         },
-        commonjsOptions: {
-          include: [/node_modules/]
-        },
-        terserOptions: {
-          compress: {
-            drop_console: false,
-            drop_debugger: false,
-            hoist_vars: false,
-            hoist_funs: false,
-          },
-          mangle: {
-            keep_fnames: true,
-            keep_classnames: true,
-            reserved: ['Te', 'showToast', 'addToast', 'App']
-          },
-          format: {
-            comments: false,
-          }
-        }
-      },
-      esbuild: {
-        keepNames: true,
-        legalComments: 'none',
-        target: 'es2020'
+        sourcemap: false,
+        outDir: 'dist',
+        assetsDir: 'assets',
+        emptyOutDir: true
       }
     };
 });

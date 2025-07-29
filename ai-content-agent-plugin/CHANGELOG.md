@@ -9,6 +9,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Current Release
 
+## [1.5.9] - 2025-01-28 - FIXED CRITICAL JAVASCRIPT ERRORS + PLUGIN LOADING 🚨
+
+### 🚨 **FIXED CRITICAL JAVASCRIPT ERRORS**
+- **showToast Function**: Added missing showToast function that was causing ReferenceError
+- **Window Object Fix**: Corrected window.aca_object references to window.acaData throughout codebase
+- **Plugin Loading**: Fixed "WordPress localized data not available" error
+- **API Calls**: Fixed all REST API calls with correct window object reference
+- **Page Loading**: Plugin admin page now loads correctly without JavaScript errors
+
+### 🔧 **JAVASCRIPT FIXES**
+- **App.tsx**: Added missing showToast function with proper callback structure
+- **wordpressApi.ts**: Fixed all window.aca_object references to window.acaData
+- **Global Types**: Updated TypeScript declarations for correct window object
+- **Function Dependencies**: Added proper useEffect dependencies for showToast
+- **Error Handling**: Improved error handling for missing WordPress data
+
+### 🚀 **IMPROVED FUNCTIONALITY**
+- **Toast Messages**: All toast notifications now work correctly
+- **API Communication**: Fixed REST API communication with WordPress
+- **Error Messages**: Proper error messages display when WordPress data unavailable
+- **Loading States**: Plugin now loads correctly with proper data initialization
+- **User Feedback**: Toast messages provide clear feedback for all operations
+
+### ✅ **VERIFIED FUNCTIONALITY**
+- **Admin Page Loading**: Confirmed plugin admin page loads without errors
+- **JavaScript Console**: No more ReferenceError or undefined function errors
+- **API Calls**: All REST API endpoints work with correct authentication
+- **Toast System**: All success/error/warning messages display correctly
+- **Data Loading**: WordPress localized data loads properly on page initialization
+
 ## [1.5.8] - 2025-01-28 - FIXED SEO PLUGIN AUTO-DETECTION + 403 ERROR RESOLUTION 🔧
 
 ### 🔧 **FIXED SEO PLUGIN AUTO-DETECTION**

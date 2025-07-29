@@ -6,7 +6,7 @@ import type { StyleGuide, ContentIdea, Draft, View, AppSettings, ActivityLog, Ac
 
 declare global {
   interface Window {
-    aca_object: {
+    acaData: {
       nonce: string;
       api_url: string;
       admin_url: string;
@@ -61,14 +61,14 @@ const App: React.FC = () => {
 
     useEffect(() => {
         // Check if WordPress localized data is available
-        if (!window.aca_object) {
+        if (!window.acaData) {
             console.error('ACA Error: WordPress localized data not available');
             showToast('Plugin not properly loaded. Please refresh the page.', 'error');
             return;
         }
         
         setGeminiApiKey(settings.geminiApiKey);
-    }, [settings.geminiApiKey]);
+    }, [settings.geminiApiKey, showToast]);
 
     // Load initial data from WordPress
     useEffect(() => {
@@ -115,9 +115,13 @@ const App: React.FC = () => {
     }, []);
 
     const addToast = useCallback((toast: Omit<ToastData, 'id'>) => {
-        const id = Date.now() + Math.random();
-        setToasts(currentToasts => [...currentToasts, { ...toast, id }]);
+        const id = Date.now();
+        setToasts(prev => [...prev, { ...toast, id }]);
     }, []);
+
+    const showToast = useCallback((message: string, type: 'success' | 'error' | 'warning' | 'info') => {
+        addToast({ message, type });
+    }, [addToast]);
     
     const addLogEntry = useCallback((type: ActivityLogType, details: string, icon: IconName) => {
         const newLog: ActivityLog = {

@@ -2,36 +2,34 @@
  * WordPress REST API wrapper for ACA plugin
  */
 
+// WordPress API helpers
 declare global {
-  interface Window {
-    aca_object: {
-      nonce: string;
-      api_url: string;
-      admin_url: string;
-      plugin_url: string;
-    };
-  }
+    interface Window {
+        acaData: {
+            nonce: string;
+            api_url: string;
+            admin_url: string;
+            plugin_url: string;
+        };
+    }
 }
 
-/**
- * Make authenticated API requests to WordPress REST API
- */
-export async function apiFetch(path: string, options: RequestInit = {}): Promise<any> {
-  // Check if aca_object is available
-  if (!window.aca_object) {
-    console.error('ACA Error: window.aca_object is not defined. Plugin scripts may not be loaded correctly.');
-    throw new Error('Plugin configuration not loaded. Please refresh the page.');
-  }
+const makeApiCall = async (path: string, options: RequestInit = {}) => {
+    // Check if WordPress localized data is available
+    if (!window.acaData) {
+        console.error('ACA Error: window.acaData is not defined. Plugin scripts may not be loaded correctly.');
+        throw new Error('WordPress data not available');
+    }
 
-  const headers = {
-    'X-WP-Nonce': window.aca_object.nonce,
-    'Content-Type': 'application/json',
-    ...options.headers,
-  };
+    const defaultHeaders = {
+        'Content-Type': 'application/json',
+        'X-WP-Nonce': window.acaData.nonce,
+    };
 
-  const response = await fetch(`${window.aca_object.api_url}${path}`, {
-    ...options,
-    headers,
+    const mergedOptions = { ...options, headers: { ...defaultHeaders, ...options.headers } };
+    
+    const response = await fetch(`${window.acaData.api_url}${path}`, {
+    ...mergedOptions,
   });
 
   if (!response.ok) {
@@ -63,12 +61,12 @@ export async function apiFetch(path: string, options: RequestInit = {}): Promise
 
 // Settings API
 export const settingsApi = {
-  get: () => apiFetch('settings'),
-  save: (settings: any) => apiFetch('settings', {
+  get: () => makeApiCall('settings'),
+  save: (settings: any) => makeApiCall('settings', {
     method: 'POST',
     body: JSON.stringify(settings),
   }),
-  update: (settings: any) => apiFetch('settings', {
+  update: (settings: any) => makeApiCall('settings', {
     method: 'POST',
     body: JSON.stringify(settings),
   }),
@@ -76,13 +74,13 @@ export const settingsApi = {
 
 // Style Guide API
 export const styleGuideApi = {
-  get: () => apiFetch('style-guide'),
-  analyze: () => apiFetch('style-guide/analyze', { method: 'POST' }),
-  save: (styleGuide: any) => apiFetch('style-guide', {
+  get: () => makeApiCall('style-guide'),
+  analyze: () => makeApiCall('style-guide/analyze', { method: 'POST' }),
+  save: (styleGuide: any) => makeApiCall('style-guide', {
     method: 'POST',
     body: JSON.stringify(styleGuide),
   }),
-  update: (styleGuide: any) => apiFetch('style-guide', {
+  update: (styleGuide: any) => makeApiCall('style-guide', {
     method: 'POST',
     body: JSON.stringify(styleGuide),
   }),
@@ -90,38 +88,38 @@ export const styleGuideApi = {
 
 // Ideas API
 export const ideasApi = {
-  get: () => apiFetch('ideas'),
-  generate: (count: number = 5) => apiFetch('ideas/generate', {
+  get: () => makeApiCall('ideas'),
+  generate: (count: number = 5) => makeApiCall('ideas/generate', {
     method: 'POST',
     body: JSON.stringify({ count }),
   }),
-  generateSimilar: (ideaId: number) => apiFetch('ideas/similar', {
+  generateSimilar: (ideaId: number) => makeApiCall('ideas/similar', {
     method: 'POST',
     body: JSON.stringify({ ideaId }),
   }),
-  create: (idea: any) => apiFetch('ideas', {
+  create: (idea: any) => makeApiCall('ideas', {
     method: 'POST',
     body: JSON.stringify(idea),
   }),
-  update: (id: number, updates: any) => apiFetch(`ideas/${id}`, {
+  update: (id: number, updates: any) => makeApiCall(`ideas/${id}`, {
     method: 'PUT',
     body: JSON.stringify(updates),
   }),
-  delete: (id: number) => apiFetch(`ideas/${id}`, { method: 'DELETE' }),
+  delete: (id: number) => makeApiCall(`ideas/${id}`, { method: 'DELETE' }),
 };
 
 // Drafts API
 export const draftsApi = {
-  get: () => apiFetch('drafts'),
-  createFromIdea: (ideaId: number) => apiFetch('drafts/create', {
+  get: () => makeApiCall('drafts'),
+  createFromIdea: (ideaId: number) => makeApiCall('drafts/create', {
     method: 'POST',
     body: JSON.stringify({ ideaId }),
   }),
-  update: (id: number, updates: any) => apiFetch(`drafts/${id}`, {
+  update: (id: number, updates: any) => makeApiCall(`drafts/${id}`, {
     method: 'PUT',
     body: JSON.stringify(updates),
   }),
-  schedule: (id: number, scheduledDate: string) => apiFetch(`drafts/${id}/schedule`, {
+  schedule: (id: number, scheduledDate: string) => makeApiCall(`drafts/${id}/schedule`, {
     method: 'POST',
     body: JSON.stringify({ scheduledDate }),
   }),
@@ -129,16 +127,16 @@ export const draftsApi = {
 
 // Published posts API
 export const publishedApi = {
-  get: () => apiFetch('published'),
-  publish: (draftId: number) => apiFetch(`drafts/${draftId}/publish`, { 
+  get: () => makeApiCall('published'),
+  publish: (draftId: number) => makeApiCall(`drafts/${draftId}/publish`, { 
     method: 'POST' 
   }),
 };
 
 // Activity logs API
 export const activityApi = {
-  get: () => apiFetch('activity-logs'),
-  create: (log: any) => apiFetch('activity-logs', {
+  get: () => makeApiCall('activity-logs'),
+  create: (log: any) => makeApiCall('activity-logs', {
     method: 'POST',
     body: JSON.stringify(log),
   }),

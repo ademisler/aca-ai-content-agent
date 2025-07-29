@@ -1,25 +1,26 @@
 # AI Content Agent (ACA) WordPress Plugin
 
-![Version](https://img.shields.io/badge/version-1.5.0-blue.svg)
+![Version](https://img.shields.io/badge/version-1.5.1-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-blue.svg)
 ![License](https://img.shields.io/badge/license-GPL%20v2%2B-green.svg)
 
 AI-powered content creation and management plugin that generates blog posts, ideas, and manages your content workflow automatically with an intelligent Content Calendar system and **real Google Search Console integration**.
 
-## 🚀 Latest Updates - v1.5.0 - AI IMAGE GENERATION OVERHAUL 🎨
+## 🚀 Latest Updates - v1.5.1 - CRITICAL AI IMAGE GENERATION AUTHENTICATION FIXES 🔧
 
-### 🎨 **AI IMAGE GENERATION COMPLETELY REBUILT**
-- **Real Imagen API**: Replaced placeholder with actual Google Imagen 3.0 API integration
-- **Google Cloud Integration**: Added proper Vertex AI Imagen API support using `imagen-3.0-generate-002`
-- **Enhanced Prompts**: Improved AI image generation prompts with professional photography and digital art styles
-- **Configuration UI**: Added Google Cloud Project ID and Location settings
-- **Better Error Handling**: Comprehensive error handling with informative fallbacks
+### 🚨 **CRITICAL AUTHENTICATION FIXES**
+- **Fixed Google Imagen API Authentication**: Corrected authentication flow to use proper Google Cloud Vertex AI access tokens
+- **Enhanced Error Handling**: Added comprehensive error detection for common authentication issues
+- **Better Error Messages**: Users now receive specific guidance for authentication problems
+- **Access Token Validation**: Added validation to detect incorrect API key types (AI Studio vs Vertex AI)
+- **Improved Documentation**: Updated setup guide with correct authentication instructions
 
-### ✅ **ALL STOCK PHOTO APIS VERIFIED WORKING**
-- **Pexels API**: ✅ Confirmed working correctly with proper authentication
-- **Unsplash API**: ✅ Confirmed working correctly with `Client-ID` authentication  
-- **Pixabay API**: ✅ Confirmed working correctly with query parameter authentication
+### ✅ **ALL STOCK PHOTO APIS CONFIRMED WORKING**
+- **Pexels API**: ✅ Verified correct `Authorization: {API_KEY}` header implementation
+- **Unsplash API**: ✅ Verified correct `Authorization: Client-ID {API_KEY}` header implementation
+- **Pixabay API**: ✅ Verified correct `?key={API_KEY}` query parameter implementation
+- **No Changes Needed**: All stock photo integrations confirmed working correctly
 
 ### 🔍 **GOOGLE SEARCH CONSOLE INTEGRATION - FULLY FUNCTIONAL**
 - **Real GSC Data**: Complete integration with actual Google Search Console API

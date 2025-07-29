@@ -1,15 +1,15 @@
-# AI Image Generation Setup Guide - v1.5.0
+# AI Image Generation Setup Guide - v1.5.1
 
 This guide explains how to set up AI image generation using Google's Imagen 3.0 API in the AI Content Agent plugin.
 
-## 🎨 Latest Updates - v1.5.0
+## 🚨 Latest Updates - v1.5.1
 
-### ✅ **AI IMAGE GENERATION COMPLETELY REBUILT**
-- **Real Imagen API**: Replaced placeholder with actual Google Imagen 3.0 API integration
-- **Google Cloud Integration**: Added proper Vertex AI Imagen API support using `imagen-3.0-generate-002`
-- **Enhanced Prompts**: Improved AI image generation prompts with professional photography and digital art styles
-- **Configuration UI**: Added Google Cloud Project ID and Location settings
-- **Better Error Handling**: Comprehensive error handling with informative fallbacks
+### ✅ **CRITICAL AUTHENTICATION FIXES**
+- **Fixed Google Imagen API Authentication**: Corrected authentication flow to use proper Google Cloud Vertex AI access tokens
+- **Enhanced Error Handling**: Added comprehensive error detection for common authentication issues
+- **Better Error Messages**: Users now receive specific guidance for authentication problems
+- **Access Token Validation**: Added validation to detect incorrect API key types (AI Studio vs Vertex AI)
+- **Improved Documentation**: Updated setup guide with correct authentication instructions
 
 ## 📋 Overview
 
@@ -64,8 +64,30 @@ The AI Content Agent plugin now supports **real AI image generation** using Goog
      - `asia-southeast1`
 
 4. **API Key Configuration**:
-   - Use your Google AI API key in the "Google AI API Key" field
-   - This should be the same key used for Gemini content generation
+   - **Important**: Imagen API requires a Google Cloud Vertex AI access token, NOT a Google AI Studio API key
+   - You need to generate an access token from your service account or use Application Default Credentials
+   - This is different from the Google AI API key used for Gemini content generation
+
+### Step 3: Generate Access Token
+
+To generate a proper access token for Imagen API:
+
+1. **Using gcloud CLI** (Recommended for testing):
+   ```bash
+   # Install Google Cloud CLI if not already installed
+   # Then authenticate and generate token:
+   gcloud auth login
+   gcloud auth application-default print-access-token
+   ```
+
+2. **Using Service Account** (Recommended for production):
+   - Use the service account JSON key to generate JWT tokens
+   - Exchange JWT for access tokens programmatically
+   - This requires additional server-side implementation
+
+3. **For WordPress Plugin Users**:
+   - Currently, you need to manually generate access tokens
+   - Future versions will support automatic service account authentication
 
 ## 🔧 Technical Details
 
@@ -81,10 +103,10 @@ The AI Content Agent plugin now supports **real AI image generation** using Goog
 - **Person Generation**: Allowed for adults only
 
 ### **Authentication Flow**
-1. Plugin uses Google AI API key for authentication
-2. Generates access token for Vertex AI API calls
-3. Caches tokens for improved performance
-4. Handles token refresh automatically
+1. Plugin requires a Google Cloud Vertex AI access token (not AI Studio API key)
+2. Access tokens are cached for improved performance (30 minutes)
+3. Service account authentication is recommended for production
+4. Proper error handling for authentication failures
 
 ## 🎨 Image Styles
 
@@ -111,8 +133,9 @@ The AI Content Agent plugin now supports **real AI image generation** using Goog
 - **Steps**: Go to Google Cloud Console > APIs & Services > Library > Enable Vertex AI API
 
 #### **"Authentication failed"**
-- **Solution**: Verify your Google AI API key is correct and has proper permissions
-- **Check**: The API key should have access to both Gemini and Vertex AI services
+- **Solution**: Verify you're using a Google Cloud Vertex AI access token, not a Google AI Studio API key
+- **Check**: Generate a proper access token from your service account credentials
+- **Note**: Vertex AI and Google AI Studio use different authentication methods
 
 #### **"No images generated"**
 - **Solution**: Check error logs for specific error messages

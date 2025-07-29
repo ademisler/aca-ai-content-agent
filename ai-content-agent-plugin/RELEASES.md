@@ -7,8 +7,8 @@ This document explains the release management system for the AI Content Agent Wo
 ```
 /workspace/
 ├── ai-content-agent-plugin/          # Source code
-└── releases/                         # Release management
-    ├── ai-content-agent-v1.5.0-ai-image-generation-overhaul.zip  # Latest release
+        └── releases/                         # Release management
+            ├── ai-content-agent-v1.5.1-ai-image-authentication-fixes.zip  # Latest release
     └── archive/                       # Previous versions
         ├── ai-content-agent-v1.3.2-markdown-fix.zip
         ├── ai-content-agent-v1.3.3-calendar-fix.zip
@@ -32,20 +32,20 @@ This document explains the release management system for the AI Content Agent Wo
 
 ## 🚀 Current Release
 
-### v1.5.0 - Latest Stable Release
-- **File**: `releases/ai-content-agent-v1.5.0-ai-image-generation-overhaul.zip`
-- **Size**: 185KB (optimized)
+### v1.5.1 - Latest Stable Release
+- **File**: `releases/ai-content-agent-v1.5.1-ai-image-authentication-fixes.zip`
+- **Size**: 187KB (optimized)
 - **Status**: ✅ **STABLE - READY FOR PRODUCTION**
 - **Release Date**: 2025-01-28
-- **Major Feature**: Real AI Image Generation with Google Imagen 3.0
+- **Critical Fix**: AI Image Generation Authentication Overhaul
 
-#### What's New in v1.5.0:
-- 🎨 **Real AI Image Generation**: Replaced placeholder with actual Google Imagen 3.0 API integration
-- ☁️ **Google Cloud Integration**: Added proper Vertex AI Imagen API support using `imagen-3.0-generate-002`
-- 🎯 **Enhanced Prompts**: Improved AI image generation prompts with professional photography and digital art styles
-- ⚙️ **Configuration UI**: Added Google Cloud Project ID and Location settings
-- 🛡️ **Better Error Handling**: Comprehensive error handling with informative fallbacks
-- ✅ **All Stock APIs Verified**: Confirmed Pexels, Unsplash, and Pixabay APIs working correctly
+#### What's Fixed in v1.5.1:
+- 🚨 **Critical Authentication Fix**: Fixed Google Imagen API to use proper Vertex AI access tokens
+- 🔧 **Enhanced Error Handling**: Added comprehensive error detection for authentication issues
+- 💬 **Better Error Messages**: Users receive specific guidance for authentication problems
+- 🔑 **Access Token Validation**: Added validation to detect incorrect API key types (AI Studio vs Vertex AI)
+- 📚 **Improved Documentation**: Updated setup guide with correct authentication instructions
+- ✅ **Stock APIs Confirmed**: All stock photo APIs verified working correctly (no changes needed)
 
 ## 📦 Release Archive
 
@@ -57,8 +57,8 @@ The `releases/archive/` directory contains all previous versions for:
 - **Documentation**: Reference for changelog and feature evolution
 
 ### Archive Statistics
-- **Total Archived Versions**: 21 releases
-- **Version Range**: v1.3.2 to v1.4.8 (archived)
+- **Total Archived Versions**: 22 releases
+- **Version Range**: v1.3.2 to v1.5.0 (archived)
 - **Storage**: Organized chronologically
 - **Accessibility**: All versions remain accessible for developers
 

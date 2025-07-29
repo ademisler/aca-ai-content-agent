@@ -8,6 +8,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## 📁 Release Management
 
 ### Current Release
+
+## [1.5.1] - 2025-01-28 - CRITICAL AI IMAGE GENERATION AUTHENTICATION FIXES 🔧
+
+### 🚨 **CRITICAL AUTHENTICATION FIXES**
+- **Fixed Google Imagen API Authentication**: Corrected authentication flow to use proper Google Cloud Vertex AI access tokens
+- **Enhanced Error Handling**: Added comprehensive error detection for common authentication issues
+- **Better Error Messages**: Users now receive specific guidance for authentication problems
+- **Access Token Validation**: Added validation to detect incorrect API key types (AI Studio vs Vertex AI)
+- **Improved Documentation**: Updated setup guide with correct authentication instructions
+
+### 🔍 **STOCK PHOTO APIS - CONFIRMED WORKING**
+- **Pexels API**: ✅ Verified correct `Authorization: {API_KEY}` header implementation
+- **Unsplash API**: ✅ Verified correct `Authorization: Client-ID {API_KEY}` header implementation
+- **Pixabay API**: ✅ Verified correct `?key={API_KEY}` query parameter implementation
+- **No Changes Needed**: All stock photo integrations confirmed working correctly
+
+### 🛠️ **TECHNICAL IMPROVEMENTS**
+- **Authentication Flow**: Fixed Vertex AI access token handling vs AI Studio API keys
+- **Error Logging**: Enhanced logging for debugging authentication issues
+- **Token Caching**: Improved access token caching with proper expiration (30 minutes)
+- **Fallback Handling**: Better error messages in fallback responses
+- **Documentation Updates**: Corrected AI_IMAGE_GENERATION_SETUP.md with proper authentication steps
+
+### 📚 **AUTHENTICATION GUIDANCE**
+- **Access Token Generation**: Added instructions for generating proper Vertex AI access tokens
+- **Service Account Setup**: Documented service account authentication requirements
+- **Common Issues**: Added troubleshooting for authentication failures
+- **API Key Types**: Clear distinction between AI Studio and Vertex AI credentials
+
+🛠️ BREAKING CHANGE:
+- AI Image Generation now requires Google Cloud Vertex AI access tokens instead of Google AI Studio API keys
+- Users must update their authentication method for AI image generation to work
+
+### Current Release
 - **Latest Version**: v1.4.9
 - **File**: `releases/ai-content-agent-v1.4.9-activation-error-fix.zip`
 - **Status**: Stable, ready for production

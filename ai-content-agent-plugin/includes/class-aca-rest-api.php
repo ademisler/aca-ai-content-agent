@@ -1762,13 +1762,26 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         } catch (Exception $e) {
             error_log('ACA AI Image Generation Error: ' . $e->getMessage());
             
+            // Provide more specific error messages for common issues
+            $error_message = $e->getMessage();
+            if (strpos($error_message, 'Google Cloud Project ID not configured') !== false) {
+                $error_message = 'Please configure Google Cloud Project ID in plugin settings';
+            } elseif (strpos($error_message, 'wrong_api_type') !== false) {
+                $error_message = 'Please use a Google Cloud Vertex AI access token, not a Google AI Studio API key';
+            } elseif (strpos($error_message, 'service_account_auth') !== false) {
+                $error_message = 'Service account authentication not yet implemented. Please use an access token';
+            } elseif (strpos($error_message, 'authentication') !== false || strpos($error_message, 'Unauthorized') !== false) {
+                $error_message = 'Authentication failed. Please check your Google Cloud access token';
+            }
+            
             // Fallback: Return a more informative placeholder
             $fallback_data = array(
                 'error' => true,
-                'message' => 'AI image generation temporarily unavailable',
+                'message' => $error_message,
                 'title' => $title,
                 'style' => $style,
-                'timestamp' => current_time('mysql')
+                'timestamp' => current_time('mysql'),
+                'help' => 'Check AI_IMAGE_GENERATION_SETUP.md for setup instructions'
             );
             
             return base64_encode(json_encode($fallback_data));
@@ -1782,6 +1795,11 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         
         if (empty($project_id)) {
             return new WP_Error('missing_project_id', 'Google Cloud Project ID not configured. Please set it in plugin settings.');
+        }
+        
+        // Check if API key looks like a proper Google Cloud credential
+        if (empty($api_key) || strlen($api_key) < 20) {
+            return new WP_Error('invalid_api_key', 'Invalid Google Cloud API key. Please provide a valid service account key or access token.');
         }
         
         // Use Imagen 3.0 Generate 002 model (latest stable version)
@@ -1802,8 +1820,14 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             )
         );
         
+        // Try to get a proper access token
+        $access_token = $this->get_google_access_token($api_key);
+        if (is_wp_error($access_token)) {
+            return $access_token;
+        }
+        
         $headers = array(
-            'Authorization' => 'Bearer ' . $this->get_google_access_token($api_key),
+            'Authorization' => 'Bearer ' . $access_token,
             'Content-Type' => 'application/json'
         );
         
@@ -1814,7 +1838,8 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         ));
         
         if (is_wp_error($response)) {
-            return $response;
+            error_log('ACA Imagen API network error: ' . $response->get_error_message());
+            return new WP_Error('network_error', 'Failed to connect to Google Imagen API: ' . $response->get_error_message());
         }
         
         $response_code = wp_remote_retrieve_response_code($response);
@@ -1828,13 +1853,15 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                     $error_message .= ': ' . $error_data['error']['message'];
                 }
             }
+            error_log('ACA Imagen API error: ' . $error_message);
             return new WP_Error('imagen_api_error', $error_message);
         }
         
         $data = json_decode($response_body, true);
         
         if (!isset($data['predictions'][0]['bytesBase64Encoded'])) {
-            return new WP_Error('invalid_response', 'Invalid response from Imagen API');
+            error_log('ACA Imagen API invalid response: ' . $response_body);
+            return new WP_Error('invalid_response', 'Invalid response from Imagen API - missing image data');
         }
         
         // Return the base64 encoded image
@@ -1842,23 +1869,35 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
     }
     
     private function get_google_access_token($api_key) {
-        // For Vertex AI, we need to use service account authentication
-        // This is a simplified implementation - in production, you'd use proper OAuth2 flow
-        
         // Check if we have a cached access token
         $cached_token = get_transient('aca_google_access_token');
         if ($cached_token) {
             return $cached_token;
         }
         
-        // For now, return the API key directly (this assumes the API key is actually a service account key)
-        // In a full implementation, you would:
-        // 1. Use the service account JSON key file
-        // 2. Generate a JWT token
-        // 3. Exchange it for an access token
-        // 4. Cache the token with proper expiration
+        // For proper Vertex AI authentication, we need to handle different credential types
         
-        // Simplified approach: assume the provided API key is a valid access token or service account
+        // If the API key looks like a JSON service account key
+        if (strpos($api_key, '{') === 0 && strpos($api_key, 'private_key') !== false) {
+            // This is a service account JSON - we need to generate a JWT token
+            // For now, return an error asking user to use proper authentication
+            return new WP_Error('service_account_auth', 'Service account JSON authentication is not yet implemented. Please use an access token or set up Application Default Credentials.');
+        }
+        
+        // If it looks like an access token (starts with ya29. or similar)
+        if (preg_match('/^[a-zA-Z0-9\.\-_]{100,}$/', $api_key)) {
+            // Cache the token for 30 minutes (Google tokens typically last 1 hour)
+            set_transient('aca_google_access_token', $api_key, 30 * MINUTE_IN_SECONDS);
+            return $api_key;
+        }
+        
+        // If it's a shorter API key, it might be for AI Studio (not Vertex AI)
+        if (strlen($api_key) < 100) {
+            return new WP_Error('wrong_api_type', 'This appears to be a Google AI Studio API key. For Imagen API, you need a Google Cloud Vertex AI access token or service account credentials.');
+        }
+        
+        // Default case - try to use it as-is but warn about potential issues
+        error_log('ACA: Using API key as access token - this may not work properly');
         return $api_key;
     }
     

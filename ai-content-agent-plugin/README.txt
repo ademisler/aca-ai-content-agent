@@ -4,7 +4,7 @@ Tags: ai, content, automation, calendar, seo, google-search-console, gemini, con
 Requires at least: 5.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.5.0
+Stable tag: 1.5.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,13 +14,15 @@ AI-powered content creation and management plugin with intelligent Content Calen
 
 **AI Content Agent (ACA)** revolutionizes your WordPress content workflow with intelligent automation, beautiful calendar management, and real Google Search Console insights.
 
-= 🚀 Latest Updates - v1.4.9 =
+= 🚀 Latest Updates - v1.5.1 =
 
-**CRITICAL ACTIVATION ERROR COMPLETELY FIXED**
-* Fixed PHP syntax error that prevented plugin activation
-* Corrected method indentation and structure in GSC integration
-* Plugin now activates without any errors
-* Maintained comprehensive error handling while fixing syntax issues
+**CRITICAL AI IMAGE GENERATION AUTHENTICATION FIXES**
+* Fixed Google Imagen API to use proper Vertex AI access tokens
+* Enhanced error handling with comprehensive error detection
+* Better error messages with specific guidance for authentication problems
+* Access token validation to detect incorrect API key types
+* Improved documentation with correct authentication instructions
+* All stock photo APIs confirmed working correctly (Pexels, Unsplash, Pixabay)
 
 = 🔍 Google Search Console Integration =
 

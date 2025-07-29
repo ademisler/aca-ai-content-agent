@@ -58,6 +58,11 @@ export interface AppSettings {
     pixabayApiKey: string;
     seoPlugin: SeoPlugin;
     geminiApiKey: string;
+    // Automation frequency settings
+    semiAutoIdeaFrequency?: 'daily' | 'weekly' | 'monthly';
+    fullAutoDailyPostCount?: number;
+    fullAutoPublishFrequency?: 'hourly' | 'daily' | 'weekly';
+    analyzeContentFrequency?: 'manual' | 'daily' | 'weekly' | 'monthly';
 }
 
 export type ActivityLogType = 

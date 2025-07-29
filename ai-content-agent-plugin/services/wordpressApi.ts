@@ -106,6 +106,8 @@ export const ideasApi = {
     body: JSON.stringify(updates),
   }),
   delete: (id: number) => makeApiCall(`ideas/${id}`, { method: 'DELETE' }),
+  restore: (id: number) => makeApiCall(`ideas/${id}/restore`, { method: 'POST' }),
+  permanentDelete: (id: number) => makeApiCall(`ideas/${id}/permanent-delete`, { method: 'DELETE' }),
 };
 
 // Drafts API
@@ -130,6 +132,10 @@ export const publishedApi = {
   get: () => makeApiCall('published'),
   publish: (draftId: number) => makeApiCall(`drafts/${draftId}/publish`, { 
     method: 'POST' 
+  }),
+  updateDate: (postId: number, newDate: string, shouldConvertToDraft: boolean = false) => makeApiCall(`published/${postId}/update-date`, {
+    method: 'POST',
+    body: JSON.stringify({ newDate, shouldConvertToDraft }),
   }),
 };
 

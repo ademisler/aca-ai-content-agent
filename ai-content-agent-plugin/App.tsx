@@ -61,8 +61,22 @@ const App: React.FC = () => {
     useEffect(() => {
         // Check if WordPress localized data is available
         if (!window.acaData) {
-            console.error('ACA Error: WordPress localized data not available');
+            console.error('ACA Error: WordPress localized data not available', {
+                windowKeys: Object.keys(window),
+                location: window.location.href,
+                userAgent: navigator.userAgent
+            });
             showToast('Plugin not properly loaded. Please refresh the page.', 'error');
+            return;
+        }
+        
+        // Validate required acaData properties
+        const requiredProps = ['nonce', 'api_url', 'admin_url', 'plugin_url'];
+        const missingProps = requiredProps.filter(prop => !window.acaData[prop]);
+        
+        if (missingProps.length > 0) {
+            console.error('ACA Error: Missing required WordPress data properties:', missingProps);
+            showToast(`Plugin configuration incomplete. Missing: ${missingProps.join(', ')}`, 'error');
             return;
         }
         

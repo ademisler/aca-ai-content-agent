@@ -24,6 +24,7 @@ export default defineConfig(({ mode }) => {
       build: {
         target: 'es2015',
         minify: 'esbuild',
+        sourcemap: true, // Enable source maps for debugging
         rollupOptions: {
           output: {
             manualChunks: undefined,

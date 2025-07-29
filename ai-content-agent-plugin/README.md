@@ -7,21 +7,21 @@
 
 AI-powered content creation and management plugin that generates blog posts, ideas, and manages your content workflow automatically with an intelligent Content Calendar system and **real Google Search Console integration**.
 
-## 🚀 Latest Updates - v1.6.2 - FIXED REACT INITIALIZATION ERROR + STABLE BUILD 🚀
+## 🚀 Latest Updates - v1.6.2 - FIXED JAVASCRIPT INITIALIZATION ERROR + OPTIMIZED BUILD 🚀
 
-### 🚀 **FIXED REACT INITIALIZATION ERROR**
-- **React Downgrade**: Downgraded from React 19 to stable React 18.3.1 to fix initialization issues
-- **Circular Dependencies**: Fixed ActivityLog wildcard imports that caused circular dependency problems
-- **Component Imports**: Replaced `import * as Icons` with specific named imports to prevent hoisting issues
-- **Build Optimization**: Enhanced Vite configuration with better module loading and IIFE format
-- **Type Safety**: Fixed IconName type to include all used icons (Trash, Pencil)
+### 🚀 **COMPLETELY FIXED JAVASCRIPT INITIALIZATION ERROR**
+- **Temporal Dead Zone Fix**: Resolved "Cannot access 'D' before initialization" error by switching to Terser minifier
+- **Build Target Update**: Changed from ES2015 to ES2020 for better modern browser compatibility
+- **Minifier Switch**: Replaced ESBuild with Terser minifier for safer variable scoping
+- **Variable Scoping**: Fixed variable hoisting issues that caused initialization errors
+- **WordPress Integration**: Updated plugin to automatically use latest built assets
 
-### 🔧 **ENHANCED BUILD SYSTEM**
-- **Stable React Version**: Using React 18.3.1 for maximum compatibility and stability
-- **Optimized Bundle**: Reduced bundle size from 306KB to 271KB with better tree shaking
-- **Inline Styles**: CSS now inlined in JavaScript for better loading performance
-- **IIFE Format**: Using Immediately Invoked Function Expression format to prevent global conflicts
-- **ESBuild Optimization**: Enhanced ESBuild configuration with keepNames and better minification
+### 🔧 **OPTIMIZED BUILD SYSTEM**
+- **Terser Minification**: Using Terser with optimized settings for better code generation
+- **Safe Variable Names**: Configured to keep function and class names for better debugging
+- **ES2020 Target**: Modern JavaScript target for enhanced browser compatibility
+- **Automatic Asset Management**: WordPress plugin automatically detects and uses latest build
+- **Build Scripts**: Added `npm run build:wp` for WordPress-specific builds
 
 ### 🎯 **ADVANCED SEO FEATURES**
 - **Social Media Ready**: Automatic Facebook OpenGraph and Twitter Card meta generation
@@ -159,9 +159,10 @@ releases/archive/ai-content-agent-v1.4.[0-8]-*.zip
    - **Solution**: Use v1.4.9 which fixes all activation errors
    - **Cause**: Previous versions had PHP syntax errors
 
-2. **Console Errors**
-   - **Solution**: All console errors fixed in v1.4.7+
-   - **Expected**: Only jQuery migrate warning is normal
+2. **JavaScript Initialization Errors**
+   - **Solution**: "Cannot access 'D' before initialization" error completely fixed in v1.6.2
+   - **Root Cause**: Temporal Dead Zone issues with minified variables resolved by switching to Terser
+   - **Expected**: No JavaScript errors should appear in browser console
 
 3. **GSC Integration Issues**
    - **Solution**: Follow the detailed setup guide

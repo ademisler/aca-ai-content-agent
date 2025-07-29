@@ -5,6 +5,45 @@ All notable changes to the AI Content Agent WordPress plugin will be documented 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.8] - 2025-01-28 - CRITICAL STATUS FIX + SMART MULTI-POST UI
+
+### 🎯 CRITICAL FIXES
+- **PUBLISHED POSTS NOW VISIBLE**: Fixed backend status mapping from 'publish' to 'published' for frontend consistency
+- **Status Filtering Fixed**: Frontend now properly recognizes published posts with correct status
+- **All WordPress Content**: Existing published posts now appear in calendar as intended
+
+### 🧠 SMART MULTI-POST UI REDESIGN
+- **Expandable Calendar Cells**: Revolutionary expand/collapse system for days with many posts
+- **Smart Display Logic**: Shows first 3 posts, then "+X More" button to reveal remaining content
+- **Adaptive Layout**: Posts automatically resize based on content density (compact vs normal)
+- **No More Lost Content**: Names never disappear, just become expandable
+
+### ✨ ENHANCED USER EXPERIENCE
+- **Expand/Collapse Buttons**: Click "+X More" to see all posts, "Show Less" to collapse
+- **Visual Hierarchy**: Clear distinction between scheduled (yellow) and published (green) posts
+- **Smart Post Count**: Color-coded badges (green ≤3 posts, orange >3 posts)
+- **Responsive Sizing**: Items automatically adjust size based on content density
+
+### 🎨 VISUAL IMPROVEMENTS
+- **Compact Mode**: Smaller items (18px height, 9px font) when many posts exist
+- **Normal Mode**: Larger items (20px height, 10px font) for better readability
+- **Smooth Transitions**: All interactions have smooth 0.2s transitions
+- **Better Icons**: Adaptive icon sizing (6-9px) based on item size
+
+### 🔧 TECHNICAL ENHANCEMENTS
+- **State Management**: Expandable dates tracked with Set-based state
+- **Performance**: Efficient rendering with smart visibility calculations
+- **Memory Efficient**: Only expanded dates stored in state
+- **Event Handling**: Proper event propagation for expand/collapse buttons
+
+### 📱 ACCESSIBILITY IMPROVEMENTS
+- **Descriptive Tooltips**: Clear action descriptions for all interactive elements
+- **Keyboard Navigation**: Proper focus management for expand/collapse
+- **Screen Reader Friendly**: Semantic HTML structure with proper ARIA labels
+- **Color Contrast**: High contrast colors for better visibility
+
+Now the calendar handles ANY number of posts per day with an elegant, scalable interface!
+
 ## [1.3.7] - 2025-01-28 - Published Posts Fix + Multi-Post UI
 
 ### 🎯 CRITICAL FIXES

@@ -14,6 +14,7 @@ export const ContentCalendar: React.FC<ContentCalendarProps> = ({ drafts, publis
     const [currentDate, setCurrentDate] = useState(new Date());
     const [dragOverDate, setDragOverDate] = useState<Date | null>(null);
     const [draggedDraft, setDraggedDraft] = useState<Draft | null>(null);
+    const [expandedDates, setExpandedDates] = useState<Set<string>>(new Set());
 
     // Separate drafts into scheduled and unscheduled
     const unscheduledDrafts = drafts.filter(draft => !draft.scheduledFor);
@@ -42,6 +43,18 @@ export const ContentCalendar: React.FC<ContentCalendarProps> = ({ drafts, publis
         });
 
         return { scheduled, published };
+    };
+
+    // Toggle expanded state for a date
+    const toggleDateExpansion = (date: Date) => {
+        const dateStr = date.toISOString().split('T')[0];
+        const newExpanded = new Set(expandedDates);
+        if (newExpanded.has(dateStr)) {
+            newExpanded.delete(dateStr);
+        } else {
+            newExpanded.add(dateStr);
+        }
+        setExpandedDates(newExpanded);
     };
 
     const handleDragStart = (e: React.DragEvent<HTMLDivElement>, draft: Draft) => {
@@ -87,6 +100,58 @@ export const ContentCalendar: React.FC<ContentCalendarProps> = ({ drafts, publis
 
     const nextMonth = () => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
     const prevMonth = () => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
+
+    // Render a single post item
+    const renderPostItem = (post: Draft, type: 'scheduled' | 'published', isCompact: boolean = false) => {
+        const isScheduled = type === 'scheduled';
+        const style = isScheduled ? {
+            background: '#fff3cd',
+            border: '1px solid #ffc107',
+            color: '#856404',
+        } : {
+            background: '#d4edda',
+            border: '1px solid #28a745',
+            color: '#155724',
+        };
+
+        return (
+            <div 
+                key={`${type}-${post.id}`}
+                draggable={isScheduled}
+                onDragStart={isScheduled ? (e) => handleDragStart(e, post) : undefined}
+                onClick={() => openWordPressEditor(post.id)}
+                className="aca-action-button"
+                style={{
+                    ...style,
+                    padding: isCompact ? '3px 5px' : '5px 7px',
+                    fontSize: isCompact ? '9px' : '10px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap' as const,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '3px',
+                    fontWeight: '500',
+                    margin: 0,
+                    borderRadius: '3px',
+                    minHeight: isCompact ? '18px' : '20px',
+                    transition: 'all 0.2s ease'
+                }}
+                title={`${isScheduled ? 'Scheduled' : 'Published'}: ${post.title || `${isScheduled ? 'Draft' : 'Post'} ${post.id}`} (Click to edit${isScheduled ? ', drag to reschedule' : ''})`}
+            >
+                {isScheduled ? (
+                    <Clock style={{ width: isCompact ? '8px' : '9px', height: isCompact ? '8px' : '9px', flexShrink: 0 }} />
+                ) : (
+                    <Eye style={{ width: isCompact ? '8px' : '9px', height: isCompact ? '8px' : '9px', flexShrink: 0 }} />
+                )}
+                <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {post.title || `${isScheduled ? 'Draft' : 'Post'} ${post.id}`}
+                </span>
+                <Edit style={{ width: isCompact ? '6px' : '7px', height: isCompact ? '6px' : '7px', flexShrink: 0 }} />
+            </div>
+        );
+    };
 
     return (
         <div className="aca-fade-in">
@@ -146,8 +211,19 @@ export const ContentCalendar: React.FC<ContentCalendarProps> = ({ drafts, publis
                                 }
                                 
                                 const { scheduled, published } = getPostsForDate(date);
+                                const totalPosts = scheduled.length + published.length;
                                 const isToday = date.toDateString() === new Date().toDateString();
                                 const isDragOver = dragOverDate && date.getTime() === dragOverDate.getTime();
+                                const dateStr = date.toISOString().split('T')[0];
+                                const isExpanded = expandedDates.has(dateStr);
+                                
+                                // Smart display logic
+                                const maxVisiblePosts = 3;
+                                const shouldShowExpander = totalPosts > maxVisiblePosts;
+                                const visibleScheduled = isExpanded ? scheduled : scheduled.slice(0, Math.min(maxVisiblePosts, scheduled.length));
+                                const remainingSlots = isExpanded ? published.length : Math.max(0, maxVisiblePosts - scheduled.length);
+                                const visiblePublished = published.slice(0, remainingSlots);
+                                const hiddenCount = totalPosts - visibleScheduled.length - visiblePublished.length;
                                 
                                 return (
                                     <div
@@ -162,7 +238,7 @@ export const ContentCalendar: React.FC<ContentCalendarProps> = ({ drafts, publis
                                             position: 'relative',
                                             border: isToday ? '2px solid #2196f3' : 'none',
                                             cursor: 'pointer',
-                                            overflow: 'hidden'
+                                            overflow: 'visible'
                                         }}
                                     >
                                         {/* Date number */}
@@ -178,111 +254,75 @@ export const ContentCalendar: React.FC<ContentCalendarProps> = ({ drafts, publis
                                             {date.getDate()}
                                         </div>
                                         
-                                        {/* Post count indicator for days with many posts */}
-                                        {(scheduled.length + published.length) > 3 && (
+                                        {/* Post count indicator */}
+                                        {totalPosts > 0 && (
                                             <div style={{
                                                 position: 'absolute',
                                                 top: '8px',
                                                 right: '8px',
-                                                background: '#ff9800',
+                                                background: totalPosts > 3 ? '#ff9800' : '#4caf50',
                                                 color: 'white',
                                                 borderRadius: '50%',
-                                                width: '20px',
-                                                height: '20px',
+                                                width: '18px',
+                                                height: '18px',
                                                 display: 'flex',
                                                 alignItems: 'center',
                                                 justifyContent: 'center',
-                                                fontSize: '10px',
+                                                fontSize: '9px',
                                                 fontWeight: 'bold',
                                                 zIndex: 1
                                             }}>
-                                                {scheduled.length + published.length}
+                                                {totalPosts}
                                             </div>
                                         )}
                                         
-                                        {/* Content - Scrollable for many items */}
+                                        {/* Content area */}
                                         <div style={{ 
                                             display: 'flex', 
                                             flexDirection: 'column', 
-                                            gap: '3px', 
+                                            gap: '2px', 
                                             marginTop: '28px',
-                                            flex: 1,
-                                            maxHeight: '85px',
-                                            overflowY: 'auto',
-                                            overflowX: 'hidden',
-                                            paddingRight: '2px'
+                                            flex: 1
                                         }}>
-                                            {/* Scheduled Drafts */}
-                                            {scheduled.map((draft, index) => (
-                                                <div 
-                                                    key={`scheduled-${draft.id}`}
-                                                    draggable
-                                                    onDragStart={(e) => handleDragStart(e, draft)}
-                                                    onClick={() => openWordPressEditor(draft.id)}
-                                                    className="aca-action-button"
-                                                    style={{
-                                                        background: '#fff3cd',
-                                                        border: '1px solid #ffc107',
-                                                        color: '#856404',
-                                                        padding: '4px 6px',
-                                                        fontSize: '10px',
-                                                        overflow: 'hidden',
-                                                        textOverflow: 'ellipsis',
-                                                        whiteSpace: 'nowrap' as const,
-                                                        cursor: 'pointer',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: '3px',
-                                                        fontWeight: '500',
-                                                        margin: 0,
-                                                        borderRadius: '3px',
-                                                        minHeight: '22px',
-                                                        opacity: index > 2 ? 0.8 : 1
-                                                    }}
-                                                    title={`Scheduled: ${draft.title || `Draft ${draft.id}`} (Click to edit, drag to reschedule)`}
-                                                >
-                                                    <Clock style={{ width: '10px', height: '10px', flexShrink: 0 }} />
-                                                    <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                                        {draft.title || `Draft ${draft.id}`}
-                                                    </span>
-                                                    <Edit style={{ width: '8px', height: '8px', flexShrink: 0 }} />
-                                                </div>
-                                            ))}
+                                            {/* Visible scheduled drafts */}
+                                            {visibleScheduled.map(draft => 
+                                                renderPostItem(draft, 'scheduled', !isExpanded && totalPosts > 2)
+                                            )}
                                             
-                                            {/* Published Posts */}
-                                            {published.map((post, index) => (
-                                                <div 
-                                                    key={`published-${post.id}`}
-                                                    onClick={() => openWordPressEditor(post.id)}
-                                                    className="aca-action-button"
-                                                    style={{
-                                                        background: '#d4edda',
-                                                        border: '1px solid #28a745',
-                                                        color: '#155724',
-                                                        padding: '4px 6px',
-                                                        fontSize: '10px',
-                                                        overflow: 'hidden',
-                                                        textOverflow: 'ellipsis',
-                                                        whiteSpace: 'nowrap' as const,
-                                                        cursor: 'pointer',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: '3px',
-                                                        fontWeight: '500',
-                                                        margin: 0,
-                                                        borderRadius: '3px',
-                                                        minHeight: '22px',
-                                                        opacity: index > 2 ? 0.8 : 1
+                                            {/* Visible published posts */}
+                                            {visiblePublished.map(post => 
+                                                renderPostItem(post, 'published', !isExpanded && totalPosts > 2)
+                                            )}
+                                            
+                                            {/* Expand/Collapse button */}
+                                            {shouldShowExpander && (
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        toggleDateExpansion(date);
                                                     }}
-                                                    title={`Published: ${post.title || `Post ${post.id}`} (Click to edit)`}
+                                                    style={{
+                                                        background: '#f0f0f0',
+                                                        border: '1px solid #ccc',
+                                                        color: '#666',
+                                                        padding: '3px 6px',
+                                                        fontSize: '9px',
+                                                        borderRadius: '2px',
+                                                        cursor: 'pointer',
+                                                        textAlign: 'center' as const,
+                                                        fontWeight: '500',
+                                                        transition: 'all 0.2s ease'
+                                                    }}
+                                                    onMouseOver={(e) => {
+                                                        e.currentTarget.style.background = '#e0e0e0';
+                                                    }}
+                                                    onMouseOut={(e) => {
+                                                        e.currentTarget.style.background = '#f0f0f0';
+                                                    }}
                                                 >
-                                                    <Eye style={{ width: '10px', height: '10px', flexShrink: 0 }} />
-                                                    <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                                        {post.title || `Post ${post.id}`}
-                                                    </span>
-                                                    <Edit style={{ width: '8px', height: '8px', flexShrink: 0 }} />
-                                                </div>
-                                            ))}
+                                                    {isExpanded ? 'Show Less' : `+${hiddenCount} More`}
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
                                 );
@@ -367,9 +407,9 @@ export const ContentCalendar: React.FC<ContentCalendarProps> = ({ drafts, publis
                             </div>
                             
                             <div>
-                                <h4 className="aca-label">📊 Visual Indicators</h4>
+                                <h4 className="aca-label">📊 Smart Display</h4>
                                 <p style={{ margin: 0, fontSize: '14px', color: '#666' }}>
-                                    Yellow = Scheduled drafts, Green = Published posts, Blue border = Today's date.
+                                    Days with many posts show first 3 items. Click "+X More" to expand and see all content.
                                 </p>
                             </div>
                         </div>

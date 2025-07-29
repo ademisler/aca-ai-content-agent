@@ -1,7 +1,26 @@
 
 import React, { useState, useEffect } from 'react';
 import type { AppSettings, AutomationMode, ImageSourceProvider, AiImageStyle, SeoPlugin } from '../types';
-import { Spinner, Google, CheckCircle, Settings as SettingsIcon, Zap, Image, Shield } from './Icons';
+import { 
+    Spinner, 
+    Google, 
+    CheckCircle, 
+    Settings as SettingsIcon, 
+    Zap, 
+    Image, 
+    Shield 
+} from './Icons';
+
+declare global {
+    interface Window {
+        acaData: {
+            nonce: string;
+            api_url: string;
+            admin_url: string;
+            plugin_url: string;
+        };
+    }
+}
 
 interface SettingsProps {
     settings: AppSettings;
@@ -103,8 +122,8 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
     useEffect(() => {
         const loadGscAuthStatus = async () => {
             try {
-                const response = await fetch(window.aca_object.api_url + 'gsc/auth-status', {
-                    headers: { 'X-WP-Nonce': window.aca_object.nonce }
+                            const response = await fetch(window.acaData.api_url + 'gsc/auth-status', {
+                headers: { 'X-WP-Nonce': window.acaData.nonce }
                 });
                 const status = await response.json();
                 setGscAuthStatus(status);
@@ -187,9 +206,9 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
         
         setIsConnecting(true);
         try {
-            const response = await fetch(window.aca_object.api_url + 'gsc/connect', {
+            const response = await fetch(window.acaData.api_url + 'gsc/connect', {
                 method: 'POST',
-                headers: { 'X-WP-Nonce': window.aca_object.nonce }
+                headers: { 'X-WP-Nonce': window.acaData.nonce }
             });
             const data = await response.json();
             
@@ -209,10 +228,10 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
     
     const handleGSCDisconnect = async () => {
         try {
-            const response = await fetch(window.aca_object.api_url + 'gsc/disconnect', {
+                        const response = await fetch(window.acaData.api_url + 'gsc/disconnect', {
                 method: 'POST',
-                headers: { 
-                    'X-WP-Nonce': window.aca_object.nonce,
+                headers: {
+                    'X-WP-Nonce': window.acaData.nonce,
                     'Content-Type': 'application/json'
                 }
             });
@@ -981,8 +1000,8 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                     <button 
                         className="aca-action-button"
                         onClick={() => {
-                            fetch(window.aca_object.api_url + 'debug/automation', {
-                                headers: { 'X-WP-Nonce': window.aca_object.nonce }
+                                            fetch(window.acaData.api_url + 'debug/automation', {
+                    headers: { 'X-WP-Nonce': window.acaData.nonce }
                             })
                             .then(r => r.json())
                             .then(data => {
@@ -997,9 +1016,9 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                     <button 
                         className="aca-action-button"
                         onClick={() => {
-                            fetch(window.aca_object.api_url + 'debug/cron/semi-auto', {
-                                method: 'POST',
-                                headers: { 'X-WP-Nonce': window.aca_object.nonce }
+                                            fetch(window.acaData.api_url + 'debug/cron/semi-auto', {
+                    method: 'POST',
+                    headers: { 'X-WP-Nonce': window.acaData.nonce }
                             })
                             .then(r => r.json())
                             .then(data => {
@@ -1013,9 +1032,9 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                     <button 
                         className="aca-action-button"
                         onClick={() => {
-                            fetch(window.aca_object.api_url + 'debug/cron/full-auto', {
-                                method: 'POST',
-                                headers: { 'X-WP-Nonce': window.aca_object.nonce }
+                                            fetch(window.acaData.api_url + 'debug/cron/full-auto', {
+                    method: 'POST',
+                    headers: { 'X-WP-Nonce': window.acaData.nonce }
                             })
                             .then(r => r.json())
                             .then(data => {

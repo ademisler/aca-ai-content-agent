@@ -9,6 +9,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Current Release
 
+## [1.6.1] - 2025-01-28 - FIXED WINDOW OBJECT CONSISTENCY + SETTINGS API CALLS 🔧
+
+### 🔧 **FIXED WINDOW OBJECT CONSISTENCY**
+- **Settings Component**: Fixed all `window.aca_object` references to `window.acaData` in Settings.tsx
+- **API Call Consistency**: Ensured all API calls use the correct window object reference
+- **Google Search Console**: Fixed GSC auth-status, connect, and disconnect API calls
+- **Debug Functions**: Fixed debug automation and cron trigger API calls
+- **Global Declarations**: Added proper global window interface declarations in Settings component
+
+### 🚀 **IMPROVED API COMMUNICATION**
+- **Consistent Nonce Usage**: All API calls now use `window.acaData.nonce` consistently
+- **Proper API URLs**: All API calls use `window.acaData.api_url` consistently
+- **Error Prevention**: Eliminated potential "undefined" errors from inconsistent window object usage
+- **Type Safety**: Added proper TypeScript declarations for window object
+- **Import Organization**: Improved import structure to prevent potential circular dependencies
+
+### 🔍 **ENHANCED DEBUGGING**
+- **SEO Plugin Detection**: Maintained proper SEO plugin detection functionality
+- **Console Logging**: Enhanced console logging for better debugging experience
+- **Error Handling**: Improved error handling for API communication failures
+- **Development Experience**: Better development experience with consistent object references
+
+### ✅ **VERIFIED FUNCTIONALITY**
+- **Settings Page**: Confirmed Settings page loads without JavaScript errors
+- **API Endpoints**: All REST API endpoints work with correct authentication
+- **SEO Integration**: SEO plugin detection and integration works correctly
+- **Google Search Console**: GSC integration functions properly
+- **Debug Tools**: All debug and testing tools work as expected
+
 ## [1.6.0] - 2025-01-28 - FIXED BUILD SYSTEM + REACT INITIALIZATION ERRORS 🔧
 
 ### 🔧 **FIXED BUILD SYSTEM ISSUES**

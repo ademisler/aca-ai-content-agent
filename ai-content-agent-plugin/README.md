@@ -1,20 +1,26 @@
 # AI Content Agent (ACA) WordPress Plugin
 
-![Version](https://img.shields.io/badge/version-1.5.1-blue.svg)
+![Version](https://img.shields.io/badge/version-1.5.2-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-blue.svg)
 ![License](https://img.shields.io/badge/license-GPL%20v2%2B-green.svg)
 
 AI-powered content creation and management plugin that generates blog posts, ideas, and manages your content workflow automatically with an intelligent Content Calendar system and **real Google Search Console integration**.
 
-## 🚀 Latest Updates - v1.5.1 - CRITICAL AI IMAGE GENERATION AUTHENTICATION FIXES 🔧
+## 🚀 Latest Updates - v1.5.2 - IMAGE INTEGRATION OVERHAUL + TEXT-FREE AI GENERATION 🖼️
 
-### 🚨 **CRITICAL AUTHENTICATION FIXES**
-- **Fixed Google Imagen API Authentication**: Corrected authentication flow to use proper Google Cloud Vertex AI access tokens
-- **Enhanced Error Handling**: Added comprehensive error detection for common authentication issues
-- **Better Error Messages**: Users now receive specific guidance for authentication problems
-- **Access Token Validation**: Added validation to detect incorrect API key types (AI Studio vs Vertex AI)
-- **Improved Documentation**: Updated setup guide with correct authentication instructions
+### 🖼️ **COMPLETE IMAGE INTEGRATION OVERHAUL**
+- **Text-Free AI Images**: Added explicit prompting and negative prompting to prevent text, words, or readable content in AI-generated images
+- **Enhanced Image Attachment**: Improved image attachment process with proper post association and error handling
+- **Better Image Relevance**: Added key concept extraction from article titles for more relevant image generation
+- **Improved Error Handling**: Comprehensive error logging for image creation and attachment processes
+- **Alt Text Support**: Automatically sets alt text for accessibility compliance
+
+### 🚫 **TEXT PREVENTION IN AI IMAGES**
+- **Explicit Text Prevention**: Added clear instructions to prevent any textual elements in generated images
+- **Negative Prompting**: Implemented comprehensive negative prompting to block text, logos, watermarks, and readable content
+- **Visual-Only Focus**: Ensures AI-generated images are purely visual without any written elements
+- **Professional Quality**: Maintains high-quality visual output while preventing unwanted text overlay
 
 ### ✅ **ALL STOCK PHOTO APIS CONFIRMED WORKING**
 - **Pexels API**: ✅ Verified correct `Authorization: {API_KEY}` header implementation

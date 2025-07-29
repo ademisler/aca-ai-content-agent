@@ -1082,9 +1082,12 @@ class ACA_Rest_Api {
             
             // Set featured image if we have one
             if ($image_data) {
-                $attachment_id = $this->save_image_to_media_library($image_data, $idea->title);
+                $attachment_id = $this->save_image_to_media_library($image_data, $idea->title, $post_id);
                 if ($attachment_id) {
                     set_post_thumbnail($post_id, $attachment_id);
+                    error_log('ACA: Successfully set featured image for post ' . $post_id . ' with attachment ' . $attachment_id);
+                } else {
+                    error_log('ACA: Failed to create attachment for featured image');
                 }
             }
             
@@ -1579,9 +1582,9 @@ class ACA_Rest_Api {
     }
     
     /**
-     * Save image to WordPress media library
+     * Save image to WordPress media library and properly attach to post
      */
-    private function save_image_to_media_library($image_data, $title) {
+    private function save_image_to_media_library($image_data, $title, $post_id = 0) {
         if (!function_exists('media_handle_sideload')) {
             require_once(ABSPATH . 'wp-admin/includes/media.php');
             require_once(ABSPATH . 'wp-admin/includes/file.php');
@@ -1590,21 +1593,70 @@ class ACA_Rest_Api {
         
         // Create temporary file
         $temp_file = wp_tempnam();
-        file_put_contents($temp_file, base64_decode($image_data));
+        
+        // Decode and save image data
+        $image_content = base64_decode($image_data);
+        if ($image_content === false) {
+            error_log('ACA: Failed to decode base64 image data');
+            return false;
+        }
+        
+        file_put_contents($temp_file, $image_content);
+        
+        // Verify file was created successfully
+        if (!file_exists($temp_file) || filesize($temp_file) === 0) {
+            error_log('ACA: Failed to create temporary image file');
+            if (file_exists($temp_file)) {
+                unlink($temp_file);
+            }
+            return false;
+        }
         
         $file_array = array(
             'name' => sanitize_file_name($title) . '.jpg',
             'tmp_name' => $temp_file
         );
         
-        $attachment_id = media_handle_sideload($file_array, 0);
+        // Attach image to specific post if post_id provided
+        $attachment_id = media_handle_sideload($file_array, $post_id);
         
         if (is_wp_error($attachment_id)) {
-            unlink($temp_file);
+            error_log('ACA: Failed to create media attachment: ' . $attachment_id->get_error_message());
+            if (file_exists($temp_file)) {
+                unlink($temp_file);
+            }
             return false;
         }
         
+        // Set alt text for accessibility
+        if ($attachment_id) {
+            update_post_meta($attachment_id, '_wp_attachment_image_alt', sanitize_text_field($title));
+        }
+        
         return $attachment_id;
+    }
+    
+    /**
+     * Extract key concepts from a title for better image relevance
+     */
+    private function extract_key_concepts($title) {
+        // Remove common stop words and extract meaningful concepts
+        $stop_words = array('the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'from', 'up', 'about', 'into', 'through', 'during', 'before', 'after', 'above', 'below', 'between', 'among', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'should', 'could', 'can', 'may', 'might', 'must', 'shall', 'this', 'that', 'these', 'those', 'i', 'you', 'he', 'she', 'it', 'we', 'they', 'me', 'him', 'her', 'us', 'them', 'my', 'your', 'his', 'her', 'its', 'our', 'their', 'how', 'what', 'when', 'where', 'why', 'which', 'who', 'whom');
+        
+        // Clean and split the title
+        $words = preg_split('/[\s\-_:;,.!?]+/', strtolower($title));
+        $key_words = array();
+        
+        foreach ($words as $word) {
+            $word = trim($word);
+            if (strlen($word) > 2 && !in_array($word, $stop_words) && !is_numeric($word)) {
+                $key_words[] = $word;
+            }
+        }
+        
+        // Return the first 5 key concepts or all if less than 5
+        $concepts = array_slice($key_words, 0, 5);
+        return implode(', ', $concepts);
     }
     
     // AI Service calls - Real Gemini API integration
@@ -1745,8 +1797,12 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         
         $style_prompt = isset($style_prompts[$style]) ? $style_prompts[$style] : $style_prompts['digital_art'];
         
-        // Create a descriptive prompt for the blog post title
-        $prompt = "Create a {$style_prompt} image for a blog post titled: \"{$title}\". The image should be relevant to the topic, visually appealing, suitable for use as a featured image on a professional blog, and capture the essence of the subject matter.";
+        // Create a descriptive prompt for the blog post title - EXPLICITLY PREVENT TEXT
+        // Extract key concepts from the title for better relevance
+        $clean_title = strip_tags($title);
+        $key_concepts = $this->extract_key_concepts($clean_title);
+        
+        $prompt = "Create a {$style_prompt} image that represents the concept of \"{$clean_title}\". Focus on the main themes: {$key_concepts}. The image should be relevant to the topic, visually appealing, suitable for use as a featured image on a professional blog, and capture the essence of the subject matter. IMPORTANT: Do not include any text, words, letters, numbers, signs, or written content in the image. The image should be purely visual without any textual elements, logos, or readable content.";
         
         try {
             // Use Google's Imagen API for actual image generation
@@ -1809,7 +1865,8 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         $request_body = array(
             'instances' => array(
                 array(
-                    'prompt' => $prompt
+                    'prompt' => $prompt,
+                    'negativePrompt' => 'text, words, letters, numbers, signs, writing, typography, captions, labels, watermarks, logos, banners, advertisements, titles, subtitles, quotes, speech bubbles, signage, readable content'
                 )
             ),
             'parameters' => array(

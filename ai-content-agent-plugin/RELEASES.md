@@ -8,7 +8,7 @@ This document explains the release management system for the AI Content Agent Wo
 /workspace/
 ├── ai-content-agent-plugin/          # Source code
         └── releases/                         # Release management
-            ├── ai-content-agent-v1.5.1-ai-image-authentication-fixes.zip  # Latest release
+            ├── ai-content-agent-v1.5.2-image-integration-overhaul.zip  # Latest release
     └── archive/                       # Previous versions
         ├── ai-content-agent-v1.3.2-markdown-fix.zip
         ├── ai-content-agent-v1.3.3-calendar-fix.zip
@@ -32,20 +32,21 @@ This document explains the release management system for the AI Content Agent Wo
 
 ## 🚀 Current Release
 
-### v1.5.1 - Latest Stable Release
-- **File**: `releases/ai-content-agent-v1.5.1-ai-image-authentication-fixes.zip`
-- **Size**: 187KB (optimized)
+### v1.5.2 - Latest Stable Release
+- **File**: `releases/ai-content-agent-v1.5.2-image-integration-overhaul.zip`
+- **Size**: 189KB (optimized)
 - **Status**: ✅ **STABLE - READY FOR PRODUCTION**
 - **Release Date**: 2025-01-28
-- **Critical Fix**: AI Image Generation Authentication Overhaul
+- **Major Feature**: Complete Image Integration Overhaul with Text-Free AI Generation
 
-#### What's Fixed in v1.5.1:
-- 🚨 **Critical Authentication Fix**: Fixed Google Imagen API to use proper Vertex AI access tokens
-- 🔧 **Enhanced Error Handling**: Added comprehensive error detection for authentication issues
-- 💬 **Better Error Messages**: Users receive specific guidance for authentication problems
-- 🔑 **Access Token Validation**: Added validation to detect incorrect API key types (AI Studio vs Vertex AI)
-- 📚 **Improved Documentation**: Updated setup guide with correct authentication instructions
-- ✅ **Stock APIs Confirmed**: All stock photo APIs verified working correctly (no changes needed)
+#### What's New in v1.5.2:
+- 🖼️ **Text-Free AI Images**: Added explicit prompting and negative prompting to prevent text in AI-generated images
+- 🔗 **Enhanced Image Attachment**: Improved image attachment process with proper post association and error handling
+- 🎯 **Better Image Relevance**: Added key concept extraction from article titles for more relevant image generation
+- 🚫 **Text Prevention**: Comprehensive negative prompting to block text, logos, watermarks, and readable content
+- 🛠️ **Improved Error Handling**: Detailed logging for image creation and attachment processes
+- ♿ **Alt Text Support**: Automatically sets alt text for accessibility compliance
+- ✅ **Stock Photo APIs**: All confirmed working correctly (Pexels, Unsplash, Pixabay)
 
 ## 📦 Release Archive
 
@@ -57,8 +58,8 @@ The `releases/archive/` directory contains all previous versions for:
 - **Documentation**: Reference for changelog and feature evolution
 
 ### Archive Statistics
-- **Total Archived Versions**: 22 releases
-- **Version Range**: v1.3.2 to v1.5.0 (archived)
+- **Total Archived Versions**: 23 releases
+- **Version Range**: v1.3.2 to v1.5.1 (archived)
 - **Storage**: Organized chronologically
 - **Accessibility**: All versions remain accessible for developers
 

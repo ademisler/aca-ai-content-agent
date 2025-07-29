@@ -9,6 +9,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Current Release
 
+## [1.5.2] - 2025-01-28 - IMAGE INTEGRATION OVERHAUL + TEXT-FREE AI GENERATION 🖼️
+
+### 🖼️ **COMPLETE IMAGE INTEGRATION OVERHAUL**
+- **Text-Free AI Images**: Added explicit prompting and negative prompting to prevent text, words, or readable content in AI-generated images
+- **Enhanced Image Attachment**: Improved image attachment process with proper post association and error handling
+- **Better Image Relevance**: Added key concept extraction from article titles for more relevant image generation
+- **Improved Error Handling**: Comprehensive error logging for image creation and attachment processes
+- **Alt Text Support**: Automatically sets alt text for accessibility compliance
+
+### 🎯 **IMAGE RELEVANCE IMPROVEMENTS**
+- **Key Concept Extraction**: Intelligently extracts meaningful concepts from article titles for better image relevance
+- **Enhanced Prompting**: Improved AI image generation prompts to better capture article essence
+- **Stop Word Filtering**: Removes common stop words to focus on important concepts
+- **Topic Relevance**: Ensures generated images are directly related to article content
+
+### 🚫 **TEXT PREVENTION IN AI IMAGES**
+- **Explicit Text Prevention**: Added clear instructions to prevent any textual elements in generated images
+- **Negative Prompting**: Implemented comprehensive negative prompting to block text, logos, watermarks, and readable content
+- **Visual-Only Focus**: Ensures AI-generated images are purely visual without any written elements
+- **Professional Quality**: Maintains high-quality visual output while preventing unwanted text overlay
+
+### 🔧 **TECHNICAL IMPROVEMENTS**
+- **Enhanced Error Logging**: Detailed logging for image generation and attachment processes
+- **Better File Handling**: Improved temporary file creation and cleanup
+- **Post Association**: Proper image-to-post linking in WordPress media library
+- **Accessibility**: Automatic alt text generation for screen readers
+
+### ✅ **STOCK PHOTO APIS - CONFIRMED WORKING**
+- **Pexels API**: ✅ Verified correct `Authorization: {API_KEY}` header implementation
+- **Unsplash API**: ✅ Verified correct `Authorization: Client-ID {API_KEY}` header implementation
+- **Pixabay API**: ✅ Verified correct `?key={API_KEY}` query parameter implementation
+- **All APIs Functional**: No changes needed - all stock photo integrations working correctly
+
 ## [1.5.1] - 2025-01-28 - CRITICAL AI IMAGE GENERATION AUTHENTICATION FIXES 🔧
 
 ### 🚨 **CRITICAL AUTHENTICATION FIXES**

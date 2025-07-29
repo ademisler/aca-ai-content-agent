@@ -42,6 +42,8 @@ const App: React.FC = () => {
         gscClientSecret: '',
         imageSourceProvider: 'ai',
         aiImageStyle: 'photorealistic',
+        googleCloudProjectId: '',
+        googleCloudLocation: 'us-central1',
         pexelsApiKey: '',
         unsplashApiKey: '',
         pixabayApiKey: '',

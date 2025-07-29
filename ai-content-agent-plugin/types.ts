@@ -51,6 +51,8 @@ export interface AppSettings {
     gscClientSecret: string;
     imageSourceProvider: ImageSourceProvider;
     aiImageStyle: AiImageStyle;
+    googleCloudProjectId?: string;
+    googleCloudLocation?: string;
     pexelsApiKey: string;
     unsplashApiKey: string;
     pixabayApiKey: string;

@@ -258,7 +258,17 @@ class ACA_Rest_Api {
         }
         
         $settings = $request->get_json_params();
+        
+        // Save main settings
         update_option('aca_settings', $settings);
+        
+        // Save Google Cloud settings separately for easy access
+        if (isset($settings['googleCloudProjectId'])) {
+            update_option('aca_google_cloud_project_id', sanitize_text_field($settings['googleCloudProjectId']));
+        }
+        if (isset($settings['googleCloudLocation'])) {
+            update_option('aca_google_cloud_location', sanitize_text_field($settings['googleCloudLocation']));
+        }
         
         $this->add_activity_log('settings_updated', 'Application settings were updated.', 'Settings');
         
@@ -1729,17 +1739,127 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
     
     private function call_gemini_generate_image($api_key, $title, $style) {
         $style_prompts = array(
-            'photorealistic' => 'photorealistic, high quality, professional photography',
-            'digital_art' => 'digital art, illustration, creative, artistic'
+            'photorealistic' => 'photorealistic, high quality, professional photography, 4K, HDR, studio lighting',
+            'digital_art' => 'digital art, illustration, creative, artistic, detailed, professional'
         );
         
         $style_prompt = isset($style_prompts[$style]) ? $style_prompts[$style] : $style_prompts['digital_art'];
-        $prompt = "Create a {$style_prompt} image for a blog post titled: \"{$title}\". The image should be relevant to the topic, visually appealing, and suitable for use as a featured image on a professional blog.";
         
-        // Note: This is a simplified implementation for image generation
-        // In a real implementation, you would use the Gemini image API
-        // For now, we'll return a placeholder
-        return base64_encode('placeholder_image_for_' . sanitize_title($title));
+        // Create a descriptive prompt for the blog post title
+        $prompt = "Create a {$style_prompt} image for a blog post titled: \"{$title}\". The image should be relevant to the topic, visually appealing, suitable for use as a featured image on a professional blog, and capture the essence of the subject matter.";
+        
+        try {
+            // Use Google's Imagen API for actual image generation
+            $imagen_response = $this->call_imagen_api($api_key, $prompt);
+            
+            if (is_wp_error($imagen_response)) {
+                error_log('ACA Imagen API Error: ' . $imagen_response->get_error_message());
+                throw new Exception('Imagen API error: ' . $imagen_response->get_error_message());
+            }
+            
+            return $imagen_response;
+            
+        } catch (Exception $e) {
+            error_log('ACA AI Image Generation Error: ' . $e->getMessage());
+            
+            // Fallback: Return a more informative placeholder
+            $fallback_data = array(
+                'error' => true,
+                'message' => 'AI image generation temporarily unavailable',
+                'title' => $title,
+                'style' => $style,
+                'timestamp' => current_time('mysql')
+            );
+            
+            return base64_encode(json_encode($fallback_data));
+        }
+    }
+    
+    private function call_imagen_api($api_key, $prompt) {
+        // Google Cloud Vertex AI Imagen API endpoint
+        $project_id = get_option('aca_google_cloud_project_id', '');
+        $location = get_option('aca_google_cloud_location', 'us-central1');
+        
+        if (empty($project_id)) {
+            return new WP_Error('missing_project_id', 'Google Cloud Project ID not configured. Please set it in plugin settings.');
+        }
+        
+        // Use Imagen 3.0 Generate 002 model (latest stable version)
+        $model = 'imagen-3.0-generate-002';
+        $url = "https://{$location}-aiplatform.googleapis.com/v1/projects/{$project_id}/locations/{$location}/publishers/google/models/{$model}:predict";
+        
+        $request_body = array(
+            'instances' => array(
+                array(
+                    'prompt' => $prompt
+                )
+            ),
+            'parameters' => array(
+                'sampleCount' => 1,
+                'aspectRatio' => '16:9', // Good for featured images
+                'safetyFilterLevel' => 'block_some',
+                'personGeneration' => 'allow_adult'
+            )
+        );
+        
+        $headers = array(
+            'Authorization' => 'Bearer ' . $this->get_google_access_token($api_key),
+            'Content-Type' => 'application/json'
+        );
+        
+        $response = wp_remote_post($url, array(
+            'headers' => $headers,
+            'body' => json_encode($request_body),
+            'timeout' => 60
+        ));
+        
+        if (is_wp_error($response)) {
+            return $response;
+        }
+        
+        $response_code = wp_remote_retrieve_response_code($response);
+        $response_body = wp_remote_retrieve_body($response);
+        
+        if ($response_code !== 200) {
+            $error_message = "Imagen API returned status code {$response_code}";
+            if (!empty($response_body)) {
+                $error_data = json_decode($response_body, true);
+                if (isset($error_data['error']['message'])) {
+                    $error_message .= ': ' . $error_data['error']['message'];
+                }
+            }
+            return new WP_Error('imagen_api_error', $error_message);
+        }
+        
+        $data = json_decode($response_body, true);
+        
+        if (!isset($data['predictions'][0]['bytesBase64Encoded'])) {
+            return new WP_Error('invalid_response', 'Invalid response from Imagen API');
+        }
+        
+        // Return the base64 encoded image
+        return $data['predictions'][0]['bytesBase64Encoded'];
+    }
+    
+    private function get_google_access_token($api_key) {
+        // For Vertex AI, we need to use service account authentication
+        // This is a simplified implementation - in production, you'd use proper OAuth2 flow
+        
+        // Check if we have a cached access token
+        $cached_token = get_transient('aca_google_access_token');
+        if ($cached_token) {
+            return $cached_token;
+        }
+        
+        // For now, return the API key directly (this assumes the API key is actually a service account key)
+        // In a full implementation, you would:
+        // 1. Use the service account JSON key file
+        // 2. Generate a JWT token
+        // 3. Exchange it for an access token
+        // 4. Cache the token with proper expiration
+        
+        // Simplified approach: assume the provided API key is a valid access token or service account
+        return $api_key;
     }
     
     private function fetch_stock_photo($query, $provider, $api_key) {

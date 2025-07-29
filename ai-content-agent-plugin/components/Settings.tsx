@@ -391,18 +391,70 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
 
                         {/* Provider-specific settings */}
                         {currentSettings.imageSourceProvider === 'ai' && (
-                            <div className="aca-form-group aca-fade-in">
-                                <label htmlFor="ai-image-style" className="aca-label">AI Image Style</label>
-                                <select 
-                                    id="ai-image-style" 
-                                    value={currentSettings.aiImageStyle} 
-                                    onChange={(e) => handleSettingChange('aiImageStyle', e.target.value as AiImageStyle)} 
-                                    className="aca-select"
-                                    style={{ maxWidth: '200px' }}
+                            <div className="aca-fade-in">
+                                <div className="aca-form-group">
+                                    <label htmlFor="ai-image-style" className="aca-label">AI Image Style</label>
+                                    <select 
+                                        id="ai-image-style" 
+                                        value={currentSettings.aiImageStyle} 
+                                        onChange={(e) => handleSettingChange('aiImageStyle', e.target.value as AiImageStyle)} 
+                                        className="aca-select"
+                                        style={{ maxWidth: '200px' }}
+                                    >
+                                        <option value="photorealistic">Photorealistic</option>
+                                        <option value="digital_art">Digital Art</option>
+                                    </select>
+                                </div>
+                                
+                                <div className="aca-form-group">
+                                    <label htmlFor="google-cloud-project-id" className="aca-label">Google Cloud Project ID</label>
+                                    <input 
+                                        id="google-cloud-project-id" 
+                                        type="text" 
+                                        placeholder="Enter your Google Cloud Project ID" 
+                                        value={currentSettings.googleCloudProjectId || ''} 
+                                        onChange={e => handleSettingChange('googleCloudProjectId', e.target.value)} 
+                                        className="aca-input"
+                                    />
+                                    <p className="aca-page-description" style={{ marginTop: '8px', fontSize: '13px' }}>
+                                        Required for AI image generation using Google's Imagen API
+                                    </p>
+                                </div>
+                                
+                                <div className="aca-form-group">
+                                    <label htmlFor="google-cloud-location" className="aca-label">Google Cloud Location</label>
+                                    <select 
+                                        id="google-cloud-location" 
+                                        value={currentSettings.googleCloudLocation || 'us-central1'} 
+                                        onChange={(e) => handleSettingChange('googleCloudLocation', e.target.value)} 
+                                        className="aca-select"
+                                        style={{ maxWidth: '200px' }}
+                                    >
+                                        <option value="us-central1">us-central1</option>
+                                        <option value="us-east1">us-east1</option>
+                                        <option value="us-west1">us-west1</option>
+                                        <option value="europe-west1">europe-west1</option>
+                                        <option value="asia-southeast1">asia-southeast1</option>
+                                    </select>
+                                    <p className="aca-page-description" style={{ marginTop: '8px', fontSize: '13px' }}>
+                                        Choose the Google Cloud region closest to your users
+                                    </p>
+                                </div>
+                                
+                                <a 
+                                    href="https://cloud.google.com/vertex-ai/generative-ai/docs/image/overview" 
+                                    target="_blank" 
+                                    rel="noopener noreferrer" 
+                                    className="aca-page-description"
+                                    style={{ 
+                                        color: '#0073aa', 
+                                        textDecoration: 'none', 
+                                        marginTop: '8px', 
+                                        display: 'block' 
+                                    }}
                                 >
-                                    <option value="photorealistic">Photorealistic</option>
-                                    <option value="digital_art">Digital Art</option>
-                                </select>
+                                    → Learn how to set up Google Cloud Vertex AI for Imagen
+                                </a>
                             </div>
                         )}
                         {currentSettings.imageSourceProvider === 'pexels' && (

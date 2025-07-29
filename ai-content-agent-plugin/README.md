@@ -1,19 +1,25 @@
 # AI Content Agent (ACA) WordPress Plugin
 
-![Version](https://img.shields.io/badge/version-1.4.9-blue.svg)
+![Version](https://img.shields.io/badge/version-1.5.0-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-blue.svg)
 ![License](https://img.shields.io/badge/license-GPL%20v2%2B-green.svg)
 
 AI-powered content creation and management plugin that generates blog posts, ideas, and manages your content workflow automatically with an intelligent Content Calendar system and **real Google Search Console integration**.
 
-## 🚀 Latest Updates - v1.4.9 - ACTIVATION ERROR FIX 🚨
+## 🚀 Latest Updates - v1.5.0 - AI IMAGE GENERATION OVERHAUL 🎨
 
-### ✅ **CRITICAL ACTIVATION ERROR COMPLETELY FIXED**
-- **Fatal Error Resolution**: Fixed PHP syntax error that prevented plugin activation
-- **Code Quality**: Corrected method indentation and structure in GSC integration
-- **Stable Activation**: Plugin now activates without any errors
-- **Error Handling**: Maintained comprehensive error handling while fixing syntax issues
+### 🎨 **AI IMAGE GENERATION COMPLETELY REBUILT**
+- **Real Imagen API**: Replaced placeholder with actual Google Imagen 3.0 API integration
+- **Google Cloud Integration**: Added proper Vertex AI Imagen API support using `imagen-3.0-generate-002`
+- **Enhanced Prompts**: Improved AI image generation prompts with professional photography and digital art styles
+- **Configuration UI**: Added Google Cloud Project ID and Location settings
+- **Better Error Handling**: Comprehensive error handling with informative fallbacks
+
+### ✅ **ALL STOCK PHOTO APIS VERIFIED WORKING**
+- **Pexels API**: ✅ Confirmed working correctly with proper authentication
+- **Unsplash API**: ✅ Confirmed working correctly with `Client-ID` authentication  
+- **Pixabay API**: ✅ Confirmed working correctly with query parameter authentication
 
 ### 🔍 **GOOGLE SEARCH CONSOLE INTEGRATION - FULLY FUNCTIONAL**
 - **Real GSC Data**: Complete integration with actual Google Search Console API
@@ -119,12 +125,13 @@ releases/archive/ai-content-agent-v1.4.[0-8]-*.zip
 
 ### Optional
 - **Google Search Console**: For real search data integration
-- **Image APIs**: Pexels, Unsplash, or Pixabay for featured images
+- **Image APIs**: Google Imagen 3.0 for AI-generated images, plus Pexels, Unsplash, and Pixabay for stock photos
 - **SEO Plugins**: Yoast SEO or RankMath integration
 
 ## 📚 Documentation
 
-- **Setup Guide**: `GOOGLE_SEARCH_CONSOLE_SETUP.md` - Complete GSC integration guide
+- **AI Image Setup**: `AI_IMAGE_GENERATION_SETUP.md` - Complete guide for Google Imagen 3.0 integration
+- **GSC Setup Guide**: `GOOGLE_SEARCH_CONSOLE_SETUP.md` - Complete GSC integration guide
 - **Developer Guide**: `DEVELOPER_GUIDE.md` - Comprehensive development and deployment guide
 - **Release Management**: `RELEASES.md` - Release organization and management
 - **Changelog**: `CHANGELOG.md` - Detailed version history

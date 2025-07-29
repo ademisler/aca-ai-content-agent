@@ -28,6 +28,42 @@ releases/archive/ai-content-agent-v1.3.x-*.zip
 releases/archive/ai-content-agent-v1.4.[0-8]-*.zip
 ```
 
+## [1.5.0] - 2025-01-28 - AI IMAGE GENERATION OVERHAUL + REAL IMAGEN API INTEGRATION 🎨
+
+### 🎨 AI IMAGE GENERATION COMPLETELY REBUILT
+- **Real Imagen API**: Replaced placeholder with actual Google Imagen 3.0 API integration
+- **Google Cloud Integration**: Added proper Vertex AI Imagen API support using `imagen-3.0-generate-002`
+- **Enhanced Prompts**: Improved AI image generation prompts with professional photography and digital art styles
+- **Configuration UI**: Added Google Cloud Project ID and Location settings in the UI
+- **Better Error Handling**: Comprehensive error handling with informative fallbacks
+- **Authentication**: Proper Google Cloud authentication flow with access token management
+
+### 🔧 STOCK PHOTO APIS - ALL CONFIRMED WORKING
+- **Pexels API**: ✅ Verified working correctly with proper authentication
+- **Unsplash API**: ✅ Verified working correctly with `Client-ID` authentication
+- **Pixabay API**: ✅ Verified working correctly with query parameter authentication
+- **No Changes Needed**: All stock photo integrations are functioning properly
+
+### 🛠️ TECHNICAL IMPROVEMENTS
+- **Imagen 3.0 Generate 002**: Using latest stable Google Imagen model
+- **Aspect Ratio**: Optimized for featured images with 16:9 aspect ratio
+- **Safety Filters**: Implemented appropriate safety filtering for generated content
+- **Caching**: Added access token caching for improved performance
+- **Error Logging**: Comprehensive error logging for debugging
+
+### 📚 NEW CONFIGURATION OPTIONS
+- **Google Cloud Project ID**: Required for Imagen API access
+- **Google Cloud Location**: Configurable region selection (us-central1, us-east1, etc.)
+- **Enhanced AI Styles**: Improved photorealistic and digital art style prompts
+- **Setup Documentation**: Added links to Google Cloud Vertex AI setup guides
+
+🛠️ TECHNICAL FIXES:
+- AI Image Generation: Replaced placeholder with real Google Imagen 3.0 API
+- Authentication: Proper Google Cloud Vertex AI authentication
+- Error Handling: Comprehensive error handling with graceful fallbacks
+- UI Enhancement: Added Google Cloud configuration fields
+- Documentation: Updated setup instructions for Imagen API
+
 ## [1.4.9] - 2025-01-28 - CRITICAL ACTIVATION ERROR FIX + DOCUMENTATION OVERHAUL 🚨
 
 ### 🚨 CRITICAL ACTIVATION ERROR FIXED

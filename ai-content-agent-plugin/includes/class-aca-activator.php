@@ -65,6 +65,8 @@ class ACA_Activator {
             'gscClientSecret' => '',
             'imageSourceProvider' => 'ai',
             'aiImageStyle' => 'photorealistic',
+            'googleCloudProjectId' => '',
+            'googleCloudLocation' => 'us-central1',
             'pexelsApiKey' => '',
             'unsplashApiKey' => '',
             'pixabayApiKey' => '',

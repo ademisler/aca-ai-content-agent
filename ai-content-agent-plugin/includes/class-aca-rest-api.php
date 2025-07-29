@@ -3224,7 +3224,8 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             ),
             'body' => array(
                 'product_id' => $product_id,
-                'license_key' => $license_key
+                'license_key' => $license_key,
+                'increment_uses_count' => 'true' // Track license usage for analytics
             ),
             'timeout' => 30,
             'blocking' => true,

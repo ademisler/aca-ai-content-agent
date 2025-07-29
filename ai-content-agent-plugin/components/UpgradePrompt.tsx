@@ -38,7 +38,10 @@ export const UpgradePrompt: React.FC<UpgradePromptProps> = ({
                 display: 'flex',
                 alignItems: 'center',
                 gap: '4px'
-            }}>
+            }}
+            role="img"
+            aria-label="Pro Feature Badge"
+            >
                 <Shield style={{ width: '12px', height: '12px' }} />
                 Pro Feature
             </div>
@@ -50,7 +53,7 @@ export const UpgradePrompt: React.FC<UpgradePromptProps> = ({
                     gap: '8px',
                     color: '#d68910'
                 }}>
-                    <Zap style={{ width: '20px', height: '20px' }} />
+                    <Zap style={{ width: '20px', height: '20px' }} aria-hidden="true" />
                     {title}
                 </h3>
             </div>
@@ -78,12 +81,16 @@ export const UpgradePrompt: React.FC<UpgradePromptProps> = ({
                         margin: 0, 
                         paddingLeft: '20px',
                         color: '#8b6914'
-                    }}>
+                    }}
+                    role="list"
+                    >
                         {features.map((feature, index) => (
                             <li key={index} style={{ 
                                 marginBottom: '5px',
                                 fontSize: '13px'
-                            }}>
+                            }}
+                            role="listitem"
+                            >
                                 {feature}
                             </li>
                         ))}
@@ -111,8 +118,9 @@ export const UpgradePrompt: React.FC<UpgradePromptProps> = ({
                             alignItems: 'center',
                             gap: '6px'
                         }}
+                        aria-label={`Upgrade to Pro - ${title}`}
                     >
-                        <Shield style={{ width: '16px', height: '16px' }} />
+                        <Shield style={{ width: '16px', height: '16px' }} aria-hidden="true" />
                         Upgrade to Pro
                     </a>
                     
@@ -120,7 +128,9 @@ export const UpgradePrompt: React.FC<UpgradePromptProps> = ({
                         fontSize: '12px', 
                         color: '#8b6914',
                         fontStyle: 'italic'
-                    }}>
+                    }}
+                    role="note"
+                    >
                         Already have a license? Activate it in the License section below.
                     </span>
                 </div>

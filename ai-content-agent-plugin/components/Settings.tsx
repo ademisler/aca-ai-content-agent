@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import type { AppSettings, AutomationMode, ImageSourceProvider, AiImageStyle, SeoPlugin } from '../types';
+import type { AppSettings, AutomationMode, ImageSourceProvider, AiImageStyle } from '../types';
 import { 
     Spinner, 
     Google, 
@@ -188,7 +188,23 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
             }
         } catch (error: any) {
             console.error('License verification failed:', error);
-            alert(error.message || 'License verification failed. Please check your license key.');
+            
+            // Handle different types of errors gracefully
+            let errorMessage = 'License verification failed. Please check your license key.';
+            
+            if (error.message) {
+                if (error.message.includes('invalid_license')) {
+                    errorMessage = 'Invalid license key or license has been refunded/chargebacked.';
+                } else if (error.message.includes('verification_failed')) {
+                    errorMessage = 'License verification service is temporarily unavailable. Please try again later.';
+                } else if (error.message.includes('missing_license_key')) {
+                    errorMessage = 'Please enter a valid license key.';
+                } else {
+                    errorMessage = error.message;
+                }
+            }
+            
+            alert(errorMessage);
         } finally {
             setIsVerifyingLicense(false);
         }
@@ -205,6 +221,12 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
     };
     
     const handleModeChange = (mode: AutomationMode) => {
+        // Prevent selection of pro modes without active license
+        if ((mode === 'semi-automatic' || mode === 'full-automatic') && !currentSettings.is_pro) {
+            alert('This automation mode requires a Pro license. Please upgrade or activate your license to use this feature.');
+            return;
+        }
+        
         handleSettingChange('mode', mode);
         if (mode !== 'full-automatic') {
             handleSettingChange('autoPublish', false);
@@ -868,7 +890,7 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                                             };
 
                                             const colors = getPluginColor(plugin.plugin);
-                                            const isPremium = plugin.pro || plugin.premium;
+                                            const isPremium = (plugin as any).pro || (plugin as any).premium;
 
                                             return (
                                                 <div key={plugin.plugin} style={{ 
@@ -903,7 +925,7 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                                                                             fontWeight: '600',
                                                                             textTransform: 'uppercase'
                                                                         }}>
-                                                                            {plugin.pro ? 'PRO' : 'PREMIUM'}
+                                                                            {(plugin as any).pro ? 'PRO' : 'PREMIUM'}
                                                                         </span>
                                                                     )}
                                                                 </div>

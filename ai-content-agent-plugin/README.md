@@ -1,13 +1,13 @@
 # AI Content Agent (ACA) WordPress Plugin
 
-![Version](https://img.shields.io/badge/version-1.7.0-blue.svg)
+![Version](https://img.shields.io/badge/version-1.8.0-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-blue.svg)
 ![License](https://img.shields.io/badge/license-GPL%20v2%2B-green.svg)
 
 AI-powered content creation and management plugin that generates blog posts, ideas, and manages your content workflow automatically with an intelligent Content Calendar system and **real Google Search Console integration**.
 
-## 🚀 Latest Updates - v1.7.0 - COMPREHENSIVE FEATURE ENHANCEMENTS & IMPROVEMENTS 🚀
+## 🚀 Latest Updates - v1.8.0 - COMPREHENSIVE FEATURE ENHANCEMENTS & IMPROVEMENTS 🚀
 
 ### 🎯 **IDEA BOARD ARCHIVE SYSTEM OVERHAUL**
 - **Complete Archive Fix**: Fixed idea board archive system to show all generated ideas including archived ones
@@ -174,7 +174,7 @@ AI-powered content creation and management plugin that generates blog posts, ide
 ## 🛠️ Installation
 
 ### Automatic Installation (Recommended)
-1. Download the latest release: `releases/ai-content-agent-v1.7.0-comprehensive-feature-enhancements-and-improvements.zip`
+1. Download the latest release: `releases/ai-content-agent-v1.8.0-comprehensive-feature-enhancements-and-improvements.zip`
 2. Go to WordPress Admin → Plugins → Add New → Upload Plugin
 3. Choose the downloaded zip file and click "Install Now"
 4. Activate the plugin
@@ -189,8 +189,8 @@ AI-powered content creation and management plugin that generates blog posts, ide
 ## 📁 Release Management
 
 ### Current Release
-- **Latest Version**: v1.7.0 (Located in `/releases/`)
-- **File**: `ai-content-agent-v1.7.0-comprehensive-feature-enhancements-and-improvements.zip`
+- **Latest Version**: v1.8.0 (Located in `/releases/`)
+- **File**: `ai-content-agent-v1.8.0-comprehensive-feature-enhancements-and-improvements.zip`
 - **Status**: Stable, ready for production with comprehensive feature enhancements and improvements
 
 ### Archive
@@ -201,13 +201,14 @@ AI-powered content creation and management plugin that generates blog posts, ide
 ### For Developers
 ```bash
 # Latest release
-releases/ai-content-agent-v1.7.0-comprehensive-feature-enhancements-and-improvements.zip
+releases/ai-content-agent-v1.8.0-comprehensive-feature-enhancements-and-improvements.zip
 
 # Archived versions
 releases/archive/ai-content-agent-v1.3.x-*.zip
 releases/archive/ai-content-agent-v1.4.x-*.zip
 releases/archive/ai-content-agent-v1.5.x-*.zip
 releases/archive/ai-content-agent-v1.6.x-*.zip
+releases/archive/ai-content-agent-v1.7.x-*.zip
 ```
 
 ## ⚡ Quick Start
@@ -285,7 +286,8 @@ This plugin is licensed under the GPL v2 or later.
 
 ## 🔄 Version History
 
-- **v1.7.0**: Comprehensive feature enhancements & improvements (Latest)
+- **v1.8.0**: Comprehensive feature enhancements & improvements (Latest)
+- **v1.7.0**: Comprehensive feature enhancements & improvements
 - **v1.6.9**: UI/UX improvements & critical bug fixes
 - **v1.6.8**: Gemini API retry logic & improved error handling
 - **v1.6.7**: Deep cache fix & error boundary implementation
@@ -307,4 +309,4 @@ For complete version history, see `CHANGELOG.md`.
 
 ---
 
-**Ready to revolutionize your content workflow with comprehensive feature enhancements?** Download v1.7.0 and start creating smarter content with advanced automation, improved calendar functionality, and enhanced user experience today! 🚀
+**Ready to revolutionize your content workflow with comprehensive feature enhancements?** Download v1.8.0 and start creating smarter content with advanced automation, improved calendar functionality, and enhanced user experience today! 🚀

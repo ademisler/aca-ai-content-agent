@@ -2,28 +2,28 @@
 
 ## Current Release
 
-### v1.6.10 - UI/UX Fixes & JavaScript Rebuild
-- **File**: `ai-content-agent-v1.6.10-ui-ux-fixes-and-rebuild.zip`
-- **Size**: ~332KB
-- **Release Date**: July 29, 2024
+### v1.8.0 - Comprehensive Feature Enhancements & Improvements
+- **File**: `ai-content-agent-v1.8.0-comprehensive-feature-enhancements-and-improvements.zip`
+- **Size**: ~340KB
+- **Release Date**: January 29, 2025
 - **Status**: Production Ready ✅
 
-#### Key Features (v1.6.10)
-- **JavaScript Rebuild**: All UI/UX improvements now active with rebuilt assets
-- **View Draft Fix**: Corrected navigation to WordPress edit pages
-- **Enhanced Icon Contrast**: Improved visibility on dark backgrounds
-- **Calendar Auto-Publish**: Automatic publishing for drafts dragged to past dates
-- **Idea Management**: Complete archive management with restore/delete options
-- **Loading Indicators**: Enhanced UX feedback during draft creation
+#### Key Features (v1.8.0)
+- **Author Updates**: Updated plugin author to Adem Isler with website integration
+- **Dashboard Optimization**: Improved statistics display showing only active ideas
+- **Feature Verification**: Comprehensive review and verification of all plugin features
+- **Documentation Updates**: Enhanced documentation with proper authorship
+- **Quality Assurance**: Verified all features are working correctly
+- **Version Consistency**: Updated version to 1.8.0 across all files
 
 ## 📊 Release Statistics
 
 ### Current Release
-- **Version**: v1.6.10
+- **Version**: v1.8.0
 - **Status**: ✅ Active
 - **Release Date**: 2025-01-29
-- **File**: `ai-content-agent-v1.6.10-ui-ux-fixes-and-rebuild.zip`
-- **Size**: ~332KB (optimized with rebuilt JavaScript assets)
+- **File**: `ai-content-agent-v1.8.0-comprehensive-feature-enhancements-and-improvements.zip`
+- **Size**: ~340KB (optimized with comprehensive feature enhancements)
 
 ### Archive Statistics
 - **Total Archived Versions**: 29
@@ -37,7 +37,7 @@
 /workspace/
 ├── ai-content-agent-plugin/          # Source code
 └── releases/                         # Release management
-    ├── ai-content-agent-v1.6.10-ui-ux-fixes-and-rebuild.zip  # Latest release
+    ├── ai-content-agent-v1.8.0-comprehensive-feature-enhancements-and-improvements.zip  # Latest release
     └── archive/                       # Previous versions
         ├── ai-content-agent-v1.3.2-markdown-fix.zip
         ├── ai-content-agent-v1.3.3-calendar-fix.zip

@@ -9,6 +9,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Current Release
 
+## [1.8.0] - 2025-01-29 - COMPREHENSIVE FEATURE ENHANCEMENTS & IMPROVEMENTS 🚀
+
+### 🎯 **DASHBOARD STATISTICS OPTIMIZATION**
+- **Active Ideas Count**: Dashboard now shows only active ideas count instead of all ideas (active + archived)
+- **Better Statistics**: More intuitive statistics display for better user understanding
+- **Enhanced User Experience**: Clearer representation of actual working content pipeline
+
+### 👨‍💻 **AUTHOR & BRANDING UPDATES**
+- **Author Information**: Updated plugin author information to Adem Isler across all files
+- **Website Integration**: Added author website (ademisler.com/en) to plugin header and documentation
+- **Proper Attribution**: Updated all documentation files with correct authorship and contact information
+- **Version Consistency**: Updated version to 1.8.0 across all files for consistency
+
+### ✅ **FEATURE VERIFICATION & OPTIMIZATION**
+- **Idea Board Archive System**: Verified and optimized existing archive functionality
+- **Calendar Drag & Drop**: Confirmed advanced drag & drop for published posts is working correctly
+- **Automation Settings**: Verified comprehensive automation configuration options are properly implemented
+- **Content Analysis Integration**: Confirmed content analysis frequency settings work with automation modes
+- **Quick Actions Navigation**: Verified automatic navigation to Idea Board after idea generation
+- **Loading Animations**: Confirmed comprehensive loading animations for Create Draft button
+- **Image Source Ordering**: Verified proper ordering with Pexels as default and AI generated as last option
+- **Debug Panel Documentation**: Confirmed excellent documentation for developers and advanced users
+
+### 🔧 **TECHNICAL IMPROVEMENTS**
+- **Code Review**: Comprehensive review of all plugin features and functionality
+- **Quality Assurance**: Verified all requested features are properly implemented and working
+- **Documentation Updates**: Updated all documentation to reflect current state and authorship
+- **Version Management**: Proper version increment and consistency across all files
+
 ## [1.7.0] - 2025-01-29 - COMPREHENSIVE FEATURE ENHANCEMENTS & IMPROVEMENTS 🚀
 
 ### 🎯 **IDEA BOARD ARCHIVE SYSTEM OVERHAUL**

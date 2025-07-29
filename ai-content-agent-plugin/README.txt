@@ -1,10 +1,10 @@
 === AI Content Agent (ACA) ===
-Contributors: aicontentagent
+Contributors: ademisler
 Tags: ai, content, automation, seo, calendar
 Requires at least: 5.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.6.8
+Stable tag: 1.8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +12,7 @@ AI-powered content creation and management plugin with intelligent Content Calen
 
 == Description ==
 
-## 🚀 Latest Updates - v1.6.8 - GEMINI API RETRY LOGIC & IMPROVED ERROR HANDLING 🚀
+## 🚀 Latest Updates - v1.8.0 - COMPREHENSIVE FEATURE ENHANCEMENTS & IMPROVEMENTS 🚀
 
 ### 🔄 **GEMINI API RETRY LOGIC IMPLEMENTATION**
 - **Intelligent Retry System**: Added comprehensive retry logic with exponential backoff for 503/429 errors

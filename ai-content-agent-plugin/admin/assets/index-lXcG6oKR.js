@@ -12617,7 +12617,7 @@
           return /* @__PURE__ */ jsxRuntimeExports.jsx(
             Dashboard,
             {
-              stats: { ideas: ideas.length, drafts: drafts.length, published: publishedPosts.length },
+              stats: { ideas: ideas.filter((idea) => idea.status === "active").length, drafts: drafts.length, published: publishedPosts.length },
               lastAnalyzed: styleGuide?.lastAnalyzed,
               activityLogs,
               onNavigate: setView,

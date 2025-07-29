@@ -198,4 +198,4 @@ For additional support, check that all prerequisites are met and the Google Sear
 ---
 
 **Last Updated**: January 2025
-**Plugin Version**: 1.6.3+
+**Plugin Version**: 1.8.0+

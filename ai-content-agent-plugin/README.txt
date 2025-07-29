@@ -145,14 +145,14 @@ Yes! The plugin integrates seamlessly with:
 
 == Changelog ==
 
-= 1.6.8 - 2025-01-29 =
-* **MAJOR**: Added comprehensive Gemini API retry logic with exponential backoff
-* **MAJOR**: Implemented automatic model fallback (gemini-2.0-flash → gemini-1.5-pro)
-* **ENHANCEMENT**: User-friendly error messages with emojis and clear guidance
-* **ENHANCEMENT**: Increased timeout limits (120s) and token limits (4096) for better performance
-* **ENHANCEMENT**: Enhanced error detection for overload, timeout, and API key issues
-* **FIX**: Production-grade error handling for AI service disruptions
-* **FIX**: Comprehensive error logging for system administrators
+= 1.8.0 - 2025-01-29 =
+* **MAJOR**: Comprehensive feature enhancements & improvements
+* **ENHANCEMENT**: Dashboard statistics optimization - shows only active ideas count
+* **ENHANCEMENT**: Author information updated to Adem Isler with website integration
+* **ENHANCEMENT**: Feature verification and optimization across all plugin functionality
+* **ENHANCEMENT**: Documentation updates with proper authorship and contact information
+* **ENHANCEMENT**: Version consistency updated to 1.8.0 across all files
+* **FIX**: Code review and quality assurance for all features
 
 = 1.6.7 - 2025-01-29 =
 * **MAJOR**: Deep cache analysis and fix for WordPress JavaScript file loading

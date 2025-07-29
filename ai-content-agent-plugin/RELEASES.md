@@ -74,10 +74,10 @@
 
 ## 🚀 Current Release
 
-### v1.6.9 - Latest Stable Release with UI/UX Improvements
-- **File**: `releases/ai-content-agent-v1.6.9-ui-ux-improvements-and-bug-fixes.zip`
-- **Size**: 612KB (optimized with UI/UX improvements)
-- **Status**: ✅ **PRODUCTION READY WITH ENHANCED USER EXPERIENCE**
+### v1.8.0 - Latest Stable Release with Comprehensive Feature Enhancements
+- **File**: `releases/ai-content-agent-v1.8.0-comprehensive-feature-enhancements-and-improvements.zip`
+- **Size**: 340KB (optimized with comprehensive feature enhancements)
+- **Status**: ✅ **PRODUCTION READY WITH COMPREHENSIVE IMPROVEMENTS**
 - **Key Features**:
   - 🔧 **Critical Bug Fixes**: Fixed View Draft button, WordPress data integration, calendar auto-publish
   - 🎨 **Icon Contrast Improvements**: Enhanced visibility on dark backgrounds with WCAG compliance
@@ -94,13 +94,13 @@
 ## 📈 Version Progression
 
 ### Recent Major Releases
-- **v1.6.9**: UI/UX improvements & critical bug fixes ⭐ **CURRENT**
+- **v1.8.0**: Comprehensive feature enhancements & improvements ⭐ **CURRENT**
+- **v1.7.0**: Comprehensive feature enhancements & improvements
+- **v1.6.9**: UI/UX improvements & critical bug fixes
 - **v1.6.8**: Gemini API retry logic & improved error handling
 - **v1.6.7**: Deep cache fix & error boundary implementation
 - **v1.6.6**: Cache fix & dependencies resolved
 - **v1.6.5**: Temporal dead zone fix
-- **v1.6.4**: Critical JavaScript initialization error fix
-- **v1.6.3**: Documentation update and build optimization
 - **v1.6.2**: Fixed JavaScript initialization error
 - **v1.6.1**: Fixed window object consistency
 - **v1.6.0**: Fixed build system and React initialization

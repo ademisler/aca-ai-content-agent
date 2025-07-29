@@ -346,6 +346,6 @@ Look for log entries starting with:
 
 ---
 
-**Last Updated**: January 29, 2025 - v1.6.3
+**Last Updated**: January 29, 2025 - v1.8.0
 **Compatibility**: WordPress 5.0+, PHP 7.4+
 **SEO Plugin Versions**: RankMath 1.0+, Yoast SEO 19.0+, All in One SEO 4.0+

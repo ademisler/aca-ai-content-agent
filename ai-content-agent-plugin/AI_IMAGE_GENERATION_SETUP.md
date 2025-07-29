@@ -206,5 +206,5 @@ For additional support, ensure all prerequisites are met and the Google Cloud Ve
 ---
 
 **Last Updated**: January 2025  
-**Plugin Version**: 1.6.3+  
+**Plugin Version**: 1.8.0+  
 **Imagen Model**: imagen-3.0-generate-002

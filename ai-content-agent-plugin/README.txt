@@ -1,27 +1,25 @@
 === AI Content Agent (ACA) ===
 Contributors: aicontentagent
-Tags: ai, content, automation, calendar, seo, google-search-console, gemini, content-creation, scheduling, wordpress
+Tags: ai, content, automation, seo, calendar
 Requires at least: 5.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.5.5
+Stable tag: 1.6.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-**AI Content Agent (ACA)** revolutionizes your WordPress content workflow with intelligent automation, beautiful calendar management, and real Google Search Console insights.
+AI-powered content creation and management plugin with intelligent Content Calendar and real Google Search Console integration.
 
-= 🚀 Latest Updates - v1.5.5 =
+== Description ==
 
-**COMPREHENSIVE SEO INTEGRATION OVERHAUL + MULTI-PLUGIN SUPPORT**
-* Multi-Plugin Support: Added support for All in One SEO (AIOSEO) alongside RankMath and Yoast SEO
-* Enhanced Plugin Detection: Improved detection methods with multiple fallback checks for maximum compatibility
-* Social Media Integration: Complete OpenGraph and Twitter Cards integration for all supported plugins
-* Advanced Meta Field Mapping: Comprehensive meta field support for all plugin features
-* Cross-Plugin Compatibility: Seamless operation with multiple SEO plugins simultaneously
-* Social Media Ready: Automatic Facebook OpenGraph and Twitter Card meta generation
-* Enhanced Schema Support: Improved schema markup for posts, pages, and custom post types
-* Primary Category Support: Automatic primary category assignment for better content organization
-* Pro/Premium Features: Full utilization of advanced features in Pro/Premium plugin versions
+## 🚀 Latest Updates - v1.6.1 - FIXED WINDOW OBJECT CONSISTENCY + SETTINGS API CALLS 🚀
+
+### 🔧 **FIXED WINDOW OBJECT CONSISTENCY**
+- **Settings Component**: Fixed all `window.aca_object` references to `window.acaData` in Settings.tsx
+- **API Call Consistency**: Ensured all API calls use the correct window object reference
+- **Google Search Console**: Fixed GSC auth-status, connect, and disconnect API calls
+- **Debug Functions**: Fixed debug automation and cron trigger API calls
+- **Global Declarations**: Added proper global window interface declarations in Settings component
 
 = 🔍 Google Search Console Integration =
 

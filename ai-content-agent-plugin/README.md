@@ -1,20 +1,27 @@
 # AI Content Agent (ACA) WordPress Plugin
 
-![Version](https://img.shields.io/badge/version-1.5.5-blue.svg)
+![Version](https://img.shields.io/badge/version-1.6.1-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-blue.svg)
 ![License](https://img.shields.io/badge/license-GPL%20v2%2B-green.svg)
 
 AI-powered content creation and management plugin that generates blog posts, ideas, and manages your content workflow automatically with an intelligent Content Calendar system and **real Google Search Console integration**.
 
-## 🚀 Latest Updates - v1.5.5 - COMPREHENSIVE SEO INTEGRATION OVERHAUL + MULTI-PLUGIN SUPPORT 🚀
+## 🚀 Latest Updates - v1.6.1 - FIXED WINDOW OBJECT CONSISTENCY + SETTINGS API CALLS 🚀
 
-### 🚀 **COMPREHENSIVE SEO INTEGRATION OVERHAUL**
-- **Multi-Plugin Support**: Added support for All in One SEO (AIOSEO) alongside RankMath and Yoast SEO
-- **Enhanced Plugin Detection**: Improved detection methods with multiple fallback checks for maximum compatibility
-- **Social Media Integration**: Complete OpenGraph and Twitter Cards integration for all supported plugins
-- **Advanced Meta Field Mapping**: Comprehensive meta field support for all plugin features
-- **Cross-Plugin Compatibility**: Seamless operation with multiple SEO plugins simultaneously
+### 🔧 **FIXED WINDOW OBJECT CONSISTENCY**
+- **Settings Component**: Fixed all `window.aca_object` references to `window.acaData` in Settings.tsx
+- **API Call Consistency**: Ensured all API calls use the correct window object reference
+- **Google Search Console**: Fixed GSC auth-status, connect, and disconnect API calls
+- **Debug Functions**: Fixed debug automation and cron trigger API calls
+- **Global Declarations**: Added proper global window interface declarations in Settings component
+
+### 🚀 **IMPROVED API COMMUNICATION**
+- **Consistent Nonce Usage**: All API calls now use `window.acaData.nonce` consistently
+- **Proper API URLs**: All API calls use `window.acaData.api_url` consistently
+- **Error Prevention**: Eliminated potential "undefined" errors from inconsistent window object usage
+- **Type Safety**: Added proper TypeScript declarations for window object
+- **Import Organization**: Improved import structure to prevent potential circular dependencies
 
 ### 🎯 **ADVANCED SEO FEATURES**
 - **Social Media Ready**: Automatic Facebook OpenGraph and Twitter Card meta generation

@@ -1,6 +1,19 @@
-# Release Management - AI Content Agent Plugin
+# AI Content Agent - Release Management
 
-This document explains the release management system for the AI Content Agent WordPress plugin.
+## 📊 Release Statistics
+
+### Current Release
+- **Version**: v1.6.1
+- **Status**: ✅ Active
+- **Release Date**: 2025-01-28
+- **File**: `ai-content-agent-v1.6.1-fixed-window-object-consistency.zip`
+- **Size**: ~308KB
+
+### Archive Statistics
+- **Total Archived Versions**: 9
+- **Archive Size**: ~2.7MB
+- **First Release**: v1.4.4 (2025-01-27)
+- **Latest Archived**: v1.6.0 (2025-01-28)
 
 ## 📁 Directory Structure
 

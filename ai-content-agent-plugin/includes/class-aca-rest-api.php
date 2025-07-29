@@ -182,12 +182,50 @@ class ACA_Rest_Api {
                 'permission_callback' => array($this, 'check_permissions')
             )
         ));
+        
+        // Google Search Console endpoints
+        register_rest_route('aca/v1', '/gsc/auth-status', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_gsc_auth_status'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
+        
+        register_rest_route('aca/v1', '/gsc/connect', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'gsc_connect'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
+        
+        register_rest_route('aca/v1', '/gsc/disconnect', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'gsc_disconnect'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
+        
+        register_rest_route('aca/v1', '/gsc/sites', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_gsc_sites'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
+        
+        register_rest_route('aca/v1', '/gsc/data', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_gsc_data'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
     }
     
     /**
      * Check permissions
      */
     public function check_permissions() {
+        return current_user_can('manage_options');
+    }
+    
+    /**
+     * Check admin permissions (same as check_permissions but with explicit name)
+     */
+    public function check_admin_permissions() {
         return current_user_can('manage_options');
     }
     

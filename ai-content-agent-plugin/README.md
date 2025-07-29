@@ -1,27 +1,27 @@
 # AI Content Agent (ACA) WordPress Plugin
 
-![Version](https://img.shields.io/badge/version-1.6.1-blue.svg)
+![Version](https://img.shields.io/badge/version-1.6.2-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-blue.svg)
 ![License](https://img.shields.io/badge/license-GPL%20v2%2B-green.svg)
 
 AI-powered content creation and management plugin that generates blog posts, ideas, and manages your content workflow automatically with an intelligent Content Calendar system and **real Google Search Console integration**.
 
-## 🚀 Latest Updates - v1.6.1 - FIXED WINDOW OBJECT CONSISTENCY + SETTINGS API CALLS 🚀
+## 🚀 Latest Updates - v1.6.2 - FIXED REACT INITIALIZATION ERROR + STABLE BUILD 🚀
 
-### 🔧 **FIXED WINDOW OBJECT CONSISTENCY**
-- **Settings Component**: Fixed all `window.aca_object` references to `window.acaData` in Settings.tsx
-- **API Call Consistency**: Ensured all API calls use the correct window object reference
-- **Google Search Console**: Fixed GSC auth-status, connect, and disconnect API calls
-- **Debug Functions**: Fixed debug automation and cron trigger API calls
-- **Global Declarations**: Added proper global window interface declarations in Settings component
+### 🚀 **FIXED REACT INITIALIZATION ERROR**
+- **React Downgrade**: Downgraded from React 19 to stable React 18.3.1 to fix initialization issues
+- **Circular Dependencies**: Fixed ActivityLog wildcard imports that caused circular dependency problems
+- **Component Imports**: Replaced `import * as Icons` with specific named imports to prevent hoisting issues
+- **Build Optimization**: Enhanced Vite configuration with better module loading and IIFE format
+- **Type Safety**: Fixed IconName type to include all used icons (Trash, Pencil)
 
-### 🚀 **IMPROVED API COMMUNICATION**
-- **Consistent Nonce Usage**: All API calls now use `window.acaData.nonce` consistently
-- **Proper API URLs**: All API calls use `window.acaData.api_url` consistently
-- **Error Prevention**: Eliminated potential "undefined" errors from inconsistent window object usage
-- **Type Safety**: Added proper TypeScript declarations for window object
-- **Import Organization**: Improved import structure to prevent potential circular dependencies
+### 🔧 **ENHANCED BUILD SYSTEM**
+- **Stable React Version**: Using React 18.3.1 for maximum compatibility and stability
+- **Optimized Bundle**: Reduced bundle size from 306KB to 271KB with better tree shaking
+- **Inline Styles**: CSS now inlined in JavaScript for better loading performance
+- **IIFE Format**: Using Immediately Invoked Function Expression format to prevent global conflicts
+- **ESBuild Optimization**: Enhanced ESBuild configuration with keepNames and better minification
 
 ### 🎯 **ADVANCED SEO FEATURES**
 - **Social Media Ready**: Automatic Facebook OpenGraph and Twitter Card meta generation

@@ -1,12 +1,12 @@
 {
-  "name": "ai-content-agent-wordpress",
-  "private": true,
-  "version": "1.8.0",
-  "type": "module",
+  "name": "ai-content-agent",
+  "version": "1.9.0",
+  "description": "AI-powered WordPress content creation plugin with Pro licensing",
+  "main": "index.tsx",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build:wp": "vite build && rm -f admin/assets/index-*.js && rm -f admin/js/index.js && cp dist/assets/index-*.js admin/assets/ && cp dist/assets/index-*.js admin/js/index.js",
+    "build:wp": "npm run build && cp dist/assets/index-*.js admin/assets/ && cp dist/assets/index-*.js admin/js/index.js",
     "preview": "vite preview"
   },
   "dependencies": {

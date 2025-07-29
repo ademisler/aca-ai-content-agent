@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import type { AppSettings, AutomationMode, ImageSourceProvider, AiImageStyle, SeoPlugin } from '../types';
+import type { AppSettings, AutomationMode, ImageSourceProvider, AiImageStyle } from '../types';
 import { 
     Spinner, 
     Google, 
@@ -10,6 +10,8 @@ import {
     Image, 
     Shield 
 } from './Icons';
+import { UpgradePrompt } from './UpgradePrompt';
+import { licenseApi } from '../services/wordpressApi';
 
 declare global {
     interface Window {
@@ -117,6 +119,14 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
     const [seoPluginsLoading, setSeoPluginsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [gscAuthStatus, setGscAuthStatus] = useState<any>(null);
+    
+    // License-related state
+    const [licenseKey, setLicenseKey] = useState('');
+    const [licenseStatus, setLicenseStatus] = useState<{status: string, is_active: boolean, verified_at?: string}>({
+        status: 'inactive',
+        is_active: false
+    });
+    const [isVerifyingLicense, setIsVerifyingLicense] = useState(false);
 
     // Load GSC auth status on component mount
     useEffect(() => {
@@ -139,7 +149,66 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
         
         loadGscAuthStatus();
         fetchSeoPlugins();
+        loadLicenseStatus();
     }, []);
+    
+    // Load license status
+    const loadLicenseStatus = async () => {
+        try {
+            const status = await licenseApi.getStatus();
+            setLicenseStatus(status);
+        } catch (error) {
+            console.error('Failed to load license status:', error);
+        }
+    };
+    
+    // Verify license key
+    const handleLicenseVerification = async () => {
+        if (!licenseKey.trim()) {
+            alert('Please enter a license key');
+            return;
+        }
+        
+        setIsVerifyingLicense(true);
+        
+        try {
+            const result = await licenseApi.verify(licenseKey);
+            
+            if (result.success) {
+                setLicenseStatus({
+                    status: 'active',
+                    is_active: true,
+                    verified_at: new Date().toISOString()
+                });
+                setLicenseKey(''); // Clear the input
+                alert('License verified successfully! Pro features are now active.');
+                
+                // Reload settings to get updated pro status
+                window.location.reload();
+            }
+        } catch (error: any) {
+            console.error('License verification failed:', error);
+            
+            // Handle different types of errors gracefully
+            let errorMessage = 'License verification failed. Please check your license key.';
+            
+            if (error.message) {
+                if (error.message.includes('invalid_license')) {
+                    errorMessage = 'Invalid license key or license has been refunded/chargebacked.';
+                } else if (error.message.includes('verification_failed')) {
+                    errorMessage = 'License verification service is temporarily unavailable. Please try again later.';
+                } else if (error.message.includes('missing_license_key')) {
+                    errorMessage = 'Please enter a valid license key.';
+                } else {
+                    errorMessage = error.message;
+                }
+            }
+            
+            alert(errorMessage);
+        } finally {
+            setIsVerifyingLicense(false);
+        }
+    };
 
     useEffect(() => {
         setCurrentSettings(settings);
@@ -152,6 +221,12 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
     };
     
     const handleModeChange = (mode: AutomationMode) => {
+        // Prevent selection of pro modes without active license
+        if ((mode === 'semi-automatic' || mode === 'full-automatic') && !currentSettings.is_pro) {
+            alert('This automation mode requires a Pro license. Please upgrade or activate your license to use this feature.');
+            return;
+        }
+        
         handleSettingChange('mode', mode);
         if (mode !== 'full-automatic') {
             handleSettingChange('autoPublish', false);
@@ -291,192 +366,202 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
             </div>
 
             {/* Automation Mode */}
-            <div className="aca-card">
-                <div className="aca-card-header">
-                    <h2 className="aca-card-title">
-                        <Zap className="aca-nav-item-icon" />
-                        Automation Mode
-                    </h2>
-                </div>
-                <p className="aca-page-description">
-                    Choose how you want the AI Content Agent to operate. You can change this at any time.
-                </p>
-                
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                    <RadioCard 
-                        id="manual" 
-                        title="Manual Mode" 
-                        description="You are in full control. Manually generate ideas and create drafts one by one." 
-                        currentSelection={currentSettings.mode} 
-                        onChange={handleModeChange} 
-                    />
-                    <div className="aca-card" style={{
-                        margin: 0,
-                        border: '2px solid',
-                        borderColor: currentSettings.mode === 'semi-automatic' ? '#0073aa' : '#ccd0d4',
-                        background: currentSettings.mode === 'semi-automatic' ? '#f0f6fc' : '#ffffff',
-                        boxShadow: currentSettings.mode === 'semi-automatic' ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none'
-                    }}>
-                        <label htmlFor="semi-automatic" style={{ display: 'flex', alignItems: 'flex-start', cursor: 'pointer', gap: '12px' }}>
-                            <input 
-                                type="radio" 
-                                id="semi-automatic" 
-                                name="automation-mode" 
-                                checked={currentSettings.mode === 'semi-automatic'} 
-                                onChange={() => handleModeChange('semi-automatic')} 
-                                style={{
-                                    marginTop: '2px',
-                                    width: '18px',
-                                    height: '18px',
-                                    accentColor: '#0073aa',
-                                    flexShrink: 0
-                                }}
-                            />
-                            <div>
-                                <h4 className="aca-card-title" style={{ marginBottom: '8px' }}>
-                                    Semi-Automatic Mode
-                                </h4>
-                                <p className="aca-page-description" style={{ margin: 0 }}>
-                                    The AI automatically generates new ideas periodically. You choose which ideas to turn into drafts.
-                                </p>
-                            </div>
-                        </label>
-                        
-                        {currentSettings.mode === 'semi-automatic' && (
-                            <div className="aca-form-group" style={{ 
-                                paddingLeft: '30px', 
-                                paddingTop: '20px', 
-                                marginTop: '20px', 
-                                borderTop: '1px solid #e0e0e0',
-                                marginBottom: 0
-                            }}>
-                                <label className="aca-label" htmlFor="semi-auto-frequency">Idea Generation Frequency</label>
-                                <select 
-                                    id="semi-auto-frequency"
-                                    className="aca-input" 
-                                    value={currentSettings.semiAutoIdeaFrequency || 'weekly'} 
-                                    onChange={(e) => handleSettingChange('semiAutoIdeaFrequency', e.target.value)}
-                                    style={{ marginTop: '5px' }}
-                                >
-                                    <option value="daily">Daily - Generate new ideas every day</option>
-                                    <option value="weekly">Weekly - Generate new ideas every week</option>
-                                    <option value="monthly">Monthly - Generate new ideas every month</option>
-                                </select>
-                                <p className="aca-page-description" style={{ marginTop: '5px', margin: '5px 0 0 0' }}>
-                                    How often should the AI automatically generate new content ideas?
-                                </p>
-                            </div>
-                        )}
+            {currentSettings.is_pro ? (
+                <div className="aca-card">
+                    <div className="aca-card-header">
+                        <h2 className="aca-card-title">
+                            <Zap className="aca-nav-item-icon" />
+                            Automation Mode
+                        </h2>
                     </div>
+                    <p className="aca-page-description">
+                        Choose how you want the AI Content Agent to operate. You can change this at any time.
+                    </p>
                     
-                    {/* Full Automatic with Auto-Publish Option */}
-                    <div className="aca-card" style={{
-                        margin: 0,
-                        border: '2px solid',
-                        borderColor: currentSettings.mode === 'full-automatic' ? '#0073aa' : '#ccd0d4',
-                        background: currentSettings.mode === 'full-automatic' ? '#f0f6fc' : '#ffffff',
-                        boxShadow: currentSettings.mode === 'full-automatic' ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none'
-                    }}>
-                        <label htmlFor="full-automatic-radio" style={{ display: 'flex', alignItems: 'flex-start', cursor: 'pointer', gap: '12px' }}>
-                            <input 
-                                type="radio" 
-                                id="full-automatic-radio" 
-                                name="automation-mode" 
-                                checked={currentSettings.mode === 'full-automatic'} 
-                                onChange={() => handleModeChange('full-automatic')} 
-                                style={{
-                                    marginTop: '2px',
-                                    width: '18px',
-                                    height: '18px',
-                                    accentColor: '#0073aa',
-                                    flexShrink: 0
-                                }}
-                            />
-                            <div>
-                                <h4 className="aca-card-title" style={{ marginBottom: '8px' }}>
-                                    Full-Automatic Mode (Set & Forget)
-                                </h4>
-                                <p className="aca-page-description" style={{ margin: 0 }}>
-                                    The AI handles everything: generates ideas, picks the best ones, and creates drafts automatically.
-                                </p>
-                            </div>
-                        </label>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                        <RadioCard 
+                            id="manual" 
+                            title="Manual Mode" 
+                            description="You are in full control. Manually generate ideas and create drafts one by one." 
+                            currentSelection={currentSettings.mode} 
+                            onChange={handleModeChange} 
+                        />
+                        <div className="aca-card" style={{
+                            margin: 0,
+                            border: '2px solid',
+                            borderColor: currentSettings.mode === 'semi-automatic' ? '#0073aa' : '#ccd0d4',
+                            background: currentSettings.mode === 'semi-automatic' ? '#f0f6fc' : '#ffffff',
+                            boxShadow: currentSettings.mode === 'semi-automatic' ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none'
+                        }}>
+                            <label htmlFor="semi-automatic" style={{ display: 'flex', alignItems: 'flex-start', cursor: 'pointer', gap: '12px' }}>
+                                <input 
+                                    type="radio" 
+                                    id="semi-automatic" 
+                                    name="automation-mode" 
+                                    checked={currentSettings.mode === 'semi-automatic'} 
+                                    onChange={() => handleModeChange('semi-automatic')} 
+                                    style={{
+                                        marginTop: '2px',
+                                        width: '18px',
+                                        height: '18px',
+                                        accentColor: '#0073aa',
+                                        flexShrink: 0
+                                    }}
+                                />
+                                <div>
+                                    <h4 className="aca-card-title" style={{ marginBottom: '8px' }}>
+                                        Semi-Automatic Mode
+                                    </h4>
+                                    <p className="aca-page-description" style={{ margin: 0 }}>
+                                        The AI automatically generates new ideas periodically. You choose which ideas to turn into drafts.
+                                    </p>
+                                </div>
+                            </label>
+                            
+                            {currentSettings.mode === 'semi-automatic' && (
+                                <div className="aca-form-group" style={{ 
+                                    paddingLeft: '30px', 
+                                    paddingTop: '20px', 
+                                    marginTop: '20px', 
+                                    borderTop: '1px solid #e0e0e0',
+                                    marginBottom: 0
+                                }}>
+                                    <label className="aca-label" htmlFor="semi-auto-frequency">Idea Generation Frequency</label>
+                                    <select 
+                                        id="semi-auto-frequency"
+                                        className="aca-input" 
+                                        value={currentSettings.semiAutoIdeaFrequency || 'weekly'} 
+                                        onChange={(e) => handleSettingChange('semiAutoIdeaFrequency', e.target.value)}
+                                        style={{ marginTop: '5px' }}
+                                    >
+                                        <option value="daily">Daily - Generate new ideas every day</option>
+                                        <option value="weekly">Weekly - Generate new ideas every week</option>
+                                        <option value="monthly">Monthly - Generate new ideas every month</option>
+                                    </select>
+                                    <p className="aca-page-description" style={{ marginTop: '5px', margin: '5px 0 0 0' }}>
+                                        How often should the AI automatically generate new content ideas?
+                                    </p>
+                                </div>
+                            )}
+                        </div>
                         
-                        {currentSettings.mode === 'full-automatic' && (
-                            <div style={{ 
-                                paddingLeft: '30px', 
-                                paddingTop: '20px', 
-                                marginTop: '20px', 
-                                borderTop: '1px solid #e0e0e0',
-                                marginBottom: 0
-                            }}>
-                                {/* Daily Post Count */}
-                                <div className="aca-form-group" style={{ marginBottom: '20px' }}>
-                                    <label className="aca-label" htmlFor="daily-post-count">Daily Post Count</label>
-                                    <select 
-                                        id="daily-post-count"
-                                        className="aca-input" 
-                                        value={currentSettings.fullAutoDailyPostCount || 1} 
-                                        onChange={(e) => handleSettingChange('fullAutoDailyPostCount', parseInt(e.target.value))}
-                                        style={{ marginTop: '5px' }}
-                                    >
-                                        <option value={1}>1 post per day</option>
-                                        <option value={2}>2 posts per day</option>
-                                        <option value={3}>3 posts per day</option>
-                                        <option value={5}>5 posts per day</option>
-                                    </select>
-                                    <p className="aca-page-description" style={{ marginTop: '5px', margin: '5px 0 0 0' }}>
-                                        How many posts should be created daily in full-automatic mode?
+                        {/* Full Automatic with Auto-Publish Option */}
+                        <div className="aca-card" style={{
+                            margin: 0,
+                            border: '2px solid',
+                            borderColor: currentSettings.mode === 'full-automatic' ? '#0073aa' : '#ccd0d4',
+                            background: currentSettings.mode === 'full-automatic' ? '#f0f6fc' : '#ffffff',
+                            boxShadow: currentSettings.mode === 'full-automatic' ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none'
+                        }}>
+                            <label htmlFor="full-automatic-radio" style={{ display: 'flex', alignItems: 'flex-start', cursor: 'pointer', gap: '12px' }}>
+                                <input 
+                                    type="radio" 
+                                    id="full-automatic-radio" 
+                                    name="automation-mode" 
+                                    checked={currentSettings.mode === 'full-automatic'} 
+                                    onChange={() => handleModeChange('full-automatic')} 
+                                    style={{
+                                        marginTop: '2px',
+                                        width: '18px',
+                                        height: '18px',
+                                        accentColor: '#0073aa',
+                                        flexShrink: 0
+                                    }}
+                                />
+                                <div>
+                                    <h4 className="aca-card-title" style={{ marginBottom: '8px' }}>
+                                        Full-Automatic Mode (Set & Forget)
+                                    </h4>
+                                    <p className="aca-page-description" style={{ margin: 0 }}>
+                                        The AI handles everything: generates ideas, picks the best ones, and creates drafts automatically.
                                     </p>
                                 </div>
+                            </label>
+                            
+                            {currentSettings.mode === 'full-automatic' && (
+                                <div style={{ 
+                                    paddingLeft: '30px', 
+                                    paddingTop: '20px', 
+                                    marginTop: '20px', 
+                                    borderTop: '1px solid #e0e0e0',
+                                    marginBottom: 0
+                                }}>
+                                    {/* Daily Post Count */}
+                                    <div className="aca-form-group" style={{ marginBottom: '20px' }}>
+                                        <label className="aca-label" htmlFor="daily-post-count">Daily Post Count</label>
+                                        <select 
+                                            id="daily-post-count"
+                                            className="aca-input" 
+                                            value={currentSettings.fullAutoDailyPostCount || 1} 
+                                            onChange={(e) => handleSettingChange('fullAutoDailyPostCount', parseInt(e.target.value))}
+                                            style={{ marginTop: '5px' }}
+                                        >
+                                            <option value={1}>1 post per day</option>
+                                            <option value={2}>2 posts per day</option>
+                                            <option value={3}>3 posts per day</option>
+                                            <option value={5}>5 posts per day</option>
+                                        </select>
+                                        <p className="aca-page-description" style={{ marginTop: '5px', margin: '5px 0 0 0' }}>
+                                            How many posts should be created daily in full-automatic mode?
+                                        </p>
+                                    </div>
 
-                                {/* Publishing Frequency */}
-                                <div className="aca-form-group" style={{ marginBottom: '20px' }}>
-                                    <label className="aca-label" htmlFor="publish-frequency">Publishing Frequency</label>
-                                    <select 
-                                        id="publish-frequency"
-                                        className="aca-input" 
-                                        value={currentSettings.fullAutoPublishFrequency || 'daily'} 
-                                        onChange={(e) => handleSettingChange('fullAutoPublishFrequency', e.target.value)}
-                                        style={{ marginTop: '5px' }}
-                                    >
-                                        <option value="hourly">Every hour - Publish posts throughout the day</option>
-                                        <option value="daily">Daily - Publish once per day</option>
-                                        <option value="weekly">Weekly - Publish once per week</option>
-                                    </select>
-                                    <p className="aca-page-description" style={{ marginTop: '5px', margin: '5px 0 0 0' }}>
-                                        How often should created drafts be published automatically?
-                                    </p>
-                                </div>
+                                    {/* Publishing Frequency */}
+                                    <div className="aca-form-group" style={{ marginBottom: '20px' }}>
+                                        <label className="aca-label" htmlFor="publish-frequency">Publishing Frequency</label>
+                                        <select 
+                                            id="publish-frequency"
+                                            className="aca-input" 
+                                            value={currentSettings.fullAutoPublishFrequency || 'daily'} 
+                                            onChange={(e) => handleSettingChange('fullAutoPublishFrequency', e.target.value)}
+                                            style={{ marginTop: '5px' }}
+                                        >
+                                            <option value="hourly">Every hour - Publish posts throughout the day</option>
+                                            <option value="daily">Daily - Publish once per day</option>
+                                            <option value="weekly">Weekly - Publish once per week</option>
+                                        </select>
+                                        <p className="aca-page-description" style={{ marginTop: '5px', margin: '5px 0 0 0' }}>
+                                            How often should the AI publish the created drafts?
+                                        </p>
+                                    </div>
 
-                                {/* Auto-Publish Checkbox */}
-                                <div className="aca-form-group" style={{ marginBottom: 0 }}>
-                                    <label htmlFor="auto-publish" style={{ display: 'flex', alignItems: 'flex-start', cursor: 'pointer', gap: '12px' }}>
-                                        <input 
-                                            type="checkbox" 
-                                            id="auto-publish" 
-                                            checked={currentSettings.autoPublish} 
-                                            onChange={(e) => handleSettingChange('autoPublish', e.target.checked)} 
-                                            style={{
-                                                marginTop: '2px',
-                                                width: '16px',
-                                                height: '16px',
-                                                accentColor: '#0073aa'
-                                            }}
-                                        />
-                                        <div>
-                                            <span className="aca-label">Enable Auto-Publish</span>
-                                            <p className="aca-page-description" style={{ marginTop: '5px', margin: '5px 0 0 0' }}>
-                                                When enabled, the AI will automatically publish posts according to the frequency settings above.
-                                            </p>
-                                        </div>
-                                    </label>
+                                    {/* Auto-Publish Toggle */}
+                                    <div className="aca-form-group">
+                                        <label className="aca-label" style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+                                            <input 
+                                                type="checkbox" 
+                                                checked={currentSettings.autoPublish} 
+                                                onChange={(e) => handleSettingChange('autoPublish', e.target.checked)}
+                                                style={{ 
+                                                    width: '18px', 
+                                                    height: '18px',
+                                                    accentColor: '#0073aa'
+                                                }}
+                                            />
+                                            <span>Enable Auto-Publishing</span>
+                                        </label>
+                                        <p className="aca-page-description" style={{ marginTop: '5px', margin: '5px 0 0 0' }}>
+                                            When enabled, drafts will be automatically published according to your schedule. When disabled, drafts will be created but remain as drafts for your review.
+                                        </p>
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            )}
+                        </div>
                     </div>
                 </div>
-            </div>
+            ) : (
+                <UpgradePrompt
+                    title="Advanced Automation Modes"
+                    description="Unlock powerful automation features to streamline your content creation workflow."
+                    features={[
+                        "Semi-Automatic Mode - AI generates ideas automatically",
+                        "Full-Automatic Mode - Complete hands-off content creation",
+                        "Customizable scheduling and frequency settings",
+                        "Auto-publishing with intelligent timing",
+                        "Advanced workflow automation"
+                    ]}
+                />
+            )}
 
             {/* Content Analysis Settings */}
             <div className="aca-card">
@@ -805,7 +890,7 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                                             };
 
                                             const colors = getPluginColor(plugin.plugin);
-                                            const isPremium = plugin.pro || plugin.premium;
+                                            const isPremium = (plugin as any).pro || (plugin as any).premium;
 
                                             return (
                                                 <div key={plugin.plugin} style={{ 
@@ -840,7 +925,7 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                                                                             fontWeight: '600',
                                                                             textTransform: 'uppercase'
                                                                         }}>
-                                                                            {plugin.pro ? 'PRO' : 'PREMIUM'}
+                                                                            {(plugin as any).pro ? 'PRO' : 'PREMIUM'}
                                                                         </span>
                                                                     )}
                                                                 </div>
@@ -1029,104 +1114,218 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                     </IntegrationCard>
 
                     {/* Google Search Console */}
-                    <IntegrationCard 
-                        title="Google Search Console" 
-                        icon={<Google className="aca-nav-item-icon" />}
-                        isConfigured={!!currentSettings.searchConsoleUser}
-                    >
-                        {/* Dependencies Status */}
-                        <div className="aca-form-group">
-                            <div id="aca-dependencies-status">
-                                {/* This will be populated by PHP */}
-                            </div>
-                        </div>
-                        {/* GSC Credentials */}
-                        <div className="aca-form-group">
-                            <label className="aca-label">Google Search Console Setup</label>
-                            <p className="aca-page-description" style={{ marginBottom: '15px' }}>
-                                To connect with Google Search Console, you need to create OAuth2 credentials in your Google Cloud Console. 
-                                <a href="https://console.cloud.google.com/" target="_blank" rel="noopener noreferrer" style={{ color: '#0073aa', textDecoration: 'none' }}>
-                                    {' '}Learn how to set up credentials →
-                                </a>
-                            </p>
-                            
-                            <div style={{ display: 'grid', gap: '15px', marginBottom: '20px' }}>
-                                <div>
-                                    <label className="aca-label">Client ID</label>
-                                    <input
-                                        type="text"
-                                        value={currentSettings.gscClientId}
-                                        onChange={(e) => handleSettingChange('gscClientId', e.target.value)}
-                                        placeholder="Your Google OAuth2 Client ID"
-                                        className="aca-input"
-                                        style={{ width: '100%' }}
-                                    />
+                    {currentSettings.is_pro ? (
+                        <IntegrationCard 
+                            title="Google Search Console" 
+                            icon={<Google className="aca-nav-item-icon" />}
+                            isConfigured={!!currentSettings.searchConsoleUser}
+                        >
+                            {/* Dependencies Status */}
+                            <div className="aca-form-group">
+                                <div id="aca-dependencies-status">
+                                    {/* This will be populated by PHP */}
                                 </div>
+                            </div>
+                            {/* GSC Credentials */}
+                            <div className="aca-form-group">
+                                <label className="aca-label">Google Search Console Setup</label>
+                                <p className="aca-page-description" style={{ marginBottom: '15px' }}>
+                                    To connect with Google Search Console, you need to create OAuth2 credentials in your Google Cloud Console. 
+                                    <a href="https://console.cloud.google.com/" target="_blank" rel="noopener noreferrer" style={{ color: '#0073aa', textDecoration: 'none' }}>
+                                        {' '}Learn how to set up credentials →
+                                    </a>
+                                </p>
                                 
-                                <div>
-                                    <label className="aca-label">Client Secret</label>
-                                    <input
-                                        type="password"
-                                        value={currentSettings.gscClientSecret}
-                                        onChange={(e) => handleSettingChange('gscClientSecret', e.target.value)}
-                                        placeholder="Your Google OAuth2 Client Secret"
-                                        className="aca-input"
-                                        style={{ width: '100%' }}
-                                    />
+                                <div style={{ display: 'grid', gap: '15px', marginBottom: '20px' }}>
+                                    <div>
+                                        <label className="aca-label">Client ID</label>
+                                        <input
+                                            type="text"
+                                            value={currentSettings.gscClientId}
+                                            onChange={(e) => handleSettingChange('gscClientId', e.target.value)}
+                                            placeholder="Your Google OAuth2 Client ID"
+                                            className="aca-input"
+                                            style={{ width: '100%' }}
+                                        />
+                                    </div>
+                                    
+                                    <div>
+                                        <label className="aca-label">Client Secret</label>
+                                        <input
+                                            type="password"
+                                            value={currentSettings.gscClientSecret}
+                                            onChange={(e) => handleSettingChange('gscClientSecret', e.target.value)}
+                                            placeholder="Your Google OAuth2 Client Secret"
+                                            className="aca-input"
+                                            style={{ width: '100%' }}
+                                        />
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        
-                        {/* Connection Status */}
-                        <div className="aca-stat-item" style={{ margin: 0 }}>
-                            <div className="aca-stat-info">
-                                <div className="aca-stat-icon">
-                                    <Google />
+                            
+                            {/* Connection Status */}
+                            <div className="aca-stat-item" style={{ margin: 0 }}>
+                                <div className="aca-stat-info">
+                                    <div className="aca-stat-icon">
+                                        <Google />
+                                    </div>
+                                    <div>
+                                        <h4 className="aca-stat-title">Connection Status</h4>
+                                        {gscAuthStatus?.authenticated ? (
+                                            <p className="aca-stat-count" style={{ color: '#00a32a' }}>
+                                                Connected as {gscAuthStatus.user_email}
+                                            </p>
+                                        ) : (
+                                            <p className="aca-stat-count">
+                                                Use search data to generate strategic content ideas
+                                            </p>
+                                        )}
+                                    </div>
                                 </div>
-                                <div>
-                                    <h4 className="aca-stat-title">Connection Status</h4>
-                                    {gscAuthStatus?.authenticated ? (
-                                        <p className="aca-stat-count" style={{ color: '#00a32a' }}>
-                                            Connected as {gscAuthStatus.user_email}
-                                        </p>
-                                    ) : (
-                                        <p className="aca-stat-count">
-                                            Use search data to generate strategic content ideas
-                                        </p>
-                                    )}
-                                </div>
+                                {gscAuthStatus?.authenticated ? (
+                                    <button 
+                                        onClick={handleGSCDisconnect} 
+                                        disabled={isConnecting} 
+                                        className="aca-button"
+                                        style={{ 
+                                            flexShrink: 0,
+                                            background: '#d63638',
+                                            borderColor: '#d63638'
+                                        }}
+                                    >
+                                        Disconnect
+                                    </button>
+                                ) : (
+                                    <button 
+                                        onClick={handleGSCConnect} 
+                                        disabled={isConnecting || !currentSettings.gscClientId || !currentSettings.gscClientSecret} 
+                                        className="aca-button"
+                                        style={{ 
+                                            flexShrink: 0,
+                                            background: '#00a32a',
+                                            borderColor: '#00a32a'
+                                        }}
+                                    >
+                                        {isConnecting && <span className="aca-spinner"></span>}
+                                        {isConnecting ? 'Connecting...' : 'Connect'}
+                                    </button>
+                                )}
                             </div>
-                            {gscAuthStatus?.authenticated ? (
-                                <button 
-                                    onClick={handleGSCDisconnect} 
-                                    disabled={isConnecting} 
-                                    className="aca-button"
-                                    style={{ 
-                                        flexShrink: 0,
-                                        background: '#d63638',
-                                        borderColor: '#d63638'
-                                    }}
-                                >
-                                    Disconnect
-                                </button>
+                        </IntegrationCard>
+                    ) : (
+                        <UpgradePrompt
+                            title="Google Search Console Integration"
+                            description="Connect your Google Search Console account to generate data-driven content ideas based on your actual search performance."
+                            features={[
+                                "Real search performance data integration",
+                                "Top-performing query analysis",
+                                "Underperforming page identification",
+                                "Data-driven content strategy recommendations",
+                                "SEO-optimized content generation"
+                            ]}
+                        />
+                    )}
+                </div>
+            </div>
+            
+            {/* License Activation */}
+            <div className="aca-card">
+                <div className="aca-card-header">
+                    <h2 className="aca-card-title">
+                        <Shield className="aca-nav-item-icon" />
+                        Pro License Activation
+                    </h2>
+                </div>
+                <p className="aca-page-description">
+                    Activate your Pro license to unlock advanced automation modes and Google Search Console integration.
+                </p>
+                
+                <div className="aca-stat-item" style={{ margin: '0 0 20px 0' }}>
+                    <div className="aca-stat-info">
+                        <div className="aca-stat-icon">
+                            {licenseStatus.is_active ? (
+                                <CheckCircle style={{ color: '#00a32a' }} />
                             ) : (
-                                <button 
-                                    onClick={handleGSCConnect} 
-                                    disabled={isConnecting || !currentSettings.gscClientId || !currentSettings.gscClientSecret} 
-                                    className="aca-button"
-                                    style={{ 
-                                        flexShrink: 0,
-                                        background: '#00a32a',
-                                        borderColor: '#00a32a'
-                                    }}
-                                >
-                                    {isConnecting && <span className="aca-spinner"></span>}
-                                    {isConnecting ? 'Connecting...' : 'Connect'}
-                                </button>
+                                <Shield style={{ color: '#646970' }} />
                             )}
                         </div>
-                    </IntegrationCard>
+                        <div>
+                            <h4 className="aca-stat-title">License Status</h4>
+                            <p className="aca-stat-count" style={{ 
+                                color: licenseStatus.is_active ? '#00a32a' : '#646970' 
+                            }}>
+                                {licenseStatus.is_active ? (
+                                    <>
+                                        ✅ Pro License Active
+                                        {licenseStatus.verified_at && (
+                                            <span style={{ 
+                                                fontSize: '12px', 
+                                                display: 'block', 
+                                                color: '#646970',
+                                                marginTop: '2px'
+                                            }}>
+                                                Verified: {new Date(licenseStatus.verified_at).toLocaleDateString()}
+                                            </span>
+                                        )}
+                                    </>
+                                ) : (
+                                    '❌ Free Version - Upgrade to Pro'
+                                )}
+                            </p>
+                        </div>
+                    </div>
                 </div>
+
+                {!licenseStatus.is_active && (
+                    <div className="aca-form-group">
+                        <label className="aca-label" htmlFor="license-key">Enter License Key</label>
+                        <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
+                            <div style={{ flex: 1 }}>
+                                <input
+                                    id="license-key"
+                                    type="text"
+                                    value={licenseKey}
+                                    onChange={(e) => setLicenseKey(e.target.value)}
+                                    placeholder="Enter your Gumroad license key"
+                                    className="aca-input"
+                                    style={{ width: '100%' }}
+                                />
+                                <p className="aca-page-description" style={{ marginTop: '5px', margin: '5px 0 0 0' }}>
+                                    Enter the license key you received after purchasing the Pro version.
+                                </p>
+                            </div>
+                            <button
+                                onClick={handleLicenseVerification}
+                                disabled={isVerifyingLicense || !licenseKey.trim()}
+                                className="aca-button"
+                                style={{
+                                    background: '#f0ad4e',
+                                    borderColor: '#f0ad4e',
+                                    color: '#ffffff',
+                                    fontWeight: '600',
+                                    minWidth: '120px'
+                                }}
+                            >
+                                {isVerifyingLicense ? (
+                                    <>
+                                        <span className="aca-spinner" style={{ marginRight: '5px' }}></span>
+                                        Verifying...
+                                    </>
+                                ) : (
+                                    'Verify License'
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {licenseStatus.is_active && (
+                    <div className="aca-alert success">
+                        <p style={{ margin: 0 }}>
+                            🎉 <strong>Pro features are now active!</strong> You can now use advanced automation modes and Google Search Console integration.
+                        </p>
+                    </div>
+                )}
             </div>
             
             {/* Debug Panel for Automation Testing */}

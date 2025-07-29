@@ -1,5 +1,5 @@
 
-export type View = 'dashboard' | 'style-guide' | 'ideas' | 'drafts' | 'published' | 'settings' | 'calendar';
+export type View = 'dashboard' | 'style-guide' | 'ideas' | 'drafts' | 'published' | 'settings' | 'calendar' | 'metrics';
 
 export interface StyleGuide {
     tone: string;

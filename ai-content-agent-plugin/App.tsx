@@ -1,19 +1,30 @@
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, Suspense } from 'react';
 import { settingsApi, styleGuideApi, ideasApi, draftsApi, publishedApi, activityApi } from './services/wordpressApi';
 import { setGeminiApiKey } from './services/geminiService';
 import type { StyleGuide, ContentIdea, Draft, View, AppSettings, ActivityLog, ActivityLogType, IconName } from './types';
 import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './components/Dashboard';
-import { StyleGuideManager } from './components/StyleGuideManager';
-import { IdeaBoard } from './components/IdeaBoard';
-import { DraftsList } from './components/DraftsList';
-import { Settings } from './components/Settings';
 import { DraftModal } from './components/DraftModal';
 import { Toast, ToastData } from './components/Toast';
-import { PublishedList } from './components/PublishedList';
 import { Menu } from './components/Icons';
-import { ContentCalendar } from './components/ContentCalendar';
+
+// Lazy load large components for better performance
+const StyleGuideManager = React.lazy(() => import('./components/StyleGuideManager').then(module => ({ default: module.StyleGuideManager })));
+const IdeaBoard = React.lazy(() => import('./components/IdeaBoard').then(module => ({ default: module.IdeaBoard })));
+const DraftsList = React.lazy(() => import('./components/DraftsList').then(module => ({ default: module.DraftsList })));
+const Settings = React.lazy(() => import('./components/Settings').then(module => ({ default: module.Settings })));
+const PublishedList = React.lazy(() => import('./components/PublishedList').then(module => ({ default: module.PublishedList })));
+const ContentCalendar = React.lazy(() => import('./components/ContentCalendar').then(module => ({ default: module.ContentCalendar })));
+const MetricsDashboard = React.lazy(() => import('./components/MetricsDashboard').then(module => ({ default: module.default })));
+
+// Loading component for Suspense fallback
+const LoadingSpinner: React.FC = () => (
+    <div className="flex items-center justify-center p-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <span className="ml-2 text-gray-600">Loading...</span>
+    </div>
+);
 
 declare global {
   interface Window {
@@ -407,48 +418,82 @@ const App: React.FC = () => {
     const renderView = () => {
         switch (view) {
             case 'style-guide':
-                return <StyleGuideManager styleGuide={styleGuide} onAnalyze={() => handleAnalyzeStyle(false)} onSaveStyleGuide={handleSaveStyleGuide} isLoading={isLoading['style']} />;
+                return (
+                    <Suspense fallback={<LoadingSpinner />}>
+                        <StyleGuideManager styleGuide={styleGuide} onAnalyze={() => handleAnalyzeStyle(false)} onSaveStyleGuide={handleSaveStyleGuide} isLoading={isLoading['style']} />
+                    </Suspense>
+                );
             case 'ideas':
-                return <IdeaBoard 
-                    ideas={ideas} 
-                    onGenerate={() => handleGenerateIdeas(false, 5)} 
-                    onCreateDraft={(idea) => handleCreateDraft(idea.id)} 
-                    onArchive={handleArchiveIdea}
-                    onDeleteIdea={handleDeleteIdea}
-                    onRestoreIdea={handleRestoreIdea}
-                    isLoading={isLoading['ideas']} 
-                    isLoadingDraft={isLoading} 
-                    onUpdateTitle={handleUpdateIdeaTitle} 
-                    onGenerateSimilar={handleGenerateSimilarIdeas} 
-                    onAddIdea={handleAddIdea} 
-                />;
+                return (
+                    <Suspense fallback={<LoadingSpinner />}>
+                        <IdeaBoard 
+                            ideas={ideas} 
+                            onGenerate={() => handleGenerateIdeas(false, 5)} 
+                            onCreateDraft={(idea) => handleCreateDraft(idea.id)} 
+                            onArchive={handleArchiveIdea}
+                            onDeleteIdea={handleDeleteIdea}
+                            onRestoreIdea={handleRestoreIdea}
+                            isLoading={isLoading['ideas']} 
+                            isLoadingDraft={isLoading} 
+                            onUpdateTitle={handleUpdateIdeaTitle} 
+                            onGenerateSimilar={handleGenerateSimilarIdeas} 
+                            onAddIdea={handleAddIdea} 
+                        />
+                    </Suspense>
+                );
             case 'drafts':
-                return <DraftsList drafts={drafts} onSelectDraft={setSelectedDraft} onPublish={handlePublishPost} publishingId={publishingId} />;
+                return (
+                    <Suspense fallback={<LoadingSpinner />}>
+                        <DraftsList drafts={drafts} onSelectDraft={setSelectedDraft} onPublish={handlePublishPost} publishingId={publishingId} />
+                    </Suspense>
+                );
             case 'published':
-                return <PublishedList posts={publishedPosts} onSelectPost={setSelectedDraft} />;
+                return (
+                    <Suspense fallback={<LoadingSpinner />}>
+                        <PublishedList posts={publishedPosts} onSelectPost={setSelectedDraft} />
+                    </Suspense>
+                );
             case 'settings':
-                return <Settings settings={settings} onSaveSettings={handleSaveSettings} />;
+                return (
+                    <Suspense fallback={<LoadingSpinner />}>
+                        <Settings settings={settings} onSaveSettings={handleSaveSettings} />
+                    </Suspense>
+                );
+            case 'metrics':
+                return (
+                    <Suspense fallback={<LoadingSpinner />}>
+                        <MetricsDashboard />
+                    </Suspense>
+                );
             case 'calendar':
-                return <ContentCalendar 
-                    drafts={drafts} 
-                    publishedPosts={publishedPosts} 
-                    onScheduleDraft={handleScheduleDraft} 
-                    onSelectPost={setSelectedDraft}
-                    onPublishDraft={handlePublishPost}
-                    onUpdatePostDate={handleUpdatePostDate}
-                />;
+                return (
+                    <Suspense fallback={<LoadingSpinner />}>
+                        <ContentCalendar 
+                            drafts={drafts} 
+                            publishedPosts={publishedPosts} 
+                            onScheduleDraft={handleScheduleDraft} 
+                            onSelectPost={setSelectedDraft}
+                            onPublishDraft={handlePublishPost}
+                            onUpdatePostDate={handleUpdatePostDate}
+                        />
+                    </Suspense>
+                );
             case 'dashboard':
             default:
-                return <Dashboard
-                    stats={{ ideas: ideas.filter(idea => idea.status === 'active').length, drafts: drafts.length, published: publishedPosts.length }}
-                    lastAnalyzed={styleGuide?.lastAnalyzed}
-                    activityLogs={activityLogs}
-                    onNavigate={setView}
-                    onGenerateIdeas={handleGenerateIdeasAndNavigate}
-                    onUpdateStyleGuide={() => handleAnalyzeStyle(false)}
-                    isLoadingIdeas={isLoading['ideas'] || false}
-                    isLoadingStyle={isLoading['style'] || false}
-                />;
+                return (
+                    <Suspense fallback={<LoadingSpinner />}>
+                        <Dashboard
+                            stats={{ ideas: ideas.filter(idea => idea.status === 'active').length, drafts: drafts.length, published: publishedPosts.length }}
+                            lastAnalyzed={styleGuide?.lastAnalyzed}
+                            activityLogs={activityLogs}
+                            onNavigate={setView}
+                            onGenerateIdeas={handleGenerateIdeasAndNavigate}
+                            onUpdateStyleGuide={() => handleAnalyzeStyle(false)}
+                            isLoadingIdeas={isLoading['ideas'] || false}
+                            isLoadingStyle={isLoading['style'] || false}
+                        />
+                    </Suspense>
+                );
         }
     };
 

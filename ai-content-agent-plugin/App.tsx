@@ -58,61 +58,6 @@ const App: React.FC = () => {
     const drafts = posts.filter(p => p.status === 'draft');
     const publishedPosts = posts.filter(p => p.status === 'published');
 
-    useEffect(() => {
-        // Check if WordPress localized data is available
-        if (!window.acaData) {
-            console.error('ACA Error: WordPress localized data not available');
-            showToast('Plugin not properly loaded. Please refresh the page.', 'error');
-            return;
-        }
-        
-        setGeminiApiKey(settings.geminiApiKey);
-    }, [settings.geminiApiKey, showToast]);
-
-    // Load initial data from WordPress
-    useEffect(() => {
-        const loadInitialData = async () => {
-            try {
-                const [settingsData, styleGuideData, ideasData, draftsData, publishedData, activityData] = await Promise.all([
-                    settingsApi.get(),
-                    styleGuideApi.get(),
-                    ideasApi.get(),
-                    draftsApi.get(),
-                    publishedApi.get(),
-                    activityApi.get()
-                ]);
-                
-                setSettings(settingsData || {
-                    mode: 'manual',
-                    autoPublish: false,
-                    searchConsoleUser: null,
-                    gscClientId: '',
-                    gscClientSecret: '',
-                    imageSourceProvider: 'ai',
-                    aiImageStyle: 'photorealistic',
-                    pexelsApiKey: '',
-                    unsplashApiKey: '',
-                    pixabayApiKey: '',
-                    seoPlugin: 'none', // Auto-detected, kept for backward compatibility
-                    geminiApiKey: '',
-                });
-                
-                if (styleGuideData) {
-                    setStyleGuide(styleGuideData);
-                }
-                
-                setIdeas(ideasData || []);
-                setPosts([...(draftsData || []), ...(publishedData || [])]);
-                setActivityLogs(activityData || []);
-            } catch (error) {
-                console.error('Failed to load initial data:', error);
-                addToast({ message: 'Failed to load plugin data', type: 'error' });
-            }
-        };
-        
-        loadInitialData();
-    }, []);
-
     const addToast = useCallback((toast: Omit<ToastData, 'id'>) => {
         const id = Date.now();
         setToasts(prev => [...prev, { ...toast, id }]);
@@ -398,6 +343,61 @@ const App: React.FC = () => {
                 />;
         }
     };
+
+    useEffect(() => {
+        // Check if WordPress localized data is available
+        if (!window.acaData) {
+            console.error('ACA Error: WordPress localized data not available');
+            showToast('Plugin not properly loaded. Please refresh the page.', 'error');
+            return;
+        }
+        
+        setGeminiApiKey(settings.geminiApiKey);
+    }, [settings.geminiApiKey, showToast]);
+
+    // Load initial data from WordPress
+    useEffect(() => {
+        const loadInitialData = async () => {
+            try {
+                const [settingsData, styleGuideData, ideasData, draftsData, publishedData, activityData] = await Promise.all([
+                    settingsApi.get(),
+                    styleGuideApi.get(),
+                    ideasApi.get(),
+                    draftsApi.get(),
+                    publishedApi.get(),
+                    activityApi.get()
+                ]);
+                
+                setSettings(settingsData || {
+                    mode: 'manual',
+                    autoPublish: false,
+                    searchConsoleUser: null,
+                    gscClientId: '',
+                    gscClientSecret: '',
+                    imageSourceProvider: 'ai',
+                    aiImageStyle: 'photorealistic',
+                    pexelsApiKey: '',
+                    unsplashApiKey: '',
+                    pixabayApiKey: '',
+                    seoPlugin: 'none', // Auto-detected, kept for backward compatibility
+                    geminiApiKey: '',
+                });
+                
+                if (styleGuideData) {
+                    setStyleGuide(styleGuideData);
+                }
+                
+                setIdeas(ideasData || []);
+                setPosts([...(draftsData || []), ...(publishedData || [])]);
+                setActivityLogs(activityData || []);
+            } catch (error) {
+                console.error('Failed to load initial data:', error);
+                addToast({ message: 'Failed to load plugin data', type: 'error' });
+            }
+        };
+        
+        loadInitialData();
+    }, []);
 
     return (
         <>

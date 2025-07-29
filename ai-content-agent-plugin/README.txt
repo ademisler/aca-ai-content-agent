@@ -4,7 +4,7 @@ Tags: ai, content, automation, seo, calendar
 Requires at least: 5.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.6.3
+Stable tag: 1.6.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +12,23 @@ AI-powered content creation and management plugin with intelligent Content Calen
 
 == Description ==
 
-## 🚀 Latest Updates - v1.6.3 - DOCUMENTATION UPDATE & BUILD OPTIMIZATION 🚀
+## 🚀 Latest Updates - v1.6.4 - CRITICAL JAVASCRIPT INITIALIZATION ERROR FIX 🚀
+
+### 🚨 **CRITICAL JAVASCRIPT INITIALIZATION ERROR FIXED**
+- **Temporal Dead Zone Resolution**: Fixed "Cannot access 'Te' before initialization" error completely
+- **Function Hoisting Fix**: Resolved showToast function hoisting issue in App.tsx
+- **API Call Safety**: Added window.acaData existence checks to all API calls
+- **Variable Scoping**: Enhanced Terser configuration to prevent variable hoisting issues
+- **WordPress Integration**: Improved WordPress data availability checks
+
+### 🔧 **BUILD SYSTEM IMPROVEMENTS**
+- **Enhanced Terser Config**: Added hoist_vars: false and hoist_funs: false to prevent hoisting
+- **Reserved Names**: Protected critical function names from minification
+- **Safer Minification**: Improved minification process to maintain function order
+- **Variable Safety**: Enhanced variable scoping to prevent initialization errors
+- **WordPress Compatibility**: Better integration with WordPress localized data
+
+## 🚀 Previous Updates - v1.6.3 - DOCUMENTATION UPDATE & BUILD OPTIMIZATION 🚀
 
 ### 📚 **COMPREHENSIVE DOCUMENTATION UPDATE**
 - **Complete Documentation Review**: All documentation files thoroughly reviewed and updated
@@ -27,15 +43,6 @@ AI-powered content creation and management plugin with intelligent Content Calen
 - **File Organization**: Better file structure and organization for releases
 - **Performance Improvements**: Enhanced build performance and output quality
 - **Documentation Integration**: Better integration between code and documentation
-
-## 🚀 Previous Updates - v1.6.2 - FIXED JAVASCRIPT INITIALIZATION ERROR + OPTIMIZED BUILD 🚀
-
-### 🔧 **FIXED WINDOW OBJECT CONSISTENCY**
-- **Settings Component**: Fixed all `window.aca_object` references to `window.acaData` in Settings.tsx
-- **API Call Consistency**: Ensured all API calls use the correct window object reference
-- **Google Search Console**: Fixed GSC auth-status, connect, and disconnect API calls
-- **Debug Functions**: Fixed debug automation and cron trigger API calls
-- **Global Declarations**: Added proper global window interface declarations in Settings component
 
 = 🔍 Google Search Console Integration =
 
@@ -82,7 +89,7 @@ Choose your preferred level of automation:
 
 = Automatic Installation =
 
-1. Download the latest release: `releases/ai-content-agent-v1.6.3-documentation-update-and-build-optimization.zip`
+1. Download the latest release: `releases/ai-content-agent-v1.6.4-javascript-initialization-error-fix.zip`
 2. Go to WordPress Admin → Plugins → Add New → Upload Plugin
 3. Choose the downloaded zip file and click "Install Now"
 4. Activate the plugin
@@ -131,6 +138,29 @@ Yes, the plugin follows WordPress security best practices. Google Search Console
 6. **Activity Logs** - Track all plugin activities and performance
 
 == Changelog ==
+
+= 1.6.4 - 2025-01-29 - CRITICAL JAVASCRIPT INITIALIZATION ERROR FIX =
+
+**CRITICAL JAVASCRIPT INITIALIZATION ERROR FIXED**
+* Fixed "Cannot access 'Te' before initialization" error completely
+* Resolved showToast function hoisting issue in App.tsx
+* Added window.acaData existence checks to all API calls
+* Enhanced Terser configuration to prevent variable hoisting issues
+* Improved WordPress data availability checks
+
+**BUILD SYSTEM IMPROVEMENTS**
+* Added hoist_vars: false and hoist_funs: false to prevent hoisting
+* Protected critical function names from minification
+* Improved minification process to maintain function order
+* Enhanced variable scoping to prevent initialization errors
+* Better integration with WordPress localized data
+
+**VERIFIED FUNCTIONALITY**
+* Confirmed plugin loads without JavaScript errors
+* All admin interface components render correctly
+* All REST API calls work with proper error handling
+* SEO plugin detection and integration working properly
+* Google Search Console integration functions without errors
 
 = 1.6.3 - 2025-01-29 - DOCUMENTATION UPDATE & BUILD OPTIMIZATION =
 
@@ -213,6 +243,9 @@ Yes, the plugin follows WordPress security best practices. Google Search Console
 * Enhanced calendar synchronization with WordPress
 
 == Upgrade Notice ==
+
+= 1.6.4 =
+CRITICAL UPDATE: Fixes JavaScript initialization errors that prevent plugin from loading. All users should upgrade immediately.
 
 = 1.6.3 =
 Documentation update and build optimization. Recommended update for better user experience and consistency.

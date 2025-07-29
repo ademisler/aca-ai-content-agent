@@ -9,6 +9,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Current Release
 
+## [1.6.4] - 2025-01-29 - CRITICAL JAVASCRIPT INITIALIZATION ERROR FIX 🚨
+
+### 🚨 **CRITICAL JAVASCRIPT INITIALIZATION ERROR FIXED**
+- **Temporal Dead Zone Resolution**: Fixed "Cannot access 'Te' before initialization" error completely
+- **Function Hoisting Fix**: Resolved showToast function hoisting issue in App.tsx where function was used before declaration
+- **API Call Safety**: Added window.acaData existence checks to all API calls in Settings.tsx
+- **Variable Scoping**: Enhanced Terser configuration to prevent variable hoisting issues
+- **WordPress Integration**: Improved WordPress data availability checks throughout the application
+
+### 🔧 **BUILD SYSTEM IMPROVEMENTS**
+- **Enhanced Terser Config**: Added hoist_vars: false and hoist_funs: false to prevent variable and function hoisting
+- **Reserved Names**: Protected critical function names (Te, showToast, addToast, App) from minification
+- **Safer Minification**: Improved minification process to maintain proper function declaration order
+- **Variable Safety**: Enhanced variable scoping to prevent temporal dead zone errors
+- **WordPress Compatibility**: Better integration with WordPress localized data (window.acaData)
+
+### 🔍 **SPECIFIC FIXES IMPLEMENTED**
+- **App.tsx**: Moved showToast and addToast function declarations before their usage in useEffect
+- **Settings.tsx**: Added window.acaData existence checks to fetchSeoPlugins, handleGSCConnect, handleGSCDisconnect
+- **Settings.tsx**: Added safety checks to debug automation API calls
+- **Settings.tsx**: Fixed GSC auth status loading with proper WordPress data validation
+- **Vite Config**: Enhanced Terser configuration with hoisting prevention and reserved names
+
+### ✅ **VERIFIED FUNCTIONALITY**
+- **Plugin Loading**: Confirmed plugin loads without "Cannot access 'Te' before initialization" error
+- **Admin Interface**: All admin interface components render correctly without JavaScript errors
+- **API Communication**: All REST API calls work with proper error handling and safety checks
+- **SEO Integration**: SEO plugin detection and integration working properly with improved error handling
+- **Google Search Console**: GSC integration functions without initialization errors
+- **Debug Tools**: All debug and automation testing tools work correctly
+
+### 🛠️ **TECHNICAL IMPROVEMENTS**
+- **Error Prevention**: Comprehensive error prevention for missing WordPress localized data
+- **Function Order**: Proper function declaration order to prevent hoisting issues
+- **API Safety**: All API calls now validate WordPress data availability before execution
+- **Build Quality**: Enhanced build process with safer minification settings
+- **Code Stability**: Improved code stability and error resilience
+
 ## [1.6.3] - 2025-01-29 - COMPREHENSIVE DOCUMENTATION UPDATE & BUILD OPTIMIZATION 📚
 
 ### 📚 **COMPREHENSIVE DOCUMENTATION UPDATE**

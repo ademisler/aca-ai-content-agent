@@ -3,17 +3,17 @@
 ## 📊 Release Statistics
 
 ### Current Release
-- **Version**: v1.6.3
+- **Version**: v1.6.4
 - **Status**: ✅ Active
 - **Release Date**: 2025-01-29
-- **File**: `ai-content-agent-v1.6.3-documentation-update-and-build-optimization.zip`
+- **File**: `ai-content-agent-v1.6.4-javascript-initialization-error-fix.zip`
 - **Size**: ~295KB
 
 ### Archive Statistics
-- **Total Archived Versions**: 22
-- **Archive Size**: ~3.2MB
+- **Total Archived Versions**: 23
+- **Archive Size**: ~3.5MB
 - **First Release**: v1.4.4 (2025-01-27)
-- **Latest Archived**: v1.6.2 (2025-01-28)
+- **Latest Archived**: v1.6.3 (2025-01-29)
 
 ## 📁 Directory Structure
 
@@ -45,20 +45,20 @@
 
 ## 🚀 Current Release
 
-### v1.6.3 - Latest Stable Release
-- **File**: `releases/ai-content-agent-v1.6.3-documentation-update-and-build-optimization.zip`
+### v1.6.4 - Latest Stable Release
+- **File**: `releases/ai-content-agent-v1.6.4-javascript-initialization-error-fix.zip`
 - **Size**: 295KB (optimized)
 - **Status**: ✅ **STABLE - READY FOR PRODUCTION**
 - **Release Date**: 2025-01-29
-- **Major Feature**: Comprehensive Documentation Update & Build Optimization
+- **Major Feature**: Critical JavaScript Initialization Error Fix
 
-#### What's New in v1.6.3:
-- 📚 **Comprehensive Documentation Update**: Complete review and update of all documentation files
-- 🔧 **Build System Optimization**: Enhanced build process with improved asset management
-- ✅ **Verified Functionality**: All features confirmed working correctly
-- 📋 **Version Consistency**: Updated all version references across documentation
-- 🗂️ **Enhanced Setup Guides**: Improved setup instructions for all integrations
-- 🔄 **Release Management**: Better release preparation and archive organization
+#### What's New in v1.6.4:
+- 🚨 **Critical JavaScript Error Fix**: Fixed "Cannot access 'Te' before initialization" error completely
+- 🔧 **Function Hoisting Resolution**: Resolved showToast function hoisting issue in App.tsx
+- 🛡️ **API Call Safety**: Added window.acaData existence checks to all API calls
+- ⚙️ **Enhanced Build System**: Improved Terser configuration to prevent variable hoisting
+- ✅ **Verified Functionality**: All features confirmed working without JavaScript errors
+- 🔍 **WordPress Integration**: Better WordPress data availability checks
 
 ## 📦 Release Archive
 

@@ -38,10 +38,13 @@ export default defineConfig(({ mode }) => {
           compress: {
             drop_console: false,
             drop_debugger: false,
+            hoist_vars: false,
+            hoist_funs: false,
           },
           mangle: {
             keep_fnames: true,
             keep_classnames: true,
+            reserved: ['Te', 'showToast', 'addToast', 'App']
           },
           format: {
             comments: false,

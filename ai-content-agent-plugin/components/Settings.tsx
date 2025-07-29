@@ -121,9 +121,14 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
     // Load GSC auth status on component mount
     useEffect(() => {
         const loadGscAuthStatus = async () => {
+            if (!window.acaData) {
+                console.error('ACA: WordPress data not available');
+                return;
+            }
+            
             try {
-                            const response = await fetch(window.acaData.api_url + 'gsc/auth-status', {
-                headers: { 'X-WP-Nonce': window.acaData.nonce }
+                const response = await fetch(window.acaData.api_url + 'gsc/auth-status', {
+                    headers: { 'X-WP-Nonce': window.acaData.nonce }
                 });
                 const status = await response.json();
                 setGscAuthStatus(status);
@@ -158,9 +163,14 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
             setSeoPluginsLoading(true);
             console.log('ACA: Fetching SEO plugins...');
             
-            const response = await fetch('/wp-json/aca/v1/seo-plugins', {
+            if (!window.acaData) {
+                console.error('ACA: WordPress data not available');
+                return;
+            }
+            
+            const response = await fetch(`${window.acaData.api_url}seo-plugins`, {
                 headers: {
-                    'X-WP-Nonce': (window as any).acaData?.nonce || ''
+                    'X-WP-Nonce': window.acaData.nonce
                 }
             });
             
@@ -204,6 +214,11 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
             return;
         }
         
+        if (!window.acaData) {
+            console.error('ACA: WordPress data not available');
+            return;
+        }
+        
         setIsConnecting(true);
         try {
             const response = await fetch(window.acaData.api_url + 'gsc/connect', {
@@ -227,8 +242,13 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
     };
     
     const handleGSCDisconnect = async () => {
+        if (!window.acaData) {
+            console.error('ACA: WordPress data not available');
+            return;
+        }
+        
         try {
-                        const response = await fetch(window.acaData.api_url + 'gsc/disconnect', {
+            const response = await fetch(window.acaData.api_url + 'gsc/disconnect', {
                 method: 'POST',
                 headers: {
                     'X-WP-Nonce': window.acaData.nonce,
@@ -1000,8 +1020,12 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                     <button 
                         className="aca-action-button"
                         onClick={() => {
-                                            fetch(window.acaData.api_url + 'debug/automation', {
-                    headers: { 'X-WP-Nonce': window.acaData.nonce }
+                            if (!window.acaData) {
+                                console.error('ACA: WordPress data not available');
+                                return;
+                            }
+                            fetch(window.acaData.api_url + 'debug/automation', {
+                                headers: { 'X-WP-Nonce': window.acaData.nonce }
                             })
                             .then(r => r.json())
                             .then(data => {
@@ -1016,9 +1040,13 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                     <button 
                         className="aca-action-button"
                         onClick={() => {
-                                            fetch(window.acaData.api_url + 'debug/cron/semi-auto', {
-                    method: 'POST',
-                    headers: { 'X-WP-Nonce': window.acaData.nonce }
+                            if (!window.acaData) {
+                                console.error('ACA: WordPress data not available');
+                                return;
+                            }
+                            fetch(window.acaData.api_url + 'debug/cron/semi-auto', {
+                                method: 'POST',
+                                headers: { 'X-WP-Nonce': window.acaData.nonce }
                             })
                             .then(r => r.json())
                             .then(data => {
@@ -1032,9 +1060,13 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                     <button 
                         className="aca-action-button"
                         onClick={() => {
-                                            fetch(window.acaData.api_url + 'debug/cron/full-auto', {
-                    method: 'POST',
-                    headers: { 'X-WP-Nonce': window.acaData.nonce }
+                            if (!window.acaData) {
+                                console.error('ACA: WordPress data not available');
+                                return;
+                            }
+                            fetch(window.acaData.api_url + 'debug/cron/full-auto', {
+                                method: 'POST',
+                                headers: { 'X-WP-Nonce': window.acaData.nonce }
                             })
                             .then(r => r.json())
                             .then(data => {

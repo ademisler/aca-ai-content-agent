@@ -1,13 +1,36 @@
 # AI Content Agent (ACA) WordPress Plugin
 
-![Version](https://img.shields.io/badge/version-1.6.3-blue.svg)
+![Version](https://img.shields.io/badge/version-1.6.4-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-blue.svg)
 ![License](https://img.shields.io/badge/license-GPL%20v2%2B-green.svg)
 
 AI-powered content creation and management plugin that generates blog posts, ideas, and manages your content workflow automatically with an intelligent Content Calendar system and **real Google Search Console integration**.
 
-## 🚀 Latest Updates - v1.6.3 - DOCUMENTATION UPDATE & BUILD OPTIMIZATION 🚀
+## 🚀 Latest Updates - v1.6.4 - CRITICAL JAVASCRIPT INITIALIZATION ERROR FIX 🚀
+
+### 🚨 **CRITICAL JAVASCRIPT INITIALIZATION ERROR FIXED**
+- **Temporal Dead Zone Resolution**: Fixed "Cannot access 'Te' before initialization" error completely
+- **Function Hoisting Fix**: Resolved showToast function hoisting issue in App.tsx
+- **API Call Safety**: Added window.acaData existence checks to all API calls
+- **Variable Scoping**: Enhanced Terser configuration to prevent variable hoisting issues
+- **WordPress Integration**: Improved WordPress data availability checks
+
+### 🔧 **BUILD SYSTEM IMPROVEMENTS**
+- **Enhanced Terser Config**: Added hoist_vars: false and hoist_funs: false to prevent hoisting
+- **Reserved Names**: Protected critical function names from minification
+- **Safer Minification**: Improved minification process to maintain function order
+- **Variable Safety**: Enhanced variable scoping to prevent initialization errors
+- **WordPress Compatibility**: Better integration with WordPress localized data
+
+### ✅ **VERIFIED FUNCTIONALITY**
+- **Plugin Loading**: Confirmed plugin loads without JavaScript errors
+- **Admin Interface**: All admin interface components render correctly
+- **API Communication**: All REST API calls work with proper error handling
+- **SEO Integration**: SEO plugin detection and integration working properly
+- **Google Search Console**: GSC integration functions without errors
+
+## 🚀 Previous Updates - v1.6.3 - DOCUMENTATION UPDATE & BUILD OPTIMIZATION 🚀
 
 ### 📚 **COMPREHENSIVE DOCUMENTATION UPDATE**
 - **Complete Documentation Review**: All documentation files thoroughly reviewed and updated
@@ -105,7 +128,7 @@ AI-powered content creation and management plugin that generates blog posts, ide
 ## 🛠️ Installation
 
 ### Automatic Installation (Recommended)
-1. Download the latest release: `releases/ai-content-agent-v1.6.3-documentation-update-and-build-optimization.zip`
+1. Download the latest release: `releases/ai-content-agent-v1.6.4-javascript-initialization-error-fix.zip`
 2. Go to WordPress Admin → Plugins → Add New → Upload Plugin
 3. Choose the downloaded zip file and click "Install Now"
 4. Activate the plugin
@@ -120,25 +143,25 @@ AI-powered content creation and management plugin that generates blog posts, ide
 ## 📁 Release Management
 
 ### Current Release
-- **Latest Version**: v1.6.3 (Located in `/releases/`)
-- **File**: `ai-content-agent-v1.6.3-documentation-update-and-build-optimization.zip`
+- **Latest Version**: v1.6.4 (Located in `/releases/`)
+- **File**: `ai-content-agent-v1.6.4-javascript-initialization-error-fix.zip`
 - **Status**: Stable, ready for production
 
 ### Archive
 - **Previous Versions**: All older versions are stored in `/releases/archive/`
-- **Total Archived**: 21 previous versions
+- **Total Archived**: 22 previous versions
 - **Purpose**: Development history and rollback capability
 
 ### For Developers
 ```bash
 # Latest release
-releases/ai-content-agent-v1.6.3-documentation-update-and-build-optimization.zip
+releases/ai-content-agent-v1.6.4-javascript-initialization-error-fix.zip
 
 # Archived versions
 releases/archive/ai-content-agent-v1.3.x-*.zip
 releases/archive/ai-content-agent-v1.4.x-*.zip
 releases/archive/ai-content-agent-v1.5.x-*.zip
-releases/archive/ai-content-agent-v1.6.[0-2]-*.zip
+releases/archive/ai-content-agent-v1.6.[0-3]-*.zip
 ```
 
 ## ⚡ Quick Start
@@ -209,7 +232,8 @@ This plugin is licensed under the GPL v2 or later.
 
 ## 🔄 Version History
 
-- **v1.6.3**: Documentation update and build optimization (Latest)
+- **v1.6.4**: Critical JavaScript initialization error fix (Latest)
+- **v1.6.3**: Documentation update and build optimization
 - **v1.6.2**: Fixed JavaScript initialization error
 - **v1.6.1**: Fixed window object consistency
 - **v1.6.0**: Fixed build system and React initialization
@@ -224,4 +248,4 @@ For complete version history, see `CHANGELOG.md`.
 
 ---
 
-**Ready to revolutionize your content workflow?** Download v1.6.3 and start creating smarter content today! 🚀
+**Ready to revolutionize your content workflow?** Download v1.6.4 and start creating smarter content today! 🚀

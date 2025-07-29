@@ -514,8 +514,71 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                     </IntegrationCard>
                 </div>
             </div>
-
-            {/* Save Settings */}
+            
+            {/* Debug Panel for Automation Testing */}
+            <div className="aca-card">
+                <div className="aca-card-header">
+                    <h2 className="aca-card-title">
+                        <SettingsIcon className="aca-nav-item-icon" />
+                        Automation Debug Panel
+                    </h2>
+                </div>
+                <p className="aca-page-description">
+                    Test automation functionality and check cron status.
+                </p>
+                
+                <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+                    <button 
+                        className="aca-action-button"
+                        onClick={() => {
+                            fetch(window.aca_object.api_url + 'debug/automation', {
+                                headers: { 'X-WP-Nonce': window.aca_object.nonce }
+                            })
+                            .then(r => r.json())
+                            .then(data => {
+                                console.log('Automation Debug Info:', data);
+                                alert('Debug info logged to console');
+                            });
+                        }}
+                    >
+                        Check Automation Status
+                    </button>
+                    
+                    <button 
+                        className="aca-action-button"
+                        onClick={() => {
+                            fetch(window.aca_object.api_url + 'debug/cron/semi-auto', {
+                                method: 'POST',
+                                headers: { 'X-WP-Nonce': window.aca_object.nonce }
+                            })
+                            .then(r => r.json())
+                            .then(data => {
+                                alert(data.message || 'Semi-auto cron triggered');
+                            });
+                        }}
+                    >
+                        Test Semi-Auto Cron
+                    </button>
+                    
+                    <button 
+                        className="aca-action-button"
+                        onClick={() => {
+                            fetch(window.aca_object.api_url + 'debug/cron/full-auto', {
+                                method: 'POST',
+                                headers: { 'X-WP-Nonce': window.aca_object.nonce }
+                            })
+                            .then(r => r.json())
+                            .then(data => {
+                                alert(data.message || 'Full-auto cron triggered');
+                            });
+                        }}
+                    >
+                        Test Full-Auto Cron
+                    </button>
+                </div>
+            </div>
+            
+            {/* Save Button */}
             <div style={{ 
                 display: 'flex', 
                 justifyContent: 'space-between', 

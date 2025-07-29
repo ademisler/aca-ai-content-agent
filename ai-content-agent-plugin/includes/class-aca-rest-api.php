@@ -21,13 +21,33 @@ class ACA_Rest_Api {
         register_rest_route('aca/v1', '/settings', array(
             'methods' => 'GET',
             'callback' => array($this, 'get_settings'),
-            'permission_callback' => array($this, 'check_permissions')
+            'permission_callback' => array($this, 'check_admin_permissions')
         ));
         
         register_rest_route('aca/v1', '/settings', array(
             'methods' => 'POST',
             'callback' => array($this, 'save_settings'),
-            'permission_callback' => array($this, 'check_permissions')
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
+        
+        // Debug endpoint for automation testing
+        register_rest_route('aca/v1', '/debug/automation', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'debug_automation'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
+        
+        // Manual cron trigger endpoints for testing
+        register_rest_route('aca/v1', '/debug/cron/semi-auto', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'debug_trigger_semi_auto'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
+        
+        register_rest_route('aca/v1', '/debug/cron/full-auto', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'debug_trigger_full_auto'),
+            'permission_callback' => array($this, 'check_admin_permissions')
         ));
         
         // Style guide endpoints
@@ -1879,5 +1899,71 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         }
         
         return trim($html_content);
+    }
+    
+    /**
+     * Debug automation status
+     */
+    public function debug_automation($request) {
+        $settings = get_option('aca_settings', array());
+        
+        $debug_info = array(
+            'current_mode' => isset($settings['mode']) ? $settings['mode'] : 'manual',
+            'auto_publish' => isset($settings['autoPublish']) ? $settings['autoPublish'] : false,
+            'gemini_api_key_set' => !empty($settings['geminiApiKey']),
+            'style_guide_exists' => !empty(get_option('aca_style_guide')),
+            'cron_schedules' => array(
+                'thirty_minute' => wp_next_scheduled('aca_thirty_minute_event'),
+                'fifteen_minute' => wp_next_scheduled('aca_fifteen_minute_event')
+            ),
+            'last_cron_run' => get_option('aca_last_cron_run', 'Never'),
+            'wordpress_cron_enabled' => !defined('DISABLE_WP_CRON') || !DISABLE_WP_CRON,
+            'server_time' => current_time('mysql'),
+            'gmt_time' => current_time('mysql', true)
+        );
+        
+        return rest_ensure_response($debug_info);
+    }
+    
+    /**
+     * Debug trigger semi-automatic cron
+     */
+    public function debug_trigger_semi_auto($request) {
+        $cron = new ACA_Cron();
+        
+        try {
+            $cron->fifteen_minute_task();
+            $this->add_activity_log('debug_cron', 'Semi-automatic cron manually triggered', 'Settings');
+            update_option('aca_last_cron_run', current_time('mysql') . ' (Semi-Auto Manual)');
+            
+            return rest_ensure_response(array(
+                'success' => true,
+                'message' => 'Semi-automatic cron task executed successfully',
+                'timestamp' => current_time('mysql')
+            ));
+        } catch (Exception $e) {
+            return new WP_Error('cron_error', $e->getMessage(), array('status' => 500));
+        }
+    }
+    
+    /**
+     * Debug trigger full-automatic cron
+     */
+    public function debug_trigger_full_auto($request) {
+        $cron = new ACA_Cron();
+        
+        try {
+            $cron->thirty_minute_task();
+            $this->add_activity_log('debug_cron', 'Full-automatic cron manually triggered', 'Settings');
+            update_option('aca_last_cron_run', current_time('mysql') . ' (Full-Auto Manual)');
+            
+            return rest_ensure_response(array(
+                'success' => true,
+                'message' => 'Full-automatic cron task executed successfully',
+                'timestamp' => current_time('mysql')
+            ));
+        } catch (Exception $e) {
+            return new WP_Error('cron_error', $e->getMessage(), array('status' => 500));
+        }
     }
 }

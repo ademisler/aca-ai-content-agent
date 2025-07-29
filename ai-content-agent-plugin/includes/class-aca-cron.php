@@ -50,6 +50,9 @@ class ACA_Cron {
             return;
         }
         
+        // Update last run time
+        update_option('aca_last_cron_run', current_time('mysql') . ' (30min - Full-Auto)');
+        
         // Auto-analyze style guide
         $this->auto_analyze_style_guide();
         
@@ -70,6 +73,9 @@ class ACA_Cron {
             return;
         }
         
+        // Update last run time
+        update_option('aca_last_cron_run', current_time('mysql') . ' (15min - Semi-Auto)');
+        
         // Generate ideas in semi-automatic mode
         if (isset($settings['mode']) && $settings['mode'] === 'semi-automatic') {
             $this->generate_ideas_semi_auto();
@@ -81,7 +87,11 @@ class ACA_Cron {
      */
     private function auto_analyze_style_guide() {
         $rest_api = new ACA_Rest_Api();
-        $rest_api->analyze_style_guide(true); // true = auto mode
+        $result = $rest_api->analyze_style_guide(null, true); // null request, true = auto mode
+        
+        if (is_wp_error($result)) {
+            error_log('ACA Auto Style Guide Analysis Error: ' . $result->get_error_message());
+        }
     }
     
     /**
@@ -89,7 +99,17 @@ class ACA_Cron {
      */
     private function generate_ideas_semi_auto() {
         $rest_api = new ACA_Rest_Api();
-        $rest_api->generate_ideas(array('count' => 5, 'auto' => true));
+        
+        // Create a mock WP_REST_Request for internal API call
+        $request = new WP_REST_Request();
+        $request->set_header('content-type', 'application/json');
+        $request->set_body(json_encode(array('count' => 5, 'auto' => true)));
+        
+        $result = $rest_api->generate_ideas($request);
+        
+        if (is_wp_error($result)) {
+            error_log('ACA Semi-Auto Ideas Generation Error: ' . $result->get_error_message());
+        }
     }
     
     /**

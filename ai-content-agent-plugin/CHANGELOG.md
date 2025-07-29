@@ -5,6 +5,52 @@ All notable changes to the AI Content Agent WordPress plugin will be documented 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.9] - 2025-01-28 - AUTOMATION MODE FIXES + DEBUG SYSTEM
+
+### 🎯 CRITICAL AUTOMATION FIXES
+- **Semi-Automatic Mode Fixed**: Fixed WP_REST_Request parameter issue in cron calls
+- **Full-Automatic Mode Fixed**: Corrected analyze_style_guide method parameter passing
+- **Cron System Verified**: All 3 automation modes now work correctly
+- **Error Handling Added**: Comprehensive error logging for all automation operations
+
+### 🔧 AUTOMATION MODE IMPROVEMENTS
+- **Manual Mode**: No automatic operations, user has full control ✅
+- **Semi-Automatic Mode**: 15-minute cron generates 5 ideas automatically ✅
+- **Full-Automatic Mode**: 30-minute cron does full cycle (idea → draft → optional publish) ✅
+- **Auto-Publish Option**: Works correctly in full-automatic mode ✅
+
+### 🛠️ DEBUG & MONITORING SYSTEM
+- **Debug API Endpoints**: `/debug/automation`, `/debug/cron/semi-auto`, `/debug/cron/full-auto`
+- **Automation Status Panel**: Real-time cron schedule and last run information
+- **Manual Cron Triggers**: Test automation modes manually from Settings
+- **Comprehensive Logging**: Track all automation operations and failures
+- **Last Run Tracking**: Monitor when cron jobs last executed
+
+### 🔄 CRON SYSTEM ENHANCEMENTS
+- **Proper Request Objects**: Fixed API method calls from cron tasks
+- **Schedule Verification**: Cron jobs properly scheduled on plugin activation
+- **Time Tracking**: Last run timestamps for monitoring
+- **Error Recovery**: Better handling of automation failures
+
+### 📊 MONITORING FEATURES
+- **Debug Panel**: Settings page includes automation testing tools
+- **Status Information**: Current mode, API key status, style guide existence
+- **Cron Schedules**: Next scheduled run times for both cron jobs
+- **WordPress Cron Status**: Verify if WP-Cron is enabled
+- **Server Time Display**: Current server and GMT times
+
+### 🎨 UI/UX IMPROVEMENTS
+- **Debug Interface**: Easy-to-use buttons for testing automation
+- **Real-time Feedback**: Instant alerts and console logging
+- **Status Indicators**: Clear display of automation system health
+- **Error Messages**: User-friendly error reporting
+
+### 🔧 TECHNICAL IMPROVEMENTS
+- **Method Visibility**: Proper public/private method declarations
+- **Parameter Validation**: Correct parameter passing between classes
+- **Exception Handling**: Try-catch blocks for all automation operations
+- **Database Options**: Proper storage of automation status and timestamps
+
 ## [1.3.8] - 2025-01-28 - CRITICAL STATUS FIX + SMART MULTI-POST UI
 
 ### 🎯 CRITICAL FIXES

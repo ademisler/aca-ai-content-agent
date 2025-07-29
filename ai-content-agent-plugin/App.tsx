@@ -3,17 +3,6 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { settingsApi, styleGuideApi, ideasApi, draftsApi, publishedApi, activityApi } from './services/wordpressApi';
 import { setGeminiApiKey } from './services/geminiService';
 import type { StyleGuide, ContentIdea, Draft, View, AppSettings, ActivityLog, ActivityLogType, IconName } from './types';
-
-declare global {
-  interface Window {
-    acaData: {
-      nonce: string;
-      api_url: string;
-      admin_url: string;
-      plugin_url: string;
-    };
-  }
-}
 import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './components/Dashboard';
 import { StyleGuideManager } from './components/StyleGuideManager';
@@ -26,6 +15,16 @@ import { PublishedList } from './components/PublishedList';
 import { Menu } from './components/Icons';
 import { ContentCalendar } from './components/ContentCalendar';
 
+declare global {
+  interface Window {
+    acaData: {
+      nonce: string;
+      api_url: string;
+      admin_url: string;
+      plugin_url: string;
+    };
+  }
+}
 
 const App: React.FC = () => {
     const [view, setView] = useState<View>('dashboard');

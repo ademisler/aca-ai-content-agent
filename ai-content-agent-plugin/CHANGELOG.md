@@ -9,6 +9,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Current Release
 
+## [1.6.0] - 2025-01-28 - FIXED BUILD SYSTEM + REACT INITIALIZATION ERRORS 🔧
+
+### 🔧 **FIXED BUILD SYSTEM ISSUES**
+- **Vite React Plugin**: Added missing @vitejs/plugin-react to vite.config.ts
+- **Import Order**: Fixed global declaration placement in App.tsx to prevent hoisting issues
+- **React StrictMode**: Removed React.StrictMode to prevent double initialization issues
+- **Build Configuration**: Proper React plugin configuration for correct JSX transformation
+- **Component Initialization**: Fixed "Cannot access 'H' before initialization" error
+
+### 🚀 **IMPROVED BUILD PROCESS**
+- **JSX Transformation**: Proper React JSX transformation with Vite React plugin
+- **Module Loading**: Fixed module initialization order issues
+- **Component Rendering**: Resolved React component rendering initialization problems
+- **Build Optimization**: Better build process with proper React support
+- **Error Prevention**: Eliminated hoisting and initialization reference errors
+
+### 🔍 **DEVELOPMENT IMPROVEMENTS**
+- **Vite Configuration**: Complete vite.config.ts with React plugin support
+- **Import Structure**: Cleaned up import order and global declarations
+- **React Rendering**: Simplified React rendering without StrictMode complications
+- **Build Consistency**: Consistent build output with proper React transformations
+
+### ✅ **VERIFIED FUNCTIONALITY**
+- **Plugin Loading**: Confirmed plugin admin page loads without initialization errors
+- **React Components**: All React components render correctly without reference errors
+- **JavaScript Console**: No more "Cannot access before initialization" errors
+- **Build Process**: Clean build process with proper React JSX transformation
+- **Admin Interface**: WordPress admin interface loads completely without errors
+
 ## [1.5.9] - 2025-01-28 - FIXED CRITICAL JAVASCRIPT ERRORS + PLUGIN LOADING 🚨
 
 ### 🚨 **FIXED CRITICAL JAVASCRIPT ERRORS**

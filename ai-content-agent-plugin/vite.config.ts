@@ -22,22 +22,19 @@ export default defineConfig(({ mode }) => {
         }
       },
       build: {
-        target: 'es2015',
+        target: 'es2020',
         minify: 'esbuild',
         rollupOptions: {
           output: {
             manualChunks: undefined,
             format: 'iife',
-            inlineDynamicImports: true
+            name: 'ACAPlugin'
           }
         },
-        commonjsOptions: {
-          include: [/node_modules/]
+        esbuild: {
+          target: 'es2020',
+          format: 'iife'
         }
-      },
-      esbuild: {
-        keepNames: true,
-        legalComments: 'none'
       }
     };
 });

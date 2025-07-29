@@ -241,6 +241,20 @@ class ACA_Rest_Api {
             'callback' => array($this, 'get_gsc_data'),
             'permission_callback' => array($this, 'check_admin_permissions')
         ));
+        
+        // License verification endpoint
+        register_rest_route('aca/v1', '/license/verify', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'verify_license_key'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
+        
+        // License status endpoint
+        register_rest_route('aca/v1', '/license/status', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_license_status'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
     }
     
     /**
@@ -281,6 +295,10 @@ class ACA_Rest_Api {
      */
     public function get_settings($request) {
         $settings = get_option('aca_settings', array());
+        
+        // Add pro status to settings response
+        $settings['is_pro'] = is_aca_pro_active();
+        
         return rest_ensure_response($settings);
     }
     
@@ -506,20 +524,25 @@ class ACA_Rest_Api {
             // Get existing titles to avoid duplicates
             $existing_titles = $this->get_existing_titles();
             
-            // Get search console data if user is connected
+            // Get search console data if user is connected and has pro license
             $search_console_data = null;
             if (!empty($settings['searchConsoleUser'])) {
-                require_once ACA_PLUGIN_PATH . 'includes/class-aca-google-search-console.php';
-                
-                $gsc = new ACA_Google_Search_Console();
-                $search_console_data = $gsc->get_data_for_ai();
-                
-                // Fallback to mock data if GSC fails
-                if (!$search_console_data) {
-                    $search_console_data = array(
-                        'topQueries' => array('AI for content marketing', 'how to write blog posts faster', 'wordpress automation tools'),
-                        'underperformingPages' => array('/blog/old-seo-tips', '/blog/2022-social-media-trends')
-                    );
+                // Check if pro license is active for GSC integration
+                if (is_aca_pro_active()) {
+                    require_once ACA_PLUGIN_PATH . 'includes/class-aca-google-search-console.php';
+                    
+                    $gsc = new ACA_Google_Search_Console();
+                    $search_console_data = $gsc->get_data_for_ai();
+                    
+                    // Fallback to mock data if GSC fails
+                    if (!$search_console_data) {
+                        $search_console_data = array(
+                            'topQueries' => array('AI for content marketing', 'how to write blog posts faster', 'wordpress automation tools'),
+                            'underperformingPages' => array('/blog/old-seo-tips', '/blog/2022-social-media-trends')
+                        );
+                    }
+                } else {
+                    error_log('ACA: Google Search Console integration requires Pro license');
                 }
             }
             
@@ -3108,6 +3131,186 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 'success' => false,
                 'message' => 'Error sending to All in One SEO: ' . $e->getMessage(),
                 'plugin' => 'All in One SEO'
+            );
+        }
+    }
+    
+    /**
+     * Verify license key with Gumroad API
+     */
+    public function verify_license_key($request) {
+        $nonce_check = $this->verify_nonce($request);
+        if (is_wp_error($nonce_check)) {
+            return $nonce_check;
+        }
+        
+        $params = $request->get_json_params();
+        $license_key = sanitize_text_field($params['license_key'] ?? '');
+        
+        if (empty($license_key)) {
+            return new WP_Error('missing_license_key', 'License key is required', array('status' => 400));
+        }
+        
+        // Gumroad product ID - to be replaced with actual product ID
+        $product_id = 'YOUR_GUMROAD_PRODUCT_ID_HERE';
+        
+        try {
+            $verification_result = $this->call_gumroad_api($product_id, $license_key);
+            
+            if ($verification_result['success']) {
+                // Store license information
+                update_option('aca_license_status', 'active');
+                update_option('aca_license_key', $license_key);
+                update_option('aca_license_verified_at', current_time('mysql'));
+                update_option('aca_license_data', $verification_result['purchase']);
+                
+                $this->add_activity_log('license_activated', 'Pro license activated successfully', 'CheckCircle');
+                
+                return rest_ensure_response(array(
+                    'success' => true,
+                    'message' => 'License verified successfully! Pro features are now active.',
+                    'status' => 'active',
+                    'purchase_data' => $verification_result['purchase']
+                ));
+            } else {
+                // Remove license if verification fails
+                delete_option('aca_license_status');
+                delete_option('aca_license_key');
+                delete_option('aca_license_verified_at');
+                delete_option('aca_license_data');
+                
+                return new WP_Error(
+                    'invalid_license', 
+                    'Invalid license key or license has been refunded/chargebacked', 
+                    array('status' => 400)
+                );
+            }
+        } catch (Exception $e) {
+            error_log('ACA: License verification error: ' . $e->getMessage());
+            
+            return new WP_Error(
+                'verification_failed', 
+                'License verification failed: ' . $e->getMessage(), 
+                array('status' => 500)
+            );
+        }
+    }
+    
+    /**
+     * Get current license status
+     */
+    public function get_license_status($request) {
+        $status = get_option('aca_license_status', 'inactive');
+        $verified_at = get_option('aca_license_verified_at');
+        $license_data = get_option('aca_license_data', array());
+        
+        return rest_ensure_response(array(
+            'status' => $status,
+            'is_active' => $status === 'active',
+            'verified_at' => $verified_at,
+            'purchase_data' => $license_data
+        ));
+    }
+    
+    /**
+     * Call Gumroad License Verification API
+     */
+    private function call_gumroad_api($product_id, $license_key) {
+        $url = 'https://api.gumroad.com/v2/licenses/verify';
+        
+        $response = wp_remote_post($url, array(
+            'headers' => array(
+                'Content-Type' => 'application/x-www-form-urlencoded'
+            ),
+            'body' => array(
+                'product_id' => $product_id,
+                'license_key' => $license_key
+            ),
+            'timeout' => 30,
+            'blocking' => true,
+            'sslverify' => true
+        ));
+        
+        if (is_wp_error($response)) {
+            throw new Exception('Gumroad API request failed: ' . $response->get_error_message());
+        }
+        
+        $response_code = wp_remote_retrieve_response_code($response);
+        $response_body = wp_remote_retrieve_body($response);
+        
+        if ($response_code !== 200) {
+            throw new Exception('Gumroad API returned error code: ' . $response_code);
+        }
+        
+        $data = json_decode($response_body, true);
+        
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new Exception('Invalid JSON response from Gumroad API');
+        }
+        
+        // Validate license according to requirements
+        if (!isset($data['success']) || $data['success'] !== true) {
+            return array('success' => false, 'purchase' => null);
+        }
+        
+        $purchase = $data['purchase'] ?? array();
+        $refunded = $purchase['refunded'] ?? false;
+        $chargebacked = $purchase['chargebacked'] ?? false;
+        
+        // License is only valid if not refunded and not chargebacked
+        if ($refunded || $chargebacked) {
+            return array('success' => false, 'purchase' => $purchase);
+        }
+        
+        return array('success' => true, 'purchase' => $purchase);
+    }
+    
+    /**
+     * Get Google Search Console data
+     */
+    public function get_gsc_data($request) {
+        // Check if pro license is active
+        if (!is_aca_pro_active()) {
+            return new WP_Error(
+                'pro_required', 
+                'Google Search Console integration requires Pro license', 
+                array('status' => 403)
+            );
+        }
+        
+        $settings = get_option('aca_settings', array());
+        
+        if (empty($settings['searchConsoleUser'])) {
+            return new WP_Error(
+                'not_connected', 
+                'Google Search Console not connected', 
+                array('status' => 400)
+            );
+        }
+        
+        try {
+            require_once ACA_PLUGIN_PATH . 'includes/class-aca-google-search-console.php';
+            
+            $gsc = new ACA_Google_Search_Console();
+            $data = $gsc->get_data_for_ai();
+            
+            if (!$data) {
+                return new WP_Error(
+                    'no_data', 
+                    'No Google Search Console data available', 
+                    array('status' => 404)
+                );
+            }
+            
+            return rest_ensure_response($data);
+            
+        } catch (Exception $e) {
+            error_log('ACA: GSC data fetch error: ' . $e->getMessage());
+            
+            return new WP_Error(
+                'fetch_failed', 
+                'Failed to fetch Google Search Console data: ' . $e->getMessage(), 
+                array('status' => 500)
             );
         }
     }

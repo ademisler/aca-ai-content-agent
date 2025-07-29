@@ -20,6 +20,15 @@ define('ACA_VERSION', '1.8.0');
 define('ACA_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('ACA_PLUGIN_PATH', plugin_dir_path(__FILE__));
 
+/**
+ * Check if ACA Pro is active
+ * 
+ * @return bool True if pro license is active, false otherwise
+ */
+function is_aca_pro_active() {
+    return get_option('aca_license_status') === 'active';
+}
+
 // Include required files
 require_once ACA_PLUGIN_PATH . 'includes/class-aca-activator.php';
 require_once ACA_PLUGIN_PATH . 'includes/class-aca-deactivator.php';

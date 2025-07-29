@@ -2,7 +2,7 @@
 /**
  * Plugin Name: AI Content Agent (ACA)
  * Description: AI-powered content creation and management plugin that generates blog posts, ideas, and manages your content workflow automatically.
- * Version: 1.6.6
+ * Version: 1.6.7
  * Author: AI Content Agent Team
  * License: GPL v2 or later
  * Text Domain: ai-content-agent
@@ -15,7 +15,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Plugin constants
-define('ACA_VERSION', '1.6.6');
+define('ACA_VERSION', '1.6.7');
 define('ACA_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('ACA_PLUGIN_PATH', plugin_dir_path(__FILE__));
 
@@ -124,13 +124,34 @@ class AI_Content_Agent {
         $js_files = glob($assets_dir . 'index-*.js');
         
         if (!empty($js_files)) {
-            // Get the most recent JS file
-            $js_file = end($js_files);
-            $js_filename = basename($js_file);
-            $js_version = ACA_VERSION . '-' . filemtime($js_file);
+            // Get the most recent JS file by modification time
+            $latest_file = '';
+            $latest_time = 0;
             
-            // Enqueue the compiled React app (CSS is inlined in JS)
-            wp_enqueue_script('aca-app', ACA_PLUGIN_URL . 'admin/assets/' . $js_filename, array(), $js_version, true);
+            foreach ($js_files as $file) {
+                $file_time = filemtime($file);
+                if ($file_time > $latest_time) {
+                    $latest_time = $file_time;
+                    $latest_file = $file;
+                }
+            }
+            
+            if ($latest_file) {
+                $js_filename = basename($latest_file);
+                $js_version = ACA_VERSION . '-' . $latest_time;
+                $script_handle = 'aca-app-' . md5($js_filename . $latest_time);
+                
+                // Enqueue the compiled React app (CSS is inlined in JS)
+                wp_enqueue_script($script_handle, ACA_PLUGIN_URL . 'admin/assets/' . $js_filename, array(), $js_version, true);
+                
+                // Pass data to React app
+                wp_localize_script($script_handle, 'acaData', array(
+                    'nonce' => wp_create_nonce('wp_rest'),
+                    'api_url' => rest_url('aca/v1/'),
+                    'admin_url' => admin_url(),
+                    'plugin_url' => ACA_PLUGIN_URL,
+                ));
+            }
         } else {
             // Fallback to old files if new build doesn't exist
             $css_file = ACA_PLUGIN_PATH . 'admin/css/index.css';
@@ -138,18 +159,19 @@ class AI_Content_Agent {
             
             $css_version = ACA_VERSION . '-' . (file_exists($css_file) ? filemtime($css_file) : time());
             $js_version = ACA_VERSION . '-' . (file_exists($js_file) ? filemtime($js_file) : time());
+            $fallback_handle = 'aca-app-fallback-' . md5($js_version);
             
             wp_enqueue_style('aca-styles', ACA_PLUGIN_URL . 'admin/css/index.css', array(), $css_version);
-            wp_enqueue_script('aca-app', ACA_PLUGIN_URL . 'admin/js/index.js', array(), $js_version, true);
+            wp_enqueue_script($fallback_handle, ACA_PLUGIN_URL . 'admin/js/index.js', array(), $js_version, true);
+            
+            // Pass data to React app
+            wp_localize_script($fallback_handle, 'acaData', array(
+                'nonce' => wp_create_nonce('wp_rest'),
+                'api_url' => rest_url('aca/v1/'),
+                'admin_url' => admin_url(),
+                'plugin_url' => ACA_PLUGIN_URL,
+            ));
         }
-        
-        // Pass data to React app
-        wp_localize_script('aca-app', 'acaData', array(
-            'nonce' => wp_create_nonce('wp_rest'),
-            'api_url' => rest_url('aca/v1/'),
-            'admin_url' => admin_url(),
-            'plugin_url' => ACA_PLUGIN_URL,
-        ));
     }
 }
 

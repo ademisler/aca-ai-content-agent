@@ -999,6 +999,8 @@
     return jsxRuntime.exports;
   }
   var jsxRuntimeExports = requireJsxRuntime();
+  var reactExports = requireReact();
+  const React = /* @__PURE__ */ getDefaultExportFromCjs(reactExports);
   var client = {};
   var reactDom = { exports: {} };
   var reactDom_production_min = {};
@@ -7702,7 +7704,6 @@
   }
   var clientExports = requireClient();
   const ReactDOM = /* @__PURE__ */ getDefaultExportFromCjs(clientExports);
-  var reactExports = requireReact();
   const makeApiCall = async (path, options = {}) => {
     if (!window.acaData) {
       console.error("ACA Error: window.acaData is not defined. Plugin scripts may not be loaded correctly.");
@@ -12218,10 +12219,58 @@
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-toast-container", children: toasts.map((toast) => /* @__PURE__ */ jsxRuntimeExports.jsx(Toast, { ...toast, onDismiss: removeToast }, toast.id)) })
     ] });
   };
+  class ErrorBoundary extends React.Component {
+    constructor(props) {
+      super(props);
+      this.state = { hasError: false };
+    }
+    static getDerivedStateFromError(error) {
+      return { hasError: true, error };
+    }
+    componentDidCatch(error, errorInfo) {
+      console.error("ACA Plugin Error:", error, errorInfo);
+    }
+    render() {
+      if (this.state.hasError) {
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+          padding: "20px",
+          background: "#ffebee",
+          border: "1px solid #f44336",
+          borderRadius: "4px",
+          margin: "20px"
+        }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { style: { color: "#d32f2f", margin: "0 0 10px 0" }, children: "AI Content Agent - Loading Error" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: "0 0 10px 0" }, children: "The plugin interface failed to load. This might be a browser cache issue." }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { style: { margin: "0 0 10px 0", fontSize: "12px", color: "#666" }, children: [
+            "Error: ",
+            this.state.error?.message || "Unknown error"
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              onClick: () => window.location.reload(),
+              style: {
+                padding: "8px 16px",
+                background: "#1976d2",
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer"
+              },
+              children: "Reload Page"
+            }
+          )
+        ] });
+      }
+      return this.props.children;
+    }
+  }
   const rootElement = document.getElementById("root");
   if (!rootElement) {
     throw new Error("Could not find root element to mount to");
   }
   const root = ReactDOM.createRoot(rootElement);
-  root.render(/* @__PURE__ */ jsxRuntimeExports.jsx(App, {}));
+  root.render(
+    /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorBoundary, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) })
+  );
 })();

@@ -8,19 +8,15 @@ if (!defined('ABSPATH')) {
 }
 
 // Check if vendor directory exists
-if (!file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
-    error_log('ACA GSC Error: Google API client library not installed. Run: composer install');
-    return;
-}
+if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
+    require_once ACA_PLUGIN_PATH . 'vendor/autoload.php';
 
-require_once ACA_PLUGIN_PATH . 'vendor/autoload.php';
+    use Google\Client as Google_Client;
+    use Google\Service\Webmasters as Google_Service_Webmasters;
+    use Google\Service\Webmasters\SearchAnalyticsQueryRequest as Google_Service_Webmasters_SearchAnalyticsQueryRequest;
+    use Google\Service\Oauth2;
 
-use Google\Client as Google_Client;
-use Google\Service\Webmasters as Google_Service_Webmasters;
-use Google\Service\Webmasters\SearchAnalyticsQueryRequest as Google_Service_Webmasters_SearchAnalyticsQueryRequest;
-use Google\Service\Oauth2;
-
-class ACA_Google_Search_Console {
+    class ACA_Google_Search_Console {
     
     private $client;
     private $service;
@@ -382,5 +378,37 @@ class ACA_Google_Search_Console {
             'site_url' => $site_url,
             'data_date' => date('Y-m-d H:i:s')
         );
+    }
+    }
+} else {
+    // Create a dummy class when dependencies are not available
+    class ACA_Google_Search_Console {
+        public function __construct() {
+            error_log('ACA GSC Error: Google API client library not installed. Run: composer install');
+        }
+        
+        public function get_auth_status() {
+            return array('connected' => false, 'error' => 'Dependencies not installed');
+        }
+        
+        public function get_auth_url() {
+            return new WP_Error('gsc_error', 'Google API client library not installed.');
+        }
+        
+        public function handle_oauth_callback($code) {
+            return new WP_Error('gsc_error', 'Google API client library not installed.');
+        }
+        
+        public function disconnect() {
+            return new WP_Error('gsc_error', 'Google API client library not installed.');
+        }
+        
+        public function get_sites() {
+            return new WP_Error('gsc_error', 'Google API client library not installed.');
+        }
+        
+        public function get_data_for_ai() {
+            return false;
+        }
     }
 }

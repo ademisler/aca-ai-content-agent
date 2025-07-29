@@ -2059,10 +2059,14 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
     }
     
     /**
-     * Make actual API call to Gemini
+     * Make actual API call to Gemini with retry logic and model fallback
      */
-    private function call_gemini_api($api_key, $prompt) {
-        $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+    private function call_gemini_api($api_key, $prompt, $model = 'gemini-2.0-flash', $retry_count = 0) {
+        $max_retries = 3;
+        $retry_delay = 2; // seconds
+        $fallback_model = 'gemini-1.5-pro';
+        
+        $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent";
         
         // Clean and validate prompt
         $clean_prompt = is_string($prompt) ? trim($prompt) : '';
@@ -2085,7 +2089,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             ),
             'generationConfig' => array(
                 'temperature' => 0.7,
-                'maxOutputTokens' => 2048,
+                'maxOutputTokens' => 4096, // Increased from 2048
                 'responseMimeType' => 'application/json'
             )
         );
@@ -2099,23 +2103,48 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             throw new Exception('Failed to encode request data: ' . json_last_error_msg());
         }
         
-                        $response = wp_remote_post($url, array(
-                    'headers' => array(
-                        'Content-Type' => 'application/json',
-                        'x-goog-api-key' => $api_key
-                    ),
-                    'body' => $body,
-                    'timeout' => 90, // Increased timeout for content generation
-                    'blocking' => true,
-                    'sslverify' => true
-                ));
-        
+        $response = wp_remote_post($url, array(
+            'headers' => array(
+                'Content-Type' => 'application/json',
+                'x-goog-api-key' => $api_key
+            ),
+            'body' => $body,
+            'timeout' => 120, // Increased timeout to 2 minutes
+            'blocking' => true,
+            'sslverify' => true
+        ));
+
         if (is_wp_error($response)) {
             error_log('ACA Gemini API WP Error: ' . $response->get_error_message());
             throw new Exception('Gemini API request failed: ' . $response->get_error_message());
         }
         
         $response_code = wp_remote_retrieve_response_code($response);
+        
+        // Handle 503 and other overload errors with retry logic
+        if ($response_code === 503 || $response_code === 429) {
+            $error_body = wp_remote_retrieve_body($response);
+            error_log("ACA Gemini API Overload Error (Code {$response_code}): " . substr($error_body, 0, 500));
+            
+            // Check if we should retry
+            if ($retry_count < $max_retries) {
+                // Try fallback model on first retry
+                if ($retry_count === 0 && $model === 'gemini-2.0-flash') {
+                    error_log("ACA: Trying fallback model {$fallback_model}");
+                    sleep($retry_delay);
+                    return $this->call_gemini_api($api_key, $prompt, $fallback_model, $retry_count + 1);
+                }
+                
+                // Exponential backoff
+                $delay = $retry_delay * pow(2, $retry_count);
+                error_log("ACA: Retrying in {$delay} seconds... (attempt " . ($retry_count + 1) . "/{$max_retries})");
+                sleep($delay);
+                return $this->call_gemini_api($api_key, $prompt, $model, $retry_count + 1);
+            }
+            
+            throw new Exception("Gemini API service unavailable after {$max_retries} attempts. Error code: {$response_code} - " . substr($error_body, 0, 200));
+        }
+        
         if ($response_code !== 200) {
             $error_body = wp_remote_retrieve_body($response);
             error_log('ACA Gemini API HTTP Error: Code ' . $response_code . ', Body: ' . substr($error_body, 0, 500));

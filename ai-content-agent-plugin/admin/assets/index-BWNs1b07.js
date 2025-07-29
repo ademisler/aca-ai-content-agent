@@ -11993,8 +11993,24 @@
         addLogEntry("draft_created", `Created draft: "${draft.title}" with full WordPress integration`, "FileText");
       } catch (error) {
         console.error("Error creating draft:", error);
-        const errorMessage = error instanceof Error ? error.message : "Failed to create draft";
-        addToast({ message: `Failed to create draft: ${errorMessage}`, type: "error" });
+        let errorMessage = "Failed to create draft. Please try again.";
+        if (error instanceof Error) {
+          const message = error.message.toLowerCase();
+          if (message.includes("503") || message.includes("overloaded") || message.includes("unavailable")) {
+            errorMessage = "🤖 AI service is temporarily overloaded. Please wait a moment and try again.";
+          } else if (message.includes("timeout")) {
+            errorMessage = "⏱️ Request timed out. The AI service might be busy. Please try again.";
+          } else if (message.includes("api key")) {
+            errorMessage = "🔑 AI API key is not configured. Please check your settings.";
+          } else if (message.includes("style guide")) {
+            errorMessage = "📋 Style guide is required. Please create one first.";
+          } else if (message.includes("after") && message.includes("attempts")) {
+            errorMessage = "🔄 AI service is currently unavailable after multiple attempts. Please try again in a few minutes.";
+          } else if (message.includes("ai content generation failed")) {
+            errorMessage = "🤖 AI content generation failed. The service might be temporarily unavailable. Please try again.";
+          }
+        }
+        addToast({ message: errorMessage, type: "error" });
       } finally {
         setIsLoading((prev) => ({ ...prev, [`draft_${ideaId}`]: false }));
       }

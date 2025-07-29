@@ -18,7 +18,13 @@ export const setGeminiApiKey = (key: string) => {
     }
 };
 
-const textModel = "gemini-2.0-flash";
+// Model configuration with fallbacks
+const modelConfig = {
+    primary: "gemini-2.0-flash",
+    fallback: "gemini-1.5-pro",
+    maxRetries: 3,
+    retryDelay: 2000, // 2 seconds
+};
 
 const checkAi = () => {
     if (!genAI) {
@@ -28,13 +34,62 @@ const checkAi = () => {
 }
 
 /**
+ * Make API call with retry logic and model fallback
+ */
+const makeApiCallWithRetry = async (
+    ai: GoogleGenerativeAI, 
+    modelName: string, 
+    prompt: any, 
+    config: any,
+    retryCount = 0
+): Promise<string> => {
+    try {
+        const model = ai.getGenerativeModel({ model: modelName });
+        const result = await model.generateContent({
+            contents: [{ role: "user", parts: [{ text: prompt }] }],
+            generationConfig: config,
+        });
+        
+        return result.response.text() || '';
+    } catch (error: any) {
+        console.error(`ACA: API call failed with ${modelName}, attempt ${retryCount + 1}:`, error);
+        
+        // Check if it's a 503 or overload error
+        const isOverloadError = (
+            error.message?.includes('503') || 
+            error.message?.includes('overloaded') ||
+            error.message?.includes('UNAVAILABLE') ||
+            error.status === 503
+        );
+        
+        // If it's overload error and we haven't exhausted retries
+        if (isOverloadError && retryCount < modelConfig.maxRetries) {
+            // Try fallback model on first retry
+            if (retryCount === 0 && modelName === modelConfig.primary) {
+                console.log(`ACA: Trying fallback model ${modelConfig.fallback}`);
+                await new Promise(resolve => setTimeout(resolve, modelConfig.retryDelay));
+                return makeApiCallWithRetry(ai, modelConfig.fallback, prompt, config, retryCount + 1);
+            }
+            
+            // Retry with exponential backoff
+            const delay = modelConfig.retryDelay * Math.pow(2, retryCount);
+            console.log(`ACA: Retrying in ${delay}ms...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+            return makeApiCallWithRetry(ai, modelName, prompt, config, retryCount + 1);
+        }
+        
+        // If all retries failed, throw the error with more context
+        throw new Error(`AI service unavailable after ${retryCount + 1} attempts. ${error.message || 'Unknown error'}`);
+    }
+};
+
+/**
  * Analyzes the style of a website's content to create a style guide.
  * This simulates reading the 20 most recent posts to determine the style.
  * @returns A JSON string representing the StyleGuide object.
  */
 const analyzeStyle = async (): Promise<string> => {
     const ai = checkAi();
-    const model = ai.getGenerativeModel({ model: textModel });
     
     const prompt = `
         Analyze the common writing style of a professional tech and marketing blog and generate a JSON object that describes it. 
@@ -49,24 +104,21 @@ const analyzeStyle = async (): Promise<string> => {
         }
     `;
 
-    const result = await model.generateContent({
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
-        generationConfig: {
-            responseMimeType: "application/json",
-            responseSchema: {
-                type: SchemaType.OBJECT,
-                properties: {
-                    tone: { type: SchemaType.STRING },
-                    sentenceStructure: { type: SchemaType.STRING },
-                    paragraphLength: { type: SchemaType.STRING },
-                    formattingStyle: { type: SchemaType.STRING },
-                },
-                required: ["tone", "sentenceStructure", "paragraphLength", "formattingStyle"],
+    const config = {
+        responseMimeType: "application/json",
+        responseSchema: {
+            type: SchemaType.OBJECT,
+            properties: {
+                tone: { type: SchemaType.STRING },
+                sentenceStructure: { type: SchemaType.STRING },
+                paragraphLength: { type: SchemaType.STRING },
+                formattingStyle: { type: SchemaType.STRING },
             },
+            required: ["tone", "sentenceStructure", "paragraphLength", "formattingStyle"],
         },
-    });
+    };
 
-    return result.response.text() || '';
+    return makeApiCallWithRetry(ai, modelConfig.primary, prompt, config);
 };
 
 /**
@@ -79,7 +131,6 @@ const analyzeStyle = async (): Promise<string> => {
  */
 const generateIdeas = async (styleGuideJson: string, existingTitles: string[], count: number = 5, searchConsoleData?: { topQueries: string[], underperformingPages: string[] }): Promise<string> => {
     const ai = checkAi();
-    const model = ai.getGenerativeModel({ model: textModel });
     
     let searchConsolePrompt = "";
     if (searchConsoleData) {
@@ -104,18 +155,15 @@ const generateIdeas = async (styleGuideJson: string, existingTitles: string[], c
         ${existingTitles.join(', ')}
     `;
 
-    const result = await model.generateContent({
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
-        generationConfig: {
-            responseMimeType: "application/json",
-            responseSchema: {
-                type: SchemaType.ARRAY,
-                items: { type: SchemaType.STRING }
-            }
-        },
-    });
+    const config = {
+        responseMimeType: "application/json",
+        responseSchema: {
+            type: SchemaType.ARRAY,
+            items: { type: SchemaType.STRING }
+        }
+    };
 
-    return result.response.text() || '';
+    return makeApiCallWithRetry(ai, modelConfig.primary, prompt, config);
 };
 
 /**
@@ -126,7 +174,6 @@ const generateIdeas = async (styleGuideJson: string, existingTitles: string[], c
  */
 const generateSimilarIdeas = async (baseTitle: string, existingTitles: string[]): Promise<string> => {
     const ai = checkAi();
-    const model = ai.getGenerativeModel({ model: textModel });
     
     const prompt = `
         Based on the blog post title "${baseTitle}", generate a JSON array of 3 unique and creative new blog post titles that are similar in topic or angle.
@@ -135,18 +182,15 @@ const generateSimilarIdeas = async (baseTitle: string, existingTitles: string[])
         The output must be a valid JSON array of strings. For example: ["New Title 1", "New Title 2", "New Title 3"]
     `;
 
-    const result = await model.generateContent({
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
-        generationConfig: {
-            responseMimeType: "application/json",
-            responseSchema: {
-                type: SchemaType.ARRAY,
-                items: { type: SchemaType.STRING }
-            }
-        },
-    });
+    const config = {
+        responseMimeType: "application/json",
+        responseSchema: {
+            type: SchemaType.ARRAY,
+            items: { type: SchemaType.STRING }
+        }
+    };
 
-    return result.response.text() || '';
+    return makeApiCallWithRetry(ai, modelConfig.primary, prompt, config);
 };
 
 /**
@@ -162,10 +206,6 @@ const createDraft = async (
     existingPublishedPosts: { title: string; url: string; content: string }[]
 ): Promise<string> => {
     const ai = checkAi();
-    const model = ai.getGenerativeModel({ 
-        model: textModel,
-        systemInstruction: "You are a professional blog writer and SEO expert. Your persona is that of an experienced human writer. Under NO circumstances should you ever mention that you are an AI or a language model. Your response must be direct and in the requested format, written from a human perspective."
-    });
     
     const internalLinkPrompt = existingPublishedPosts.length > 0 ?
     `5.  **Internal Links:** Directly embed at least 3 relevant internal links within the article content. The links MUST be in markdown format: [anchor text](URL). Choose the most appropriate anchor text from the content you write. You must link to the provided existing published posts. Analyze their content to ensure the links are contextually appropriate. Do NOT add a list of links at the end; they must be embedded in the text.
@@ -206,27 +246,24 @@ ${p.content}
         }
     `;
 
-    const result = await model.generateContent({
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
-        generationConfig: {
-            responseMimeType: "application/json",
-            responseSchema: {
-                type: SchemaType.OBJECT,
-                properties: {
-                    content: { type: SchemaType.STRING },
-                    metaTitle: { type: SchemaType.STRING },
-                    metaDescription: { type: SchemaType.STRING },
-                    focusKeywords: {
-                        type: SchemaType.ARRAY,
-                        items: { type: SchemaType.STRING }
-                    },
+    const config = {
+        responseMimeType: "application/json",
+        responseSchema: {
+            type: SchemaType.OBJECT,
+            properties: {
+                content: { type: SchemaType.STRING },
+                metaTitle: { type: SchemaType.STRING },
+                metaDescription: { type: SchemaType.STRING },
+                focusKeywords: {
+                    type: SchemaType.ARRAY,
+                    items: { type: SchemaType.STRING }
                 },
-                required: ["content", "metaTitle", "metaDescription", "focusKeywords"]
-            }
-        },
-    });
+            },
+            required: ["content", "metaTitle", "metaDescription", "focusKeywords"]
+        }
+    };
 
-    return result.response.text() || '';
+    return makeApiCallWithRetry(ai, modelConfig.primary, prompt, config);
 };
 
 /**

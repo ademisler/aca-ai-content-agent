@@ -58,6 +58,15 @@ const App: React.FC = () => {
     const drafts = posts.filter(p => p.status === 'draft');
     const publishedPosts = posts.filter(p => p.status === 'published');
 
+    const addToast = useCallback((toast: Omit<ToastData, 'id'>) => {
+        const id = Date.now();
+        setToasts(prev => [...prev, { ...toast, id }]);
+    }, []);
+
+    const showToast = useCallback((message: string, type: 'success' | 'error' | 'warning' | 'info') => {
+        addToast({ message, type });
+    }, [addToast]);
+
     useEffect(() => {
         // Check if WordPress localized data is available
         if (!window.acaData) {
@@ -112,15 +121,6 @@ const App: React.FC = () => {
         
         loadInitialData();
     }, []);
-
-    const addToast = useCallback((toast: Omit<ToastData, 'id'>) => {
-        const id = Date.now();
-        setToasts(prev => [...prev, { ...toast, id }]);
-    }, []);
-
-    const showToast = useCallback((message: string, type: 'success' | 'error' | 'warning' | 'info') => {
-        addToast({ message, type });
-    }, [addToast]);
     
     const addLogEntry = useCallback((type: ActivityLogType, details: string, icon: IconName) => {
         const newLog: ActivityLog = {
@@ -356,7 +356,8 @@ const App: React.FC = () => {
                 description: description?.trim() || '',
                 status: 'active',
                 createdAt: new Date().toISOString(),
-                tags: []
+                tags: [],
+                source: 'manual'
             };
             
             const createdIdea = await ideasApi.create(newIdea);

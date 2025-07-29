@@ -1,15 +1,19 @@
 <?php
 /**
  * Plugin Name: AI Content Agent
- * Plugin URI: https://ademisler.com/en
- * Description: AI-powered content creation and management plugin that generates blog posts, ideas, and manages your content workflow automatically with an intelligent Content Calendar system and real Google Search Console integration.
- * Version: 1.9.0
+ * Plugin URI: https://github.com/ademisler/aca-ai-content-agent
+ * Description: AI-powered content creation and management plugin that generates blog posts, ideas, and manages your content workflow automatically with Google Search Console integration and Pro features.
+ * Version: 1.9.1
  * Author: Adem Isler
  * Author URI: https://ademisler.com/en
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: ai-content-agent
  * Domain Path: /languages
+ * Requires at least: 5.0
+ * Tested up to: 6.4
+ * Requires PHP: 7.4
+ * Network: false
  */
 
 // Prevent direct access
@@ -17,8 +21,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Plugin constants
-define('ACA_VERSION', '1.9.0');
+// Define plugin constants
+define('ACA_VERSION', '1.9.1');
 define('ACA_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('ACA_PLUGIN_PATH', plugin_dir_path(__FILE__));
 

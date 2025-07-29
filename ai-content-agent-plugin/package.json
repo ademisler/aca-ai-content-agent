@@ -1,7 +1,8 @@
 {
-  "name": "ai-content-agent-wordpress",
+  "name": "ai-content-agent",
+  "version": "1.9.1",
+  "description": "AI-powered WordPress content creation plugin with Pro licensing",
   "private": true,
-  "version": "1.8.0",
   "type": "module",
   "scripts": {
     "dev": "vite",

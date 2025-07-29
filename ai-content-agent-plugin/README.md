@@ -1,164 +1,20 @@
-# AI Content Agent (ACA) WordPress Plugin
+# AI Content Agent for WordPress
 
-![Version](https://img.shields.io/badge/version-1.8.0-blue.svg)
-![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)
-![PHP](https://img.shields.io/badge/PHP-7.4%2B-blue.svg)
-![License](https://img.shields.io/badge/license-GPL%20v2%2B-green.svg)
+**Version:** 1.9.1  
+**Requires:** WordPress 5.0+, PHP 7.4+  
+**License:** GPL v2 or later
 
-AI-powered content creation and management plugin that generates blog posts, ideas, and manages your content workflow automatically with an intelligent Content Calendar system and **real Google Search Console integration**.
+AI Content Agent (ACA) is a powerful WordPress plugin that leverages Google's Gemini AI to automate content creation, SEO optimization, and publishing workflows.
 
-## 🚀 Latest Updates - v1.8.0 - COMPREHENSIVE FEATURE ENHANCEMENTS & IMPROVEMENTS 🚀
+## 🚀 Latest Updates - v1.9.1
 
-### 🎯 **DASHBOARD STATISTICS OPTIMIZATION**
-- **Active Ideas Count**: Dashboard now shows only active ideas count instead of all ideas (active + archived)
-- **Better Statistics**: More intuitive statistics display for better user understanding
-- **Enhanced User Experience**: Clearer representation of actual working content pipeline
+### 🎨 Enhanced Settings Page & Pro Feature Visibility
+- **Reorganized Settings Layout**: User-focused section ordering for better workflow
+- **Pro Feature Badges**: Clear visual indicators for premium features
+- **Improved User Journey**: License activation → Feature configuration flow
+- **Enhanced Google Search Console Integration**: Pro badge and upgrade prompts
 
-### 👨‍💻 **AUTHOR & BRANDING UPDATES**
-- **Author Information**: Updated plugin author to Adem Isler across all files
-- **Website Integration**: Added author website (ademisler.com/en) to plugin header and documentation
-- **Proper Attribution**: Updated all documentation files with correct authorship and contact information
-- **Version Consistency**: Updated version to 1.8.0 across all files for consistency
-
-### ✅ **FEATURE VERIFICATION & OPTIMIZATION**
-- **Idea Board Archive System**: Verified and optimized existing archive functionality
-- **Calendar Drag & Drop**: Confirmed advanced drag & drop for published posts is working correctly
-- **Automation Settings**: Verified comprehensive automation configuration options are properly implemented
-- **Content Analysis Integration**: Confirmed content analysis frequency settings work with automation modes
-- **Quick Actions Navigation**: Verified automatic navigation to Idea Board after idea generation
-- **Loading Animations**: Confirmed comprehensive loading animations for Create Draft button
-- **Image Source Ordering**: Verified proper ordering with Pexels as default and AI generated as last option
-- **Debug Panel Documentation**: Confirmed excellent documentation for developers and advanced users
-
-### 🔧 **TECHNICAL IMPROVEMENTS**
-- **Code Review**: Comprehensive review of all plugin features and functionality
-- **Quality Assurance**: Verified all requested features are properly implemented and working
-- **Documentation Updates**: Updated all documentation to reflect current state and authorship
-- **Version Management**: Proper version increment and consistency across all files
-
-## 🚀 Previous Updates - v1.7.0 - COMPREHENSIVE FEATURE ENHANCEMENTS & IMPROVEMENTS 🚀
-
-### 🎯 **IDEA BOARD ARCHIVE SYSTEM OVERHAUL**
-- **Complete Archive Fix**: Fixed idea board archive system to show all generated ideas including archived ones
-- **Restore Functionality**: Added ability to restore archived ideas back to active status
-- **Permanent Delete**: Added option to permanently delete ideas from archive with confirmation
-- **Enhanced API**: Updated backend API to properly handle idea archiving vs permanent deletion
-- **Better Organization**: Improved archived ideas interface with restore and delete buttons
-
-### ⚡ **ENHANCED NAVIGATION & USER FLOW**
-- **Smart Navigation**: Quick Actions "Generate Ideas" button now automatically navigates to Idea Board after completion
-- **Improved User Journey**: Streamlined workflow from dashboard to idea management
-- **Better UX Flow**: Enhanced user experience with logical navigation patterns
-
-### 📅 **ADVANCED CALENDAR FUNCTIONALITY**
-- **Published Post Drag & Drop**: Added ability to drag and move published posts on calendar
-- **Smart Date Handling**: Intelligent handling of past vs future dates for published posts
-- **Convert to Draft**: Moving published posts to future dates converts them to scheduled drafts
-- **Date Updates**: Moving published posts to past dates updates their publish date
-- **Enhanced Confirmations**: Added confirmation dialogs for all calendar operations
-
-### ⚙️ **COMPREHENSIVE AUTOMATION SETTINGS**
-- **Semi-Automatic Frequency**: Added idea generation frequency settings (daily, weekly, monthly)
-- **Full-Automatic Configuration**: Added daily post count and publishing frequency settings
-- **Content Analysis Control**: Added content analysis frequency settings with automation mode integration
-- **Detailed Options**: Comprehensive automation configuration for all modes
-- **Better User Guidance**: Clear explanations for all automation settings
-
-### 🎨 **IMAGE SOURCE OPTIMIZATION**
-- **Reordered Options**: Moved AI image generation to last position (most complex option)
-- **Simplified Defaults**: Changed default image source to Pexels (simplest option)
-- **Better User Experience**: Prioritized easier-to-configure options first
-
-### 🛠️ **DEBUG PANEL IMPROVEMENTS**
-- **Enhanced Documentation**: Added clear explanation of debug panel purpose
-- **User Guidance**: Indicated that debug panel is for developers and advanced users
-- **Better Descriptions**: Improved tooltips and help text for debug functions
-
-### 🔧 **TECHNICAL IMPROVEMENTS**
-- **API Enhancements**: Added new REST API endpoints for advanced functionality
-- **Backend Optimizations**: Improved database queries and data handling
-- **Frontend Optimizations**: Enhanced React component performance and state management
-- **Type Safety**: Updated TypeScript types for new features
-
-### ✅ **PRODUCTION READINESS**
-- **Comprehensive Testing**: All new features thoroughly tested
-- **Backward Compatibility**: Maintained compatibility with existing installations
-- **Error Handling**: Enhanced error handling throughout the application
-- **Performance**: Optimized performance for all new features
-
-## 🚀 Previous Updates - v1.7.0 - COMPREHENSIVE FEATURE ENHANCEMENTS & IMPROVEMENTS 🚀
-
-### 🎯 **IDEA BOARD ARCHIVE SYSTEM OVERHAUL**
-- **Complete Archive Fix**: Fixed idea board archive system to show all generated ideas including archived ones
-- **Restore Functionality**: Added ability to restore archived ideas back to active status
-- **Permanent Delete**: Added option to permanently delete ideas from archive with confirmation
-- **Enhanced API**: Updated backend API to properly handle idea archiving vs permanent deletion
-- **Better Organization**: Improved archived ideas interface with restore and delete buttons
-
-### ⚡ **ENHANCED NAVIGATION & USER FLOW**
-- **Smart Navigation**: Quick Actions "Generate Ideas" button now automatically navigates to Idea Board after completion
-- **Improved User Journey**: Streamlined workflow from dashboard to idea management
-- **Better UX Flow**: Enhanced user experience with logical navigation patterns
-
-### 📋 **IDEA MANAGEMENT ENHANCEMENTS**
-- **Archive Management**: Added ability to restore archived ideas back to active status
-- **Permanent Deletion**: Added option to permanently delete ideas from archive with confirmation
-- **Better Organization**: Improved archived ideas interface with restore and delete buttons
-- **User Feedback**: Enhanced user feedback with confirmation dialogs and success messages
-
-### ⚡ **LOADING INDICATOR IMPROVEMENTS**
-- **Enhanced Create Draft UX**: Added comprehensive loading indicators for draft creation process
-- **Progress Visualization**: Implemented animated progress bars and shimmer effects
-- **Informative Messages**: Added contextual loading messages and tooltips
-- **Visual Feedback**: Improved button states and card overlays during processing
-
-### 🎯 **CALENDAR FUNCTIONALITY**
-- **Smart Auto-Publish**: Automatically publishes drafts when dragged to past dates with user confirmation
-- **Improved Drag & Drop**: Enhanced drag and drop experience with better visual feedback
-- **Date Logic**: Intelligent date comparison and automatic status management
-- **User Confirmation**: Added confirmation dialogs for auto-publish actions
-
-### ✅ **PRODUCTION READINESS**
-- **Comprehensive Testing**: All new features thoroughly tested
-- **Backward Compatibility**: Maintained compatibility with existing installations
-- **Error Handling**: Enhanced error handling throughout the application
-- **Performance**: Optimized performance for all new features
-
-## 🚀 Previous Updates - v1.6.9 - UI/UX IMPROVEMENTS & BUG FIXES 🚀
-
-### 🔄 **GEMINI API RETRY LOGIC IMPLEMENTATION**
-- **Intelligent Retry System**: Added comprehensive retry logic with exponential backoff for 503/429 errors
-- **Model Fallback Strategy**: Automatic fallback from gemini-2.0-flash to gemini-1.5-pro when overloaded
-- **Enhanced Error Detection**: Smart detection for overload, timeout, and API key configuration issues
-- **Maximum Retry Attempts**: Up to 3 retry attempts with intelligent delay strategy (2s, 4s, 8s)
-- **Production Resilience**: Enhanced API call resilience for stable production environments
-
-### 🛡️ **ERROR HANDLING IMPROVEMENTS**
-- **User-Friendly Messages**: Contextual error messages with emojis and clear action guidance
-- **Specific Error Scenarios**: Tailored messages for different failure types (overload, timeout, API key)
-- **Better Timeout Handling**: Increased timeout limits (120 seconds) for complex content generation
-- **Enhanced Token Limits**: Increased maxOutputTokens to 4096 for longer, more detailed content
-- **Graceful Degradation**: Smooth user experience even when AI services are temporarily unavailable
-
-### 💡 **FRONTEND ENHANCEMENTS**
-- **Intelligent Error Parsing**: Smart error message analysis for better user feedback
-- **Context-Aware Guidance**: Specific instructions based on error type and user context
-- **Improved Loading States**: Better visual feedback during retry attempts and fallback operations
-- **Recovery Instructions**: Clear guidance for users on how to resolve common issues
-
-### 🔧 **BACKEND OPTIMIZATIONS**
-- **Enhanced PHP Retry Logic**: Robust server-side retry mechanism with model fallback support
-- **Improved Error Logging**: Comprehensive error tracking and debugging capabilities
-- **Better API Response Validation**: Enhanced validation and error propagation throughout the system
-- **Optimized Performance**: Better timeout and token limits for improved content generation speed
-
-### ✅ **PRODUCTION READINESS**
-- **Robust Overload Handling**: Automatic handling of Gemini API overload situations without user intervention
-- **Automatic Model Switching**: Seamless fallback to stable models when primary model is unavailable
-- **Enhanced User Experience**: Minimal disruption during AI service fluctuations
-- **Comprehensive Monitoring**: Detailed error logging for system administrators and debugging
-
-## 📋 Features
+## 🚀 Features
 
 ### 🤖 **AI-Powered Content Creation**
 - **Gemini AI Integration**: Advanced content generation using Google's Gemini AI with retry logic

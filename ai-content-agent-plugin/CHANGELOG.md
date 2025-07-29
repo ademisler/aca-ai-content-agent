@@ -1,15 +1,40 @@
 # Changelog
 
-All notable changes to the AI Content Agent WordPress plugin will be documented in this file.
+All notable changes to AI Content Agent will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [1.9.1] - 2024-12-19
 
-## 📁 Release Management
+### 🎨 MAJOR UX/UI IMPROVEMENTS: Enhanced Settings Layout & Pro Feature Visibility
 
-### Current Release
+#### ✨ Settings Page Reorganization
+- **User-Focused Layout**: Completely reorganized Settings sections in logical priority order
+  1. **Pro License Activation** - Top priority for feature unlocking
+  2. **Automation Mode** - Core functionality with Pro badge
+  3. **Integrations & Services** - External connections and API keys
+  4. **Content Analysis Settings** - Content optimization controls
+  5. **Debug Panel** - Developer tools (bottom priority)
 
-## [1.8.0] - 2025-01-29 - COMPREHENSIVE FEATURE ENHANCEMENTS & IMPROVEMENTS 🚀
+#### 🏷️ Enhanced Pro Feature Visibility
+- **PRO Badges**: Added visual Pro badges to Automation Mode section
+- **Google Search Console Pro Badge**: Clear Pro labeling for GSC integration
+- **Conditional Rendering**: Enhanced UpgradePrompt for Google Search Console
+- **Visual Distinction**: Premium features now clearly distinguished from free features
+
+#### 🔧 User Experience Enhancements
+- **Improved Navigation Flow**: License activation → Feature configuration logic
+- **Better Visual Hierarchy**: Clear section organization and priority
+- **Enhanced Accessibility**: Better labeling and visual feedback
+- **Optimized User Journey**: Streamlined path from free to pro features
+
+#### 📱 Technical Improvements
+- **Component Architecture**: Enhanced Settings.tsx structure
+- **Build Optimization**: Updated asset compilation and deployment
+- **Code Organization**: Better separation of free vs pro feature rendering
+- **Performance**: Optimized conditional rendering logic
+
+---
+
+## [1.9.0] - 2024-12-19
 
 ### 🎯 **DASHBOARD STATISTICS OPTIMIZATION**
 - **Active Ideas Count**: Dashboard now shows only active ideas count instead of all ideas (active + archived)
@@ -20,7 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Author Information**: Updated plugin author information to Adem Isler across all files
 - **Website Integration**: Added author website (ademisler.com/en) to plugin header and documentation
 - **Proper Attribution**: Updated all documentation files with correct authorship and contact information
-- **Version Consistency**: Updated version to 1.8.0 across all files for consistency
+- **Version Consistency**: Updated version to 1.9.0 across all files for consistency
 
 ### ✅ **FEATURE VERIFICATION & OPTIMIZATION**
 - **Idea Board Archive System**: Verified and optimized existing archive functionality
@@ -37,6 +62,61 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Quality Assurance**: Verified all requested features are properly implemented and working
 - **Documentation Updates**: Updated all documentation to reflect current state and authorship
 - **Version Management**: Proper version increment and consistency across all files
+
+## [1.8.0] - 2025-01-29 - COMPREHENSIVE FEATURE ENHANCEMENTS & IMPROVEMENTS 🚀
+
+### 🎯 **IDEA BOARD ARCHIVE SYSTEM OVERHAUL**
+- **Complete Archive Fix**: Fixed idea board archive system to show all generated ideas including archived ones
+- **Restore Functionality**: Added ability to restore archived ideas back to active status with one click
+- **Permanent Delete**: Added option to permanently delete ideas from archive with confirmation dialog
+- **Enhanced API**: Updated backend API to properly handle idea archiving vs permanent deletion
+- **Better Organization**: Improved archived ideas interface with dedicated restore and delete action buttons
+
+### ⚡ **ENHANCED NAVIGATION & USER FLOW**
+- **Smart Navigation**: Quick Actions "Generate Ideas" button now automatically navigates to Idea Board after completion
+- **Improved User Journey**: Streamlined workflow from dashboard to idea management for better user experience
+- **Better UX Flow**: Enhanced user experience with logical navigation patterns and intuitive workflows
+
+### 📅 **ADVANCED CALENDAR FUNCTIONALITY**
+- **Published Post Drag & Drop**: Added ability to drag and move published posts on calendar for better content management
+- **Smart Date Handling**: Intelligent handling of past vs future dates for published posts with appropriate actions
+- **Convert to Draft**: Moving published posts to future dates automatically converts them to scheduled drafts
+- **Date Updates**: Moving published posts to past dates updates their publish date with confirmation
+- **Enhanced Confirmations**: Added confirmation dialogs for all calendar operations to prevent accidental changes
+
+### ⚙️ **COMPREHENSIVE AUTOMATION SETTINGS**
+- **Semi-Automatic Frequency**: Added idea generation frequency settings (daily, weekly, monthly) for better control
+- **Full-Automatic Configuration**: Added daily post count and publishing frequency settings for complete automation
+- **Content Analysis Control**: Added content analysis frequency settings with automation mode integration
+- **Detailed Options**: Comprehensive automation configuration options for all automation modes
+- **Better User Guidance**: Clear explanations and help text for all automation settings and options
+
+### 🎨 **IMAGE SOURCE OPTIMIZATION**
+- **Reordered Options**: Moved AI image generation to last position as it's the most complex option to configure
+- **Simplified Defaults**: Changed default image source to Pexels as the simplest and most accessible option
+- **Better User Experience**: Prioritized easier-to-configure options first for improved user onboarding
+
+### 🛠️ **DEBUG PANEL IMPROVEMENTS**
+- **Enhanced Documentation**: Added clear explanation of debug panel purpose and target audience
+- **User Guidance**: Clearly indicated that debug panel is designed for developers and advanced users
+- **Better Descriptions**: Improved tooltips, help text, and descriptions for all debug functions
+
+### 👨‍💻 **AUTHOR & BRANDING UPDATES**
+- **Author Information**: Updated plugin author information to Adem Isler across all files
+- **Website Integration**: Added author website (ademisler.com/en) to plugin header and documentation
+- **Proper Attribution**: Updated all documentation files with correct authorship and contact information
+
+### 🔧 **TECHNICAL IMPROVEMENTS**
+- **API Enhancements**: Added new REST API endpoints for idea restoration, permanent deletion, and post date updates
+- **Backend Optimizations**: Improved database queries, data handling, and error management
+- **Frontend Optimizations**: Enhanced React component performance, state management, and user interactions
+- **Type Safety**: Updated TypeScript types and interfaces for all new features and settings
+
+### ✅ **PRODUCTION READINESS**
+- **Comprehensive Testing**: All new features thoroughly tested across different scenarios and use cases
+- **Backward Compatibility**: Maintained full compatibility with existing installations and settings
+- **Error Handling**: Enhanced error handling and user feedback throughout the application
+- **Performance**: Optimized performance for all new features without impacting existing functionality
 
 ## [1.7.0] - 2025-01-29 - COMPREHENSIVE FEATURE ENHANCEMENTS & IMPROVEMENTS 🚀
 

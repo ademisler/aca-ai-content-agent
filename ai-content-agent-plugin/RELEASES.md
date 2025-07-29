@@ -1,8 +1,31 @@
-# AI Content Agent - Releases
+# AI Content Agent - Release Management
 
-## Current Release
+## 📦 Current Release
 
-### v1.8.0 - Comprehensive Feature Enhancements & Improvements
+### v1.9.1 - Enhanced UX and Pro Features (Latest)
+- **File**: `ai-content-agent-v1.9.1-enhanced-ux-and-pro-features.zip`
+- **Release Date**: December 19, 2024
+- **Status**: ✅ Production Ready
+- **Size**: ~360KB
+
+#### 🎨 Key Features:
+- **Enhanced Settings Layout**: User-focused section reorganization
+- **Pro Feature Badges**: Clear visual indicators for premium features  
+- **Improved User Journey**: License activation → Feature configuration flow
+- **Google Search Console Pro Badge**: Enhanced Pro feature visibility
+- **Optimized UX/UI**: Better accessibility and visual hierarchy
+
+---
+
+## 📋 Previous Releases
+
+### v1.9.0 - Pro Features & License System
+- **File**: `ai-content-agent-v1.9.0-initial-pro-features.zip` (Archived)
+- **Release Date**: December 19, 2024
+- **Status**: 🗄️ Archived - Superseded by v1.9.1
+- **Features**: Initial Pro license system implementation
+
+### v1.8.0 - Comprehensive Feature Enhancements
 - **File**: `ai-content-agent-v1.8.0-comprehensive-feature-enhancements-and-improvements.zip`
 - **Size**: ~340KB
 - **Release Date**: January 29, 2025

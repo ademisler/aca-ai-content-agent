@@ -1,140 +1,38 @@
-=== AI Content Agent (ACA) ===
+=== AI Content Agent ===
 Contributors: ademisler
-Tags: ai, content, automation, seo, calendar
+Donate link: https://ademisler.com/en
+Tags: ai, content, automation, gemini, seo, pro, license
 Requires at least: 5.0
-Tested up to: 6.8
+Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 1.8.0
-License: GPLv2 or later
+Stable tag: 1.9.1
+License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-AI-powered content creation and management plugin with intelligent Content Calendar and real Google Search Console integration.
+AI-powered WordPress plugin with Pro licensing for automated content creation, SEO optimization, and Google Search Console integration.
 
 == Description ==
 
-## Latest Updates - v1.8.0
+AI Content Agent (ACA) transforms your WordPress site into an intelligent content creation powerhouse using Google's Gemini AI technology.
 
-### Dashboard & Statistics
-- Active ideas count display (excludes archived ideas)
-- Improved statistics for better user understanding
-- Enhanced content pipeline representation
-
-### Author & Branding
-- Updated plugin author to Adem Isler
-- Added author website integration
-- Consistent documentation and attribution
-
-### Feature Verification
-- Archive system optimization
-- Calendar drag & drop functionality
-- Automation settings verification
-- Content analysis integration
-- Quick actions navigation
-- Loading animations and UI improvements
-
-## Previous Updates - v1.6.7
-
-### Cache & Error Fixes
-- Fixed WordPress cached JavaScript file issues
-- Updated file selection logic for latest JS files
-- Added React ErrorBoundary for better error handling
-- Resolved script loading and initialization problems
-
-= 🔍 Google Search Console Integration =
-
-Connect your actual Google Search Console account for data-driven content creation:
-
-* **Real-Time Data**: Access actual GSC data for informed content decisions
-* **Search Performance**: Monitor clicks, impressions, CTR, and average position
-* **Keyword Insights**: Discover top-performing and underperforming keywords
-* **Content Optimization**: AI suggestions based on actual search data
-
-= 🤖 AI-Powered Content Creation =
-
-Advanced AI integration with robust error handling:
-
-* **Gemini AI Integration**: Google's Gemini AI with intelligent retry logic
-* **Smart Idea Generation**: AI suggests content ideas based on your niche and trends
-* **Auto-Draft Creation**: Transform ideas into full blog posts automatically with error resilience
-* **SEO Optimization**: Built-in SEO analysis and optimization suggestions
-* **Robust API Handling**: Intelligent error handling and automatic retry mechanisms
-
-= 📅 Intelligent Content Calendar =
-
-Visual content management with drag-and-drop functionality:
-
-* **Drag & Drop Scheduling**: Intuitive interface for content scheduling
-* **Multi-Status Support**: Manage drafts, scheduled posts, and published content
-* **Visual Timeline**: Clear representation of your content pipeline
-* **Smart Rescheduling**: Easy rescheduling with drag-and-drop functionality
-
-= ⚙️ Automation Modes =
-
-Choose your preferred level of automation:
-
-* **Manual Mode**: Full manual control over content creation and publishing
-* **Semi-Automatic**: AI assists with content generation, manual publishing with retry logic
-* **Full-Automatic**: Complete automation from idea generation to publishing with error resilience
-
-= 🎨 Style Guide Management =
-
-Maintain consistent brand voice:
-
-* **Brand Consistency**: Maintain consistent brand voice and style
-* **AI Analysis**: Automatic style guide analysis and suggestions
-* **Custom Guidelines**: Define your unique writing style and tone
-
-== Installation ==
-
-1. Upload the plugin files to the `/wp-content/plugins/ai-content-agent-plugin` directory, or install the plugin through the WordPress plugins screen directly.
-2. Activate the plugin through the 'Plugins' screen in WordPress.
-3. Use the Settings->AI Content Agent screen to configure the plugin.
-4. Add your Gemini AI API key in the settings.
-5. Optionally connect your Google Search Console account for enhanced functionality.
-
-== Frequently Asked Questions ==
-
-= What happens if the Gemini API is overloaded? =
-
-The plugin automatically handles API overload situations with intelligent retry logic. It will:
-1. Try the fallback model (gemini-1.5-pro) automatically
-2. Retry up to 3 times with exponential backoff delays
-3. Show user-friendly error messages with clear guidance
-4. Allow you to try again when the service is available
-
-= Do I need a Google Search Console account? =
-
-No, Google Search Console integration is optional but recommended. The plugin works perfectly without it, but connecting GSC provides:
-* Real search performance data for better content ideas
-* Keyword insights from actual search queries
-* Data-driven content optimization suggestions
-
-= What AI models are supported? =
-
-The plugin uses Google's Gemini AI with intelligent model fallback:
-* **Primary**: gemini-2.0-flash (latest and fastest)
-* **Fallback**: gemini-1.5-pro (stable and reliable)
-* **Automatic Switching**: Plugin automatically switches models when needed
-
-= Is the plugin compatible with SEO plugins? =
-
-Yes! The plugin integrates seamlessly with:
-* Yoast SEO (Free and Premium versions)
-* RankMath (Free and Pro versions)
-* Automatic meta title and description generation
-* Focus keyword optimization
-* Schema markup support
-
-== Screenshots ==
-
-1. Main dashboard with content calendar and AI-powered tools
-2. Idea generation interface with Google Search Console integration
-3. Draft creation with AI assistance and retry logic
-4. Settings page with API configuration and automation options
-5. Content calendar with drag-and-drop scheduling
-6. Style guide management interface
+**🚀 Latest v1.9.1 Features:**
+* Enhanced Settings page with user-focused layout
+* Pro feature badges for clear premium feature identification  
+* Improved license activation workflow
+* Google Search Console Pro integration with upgrade prompts
+* Optimized user experience and accessibility
 
 == Changelog ==
+
+= 1.9.1 - 2024-12-19 =
+* Enhanced Settings page reorganization with user-focused layout
+* Added Pro badges to Automation Mode and Google Search Console
+* Improved license activation → feature configuration workflow
+* Enhanced Google Search Console Pro integration with upgrade prompts
+* Optimized UX/UI with better visual hierarchy and accessibility
+* Updated build system and asset deployment
+
+= 1.9.0 - 2024-12-19 =
 
 = 1.8.0 - 2025-01-29 =
 * **MAJOR**: Dashboard statistics optimization - shows only active ideas count

@@ -577,66 +577,280 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                         isConfigured={detectedSeoPlugins.length > 0}
                     >
                         {seoPluginsLoading ? (
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '20px 0' }}>
                                 <span className="aca-spinner"></span>
                                 <span>Detecting SEO plugins...</span>
                             </div>
                         ) : detectedSeoPlugins.length > 0 ? (
                             <div>
-                                <p className="aca-page-description" style={{ marginBottom: '15px', color: '#22c55e' }}>
-                                    ✅ Automatic detection enabled - SEO data will be sent to detected plugins
-                                </p>
-                                {detectedSeoPlugins.map((plugin, index) => (
-                                    <div key={plugin.plugin} style={{ 
-                                        padding: '12px', 
-                                        backgroundColor: '#f8f9fa', 
-                                        borderRadius: '6px', 
-                                        marginBottom: index < detectedSeoPlugins.length - 1 ? '8px' : '0',
-                                        border: '1px solid #e9ecef'
-                                    }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                            <div>
-                                                <strong>{plugin.name}</strong>
-                                                <span style={{ color: '#6c757d', marginLeft: '8px' }}>v{plugin.version}</span>
-                                            </div>
-                                            <span style={{ 
-                                                backgroundColor: '#22c55e', 
-                                                color: 'white', 
-                                                padding: '2px 8px', 
-                                                borderRadius: '12px', 
-                                                fontSize: '12px',
-                                                fontWeight: '500'
-                                            }}>
-                                                Active
-                                            </span>
-                                        </div>
-                                        <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#6c757d' }}>
-                                            Meta descriptions and focus keywords will be automatically sent to this plugin
-                                        </p>
+                                <div style={{ 
+                                    padding: '12px 16px', 
+                                    backgroundColor: '#f0f9ff', 
+                                    borderRadius: '8px', 
+                                    marginBottom: '20px',
+                                    border: '1px solid #bae6fd'
+                                }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                                        <span style={{ color: '#0ea5e9', fontSize: '18px' }}>ℹ️</span>
+                                        <strong style={{ color: '#0c4a6e' }}>Automatic SEO Integration Active</strong>
                                     </div>
-                                ))}
+                                    <p style={{ margin: '0', fontSize: '14px', color: '#0c4a6e', lineHeight: '1.4' }}>
+                                        AI-generated content will automatically include SEO titles, meta descriptions, focus keywords, 
+                                        social media tags, and schema markup for all detected plugins.
+                                    </p>
+                                </div>
+
+                                <div style={{ marginBottom: '20px' }}>
+                                    <h4 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '600', color: '#374151' }}>
+                                        Detected SEO Plugins ({detectedSeoPlugins.length})
+                                    </h4>
+                                    <div style={{ display: 'grid', gap: '12px' }}>
+                                        {detectedSeoPlugins.map((plugin, index) => {
+                                            const getPluginIcon = (pluginType: string) => {
+                                                switch (pluginType) {
+                                                    case 'rank_math':
+                                                        return '🏆';
+                                                    case 'yoast':
+                                                        return '🟢';
+                                                    case 'aioseo':
+                                                        return '🔵';
+                                                    default:
+                                                        return '🔧';
+                                                }
+                                            };
+
+                                            const getPluginColor = (pluginType: string) => {
+                                                switch (pluginType) {
+                                                    case 'rank_math':
+                                                        return { bg: '#fef3c7', border: '#f59e0b', text: '#92400e' };
+                                                    case 'yoast':
+                                                        return { bg: '#dcfce7', border: '#22c55e', text: '#166534' };
+                                                    case 'aioseo':
+                                                        return { bg: '#dbeafe', border: '#3b82f6', text: '#1e40af' };
+                                                    default:
+                                                        return { bg: '#f3f4f6', border: '#6b7280', text: '#374151' };
+                                                }
+                                            };
+
+                                            const colors = getPluginColor(plugin.plugin);
+                                            const isPremium = plugin.pro || plugin.premium;
+
+                                            return (
+                                                <div key={plugin.plugin} style={{ 
+                                                    padding: '16px', 
+                                                    backgroundColor: colors.bg, 
+                                                    borderRadius: '8px', 
+                                                    border: `1px solid ${colors.border}`,
+                                                    position: 'relative'
+                                                }}>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                            <span style={{ fontSize: '20px' }}>{getPluginIcon(plugin.plugin)}</span>
+                                                            <div>
+                                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                                                    <strong style={{ color: colors.text, fontSize: '15px' }}>{plugin.name}</strong>
+                                                                    <span style={{ 
+                                                                        color: '#6b7280', 
+                                                                        fontSize: '13px',
+                                                                        backgroundColor: 'rgba(255,255,255,0.7)',
+                                                                        padding: '2px 6px',
+                                                                        borderRadius: '4px'
+                                                                    }}>
+                                                                        v{plugin.version}
+                                                                    </span>
+                                                                    {isPremium && (
+                                                                        <span style={{ 
+                                                                            backgroundColor: '#7c3aed', 
+                                                                            color: 'white', 
+                                                                            padding: '2px 6px', 
+                                                                            borderRadius: '4px', 
+                                                                            fontSize: '11px',
+                                                                            fontWeight: '600',
+                                                                            textTransform: 'uppercase'
+                                                                        }}>
+                                                                            {plugin.pro ? 'PRO' : 'PREMIUM'}
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <span style={{ 
+                                                            backgroundColor: '#22c55e', 
+                                                            color: 'white', 
+                                                            padding: '4px 8px', 
+                                                            borderRadius: '12px', 
+                                                            fontSize: '12px',
+                                                            fontWeight: '600',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            gap: '4px'
+                                                        }}>
+                                                            <span style={{ fontSize: '10px' }}>●</span>
+                                                            ACTIVE
+                                                        </span>
+                                                    </div>
+                                                    
+                                                    <div style={{ marginBottom: '12px' }}>
+                                                        <p style={{ margin: '0 0 8px 0', fontSize: '13px', color: colors.text, lineHeight: '1.4' }}>
+                                                            Automatic integration includes: SEO titles, meta descriptions, focus keywords, 
+                                                            {isPremium && ' advanced features,'} social media tags, and schema markup.
+                                                        </p>
+                                                    </div>
+
+                                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '8px', fontSize: '12px' }}>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                            <span style={{ color: '#22c55e' }}>✓</span>
+                                                            <span>Meta Fields</span>
+                                                        </div>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                            <span style={{ color: '#22c55e' }}>✓</span>
+                                                            <span>Social Media</span>
+                                                        </div>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                            <span style={{ color: '#22c55e' }}>✓</span>
+                                                            <span>Schema Markup</span>
+                                                        </div>
+                                                        {isPremium && (
+                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                                <span style={{ color: '#7c3aed' }}>★</span>
+                                                                <span>Premium Features</span>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                <div style={{ 
+                                    padding: '12px 16px', 
+                                    backgroundColor: '#f9fafb', 
+                                    borderRadius: '6px', 
+                                    marginBottom: '16px',
+                                    border: '1px solid #e5e7eb'
+                                }}>
+                                    <h4 style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: '600', color: '#374151' }}>
+                                        📊 Integration Features
+                                    </h4>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '8px', fontSize: '13px', color: '#6b7280' }}>
+                                        <div>• Automatic SEO title optimization</div>
+                                        <div>• Meta description generation</div>
+                                        <div>• Focus keyword assignment</div>
+                                        <div>• OpenGraph social media tags</div>
+                                        <div>• Twitter Card integration</div>
+                                        <div>• Schema markup (Article/BlogPosting)</div>
+                                        <div>• Primary category assignment</div>
+                                        <div>• Canonical URL management</div>
+                                    </div>
+                                </div>
+
                                 <button 
                                     onClick={handleAutoDetectSeo} 
                                     disabled={isDetectingSeo} 
                                     className="aca-button secondary"
-                                    style={{ marginTop: '15px' }}
+                                    style={{ width: '100%', justifyContent: 'center' }}
                                 >
                                     {isDetectingSeo && <span className="aca-spinner"></span>}
-                                    {isDetectingSeo ? "Re-detecting..." : "Refresh Detection"}
+                                    {isDetectingSeo ? "Re-detecting SEO plugins..." : "🔄 Refresh Detection"}
                                 </button>
                             </div>
                         ) : (
                             <div>
-                                <p className="aca-page-description" style={{ marginBottom: '15px', color: '#f59e0b' }}>
-                                    ⚠️ No SEO plugins detected. Install RankMath or Yoast SEO to enable automatic SEO data integration.
-                                </p>
+                                <div style={{ 
+                                    padding: '20px', 
+                                    backgroundColor: '#fef3c7', 
+                                    borderRadius: '8px', 
+                                    marginBottom: '20px',
+                                    border: '1px solid #f59e0b',
+                                    textAlign: 'center'
+                                }}>
+                                    <div style={{ fontSize: '48px', marginBottom: '12px' }}>⚠️</div>
+                                    <h3 style={{ margin: '0 0 8px 0', color: '#92400e', fontSize: '16px' }}>
+                                        No SEO Plugins Detected
+                                    </h3>
+                                    <p style={{ margin: '0 0 16px 0', color: '#92400e', fontSize: '14px', lineHeight: '1.4' }}>
+                                        Install one of the supported SEO plugins to enable automatic SEO data integration 
+                                        for your AI-generated content.
+                                    </p>
+                                </div>
+
+                                <div style={{ marginBottom: '20px' }}>
+                                    <h4 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '600', color: '#374151' }}>
+                                        🔧 Supported SEO Plugins
+                                    </h4>
+                                    <div style={{ display: 'grid', gap: '12px' }}>
+                                        {[
+                                            { 
+                                                name: 'RankMath SEO', 
+                                                icon: '🏆', 
+                                                description: 'Advanced SEO plugin with comprehensive features and Pro version support',
+                                                link: 'https://wordpress.org/plugins/seo-by-rank-math/',
+                                                color: { bg: '#fef3c7', border: '#f59e0b', text: '#92400e' }
+                                            },
+                                            { 
+                                                name: 'Yoast SEO', 
+                                                icon: '🟢', 
+                                                description: 'Popular SEO plugin with Premium features and readability analysis',
+                                                link: 'https://wordpress.org/plugins/wordpress-seo/',
+                                                color: { bg: '#dcfce7', border: '#22c55e', text: '#166534' }
+                                            },
+                                            { 
+                                                name: 'All in One SEO (AIOSEO)', 
+                                                icon: '🔵', 
+                                                description: 'Comprehensive SEO solution with Pro features and social media integration',
+                                                link: 'https://wordpress.org/plugins/all-in-one-seo-pack/',
+                                                color: { bg: '#dbeafe', border: '#3b82f6', text: '#1e40af' }
+                                            }
+                                        ].map((plugin, index) => (
+                                            <div key={index} style={{ 
+                                                padding: '16px', 
+                                                backgroundColor: plugin.color.bg, 
+                                                borderRadius: '8px', 
+                                                border: `1px solid ${plugin.color.border}`
+                                            }}>
+                                                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                                                    <span style={{ fontSize: '24px', flexShrink: 0 }}>{plugin.icon}</span>
+                                                    <div style={{ flex: 1 }}>
+                                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                                                            <strong style={{ color: plugin.color.text, fontSize: '15px' }}>
+                                                                {plugin.name}
+                                                            </strong>
+                                                            <a 
+                                                                href={plugin.link} 
+                                                                target="_blank" 
+                                                                rel="noopener noreferrer"
+                                                                style={{ 
+                                                                    color: plugin.color.text, 
+                                                                    textDecoration: 'none',
+                                                                    fontSize: '12px',
+                                                                    fontWeight: '500',
+                                                                    padding: '4px 8px',
+                                                                    backgroundColor: 'rgba(255,255,255,0.7)',
+                                                                    borderRadius: '4px'
+                                                                }}
+                                                            >
+                                                                Install →
+                                                            </a>
+                                                        </div>
+                                                        <p style={{ margin: '0', fontSize: '13px', color: plugin.color.text, lineHeight: '1.4' }}>
+                                                            {plugin.description}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
                                 <button 
                                     onClick={handleAutoDetectSeo} 
                                     disabled={isDetectingSeo} 
-                                    className="aca-button secondary"
+                                    className="aca-button primary"
+                                    style={{ width: '100%', justifyContent: 'center' }}
                                 >
                                     {isDetectingSeo && <span className="aca-spinner"></span>}
-                                    {isDetectingSeo ? "Detecting..." : "Check Again"}
+                                    {isDetectingSeo ? "Detecting plugins..." : "🔍 Check for SEO Plugins"}
                                 </button>
                             </div>
                         )}

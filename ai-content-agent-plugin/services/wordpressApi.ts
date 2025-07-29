@@ -147,3 +147,12 @@ export const activityApi = {
     body: JSON.stringify(log),
   }),
 };
+
+// License API
+export const licenseApi = {
+  verify: (licenseKey: string) => makeApiCall('license/verify', {
+    method: 'POST',
+    body: JSON.stringify({ license_key: licenseKey }),
+  }),
+  getStatus: () => makeApiCall('license/status'),
+};

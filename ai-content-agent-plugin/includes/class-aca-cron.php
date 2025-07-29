@@ -58,7 +58,12 @@ class ACA_Cron {
         
         // Run full content cycle if in full-automatic mode
         if (isset($settings['mode']) && $settings['mode'] === 'full-automatic') {
-            $this->run_full_automatic_cycle();
+            // Check if pro license is active for full-automatic mode
+            if (is_aca_pro_active()) {
+                $this->run_full_automatic_cycle();
+            } else {
+                error_log('ACA: Full-automatic mode requires Pro license');
+            }
         }
     }
     
@@ -78,7 +83,12 @@ class ACA_Cron {
         
         // Generate ideas in semi-automatic mode
         if (isset($settings['mode']) && $settings['mode'] === 'semi-automatic') {
-            $this->generate_ideas_semi_auto();
+            // Check if pro license is active for semi-automatic mode
+            if (is_aca_pro_active()) {
+                $this->generate_ideas_semi_auto();
+            } else {
+                error_log('ACA: Semi-automatic mode requires Pro license');
+            }
         }
     }
     

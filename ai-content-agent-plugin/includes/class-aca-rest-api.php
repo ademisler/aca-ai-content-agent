@@ -241,6 +241,20 @@ class ACA_Rest_Api {
             'callback' => array($this, 'get_gsc_data'),
             'permission_callback' => array($this, 'check_admin_permissions')
         ));
+        
+        // License verification endpoint
+        register_rest_route('aca/v1', '/license/verify', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'verify_license_key'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
+        
+        // License status endpoint
+        register_rest_route('aca/v1', '/license/status', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_license_status'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
     }
     
     /**
@@ -281,6 +295,10 @@ class ACA_Rest_Api {
      */
     public function get_settings($request) {
         $settings = get_option('aca_settings', array());
+        
+        // Add pro status to settings response
+        $settings['is_pro'] = is_aca_pro_active();
+        
         return rest_ensure_response($settings);
     }
     
@@ -3110,5 +3128,123 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 'plugin' => 'All in One SEO'
             );
         }
+    }
+    
+    /**
+     * Verify license key with Gumroad API
+     */
+    public function verify_license_key($request) {
+        $nonce_check = $this->verify_nonce($request);
+        if (is_wp_error($nonce_check)) {
+            return $nonce_check;
+        }
+        
+        $params = $request->get_json_params();
+        $license_key = sanitize_text_field($params['license_key'] ?? '');
+        
+        if (empty($license_key)) {
+            return new WP_Error(
+                'missing_license_key', 
+                'License key is required', 
+                array('status' => 400)
+            );
+        }
+        
+        // Gumroad product ID - to be replaced with actual product ID
+        // Get this from your Gumroad product's content page by expanding the license key module
+        // NOTE: For products created after Jan 9, 2023, use product_id instead of product_permalink
+        $product_id = 'YOUR_GUMROAD_PRODUCT_ID_HERE';
+        
+        try {
+            $verification_result = $this->call_gumroad_api($product_id, $license_key);
+            
+            if ($verification_result['success']) {
+                // Store license status
+                update_option('aca_license_status', 'active');
+                update_option('aca_license_data', $verification_result);
+                
+                // Log license activation
+                $this->log_activity('license_activated', 'Pro license activated successfully');
+            } else {
+                // Remove license status
+                delete_option('aca_license_status');
+                delete_option('aca_license_data');
+            }
+            
+            return rest_ensure_response($verification_result);
+            
+        } catch (Exception $e) {
+            error_log('ACA: License verification error: ' . $e->getMessage());
+            return new WP_Error(
+                'license_verification_failed', 
+                'License verification failed: ' . $e->getMessage(), 
+                array('status' => 500)
+            );
+        }
+    }
+    
+    /**
+     * Get license status
+     */
+    public function get_license_status($request) {
+        $license_status = get_option('aca_license_status', 'inactive');
+        $license_data = get_option('aca_license_data', array());
+        
+        return rest_ensure_response(array(
+            'status' => $license_status,
+            'is_active' => $license_status === 'active',
+            'data' => $license_data,
+            'verified_at' => isset($license_data['verified_at']) ? $license_data['verified_at'] : null
+        ));
+    }
+    
+    /**
+     * Call Gumroad License Verification API
+     */
+    private function call_gumroad_api($product_id, $license_key) {
+        $url = 'https://api.gumroad.com/v2/licenses/verify';
+        
+        $response = wp_remote_post($url, array(
+            'headers' => array(
+                'Content-Type' => 'application/x-www-form-urlencoded'
+            ),
+            'body' => array(
+                'product_id' => $product_id,           // Use product_id for products after Jan 9, 2023
+                'license_key' => $license_key,
+                'increment_uses_count' => 'true'       // Track usage for analytics
+            ),
+            'timeout' => 30,
+            'blocking' => true,
+            'sslverify' => true
+        ));
+        
+        if (is_wp_error($response)) {
+            throw new Exception('Gumroad API request failed: ' . $response->get_error_message());
+        }
+        
+        $response_code = wp_remote_retrieve_response_code($response);
+        $body = wp_remote_retrieve_body($response);
+        
+        if ($response_code !== 200) {
+            throw new Exception('Gumroad API returned error code: ' . $response_code);
+        }
+        
+        $data = json_decode($body, true);
+        
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new Exception('Invalid JSON response from Gumroad API');
+        }
+        
+        // Validate license according to Gumroad documentation
+        $is_valid = ($data['success'] === true) && 
+                    ($data['purchase']['refunded'] === false) && 
+                    ($data['purchase']['chargebacked'] === false);
+        
+        return array(
+            'success' => $is_valid,
+            'message' => $is_valid ? 'License verified successfully' : 'License verification failed',
+            'purchase_data' => $data['purchase'] ?? null,
+            'verified_at' => current_time('mysql')
+        );
     }
 }

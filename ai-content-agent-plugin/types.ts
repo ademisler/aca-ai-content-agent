@@ -63,6 +63,8 @@ export interface AppSettings {
     fullAutoDailyPostCount?: number;
     fullAutoPublishFrequency?: 'hourly' | 'daily' | 'weekly';
     analyzeContentFrequency?: 'manual' | 'daily' | 'weekly' | 'monthly';
+    // Pro license status
+    is_pro?: boolean;
 }
 
 export type ActivityLogType = 

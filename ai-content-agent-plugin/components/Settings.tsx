@@ -92,9 +92,27 @@ const IntegrationCard: React.FC<{
 
 export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) => {
     const [currentSettings, setCurrentSettings] = useState<AppSettings>(settings);
-    const [isSaving, setIsSaving] = useState(false);
     const [isConnecting, setIsConnecting] = useState(false);
     const [isDetectingSeo, setIsDetectingSeo] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const [gscAuthStatus, setGscAuthStatus] = useState<any>(null);
+
+    // Load GSC auth status on component mount
+    useEffect(() => {
+        const loadGscAuthStatus = async () => {
+            try {
+                const response = await fetch(window.aca_object.api_url + 'gsc/auth-status', {
+                    headers: { 'X-WP-Nonce': window.aca_object.nonce }
+                });
+                const status = await response.json();
+                setGscAuthStatus(status);
+            } catch (error) {
+                console.error('Failed to load GSC auth status:', error);
+            }
+        };
+        
+        loadGscAuthStatus();
+    }, []);
 
     useEffect(() => {
         setCurrentSettings(settings);
@@ -122,12 +140,55 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
         }, 1500);
     };
 
-    const handleGSCConnect = () => {
+    const handleGSCConnect = async () => {
+        // Check if credentials are set
+        if (!currentSettings.gscClientId || !currentSettings.gscClientSecret) {
+            alert('Please enter your Google Search Console Client ID and Client Secret first.');
+            return;
+        }
+        
         setIsConnecting(true);
-        setTimeout(() => {
-            handleSettingChange('searchConsoleUser', { email: 'example.user@gmail.com' });
+        try {
+            const response = await fetch(window.aca_object.api_url + 'gsc/connect', {
+                method: 'POST',
+                headers: { 'X-WP-Nonce': window.aca_object.nonce }
+            });
+            const data = await response.json();
+            
+            if (data.auth_url) {
+                // Redirect to Google OAuth
+                window.location.href = data.auth_url;
+            } else {
+                alert('Failed to initiate Google Search Console connection');
+            }
+        } catch (error) {
+            console.error('GSC connection error:', error);
+            alert('Failed to connect to Google Search Console');
+        } finally {
             setIsConnecting(false);
-        }, 2000);
+        }
+    };
+    
+    const handleGSCDisconnect = async () => {
+        try {
+            const response = await fetch(window.aca_object.api_url + 'gsc/disconnect', {
+                method: 'POST',
+                headers: { 
+                    'X-WP-Nonce': window.aca_object.nonce,
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await response.json();
+            
+            if (data.success) {
+                handleSettingChange('searchConsoleUser', null);
+                setGscAuthStatus({ authenticated: false });
+                alert('Successfully disconnected from Google Search Console');
+            }
+        } catch (error) {
+            console.error('GSC disconnect error:', error);
+            alert('Failed to disconnect from Google Search Console');
+        }
     };
 
     const handleSave = () => {
@@ -465,6 +526,44 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                         icon={<Google className="aca-nav-item-icon" />}
                         isConfigured={!!currentSettings.searchConsoleUser}
                     >
+                        {/* GSC Credentials */}
+                        <div className="aca-form-group">
+                            <label className="aca-label">Google Search Console Setup</label>
+                            <p className="aca-page-description" style={{ marginBottom: '15px' }}>
+                                To connect with Google Search Console, you need to create OAuth2 credentials in your Google Cloud Console. 
+                                <a href="https://console.cloud.google.com/" target="_blank" rel="noopener noreferrer" style={{ color: '#0073aa', textDecoration: 'none' }}>
+                                    {' '}Learn how to set up credentials →
+                                </a>
+                            </p>
+                            
+                            <div style={{ display: 'grid', gap: '15px', marginBottom: '20px' }}>
+                                <div>
+                                    <label className="aca-label">Client ID</label>
+                                    <input
+                                        type="text"
+                                        value={currentSettings.gscClientId}
+                                        onChange={(e) => handleSettingChange('gscClientId', e.target.value)}
+                                        placeholder="Your Google OAuth2 Client ID"
+                                        className="aca-input"
+                                        style={{ width: '100%' }}
+                                    />
+                                </div>
+                                
+                                <div>
+                                    <label className="aca-label">Client Secret</label>
+                                    <input
+                                        type="password"
+                                        value={currentSettings.gscClientSecret}
+                                        onChange={(e) => handleSettingChange('gscClientSecret', e.target.value)}
+                                        placeholder="Your Google OAuth2 Client Secret"
+                                        className="aca-input"
+                                        style={{ width: '100%' }}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {/* Connection Status */}
                         <div className="aca-stat-item" style={{ margin: 0 }}>
                             <div className="aca-stat-info">
                                 <div className="aca-stat-icon">
@@ -472,9 +571,9 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                                 </div>
                                 <div>
                                     <h4 className="aca-stat-title">Connection Status</h4>
-                                    {currentSettings.searchConsoleUser ? (
+                                    {gscAuthStatus?.authenticated ? (
                                         <p className="aca-stat-count" style={{ color: '#00a32a' }}>
-                                            Connected as {currentSettings.searchConsoleUser.email}
+                                            Connected as {gscAuthStatus.user_email}
                                         </p>
                                     ) : (
                                         <p className="aca-stat-count">
@@ -483,9 +582,10 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                                     )}
                                 </div>
                             </div>
-                            {currentSettings.searchConsoleUser ? (
+                            {gscAuthStatus?.authenticated ? (
                                 <button 
-                                    onClick={() => handleSettingChange('searchConsoleUser', null)} 
+                                    onClick={handleGSCDisconnect} 
+                                    disabled={isConnecting} 
                                     className="aca-button"
                                     style={{ 
                                         flexShrink: 0,
@@ -498,7 +598,7 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                             ) : (
                                 <button 
                                     onClick={handleGSCConnect} 
-                                    disabled={isConnecting} 
+                                    disabled={isConnecting || !currentSettings.gscClientId || !currentSettings.gscClientSecret} 
                                     className="aca-button"
                                     style={{ 
                                         flexShrink: 0,

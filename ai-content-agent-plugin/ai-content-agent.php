@@ -2,7 +2,7 @@
 /**
  * Plugin Name: AI Content Agent (ACA)
  * Description: AI-powered content creation and management plugin that generates blog posts, ideas, and manages your content workflow automatically.
- * Version: 1.3.9
+ * Version: 1.4.0
  * Author: AI Content Agent Team
  * License: GPL v2 or later
  * Text Domain: ai-content-agent
@@ -15,7 +15,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Plugin constants
-define('ACA_VERSION', '1.3.9');
+define('ACA_VERSION', '1.4.0');
 define('ACA_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('ACA_PLUGIN_PATH', plugin_dir_path(__FILE__));
 
@@ -45,11 +45,37 @@ class AI_Content_Agent {
         // Initialize Cron jobs
         new ACA_Cron();
         
+        // Handle Google Search Console OAuth callback
+        add_action('admin_init', array($this, 'handle_gsc_oauth_callback'));
+        
         // Add admin menu
         add_action('admin_menu', array($this, 'add_admin_menu'));
         
         // Enqueue admin scripts
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
+    }
+    
+    /**
+     * Handle Google Search Console OAuth callback
+     */
+    public function handle_gsc_oauth_callback() {
+        if (isset($_GET['page']) && $_GET['page'] === 'ai-content-agent' && 
+            isset($_GET['gsc_auth']) && $_GET['gsc_auth'] === 'callback' && 
+            isset($_GET['code'])) {
+            
+            require_once ACA_PLUGIN_PATH . 'includes/class-aca-google-search-console.php';
+            
+            $gsc = new ACA_Google_Search_Console();
+            $result = $gsc->handle_oauth_callback($_GET['code']);
+            
+            if (is_wp_error($result)) {
+                wp_die('Google Search Console authentication failed: ' . $result->get_error_message());
+            } else {
+                // Redirect back to settings page
+                wp_redirect(admin_url('admin.php?page=ai-content-agent&view=settings&gsc_connected=1'));
+                exit;
+            }
+        }
     }
     
     /**

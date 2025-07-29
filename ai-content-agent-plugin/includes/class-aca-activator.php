@@ -61,6 +61,8 @@ class ACA_Activator {
             'mode' => 'manual',
             'autoPublish' => false,
             'searchConsoleUser' => null,
+            'gscClientId' => '',
+            'gscClientSecret' => '',
             'imageSourceProvider' => 'ai',
             'aiImageStyle' => 'photorealistic',
             'pexelsApiKey' => '',

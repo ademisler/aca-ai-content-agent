@@ -47,6 +47,8 @@ export interface AppSettings {
     mode: AutomationMode;
     autoPublish: boolean;
     searchConsoleUser: { email: string } | null;
+    gscClientId: string;
+    gscClientSecret: string;
     imageSourceProvider: ImageSourceProvider;
     aiImageStyle: AiImageStyle;
     pexelsApiKey: string;

@@ -50,6 +50,31 @@ class ACA_Rest_Api {
             'permission_callback' => array($this, 'check_admin_permissions')
         ));
         
+        // Google Search Console endpoints
+        register_rest_route('aca/v1', '/gsc/auth-status', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_gsc_auth_status'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
+        
+        register_rest_route('aca/v1', '/gsc/connect', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'gsc_connect'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
+        
+        register_rest_route('aca/v1', '/gsc/disconnect', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'gsc_disconnect'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
+        
+        register_rest_route('aca/v1', '/gsc/sites', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_gsc_sites'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
+        
         // Style guide endpoints
         register_rest_route('aca/v1', '/style-guide', array(
             'methods' => 'GET',
@@ -390,10 +415,18 @@ class ACA_Rest_Api {
             // Get search console data if user is connected
             $search_console_data = null;
             if (!empty($settings['searchConsoleUser'])) {
-                $search_console_data = array(
-                    'topQueries' => array('AI for content marketing', 'how to write blog posts faster', 'wordpress automation tools'),
-                    'underperformingPages' => array('/blog/old-seo-tips', '/blog/2022-social-media-trends')
-                );
+                require_once ACA_PLUGIN_PATH . 'includes/class-aca-google-search-console.php';
+                
+                $gsc = new ACA_Google_Search_Console();
+                $search_console_data = $gsc->get_data_for_ai();
+                
+                // Fallback to mock data if GSC fails
+                if (!$search_console_data) {
+                    $search_console_data = array(
+                        'topQueries' => array('AI for content marketing', 'how to write blog posts faster', 'wordpress automation tools'),
+                        'underperformingPages' => array('/blog/old-seo-tips', '/blog/2022-social-media-trends')
+                    );
+                }
             }
             
             $new_ideas = $this->call_gemini_generate_ideas(
@@ -1965,5 +1998,93 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         } catch (Exception $e) {
             return new WP_Error('cron_error', $e->getMessage(), array('status' => 500));
         }
+    }
+    
+    /**
+     * Get Google Search Console authentication status
+     */
+    public function get_gsc_auth_status($request) {
+        require_once ACA_PLUGIN_PATH . 'includes/class-aca-google-search-console.php';
+        
+        $gsc = new ACA_Google_Search_Console();
+        return rest_ensure_response($gsc->get_auth_status());
+    }
+    
+    /**
+     * Connect to Google Search Console
+     */
+    public function gsc_connect($request) {
+        require_once ACA_PLUGIN_PATH . 'includes/class-aca-google-search-console.php';
+        
+        $gsc = new ACA_Google_Search_Console();
+        
+        // Check if this is an OAuth callback
+        if (isset($_GET['code'])) {
+            $result = $gsc->handle_oauth_callback($_GET['code']);
+            
+            if (is_wp_error($result)) {
+                return $result;
+            }
+            
+            $this->add_activity_log('gsc_connected', 'Connected to Google Search Console', 'Settings');
+            
+            return rest_ensure_response(array(
+                'success' => true,
+                'message' => 'Successfully connected to Google Search Console'
+            ));
+        } else {
+            // Return authorization URL
+            $auth_status = $gsc->get_auth_status();
+            
+            if (isset($auth_status['auth_url'])) {
+                return rest_ensure_response(array(
+                    'auth_url' => $auth_status['auth_url']
+                ));
+            } else {
+                return new WP_Error('auth_error', 'Unable to generate authorization URL', array('status' => 500));
+            }
+        }
+    }
+    
+    /**
+     * Disconnect from Google Search Console
+     */
+    public function gsc_disconnect($request) {
+        $nonce_check = $this->verify_nonce($request);
+        if (is_wp_error($nonce_check)) {
+            return $nonce_check;
+        }
+        
+        require_once ACA_PLUGIN_PATH . 'includes/class-aca-google-search-console.php';
+        
+        $gsc = new ACA_Google_Search_Console();
+        $result = $gsc->disconnect();
+        
+        if ($result) {
+            $this->add_activity_log('gsc_disconnected', 'Disconnected from Google Search Console', 'Settings');
+            
+            return rest_ensure_response(array(
+                'success' => true,
+                'message' => 'Successfully disconnected from Google Search Console'
+            ));
+        } else {
+            return new WP_Error('disconnect_error', 'Failed to disconnect from Google Search Console', array('status' => 500));
+        }
+    }
+    
+    /**
+     * Get Google Search Console sites
+     */
+    public function get_gsc_sites($request) {
+        require_once ACA_PLUGIN_PATH . 'includes/class-aca-google-search-console.php';
+        
+        $gsc = new ACA_Google_Search_Console();
+        $sites = $gsc->get_sites();
+        
+        if (is_wp_error($sites)) {
+            return $sites;
+        }
+        
+        return rest_ensure_response($sites);
     }
 }

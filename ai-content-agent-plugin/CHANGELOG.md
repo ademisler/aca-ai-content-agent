@@ -5,6 +5,75 @@ All notable changes to the AI Content Agent WordPress plugin will be documented 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2025-01-28 - GOOGLE SEARCH CONSOLE INTEGRATION 🔍
+
+### 🎯 MAJOR NEW FEATURE: REAL GOOGLE SEARCH CONSOLE INTEGRATION
+- **Real GSC Data**: Complete replacement of simulated data with actual Google Search Console API integration
+- **OAuth2 Authentication**: Secure OAuth2 flow for connecting to user's Google Search Console account
+- **Live Search Analytics**: Access to real search queries, clicks, impressions, CTR, and position data
+- **Dynamic Content Ideas**: AI content generation now uses actual search performance data from user's website
+
+### 🔐 AUTHENTICATION SYSTEM
+- **Google OAuth2 Flow**: Full OAuth2 implementation with proper token management
+- **Secure Token Storage**: Access and refresh tokens stored securely in WordPress database
+- **Automatic Token Refresh**: Handles token expiration and refresh automatically
+- **Connection Management**: Easy connect/disconnect functionality with proper cleanup
+
+### 📊 SEARCH CONSOLE DATA INTEGRATION
+- **Top Performing Queries**: Fetches actual top search queries from user's GSC account
+- **Underperforming Pages**: Identifies pages with high impressions but low CTR for optimization
+- **Real-time Data**: Fresh data fetched directly from Google Search Console API
+- **Fallback System**: Graceful fallback to mock data if GSC connection fails
+
+### ⚙️ TECHNICAL IMPLEMENTATION
+- **Google API Client**: Added `google/apiclient:^2.0` dependency for GSC integration
+- **New GSC Class**: `ACA_Google_Search_Console` class handles all GSC operations
+- **REST API Endpoints**: New endpoints for GSC auth status, connect, disconnect, and data retrieval
+- **OAuth Callback Handling**: Proper OAuth callback processing in WordPress admin
+- **Error Handling**: Comprehensive error handling with detailed logging
+
+### 🎨 USER INTERFACE ENHANCEMENTS
+- **GSC Credentials Fields**: New input fields for Google OAuth2 Client ID and Client Secret
+- **Real Connection Status**: Live connection status display with actual user email
+- **Setup Instructions**: Direct links to Google Cloud Console for credential setup
+- **Enhanced UX**: Improved connection flow with proper loading states and error messages
+
+### 📚 COMPREHENSIVE DOCUMENTATION
+- **Setup Guide**: Complete `GOOGLE_SEARCH_CONSOLE_SETUP.md` with step-by-step instructions
+- **Google Cloud Setup**: Detailed instructions for creating Google Cloud project and credentials
+- **OAuth Configuration**: Complete OAuth consent screen and redirect URI setup guide
+- **Troubleshooting**: Common issues and solutions for GSC integration
+
+### 🔧 CONFIGURATION OPTIONS
+- **Client Credentials**: Secure storage of Google OAuth2 client ID and secret
+- **Connection Validation**: Real-time validation of GSC connection status
+- **Site Selection**: Automatic detection of available GSC properties
+- **Data Scope**: Configurable data fetching with proper API limits
+
+### 📈 CONTENT GENERATION IMPROVEMENTS
+- **SEO-Focused Ideas**: Content ideas based on actual search performance data
+- **Keyword Integration**: Real search queries integrated into AI prompts
+- **Performance-Based Content**: Content suggestions targeting underperforming pages
+- **Search Intent Matching**: Better alignment with actual user search behavior
+
+### 🛡️ SECURITY & PRIVACY
+- **Read-Only Access**: Only requests read-only permissions to GSC data
+- **Secure Token Storage**: Encrypted token storage with proper WordPress security practices
+- **No Data Persistence**: GSC data fetched in real-time, not stored permanently
+- **Easy Revocation**: Simple disconnect process that properly revokes access
+
+### 🔄 BACKWARD COMPATIBILITY
+- **Existing Functionality**: All existing features remain unchanged
+- **Optional Integration**: GSC integration is optional - plugin works without it
+- **Graceful Degradation**: Falls back to mock data if GSC not connected
+- **Settings Migration**: Existing settings automatically include new GSC fields
+
+### 📦 DEPENDENCIES & REQUIREMENTS
+- **Google API Client**: Added Google API PHP client library
+- **PHP Requirements**: Maintains PHP 7.4+ compatibility
+- **WordPress Compatibility**: Tested with WordPress 5.0+
+- **External Dependencies**: Requires Google Cloud project with GSC API enabled
+
 ## [1.3.9] - 2025-01-28 - AUTOMATION MODE FIXES + DEBUG SYSTEM
 
 ### 🎯 CRITICAL AUTOMATION FIXES

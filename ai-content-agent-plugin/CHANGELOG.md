@@ -5,6 +5,51 @@ All notable changes to the AI Content Agent WordPress plugin will be documented 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.2] - 2025-01-28 - CRITICAL GSC FIXES & DEPENDENCY MANAGEMENT 🔧
+
+### 🚨 CRITICAL FIXES
+- **Dependency Management**: Added automatic detection and installation of Google API client library
+- **Error Handling**: Fixed critical initialization errors when vendor directory is missing
+- **Data Flow**: Improved Google Search Console data integration with proper error logging
+- **Authentication**: Enhanced OAuth2 flow with better error handling and token management
+
+### 🔧 GOOGLE SEARCH CONSOLE IMPROVEMENTS
+- **Vendor Directory Check**: Added automatic check for required Google API libraries
+- **Auto-Installation**: Created dependency installer with WordPress admin interface
+- **Site URL Handling**: Fixed GSC site URL formatting (trailing slash requirement)
+- **Data Quality**: Enhanced data filtering - only queries with actual clicks, pages with meaningful impressions
+- **Error Logging**: Comprehensive error logging with "ACA GSC" prefix for easy debugging
+
+### 🛠️ TECHNICAL ENHANCEMENTS
+- **Robust Initialization**: Added try-catch blocks around all Google API client initialization
+- **Better Fallbacks**: Improved fallback mechanisms when GSC data is unavailable
+- **Debug Information**: Enhanced debug output with site URL, data dates, and error details
+- **Authentication Status**: More detailed authentication status reporting
+
+### 📚 DOCUMENTATION UPDATES
+- **Setup Guide**: Complete rewrite of Google Search Console setup documentation
+- **Troubleshooting**: Added comprehensive troubleshooting section with common issues
+- **Dependency Installation**: Step-by-step guide for installing required libraries
+- **Debug Instructions**: WordPress debug logging setup instructions
+
+### 🔐 SECURITY & PERFORMANCE
+- **Token Management**: Improved OAuth2 token refresh mechanism
+- **Data Validation**: Enhanced validation of GSC data before AI processing
+- **Error Boundaries**: Better error isolation to prevent plugin crashes
+- **Resource Management**: Optimized API calls and data processing
+
+### 🎯 USER EXPERIENCE
+- **Admin Notices**: Clear dependency status messages in WordPress admin
+- **Auto-Installation**: One-click dependency installation when possible
+- **Status Indicators**: Visual indicators for GSC connection and data availability
+- **Error Messages**: User-friendly error messages with actionable solutions
+
+### ⚡ PERFORMANCE OPTIMIZATIONS
+- **Data Caching**: Better handling of GSC data retrieval and caching
+- **API Efficiency**: Optimized API calls with proper limits and filtering
+- **Memory Usage**: Reduced memory footprint during data processing
+- **Load Times**: Faster initialization with conditional loading
+
 ## [1.4.1] - 2025-01-28 - GOOGLE SEARCH CONSOLE IMPROVEMENTS 🔧
 
 ### 🔄 GOOGLE SEARCH CONSOLE ENHANCEMENTS
@@ -17,15 +62,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 🛠️ TECHNICAL IMPROVEMENTS
 - **Namespaced Imports**: Updated all Google API class imports to use modern namespaces
-- **OAuth2 Integration**: Added proper OAuth2 service for user information retrieval  
+- **OAuth2 Integration**: Added proper OAuth2 service for user information retrieval
 - **Error Logging**: Enhanced error logging for better debugging
 - **Code Quality**: Improved code structure and documentation
 
 ### 📚 DOCUMENTATION UPDATES
 - **Setup Guide**: Updated Google Search Console setup documentation
-- **Troubleshooting**: Enhanced troubleshooting section with common issues
-- **Security Notes**: Added comprehensive security and privacy information
-- **Compatibility**: Updated compatibility information for latest Google APIs
+- **API References**: Corrected API class names and usage examples
+- **Troubleshooting**: Enhanced troubleshooting section with modern solutions
 
 ## [1.4.0] - 2025-01-28 - GOOGLE SEARCH CONSOLE INTEGRATION 🔍
 
@@ -35,270 +79,144 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Live Search Analytics**: Access to real search queries, clicks, impressions, CTR, and position data
 - **Dynamic Content Ideas**: AI content generation now uses actual search performance data
 
-### 🔐 AUTHENTICATION SYSTEM:
+### 🔐 AUTHENTICATION SYSTEM
 - **Google OAuth2 Flow**: Full OAuth2 implementation with proper token management
 - **Secure Token Storage**: Access and refresh tokens stored securely in WordPress database
 - **Automatic Token Refresh**: Handles token expiration and refresh automatically
 - **Connection Management**: Easy connect/disconnect functionality with proper cleanup
 
-### 📊 SEARCH CONSOLE DATA INTEGRATION:
-- **Top Performing Queries**: Fetches actual top search queries from user's website
+### 📊 SEARCH CONSOLE DATA INTEGRATION
+- **Top Performing Queries**: Fetches actual top search queries from user's GSC account
 - **Underperforming Pages**: Identifies pages ranking below position 10 for optimization
-- **Search Analytics**: Real clicks, impressions, CTR, and average position data
-- **Site Management**: Access to all verified properties in user's Search Console account
+- **Real-time Data**: Fresh data pulled directly from Google Search Console API
+- **Smart Filtering**: Intelligent filtering of meaningful search data for AI processing
 
-### 🎨 FRONTEND ENHANCEMENTS:
-- **GSC Credentials UI**: New settings section for Google OAuth2 Client ID and Secret
-- **Connection Status**: Real-time connection status with user email display
-- **Setup Instructions**: Comprehensive setup guide with step-by-step instructions
-- **Error Handling**: User-friendly error messages and troubleshooting
+### 🤖 AI CONTENT ENHANCEMENT
+- **SEO-Optimized Ideas**: Content ideas now based on actual search performance
+- **Query-Driven Topics**: AI suggestions influenced by real user search behavior
+- **Performance Insights**: Integration of search analytics into content strategy
+- **Data-Driven Creation**: Move from generic to search-data-informed content generation
 
-### 🔧 BACKEND IMPLEMENTATION:
-- **REST API Endpoints**: New endpoints for GSC authentication and data retrieval
+### 🛠️ TECHNICAL IMPLEMENTATION
 - **Google API Client**: Integration with official Google API PHP client library
-- **Token Management**: Secure storage and automatic refresh of OAuth tokens
-- **Data Processing**: Real-time fetching and processing of Search Console data
+- **Modern Architecture**: Clean, maintainable code structure with proper error handling
+- **Settings Integration**: Seamless integration with existing plugin settings system
+- **Debug Support**: Comprehensive logging and debug information for troubleshooting
 
-### 📝 DOCUMENTATION:
-- **Setup Guide**: Comprehensive Google Search Console setup documentation
-- **API Documentation**: Detailed API endpoint documentation
-- **Troubleshooting**: Common issues and solutions guide
-- **Security Guide**: Security best practices and privacy information
+### 📚 COMPREHENSIVE DOCUMENTATION
+- **Setup Guide**: Complete step-by-step Google Search Console integration guide
+- **OAuth2 Instructions**: Detailed Google Cloud Console setup instructions
+- **Troubleshooting**: Common issues and solutions documentation
+- **API Documentation**: Technical documentation for developers
 
-## [1.3.9] - 2025-01-27 - AUTOMATION MODE FIXES 🤖
+## [1.3.9] - 2025-01-27 - AUTOMATION MODE RELIABILITY FIXES 🔧
 
-### 🎯 CRITICAL AUTOMATION FIXES
-- **Semi-Automatic Mode Fixed**: Fixed WP_REST_Request parameter issue in cron calls
-- **Full-Automatic Mode Fixed**: Corrected analyze_style_guide method parameter passing
-- **Cron System Verified**: All 3 automation modes now work correctly
-- **Error Handling Added**: Comprehensive error logging for all automation operations
+### 🔄 AUTOMATION MODE FIXES
+- **Parameter Compatibility**: Fixed `generate_ideas_semi_auto()` to pass proper `WP_REST_Request` object
+- **Style Guide Analysis**: Fixed `auto_analyze_style_guide()` parameter passing for automation
+- **Error Handling**: Added comprehensive error logging for all automation tasks
+- **Cron Monitoring**: Added last execution time tracking for cron jobs
 
-### 🔧 AUTOMATION MODE IMPROVEMENTS
-- **Manual Mode**: No automatic operations, user has full control ✅
-- **Semi-Automatic Mode**: 15-minute cron generates 5 ideas automatically ✅
-- **Full-Automatic Mode**: 30-minute cron does full cycle (idea → draft → optional publish) ✅
-- **Auto-Publish Option**: Works correctly in full-automatic mode ✅
+### 🛠️ TECHNICAL IMPROVEMENTS
+- **Mock Request Objects**: Created proper `WP_REST_Request` objects for internal API calls
+- **Exception Handling**: Added try-catch blocks for `run_full_automatic_cycle()`
+- **Debug Endpoints**: New REST API endpoints for testing automation modes
+- **Status Tracking**: Better monitoring of automation task execution
 
-### 🛠️ DEBUG & MONITORING SYSTEM
-- **Debug API Endpoints**: `/debug/automation`, `/debug/cron/semi-auto`, `/debug/cron/full-auto`
-- **Automation Status Panel**: Real-time cron schedule and last run information
-- **Manual Cron Triggers**: Test automation modes manually from Settings
-- **Comprehensive Logging**: Track all automation operations and failures
-- **Last Run Tracking**: Monitor when cron jobs last executed
+### 🎛️ DEBUG SYSTEM
+- **Automation Debug Panel**: Added debug interface in Settings for testing automation
+- **Manual Triggers**: Buttons to manually trigger semi-auto and full-auto cron jobs
+- **Status Checking**: Real-time automation status and configuration checking
+- **Error Logging**: Detailed error logs for automation troubleshooting
 
-### 🔄 CRON SYSTEM ENHANCEMENTS
-- **Proper Request Objects**: Fixed API method calls from cron tasks
-- **Schedule Verification**: Cron jobs properly scheduled on plugin activation
-- **Time Tracking**: Last run timestamps for monitoring
-- **Error Recovery**: Better handling of automation failures
+## [1.3.8] - 2025-01-27 - SMART CALENDAR UI & PUBLISHED POSTS FIX 🎨
 
-### 📊 MONITORING FEATURES
-- **Debug Panel**: Settings page includes automation testing tools
-- **Status Information**: Current mode, API key status, style guide existence
-- **Cron Schedules**: Next scheduled run times for both cron jobs
-- **WordPress Cron Status**: Verify if WP-Cron is enabled
-- **Server Time Display**: Current server and GMT times
+### 🎨 SMART MULTI-POST CALENDAR UI
+- **Expandable Cells**: Calendar cells now expand/collapse to show multiple posts per day
+- **Post Count Indicators**: Visual badges showing number of posts per day
+- **Improved Layout**: Better visual hierarchy and spacing for multiple posts
+- **Smart Scrolling**: Scrollable content within calendar cells for many posts
 
-### 🎨 UI/UX IMPROVEMENTS
-- **Debug Interface**: Easy-to-use buttons for testing automation
-- **Real-time Feedback**: Instant alerts and console logging
-- **Status Indicators**: Clear display of automation system health
-- **Error Messages**: User-friendly error reporting
+### 🐛 PUBLISHED POSTS INTEGRATION FIX
+- **Status Mapping**: Fixed `format_post_for_api()` to correctly map 'publish' → 'published'
+- **Frontend Filtering**: Resolved frontend filtering issue for published posts
+- **Calendar Display**: Published posts now properly appear on the Content Calendar
+- **Data Consistency**: Ensured consistent post status handling across frontend/backend
 
-### 🔧 TECHNICAL IMPROVEMENTS
-- **Method Visibility**: Proper public/private method declarations
-- **Parameter Validation**: Correct parameter passing between classes
-- **Exception Handling**: Try-catch blocks for all automation operations
-- **Database Options**: Proper storage of automation status and timestamps
+### 📊 CONTENT CALENDAR ENHANCEMENTS
+- **Multi-Post Support**: Elegant handling of multiple posts on the same date
+- **Visual Indicators**: Clear visual distinction between drafts, scheduled, and published posts
+- **Responsive Design**: Better mobile and tablet experience for calendar interaction
+- **Performance**: Optimized rendering for days with many posts
 
-## [1.3.8] - 2025-01-28 - CRITICAL STATUS FIX + SMART MULTI-POST UI
+## [1.3.7] - 2025-01-27 - PUBLISHED POSTS & UI IMPROVEMENTS 📊
 
-### 🎯 CRITICAL FIXES
-- **PUBLISHED POSTS NOW VISIBLE**: Fixed backend status mapping from 'publish' to 'published' for frontend consistency
-- **Status Filtering Fixed**: Frontend now properly recognizes published posts with correct status
-- **All WordPress Content**: Existing published posts now appear in calendar as intended
+### 📊 PUBLISHED POSTS INTEGRATION
+- **All Published Posts**: Modified `get_published_posts()` to fetch all published posts
+- **Removed Dependency**: No longer requires `_aca_meta_title` meta field
+- **Calendar Display**: Published posts now appear on Content Calendar
+- **Complete Integration**: Full published posts support in calendar system
 
-### 🧠 SMART MULTI-POST UI REDESIGN
-- **Expandable Calendar Cells**: Revolutionary expand/collapse system for days with many posts
-- **Smart Display Logic**: Shows first 3 posts, then "+X More" button to reveal remaining content
-- **Adaptive Layout**: Posts automatically resize based on content density (compact vs normal)
-- **No More Lost Content**: Names never disappear, just become expandable
+### 🎨 MULTI-POST UI IMPROVEMENTS
+- **Compact Layout**: Better handling of multiple posts on same date
+- **Scrollable Design**: Scrollable content for days with many posts
+- **Visual Hierarchy**: Improved visual distinction between different post types
+- **Mobile Responsive**: Better mobile experience for calendar with multiple posts
 
-### ✨ ENHANCED USER EXPERIENCE
-- **Expand/Collapse Buttons**: Click "+X More" to see all posts, "Show Less" to collapse
-- **Visual Hierarchy**: Clear distinction between scheduled (yellow) and published (green) posts
-- **Smart Post Count**: Color-coded badges (green ≤3 posts, orange >3 posts)
-- **Responsive Sizing**: Items automatically adjust size based on content density
+## [1.3.6] - 2025-01-27 - CALENDAR UX ENHANCEMENTS 🎯
 
-### 🎨 VISUAL IMPROVEMENTS
-- **Compact Mode**: Smaller items (18px height, 9px font) when many posts exist
-- **Normal Mode**: Larger items (20px height, 10px font) for better readability
-- **Smooth Transitions**: All interactions have smooth 0.2s transitions
-- **Better Icons**: Adaptive icon sizing (6-9px) based on item size
+### 🎯 CONTENT CALENDAR UX FIXES
+- **Direct Navigation**: Clicking drafts now opens WordPress post editor directly
+- **Re-draggable Scheduled Posts**: Scheduled drafts can now be dragged to different dates
+- **Visual Improvements**: Enhanced calendar design with better icons and layout
+- **Local Icons**: Switched to custom icon system for better performance
 
-### 🔧 TECHNICAL ENHANCEMENTS
-- **State Management**: Expandable dates tracked with Set-based state
-- **Performance**: Efficient rendering with smart visibility calculations
-- **Memory Efficient**: Only expanded dates stored in state
-- **Event Handling**: Proper event propagation for expand/collapse buttons
+### 🔧 FUNCTIONALITY IMPROVEMENTS
+- **Post Editor Links**: `openWordPressEditor(postId)` for direct post editing
+- **Drag & Drop**: Enhanced drag-and-drop for both drafts and scheduled posts
+- **Icon System**: Custom `Icons.tsx` component for consistent iconography
+- **User Experience**: Removed unwanted popups, streamlined interactions
 
-### 📱 ACCESSIBILITY IMPROVEMENTS
-- **Descriptive Tooltips**: Clear action descriptions for all interactive elements
-- **Keyboard Navigation**: Proper focus management for expand/collapse
-- **Screen Reader Friendly**: Semantic HTML structure with proper ARIA labels
-- **Color Contrast**: High contrast colors for better visibility
+## [1.3.5] - 2025-01-27 - COMPREHENSIVE SCHEDULING FIX 🕐
 
-Now the calendar handles ANY number of posts per day with an elegant, scalable interface!
-
-## [1.3.7] - 2025-01-28 - Published Posts Fix + Multi-Post UI
-
-### 🎯 CRITICAL FIXES
-- **Published Posts Now Visible**: Fixed `get_published_posts` API to include ALL WordPress posts, not just ACA-created ones
-- **Meta Key Dependency Removed**: Published posts no longer require `_aca_meta_title` meta key to appear in calendar
-- **Existing Content Integration**: All your existing WordPress posts now appear in the calendar
-
-### 🎨 MULTI-POST UI ENHANCEMENTS
-- **Scrollable Calendar Cells**: Days with many posts now have scrollable content areas
-- **Post Count Indicator**: Orange badge shows total post count when more than 3 posts per day
-- **Compact Design**: Smaller post items (22px height) to fit more content
-- **Visual Hierarchy**: Posts beyond the 3rd have reduced opacity for better focus
-- **Improved Spacing**: Tighter gaps (3px) and better padding for dense content
+### 🕐 WORDPRESS DATE/TIME COMPATIBILITY
+- **Complete Rewrite**: Completely rewrote `schedule_draft()` function for WordPress compatibility
+- **Timezone Handling**: Proper WordPress timezone management using `current_time()` and `get_gmt_from_date()`
+- **DateTime Objects**: Modern PHP DateTime handling for accurate scheduling
+- **Edit Date Parameter**: Added `edit_date => true` to `wp_update_post()` for proper date setting
 
 ### 🔧 TECHNICAL IMPROVEMENTS
-- **Overflow Handling**: Proper overflow management for calendar cells
-- **Performance**: Better handling of large numbers of posts per day
-- **Z-Index Management**: Proper layering of date numbers and post count indicators
-- **Responsive Scrolling**: Smooth scrolling with hidden scrollbars for clean appearance
+- **WordPress Standards**: Full compliance with WordPress date/time handling standards
+- **Future Post Status**: Proper 'future' post status for scheduled content
+- **GMT Conversion**: Accurate GMT conversion for scheduled posts
+- **Error Prevention**: Prevents immediate publishing of future-dated posts
 
-### 📱 UX IMPROVEMENTS
-- **Better Tooltips**: More descriptive tooltips with fallback titles
-- **Icon Sizing**: Optimized icon sizes (10px/8px) for compact layout
-- **Flexible Layout**: Icons with `flexShrink: 0` to prevent compression
-- **Visual Feedback**: Opacity changes for secondary items
+## [1.3.4] - 2025-01-27 - SCHEDULING TIME FIX ⏰
 
-Now ALL your WordPress content appears in the calendar with a clean, scalable interface!
+### ⏰ CALENDAR SCHEDULING IMPROVEMENTS
+- **Time Setting**: Added logic to set scheduled posts to 9:00 AM when dropped from calendar
+- **Future Dating**: Ensures calendar-scheduled posts have future timestamps
+- **Date Validation**: Prevents midnight scheduling issues that caused immediate publishing
 
-## [1.3.6] - 2025-01-28 - ENHANCED CALENDAR UX
+## [1.3.3] - 2025-01-27 - CONTENT CALENDAR CORE FIXES 📅
 
-### 🎯 MAJOR IMPROVEMENTS
-- **WordPress Editor Integration**: Clicking on scheduled drafts or published posts now opens WordPress editor directly (no more popup)
-- **Re-draggable Scheduled Drafts**: Scheduled drafts can now be dragged to different dates for rescheduling
-- **Published Posts Display**: Published posts now appear on calendar with green indicators
-- **Enhanced Visual Design**: Improved calendar layout with better spacing and modern UI
-- **Smart Date Detection**: Better handling of calendar dates and scheduling logic
+### 📅 CONTENT CALENDAR FUNCTIONALITY
+- **Scheduling System**: Fixed draft scheduling to properly set 'future' post status
+- **API Integration**: Updated `schedule_draft` endpoint to handle both 'date' and 'scheduledDate' parameters
+- **State Management**: Fixed frontend state updates after scheduling operations
+- **Draft Display**: Scheduled drafts now properly appear on calendar dates
 
-### ✨ NEW FEATURES
-- **Direct WordPress Editing**: Click any calendar item to open in WordPress editor in new tab
-- **Drag-to-Reschedule**: Move scheduled drafts between dates by dragging
-- **Published Content Timeline**: View published posts alongside scheduled drafts
-- **Visual Status Indicators**: 
-  - 🟡 Yellow = Scheduled drafts (draggable, clickable)
-  - 🟢 Green = Published posts (clickable)
-  - 🔵 Blue border = Today's date
-- **Improved Instructions**: Better user guidance with visual examples
+### 🔧 BACKEND IMPROVEMENTS
+- **Post Status Handling**: Enhanced post status management for scheduled content
+- **API Response**: `schedule_draft` now returns updated post data
+- **Database Queries**: Updated `get_drafts` to include 'future' status posts
+- **Status Mapping**: Improved status mapping in `format_post_for_api`
 
-### 🔧 TECHNICAL ENHANCEMENTS
-- **Icon System**: Consistent icon usage with Clock, Edit, and Eye indicators
-- **Responsive Grid**: Better calendar grid layout for various screen sizes
-- **Admin URL Integration**: Proper WordPress admin URL handling for editor links
-- **Enhanced Drag & Drop**: Improved drag-and-drop feedback and visual states
-
-### 🎨 UI/UX IMPROVEMENTS
-- **Cleaner Calendar Grid**: Modern grid design with better visual separation
-- **Compact Item Display**: Optimized space usage for calendar items
-- **Hover States**: Better visual feedback for interactive elements
-- **Tooltip Enhancements**: Informative tooltips with action guidance
-
-This version transforms the calendar from a basic scheduling tool into a comprehensive content management interface!
-
-## [1.3.5] - 2025-01-28 - COMPREHENSIVE SCHEDULING FIX
-
-### 🎯 MAJOR FIXES
-- **CRITICAL**: Completely rewrote draft scheduling to properly handle WordPress timezone management
-- **WordPress Integration**: Fixed improper use of date/time functions causing posts to publish immediately
-- **Timezone Handling**: Now properly uses WordPress `current_time()` and `get_gmt_from_date()` functions
-- **Date Setting**: Added crucial `edit_date => true` parameter for WordPress to accept date changes on drafts
-- **Post Status Logic**: Fixed logic that was incorrectly setting post status based on server timezone instead of WordPress timezone
-
-### 🔧 TECHNICAL IMPROVEMENTS
-- **WordPress Best Practices**: Implemented proper WordPress date/time handling as recommended by WordPress Codex
-- **Timezone Conversion**: Proper conversion between local time and GMT using WordPress functions
-- **Date Validation**: Enhanced date parsing and validation with comprehensive error handling
-- **Debug Logging**: Added extensive debug logging to track scheduling process step-by-step
-- **Error Handling**: Improved error messages and validation for troubleshooting
-
-### 📝 DETAILED TECHNICAL CHANGES
-- Replaced manual date/time calculations with WordPress `current_time('timestamp')`
-- Added proper `post_date_gmt` field using `get_gmt_from_date()`
-- Implemented `edit_date => true` parameter for draft date updates
-- Fixed timezone offset issues by using WordPress timezone functions
-- Enhanced timestamp comparison logic for future vs current dates
-- Improved post status determination based on proper WordPress time
-
-### 🚨 BREAKING CHANGE RESOLUTION
-This version completely resolves the critical issue where:
-- Dragging drafts to future dates caused immediate publishing instead of scheduling
-- Posts were not properly scheduled due to timezone mishandling
-- Calendar dates were not being applied to posts correctly
-- Scheduled posts disappeared from calendar after drag-and-drop
-
-### 🧪 TESTING NOTES
-After this update, scheduled posts should:
-- Properly appear on calendar dates with yellow background
-- Show correct scheduling time in WordPress admin (future status)
-- Automatically publish at the scheduled time via WordPress cron
-- Maintain proper post dates that match the calendar selection
-
-## [1.3.4] - 2025-01-28 - Critical Scheduling Fix
-
-### 🎯 Fixed
-- **CRITICAL**: Fixed drag-and-drop scheduling that was publishing posts immediately instead of scheduling
-- **Date Detection**: Fixed issue where calendar dates at midnight (00:00:00) were treated as past dates
-- **Time Setting**: Calendar scheduling now sets posts to 9:00 AM of the target date to ensure proper scheduling
-- **Status Logic**: Improved logic to always use 'future' status for today and future dates
-
-### 🔧 Enhanced
-- **Debug Logging**: Added comprehensive debug logging for troubleshooting scheduling issues
-- **Date Handling**: Better handling of date-only inputs from calendar drag-and-drop
-- **WordPress Integration**: More robust WordPress post status management
-
-### 📝 Technical Details
-- Fixed date comparison logic in `schedule_draft()` function
-- Added automatic time setting (9:00 AM) for calendar dates without specific times
-- Enhanced date validation and processing for calendar drag-and-drop operations
-- Added debug logging to track scheduling process step-by-step
-
-### 🚨 Breaking Change Fix
-This version fixes a critical issue where dragging drafts to calendar dates would publish them immediately instead of scheduling them for the target date.
-
-## [1.3.3] - 2025-01-28 - Content Calendar Fix
-
-### 🎯 Fixed
-- **Draft Scheduling Issues**: Fixed drag-and-drop functionality where drafts would disappear after scheduling
-- **WordPress Integration**: Proper WordPress post scheduling with `post_status: 'future'` for scheduled posts
-- **API Parameter Mismatch**: Fixed backend expecting `date` parameter while frontend sent `scheduledDate`
-- **State Management**: Fixed frontend state not updating properly after scheduling operations
-- **Calendar Display**: Scheduled drafts now properly appear on calendar dates and remain visible
-
-### ✅ Added
-- **Visual Indicators**: Scheduled drafts now show with yellow background to distinguish from published posts
-- **Clickable Scheduled Items**: Users can click on scheduled drafts to view and edit them
-- **Enhanced Error Handling**: Better error messages and validation for scheduling operations
-- **WordPress Scheduling**: Posts are now properly scheduled in WordPress with correct publication dates
-
-### 🔧 Enhanced
-- **User Experience**: Improved drag-and-drop feedback and confirmation messages
-- **Calendar Navigation**: Better visual distinction between unscheduled, scheduled, and published content
-- **API Response**: Backend now returns complete updated draft object after scheduling
-- **Instructions Panel**: Updated help text to reflect new scheduling functionality
-
-### 📝 Technical Details
-- Updated `schedule_draft()` function to handle both `date` and `scheduledDate` parameters
-- Added proper WordPress post scheduling with `wp_update_post()` and `post_status: 'future'`
-- Enhanced `format_post_for_api()` to properly handle 'future' status posts
-- Updated `get_drafts()` to include both 'draft' and 'future' status posts
-- Improved frontend state management in `handleScheduleDraft()` function
-- Added visual styling for scheduled drafts with yellow background (#fff3cd)
+### 🎨 FRONTEND ENHANCEMENTS
+- **Calendar Integration**: Scheduled drafts display on selected calendar dates
+- **Click Functionality**: Calendar items now clickable for post editing
+- **Visual Feedback**: Better visual indicators for scheduled vs draft content
+- **State Synchronization**: Improved state management between calendar and post data
 
 ## [1.3.2] - 2025-01-XX - Content Formatting Fix
 

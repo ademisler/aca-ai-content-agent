@@ -526,6 +526,12 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                         icon={<Google className="aca-nav-item-icon" />}
                         isConfigured={!!currentSettings.searchConsoleUser}
                     >
+                        {/* Dependencies Status */}
+                        <div className="aca-form-group">
+                            <div id="aca-dependencies-status">
+                                {/* This will be populated by PHP */}
+                            </div>
+                        </div>
                         {/* GSC Credentials */}
                         <div className="aca-form-group">
                             <label className="aca-label">Google Search Console Setup</label>

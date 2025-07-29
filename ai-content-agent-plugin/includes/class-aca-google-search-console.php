@@ -7,6 +7,12 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Check if vendor directory exists
+if (!file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
+    error_log('ACA GSC Error: Google API client library not installed. Run: composer install');
+    return;
+}
+
 require_once ACA_PLUGIN_PATH . 'vendor/autoload.php';
 
 use Google\Client as Google_Client;
@@ -27,89 +33,100 @@ class ACA_Google_Search_Console {
      * Initialize Google Client
      */
     private function init_google_client() {
-        $this->client = new Google_Client();
-        $this->client->setApplicationName('AI Content Agent');
-        $this->client->setScopes([
-            'https://www.googleapis.com/auth/webmasters.readonly'
-        ]);
-        $this->client->setAccessType('offline');
-        $this->client->setPrompt('consent');
-        
-        // Get credentials from settings
-        $settings = get_option('aca_settings', array());
-        if (!empty($settings['gscClientId']) && !empty($settings['gscClientSecret'])) {
-            $this->client->setClientId($settings['gscClientId']);
-            $this->client->setClientSecret($settings['gscClientSecret']);
-        }
-        
-        // Set redirect URI
-        $this->client->setRedirectUri($this->get_redirect_uri());
-        
-        // Set access token if available
-        $access_token = get_option('aca_gsc_access_token');
-        if ($access_token) {
-            $this->client->setAccessToken($access_token);
+        try {
+            $this->client = new Google_Client();
+            $this->client->setApplicationName('AI Content Agent');
+            $this->client->setScopes([
+                'https://www.googleapis.com/auth/webmasters.readonly'
+            ]);
+            $this->client->setAccessType('offline');
+            $this->client->setPrompt('consent');
             
-            // Check if token is expired and refresh if needed
-            if ($this->client->isAccessTokenExpired()) {
-                $this->refresh_token();
+            // Get credentials from settings
+            $settings = get_option('aca_settings', array());
+            if (!empty($settings['gscClientId']) && !empty($settings['gscClientSecret'])) {
+                $this->client->setClientId($settings['gscClientId']);
+                $this->client->setClientSecret($settings['gscClientSecret']);
             }
-        }
-        
-        // Initialize Search Console service
-        if ($this->client->getAccessToken()) {
-            $this->service = new Google_Service_Webmasters($this->client);
+            
+            // Set redirect URI
+            $this->client->setRedirectUri($this->get_redirect_uri());
+            
+            // Set access token if available
+            $access_token = get_option('aca_gsc_access_token');
+            if ($access_token) {
+                $this->client->setAccessToken($access_token);
+                
+                // Check if token is expired and refresh if needed
+                if ($this->client->isAccessTokenExpired()) {
+                    $this->refresh_token();
+                }
+                
+                // Initialize Search Console service
+                if ($this->client->getAccessToken()) {
+                    $this->service = new Google_Service_Webmasters($this->client);
+                }
+            }
+        } catch (Exception $e) {
+            error_log('ACA GSC Init Error: ' . $e->getMessage());
+            $this->client = null;
+            $this->service = null;
         }
     }
     
     /**
-     * Get OAuth2 authorization URL
+     * Get redirect URI for OAuth
      */
-    public function get_auth_url() {
-        return $this->client->createAuthUrl();
-    }
-    
-    /**
-     * Get redirect URI for OAuth2
-     */
-    public function get_redirect_uri() {
+    private function get_redirect_uri() {
         return admin_url('admin.php?page=ai-content-agent&gsc_auth=callback');
     }
     
     /**
-     * Handle OAuth2 callback
+     * Get authorization URL
+     */
+    public function get_auth_url() {
+        if (!$this->client) {
+            return new WP_Error('client_error', 'Google client not initialized');
+        }
+        
+        return $this->client->createAuthUrl();
+    }
+    
+    /**
+     * Handle OAuth callback
      */
     public function handle_oauth_callback($auth_code) {
+        if (!$this->client) {
+            return new WP_Error('client_error', 'Google client not initialized');
+        }
+        
         try {
-            $access_token = $this->client->fetchAccessTokenWithAuthCode($auth_code);
+            $token = $this->client->fetchAccessTokenWithAuthCode($auth_code);
             
-            if (isset($access_token['error'])) {
-                throw new Exception('OAuth error: ' . $access_token['error_description']);
+            if (isset($token['error'])) {
+                return new WP_Error('oauth_error', $token['error_description']);
             }
             
             // Store access token
-            update_option('aca_gsc_access_token', $access_token);
+            update_option('aca_gsc_access_token', $token);
             
-            // Store refresh token separately for security
-            if (isset($access_token['refresh_token'])) {
-                update_option('aca_gsc_refresh_token', $access_token['refresh_token']);
-            }
-            
-            // Get user email and store it
+            // Initialize service
             $this->service = new Google_Service_Webmasters($this->client);
-            $user_info = $this->get_user_info();
             
-            if ($user_info) {
+            // Get user info
+            $user_info = $this->get_user_info();
+            if (!is_wp_error($user_info)) {
+                // Update settings with user info
                 $settings = get_option('aca_settings', array());
                 $settings['searchConsoleUser'] = array('email' => $user_info['email']);
                 update_option('aca_settings', $settings);
             }
             
-            return array('success' => true, 'user_info' => $user_info);
+            return true;
             
         } catch (Exception $e) {
             error_log('GSC OAuth Error: ' . $e->getMessage());
-            return array('success' => false, 'error' => $e->getMessage());
+            return new WP_Error('oauth_error', $e->getMessage());
         }
     }
     
@@ -117,31 +134,25 @@ class ACA_Google_Search_Console {
      * Refresh access token
      */
     private function refresh_token() {
-        $refresh_token = get_option('aca_gsc_refresh_token');
-        if ($refresh_token) {
-            try {
-                $this->client->refreshToken($refresh_token);
-                $new_access_token = $this->client->getAccessToken();
-                update_option('aca_gsc_access_token', $new_access_token);
-                
-                // Update refresh token if a new one is provided
-                if (isset($new_access_token['refresh_token'])) {
-                    update_option('aca_gsc_refresh_token', $new_access_token['refresh_token']);
-                }
-                
-                return true;
-            } catch (Exception $e) {
-                error_log('GSC Token Refresh Error: ' . $e->getMessage());
-                return false;
+        try {
+            $refresh_token = $this->client->getRefreshToken();
+            if ($refresh_token) {
+                $new_token = $this->client->fetchAccessTokenWithRefreshToken($refresh_token);
+                update_option('aca_gsc_access_token', $new_token);
             }
+        } catch (Exception $e) {
+            error_log('GSC Token Refresh Error: ' . $e->getMessage());
         }
-        return false;
     }
     
     /**
-     * Get user info from Google
+     * Get user information
      */
     private function get_user_info() {
+        if (!$this->client || !$this->client->getAccessToken()) {
+            return new WP_Error('not_authenticated', 'Not authenticated');
+        }
+        
         try {
             // Use OAuth2 service to get user info
             $oauth2 = new Oauth2($this->client);
@@ -149,12 +160,12 @@ class ACA_Google_Search_Console {
             
             return array(
                 'email' => $user_info->getEmail(),
-                'name' => $user_info->getName(),
-                'picture' => $user_info->getPicture()
+                'name' => $user_info->getName()
             );
+            
         } catch (Exception $e) {
             error_log('GSC User Info Error: ' . $e->getMessage());
-            return null;
+            return new WP_Error('api_error', $e->getMessage());
         }
     }
     
@@ -165,58 +176,45 @@ class ACA_Google_Search_Console {
         $access_token = get_option('aca_gsc_access_token');
         $settings = get_option('aca_settings', array());
         
-        if ($access_token && !empty($settings['searchConsoleUser'])) {
-            return array(
-                'authenticated' => true,
-                'user_email' => $settings['searchConsoleUser']['email']
-            );
-        }
-        
-        return array('authenticated' => false);
+        return array(
+            'is_authenticated' => !empty($access_token) && !empty($settings['searchConsoleUser']),
+            'user' => isset($settings['searchConsoleUser']) ? $settings['searchConsoleUser'] : null,
+            'has_credentials' => !empty($settings['gscClientId']) && !empty($settings['gscClientSecret'])
+        );
     }
     
     /**
      * Disconnect from Google Search Console
      */
     public function disconnect() {
-        // Revoke token
-        try {
-            if ($this->client && $this->client->getAccessToken()) {
-                $this->client->revokeToken();
-            }
-        } catch (Exception $e) {
-            error_log('GSC Token Revoke Error: ' . $e->getMessage());
-        }
-        
-        // Clear stored tokens and user info
         delete_option('aca_gsc_access_token');
-        delete_option('aca_gsc_refresh_token');
         
-        // Clear user info from settings
         $settings = get_option('aca_settings', array());
         $settings['searchConsoleUser'] = null;
         update_option('aca_settings', $settings);
         
-        return array('success' => true);
+        $this->service = null;
+        
+        return true;
     }
     
     /**
      * Get search analytics data
      */
-    public function get_search_analytics($site_url, $start_date = null, $end_date = null, $dimensions = array('query'), $row_limit = 1000) {
+    public function get_search_analytics($site_url, $start_date = null, $end_date = null, $dimensions = array('query'), $row_limit = 25) {
         if (!$this->service) {
             return new WP_Error('not_authenticated', 'Not authenticated with Google Search Console');
         }
         
+        // Set default dates (last 30 days)
+        if (!$start_date) {
+            $start_date = date('Y-m-d', strtotime('-30 days'));
+        }
+        if (!$end_date) {
+            $end_date = date('Y-m-d', strtotime('-1 day')); // Yesterday (GSC data has 1-day delay)
+        }
+        
         try {
-            // Set default date range if not provided
-            if (!$start_date) {
-                $start_date = date('Y-m-d', strtotime('-30 days'));
-            }
-            if (!$end_date) {
-                $end_date = date('Y-m-d', strtotime('-1 day'));
-            }
-            
             // Create search analytics query
             $request = new Google_Service_Webmasters_SearchAnalyticsQueryRequest();
             $request->setStartDate($start_date);
@@ -226,10 +224,11 @@ class ACA_Google_Search_Console {
             
             // Execute query
             $response = $this->service->searchanalytics->query($site_url, $request);
+            $rows = $response->getRows();
             
             $results = array();
-            if ($response->getRows()) {
-                foreach ($response->getRows() as $row) {
+            if ($rows) {
+                foreach ($rows as $row) {
                     $results[] = array(
                         'keys' => $row->getKeys(),
                         'clicks' => $row->getClicks(),
@@ -282,6 +281,10 @@ class ACA_Google_Search_Console {
         // Auto-detect site URL if not provided
         if (!$site_url) {
             $site_url = home_url();
+            // Add trailing slash if not present (GSC requirement)
+            if (substr($site_url, -1) !== '/') {
+                $site_url .= '/';
+            }
         }
         
         $analytics_data = $this->get_search_analytics($site_url, null, null, array('query'), $limit);
@@ -292,7 +295,7 @@ class ACA_Google_Search_Console {
         
         $queries = array();
         foreach ($analytics_data as $row) {
-            if (!empty($row['keys'][0])) {
+            if (!empty($row['keys'][0]) && $row['clicks'] > 0) { // Only include queries with actual clicks
                 $queries[] = $row['keys'][0];
             }
         }
@@ -307,9 +310,13 @@ class ACA_Google_Search_Console {
         // Auto-detect site URL if not provided
         if (!$site_url) {
             $site_url = home_url();
+            // Add trailing slash if not present (GSC requirement)
+            if (substr($site_url, -1) !== '/') {
+                $site_url .= '/';
+            }
         }
         
-        $analytics_data = $this->get_search_analytics($site_url, null, null, array('page'), $limit);
+        $analytics_data = $this->get_search_analytics($site_url, null, null, array('page'), $limit * 2); // Get more to filter
         
         if (is_wp_error($analytics_data)) {
             return $analytics_data;
@@ -317,8 +324,11 @@ class ACA_Google_Search_Console {
         
         $pages = array();
         foreach ($analytics_data as $row) {
-            if (!empty($row['keys'][0]) && $row['position'] > 10) { // Pages ranking below position 10
+            if (!empty($row['keys'][0]) && $row['position'] > 10 && $row['impressions'] > 10) { // Pages ranking below position 10 with decent impressions
                 $pages[] = $row['keys'][0];
+                if (count($pages) >= $limit) {
+                    break;
+                }
             }
         }
         
@@ -329,18 +339,38 @@ class ACA_Google_Search_Console {
      * Get data formatted for AI content generation
      */
     public function get_data_for_ai() {
+        // Ensure we have proper authentication
+        if (!$this->service) {
+            error_log('ACA GSC: Service not initialized for AI data');
+            return false;
+        }
+        
         $site_url = home_url();
+        // Add trailing slash if not present (GSC requirement)
+        if (substr($site_url, -1) !== '/') {
+            $site_url .= '/';
+        }
         
         $top_queries = $this->get_top_queries($site_url, 20);
         $underperforming_pages = $this->get_underperforming_pages($site_url, 10);
         
         if (is_wp_error($top_queries) || is_wp_error($underperforming_pages)) {
+            error_log('ACA GSC: Error fetching data - Queries: ' . (is_wp_error($top_queries) ? $top_queries->get_error_message() : 'OK') . 
+                     ', Pages: ' . (is_wp_error($underperforming_pages) ? $underperforming_pages->get_error_message() : 'OK'));
+            return false;
+        }
+        
+        // Ensure we have meaningful data
+        if (empty($top_queries) && empty($underperforming_pages)) {
+            error_log('ACA GSC: No meaningful data found for site: ' . $site_url);
             return false;
         }
         
         return array(
-            'topQueries' => $top_queries,
-            'underperformingPages' => $underperforming_pages
+            'topQueries' => $top_queries ?: array(),
+            'underperformingPages' => $underperforming_pages ?: array(),
+            'site_url' => $site_url,
+            'data_date' => date('Y-m-d H:i:s')
         );
     }
 }

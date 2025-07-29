@@ -17,109 +17,168 @@ The Google Search Console integration allows the AI Content Agent to:
 - Google account with access to Google Search Console
 - Your website verified in Google Search Console
 - Basic understanding of Google Cloud Console
+- **IMPORTANT**: Composer installed on your server
 
 ## 🚀 Step-by-Step Setup
 
-### Step 1: Create Google Cloud Project
+### Step 1: Install Dependencies (CRITICAL)
+
+**⚠️ IMPORTANT**: The Google API client library must be installed before the integration will work.
+
+1. Navigate to your plugin directory:
+   ```bash
+   cd /path/to/wordpress/wp-content/plugins/ai-content-agent-plugin/
+   ```
+
+2. Install dependencies using Composer:
+   ```bash
+   composer install --no-dev --optimize-autoloader
+   ```
+
+3. Verify installation:
+   ```bash
+   ls -la vendor/google/
+   ```
+   You should see `apiclient` and other Google libraries.
+
+### Step 2: Create Google Cloud Project
 
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project or select an existing one
-3. Enable the **Google Search Console API**:
-   - Navigate to "APIs & Services" > "Library"
-   - Search for "Google Search Console API"
-   - Click "Enable"
+2. Create a new project or select existing one
+3. Name it something like "AI Content Agent GSC"
 
-### Step 2: Create OAuth 2.0 Credentials
+### Step 3: Enable Google Search Console API
 
-1. Go to "APIs & Services" > "Credentials"
-2. Click "Create Credentials" > "OAuth 2.0 Client IDs"
-3. If prompted, configure the OAuth consent screen:
-   - Choose "External" user type
-   - Fill in the required information
-   - Add your domain to authorized domains
-4. For Application type, select "Web application"
-5. Add authorized redirect URIs:
-   ```
-   https://yourdomain.com/wp-admin/admin.php?page=ai-content-agent&gsc_auth=callback
-   ```
-   Replace `yourdomain.com` with your actual domain
+1. In Google Cloud Console, go to **APIs & Services > Library**
+2. Search for "Google Search Console API"
+3. Click on it and press **Enable**
 
-6. Click "Create" and copy the **Client ID** and **Client Secret**
+### Step 4: Create OAuth2 Credentials
 
-### Step 3: Configure Plugin Settings
+1. Go to **APIs & Services > Credentials**
+2. Click **Create Credentials > OAuth 2.0 Client IDs**
+3. Configure the OAuth consent screen if prompted:
+   - User Type: External (for most cases)
+   - App name: "AI Content Agent"
+   - User support email: Your email
+   - Developer contact: Your email
+4. Create OAuth 2.0 Client ID:
+   - Application type: **Web application**
+   - Name: "AI Content Agent GSC"
+   - Authorized redirect URIs: Add your WordPress admin URL:
+     ```
+     https://yourdomain.com/wp-admin/admin.php?page=ai-content-agent&gsc_auth=callback
+     ```
+     Replace `yourdomain.com` with your actual domain
 
-1. In your WordPress admin, go to **AI Content Agent** > **Settings**
+### Step 5: Configure Plugin Settings
+
+1. In WordPress admin, go to **AI Content Agent > Settings**
 2. Scroll to the **Google Search Console** section
-3. Enter your **Client ID** and **Client Secret**
-4. Click the **Connect** button
-5. You'll be redirected to Google to authorize access
-6. Grant permissions and you'll be redirected back to your site
+3. Enter your OAuth2 credentials:
+   - **Client ID**: Copy from Google Cloud Console
+   - **Client Secret**: Copy from Google Cloud Console
+4. Click **Save Settings**
 
-## ✅ Verification
+### Step 6: Connect to Google Search Console
 
-Once connected, you should see:
-- ✅ Connection status showing "Connected as [your-email]"
-- ✅ Real search data being used in content generation
-- ✅ Top queries from your actual Search Console data
+1. After saving credentials, click **Connect to Google Search Console**
+2. You'll be redirected to Google for authorization
+3. Grant permissions to access your Search Console data
+4. You'll be redirected back to your WordPress admin
+
+### Step 7: Verify Connection
+
+1. Check that your email appears in the connection status
+2. Test the integration by generating new content ideas
+3. Ideas should now be based on your actual search data
 
 ## 🔧 Troubleshooting
 
 ### Common Issues
 
-**1. "OAuth error: redirect_uri_mismatch"**
-- Ensure the redirect URI in Google Cloud Console exactly matches your WordPress admin URL
-- Check for HTTP vs HTTPS differences
+#### 1. "Google API client library not installed" Error
+**Solution**: Run composer install in the plugin directory:
+```bash
+cd wp-content/plugins/ai-content-agent-plugin/
+composer install --no-dev
+```
 
-**2. "Access denied" or "insufficient permissions"**
-- Make sure your Google account has access to the Search Console property
-- Verify the website is properly verified in Google Search Console
+#### 2. "Redirect URI mismatch" Error
+**Solution**: Ensure the redirect URI in Google Cloud Console exactly matches:
+```
+https://yourdomain.com/wp-admin/admin.php?page=ai-content-agent&gsc_auth=callback
+```
 
-**3. "API not enabled"**
-- Ensure Google Search Console API is enabled in your Google Cloud project
-- Wait a few minutes after enabling for changes to propagate
+#### 3. "No data found" Message
+**Possible causes**:
+- Your site isn't verified in Google Search Console
+- Your site has very little search traffic
+- The site URL format doesn't match GSC (try with/without trailing slash)
 
-**4. Connection expires**
-- The plugin automatically refreshes tokens
-- If issues persist, disconnect and reconnect
+#### 4. "Authentication failed" Error
+**Solutions**:
+- Check that your Client ID and Secret are correct
+- Ensure the Google Search Console API is enabled
+- Verify your OAuth consent screen is configured
+
+#### 5. "Site not found in Search Console" Error
+**Solution**: 
+- Verify your website in Google Search Console first
+- Ensure the domain matches exactly (www vs non-www)
 
 ### Debug Information
 
-You can check the connection status and debug information in the **Settings** > **Automation Debug Panel** section.
+The plugin logs detailed error information. Check your WordPress debug log for entries starting with "ACA GSC".
+
+To enable WordPress debugging, add these lines to your `wp-config.php`:
+```php
+define('WP_DEBUG', true);
+define('WP_DEBUG_LOG', true);
+```
+
+## 📊 How It Works
+
+### Data Collection
+- **Top Queries**: Fetches your top 20 search queries with actual clicks
+- **Underperforming Pages**: Identifies pages ranking below position 10 with decent impressions
+- **Real-time Integration**: Data is fetched fresh each time you generate ideas
+
+### AI Integration
+When you generate content ideas, the AI receives:
+- Your top-performing search queries
+- Pages that need optimization
+- Your style guide preferences
+- Historical content to avoid duplicates
+
+This results in SEO-optimized content ideas based on actual user search behavior.
 
 ## 🔒 Security Notes
 
-- Client credentials are stored securely in your WordPress database
-- Access tokens are automatically refreshed
-- You can disconnect at any time to revoke access
+- OAuth2 tokens are stored securely in your WordPress database
 - Only read-only access to Search Console data is requested
+- Tokens are automatically refreshed when needed
+- You can disconnect at any time from the Settings page
 
-## 📊 Data Usage
+## 📈 Best Practices
 
-The integration fetches:
-- **Top Queries**: Your most searched keywords (last 30 days)
-- **Underperforming Pages**: Pages ranking below position 10
-- **Search Analytics**: Clicks, impressions, CTR, and position data
+1. **Regular Monitoring**: Check your GSC connection monthly
+2. **Data Quality**: Ensure your site has at least 1000+ monthly impressions for meaningful data
+3. **Site Verification**: Keep your site verified in Google Search Console
+4. **Multiple Properties**: If you have multiple sites, connect the most relevant one
 
-This data is used to:
-- Generate content ideas based on real search trends
-- Identify content gaps and opportunities
-- Improve AI-generated content relevance
-
-## 🔄 Updates and Compatibility
-
-- **Latest Version**: Uses modern Google API PHP client v2.x
-- **Namespaced Classes**: Updated for better compatibility
-- **Automatic Token Management**: Handles token refresh automatically
-- **Error Handling**: Comprehensive error logging and user feedback
-
-## 📞 Support
+## 🆘 Support
 
 If you encounter issues:
+
 1. Check the troubleshooting section above
 2. Review WordPress error logs
-3. Use the debug panel in plugin settings
-4. Ensure all prerequisites are met
+3. Verify all setup steps were completed
+4. Ensure composer dependencies are installed
+
+For additional support, check that all prerequisites are met and the Google Search Console API is properly enabled in your Google Cloud project.
 
 ---
 
-**Note**: This integration requires the `google/apiclient` PHP library, which is automatically included with the plugin.
+**Last Updated**: January 2025
+**Plugin Version**: 1.4.1+

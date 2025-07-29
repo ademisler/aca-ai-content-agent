@@ -1,11 +1,13 @@
 <?php
 /**
- * Plugin Name: AI Content Agent (ACA)
- * Description: AI-powered content creation and management plugin that generates blog posts, ideas, and manages your content workflow automatically.
- * Version: 1.8.0
+ * Plugin Name: AI Content Agent
+ * Plugin URI: https://ademisler.com/en
+ * Description: AI-powered content creation and management plugin that generates blog posts, ideas, and manages your content workflow automatically with an intelligent Content Calendar system and real Google Search Console integration.
+ * Version: 1.9.0
  * Author: Adem Isler
  * Author URI: https://ademisler.com/en
  * License: GPL v2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: ai-content-agent
  * Domain Path: /languages
  */
@@ -16,7 +18,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Plugin constants
-define('ACA_VERSION', '1.8.0');
+define('ACA_VERSION', '1.9.0');
 define('ACA_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('ACA_PLUGIN_PATH', plugin_dir_path(__FILE__));
 

@@ -1,408 +1,266 @@
-# Developer Guide - AI Content Agent Plugin
+# AI Content Agent - Developer Guide
 
-This comprehensive guide covers development, deployment, and maintenance procedures for the AI Content Agent WordPress plugin.
+**Version:** 1.9.0  
+**Last Updated:** December 19, 2024
 
 ## 📋 Table of Contents
 
-1. [Development Environment](#development-environment)
-2. [Build Process](#build-process)
-3. [Release Management](#release-management)
-4. [Documentation Standards](#documentation-standards)
-5. [Testing Procedures](#testing-procedures)
-6. [Deployment Checklist](#deployment-checklist)
-
-## 🛠️ Development Environment
-
-### Prerequisites
-- **Node.js**: 18+ (for React frontend)
-- **PHP**: 7.4+ (for WordPress backend)
-- **Composer**: For PHP dependencies (optional)
-- **Git**: Version control
-- **WordPress**: 5.0+ (for testing)
-
-### Setup Instructions
-```bash
-# Clone repository
-git clone https://github.com/ademisler/aca-ai-content-agent.git
-cd ai-content-agent-plugin
-
-# Install frontend dependencies
-npm install
-
-# Install PHP dependencies (optional, plugin includes placeholders)
-composer install --no-dev --optimize-autoloader
-
-# Start development server
-npm run dev
-```
-
-### Directory Structure
-```
-ai-content-agent-plugin/
-├── admin/                     # Compiled assets
-│   ├── assets/               # Build output (JS files)
-│   ├── css/index.css         # Fallback CSS
-│   └── js/index.js           # Fallback JavaScript
-├── components/               # React components
-├── services/                 # Frontend services
-├── includes/                 # PHP backend classes
-├── releases/                 # Release management
-│   ├── ai-content-agent-v1.6.8-*.zip  # Latest release
-│   └── archive/              # Previous versions
-├── vendor/                   # PHP dependencies (placeholders)
-├── dist/                     # Vite build output
-└── node_modules/             # Node.js dependencies
-```
-
-## 🔧 Build Process
-
-### Development Build
-```bash
-# Start development server with hot reload
-npm run dev
-
-# Build for development (with source maps)
-npm run build:dev
-```
-
-### Production Build
-
-#### Option 1: Use WordPress Build Script (Recommended)
-```bash
-# Build and copy to both locations automatically
-npm run build:wp
-```
-
-#### Option 2: Manual Build Process
-```bash
-# Build for production
-npm run build
-
-# CRITICAL: Copy assets to BOTH locations for WordPress compatibility
-# 1. Copy to admin/assets/ (primary location)
-cp dist/assets/index-*.js admin/assets/
-
-# 2. Copy to admin/js/index.js (fallback location)
-cp dist/assets/index-*.js admin/js/index.js
-```
-
-### ⚠️ IMPORTANT: Asset Management
-WordPress plugin uses a **dual-asset system**:
-
-1. **Primary**: `admin/assets/index-[hash].js` - Main build file with cache busting
-2. **Fallback**: `admin/js/index.js` - Fallback file for compatibility
-
-**BOTH files must be updated** when making style changes or any frontend modifications:
-
-```bash
-# After any style changes, ALWAYS run:
-npm run build
-rm admin/assets/index-*.js  # Remove old files
-cp dist/assets/index-*.js admin/assets/  # Copy new build
-cp dist/assets/index-*.js admin/js/index.js  # Update fallback
-```
-
-**Why Both Files Are Needed:**
-- `admin/assets/` - Used when build files are detected (cache busting)
-- `admin/js/` - Used as fallback when assets directory is not available
-- Plugin automatically selects the most recent file by modification time
-
-### Build Configuration
-The plugin uses **Vite** with the following key configurations:
-
-```typescript
-// vite.config.ts key settings
-export default defineConfig({
-  build: {
-    target: 'es2020',
-    minify: false, // Disabled to prevent temporal dead zone issues
-    rollupOptions: {
-      output: {
-        format: 'iife', // Better variable isolation
-        name: 'ACAApp',
-        entryFileNames: 'assets/[name]-[hash].js',
-      }
-    },
-    sourcemap: false, // Disabled for production
-    outDir: 'dist',
-  }
-});
-```
-
-### Key Build Features
-- **No Minification**: Prevents variable hoisting issues
-- **IIFE Format**: Better variable isolation
-- **Hash-based Filenames**: Automatic cache busting
-- **ES2020 Target**: Modern browser compatibility
-
-## 📦 Release Management
-
-### Current Release Information
-- **Latest Version**: v1.8.0
-- **Release File**: `ai-content-agent-v1.8.0-comprehensive-feature-enhancements-and-improvements.zip`
-- **Status**: Production ready with comprehensive feature enhancements and improvements
-- **Key Features**: Author updates, dashboard optimization, feature verification, quality assurance
-
-### Release Process
-
-#### 1. Version Update
-```bash
-# Update version in package.json
-npm version patch  # or minor/major
-
-# Update WordPress plugin header
-# In ai-content-agent.php:
-# Version: 1.6.8
-# define('ACA_VERSION', '1.6.8');
-```
-
-#### 2. Build and Test
-```bash
-# Clean build
-npm run build
-
-# CRITICAL: Copy assets to BOTH locations
-# Remove old files first
-rm admin/assets/index-*.js
-rm admin/js/index.js
-
-# Copy new build to both locations
-cp dist/assets/index-*.js admin/assets/
-cp dist/assets/index-*.js admin/js/index.js
-
-# Test functionality
-npm run test  # if tests are available
-```
-
-#### 3. Documentation Update
-```bash
-# Update all documentation files
-# - README.md
-# - CHANGELOG.md
-# - RELEASES.md
-# - README.txt
-# - DEVELOPER_GUIDE.md (this file)
-```
-
-#### 4. Create Release Package
-```bash
-# Move previous release to archive
-mv releases/ai-content-agent-v1.7.0-*.zip releases/archive/
-
-# Create new release zip
-zip -r ai-content-agent-v1.8.0-comprehensive-feature-enhancements-and-improvements.zip \
-  ai-content-agent-plugin/ \
-  -x "*/node_modules/*" "*/.git/*" "*/dist/*" \
-     "*/package-lock.json" "*/.gitignore" "*/.DS_Store" \
-     "*/tsconfig.json" "*/vite.config.ts"
-
-# Move to releases directory
-mv ai-content-agent-v1.8.0-*.zip releases/
-```
-
-#### 5. Git Operations
-```bash
-# Commit all changes
-git add .
-git commit -m "🚀 RELEASE v1.8.0: COMPREHENSIVE FEATURE ENHANCEMENTS & IMPROVEMENTS"
-
-# Push to main branch
-git push origin main
-
-# Create and push tag
-git tag v1.8.0
-git push origin v1.8.0
-```
-
-### Release Naming Convention
-```
-ai-content-agent-v{MAJOR}.{MINOR}.{PATCH}-{DESCRIPTION}.zip
-
-Examples:
-- ai-content-agent-v1.8.0-comprehensive-feature-enhancements-and-improvements.zip
-- ai-content-agent-v1.7.0-comprehensive-feature-enhancements-and-improvements.zip
-- ai-content-agent-v1.6.8-gemini-api-retry-logic-and-improved-error-handling.zip
-```
-
-## 📚 Documentation Standards
-
-### File Structure
-```
-├── README.md                 # Main project documentation
-├── CHANGELOG.md             # Detailed version history
-├── RELEASES.md              # Release management info
-├── README.txt               # WordPress plugin readme
-├── DEVELOPER_GUIDE.md       # This file
-├── GOOGLE_SEARCH_CONSOLE_SETUP.md
-├── SEO_INTEGRATION_GUIDE.md
-└── AI_IMAGE_GENERATION_SETUP.md
-```
-
-### Documentation Update Checklist
-- [ ] Update version badges and references
-- [ ] Add new features to feature lists
-- [ ] Update installation instructions
-- [ ] Add changelog entries
-- [ ] Update troubleshooting sections
-- [ ] Verify all links and references
-- [ ] Check for consistency across all files
-
-## 🧪 Testing Procedures
-
-### Manual Testing Checklist
-
-#### Plugin Activation
-- [ ] Plugin activates without errors
-- [ ] Admin menu appears correctly
-- [ ] No JavaScript console errors
-- [ ] All assets load properly
-
-#### Core Functionality
-- [ ] Settings page loads and saves correctly
-- [ ] API keys can be configured
-- [ ] Style guide creation works
-- [ ] Idea generation functions
-- [ ] Draft creation with retry logic works
-- [ ] Error handling displays user-friendly messages
-
-#### AI Service Testing
-- [ ] Test Gemini API overload scenarios
-- [ ] Verify automatic model fallback
-- [ ] Check retry logic with network issues
-- [ ] Validate error message display
-
-#### WordPress Integration
-- [ ] Compatible with latest WordPress version
-- [ ] Works with common themes
-- [ ] Integrates with SEO plugins (Yoast, RankMath)
-- [ ] No conflicts with other plugins
-
-### Error Scenarios to Test
-1. **API Overload (503 Error)**
-   - Expected: Automatic retry with fallback model
-   - User sees: "🤖 AI service is temporarily overloaded..."
-
-2. **Network Timeout**
-   - Expected: Retry with exponential backoff
-   - User sees: "⏱️ Request timed out..."
-
-3. **Invalid API Key**
-   - Expected: Clear error message
-   - User sees: "🔑 AI API key is not configured..."
-
-4. **Missing Style Guide**
-   - Expected: Helpful guidance
-   - User sees: "📋 Style guide is required..."
-
-## 🚀 Deployment Checklist
-
-### Pre-Deployment
-- [ ] All tests pass
-- [ ] Documentation updated
-- [ ] Version numbers consistent
-- [ ] Build assets copied correctly
-- [ ] No development dependencies in release
-
-### WordPress.org Submission (if applicable)
-- [ ] README.txt follows WordPress standards
-- [ ] Stable tag updated
-- [ ] Tested up to latest WordPress version
-- [ ] Screenshots updated
-- [ ] Changelog entries added
-
-### Production Deployment
-- [ ] Backup current version
-- [ ] Test in staging environment
-- [ ] Monitor for errors after deployment
-- [ ] Verify all functionality works
-- [ ] Check error logs
-
-## 🔍 Debugging and Troubleshooting
-
-### Common Development Issues
-
-#### Build Errors
-```bash
-# Clear node modules and reinstall
-rm -rf node_modules package-lock.json
-npm install
-
-# Clear Vite cache
-rm -rf dist
-npm run build
-```
-
-#### JavaScript Errors
-- Check browser console for errors
-- Verify asset files are loaded correctly
-- Check WordPress `wp_enqueue_script` calls
-- Validate React component structure
-
-#### PHP Errors
-- Check WordPress debug logs
-- Verify PHP syntax
-- Test API endpoints directly
-- Check WordPress REST API responses
-
-### Logging and Monitoring
-```php
-// Enable WordPress debugging
-define('WP_DEBUG', true);
-define('WP_DEBUG_LOG', true);
-
-// Plugin-specific logging
-error_log('ACA Debug: ' . print_r($data, true));
-```
-
-## 🔧 Advanced Configuration
-
-### Environment Variables
-```bash
-# .env file for development
-GEMINI_API_KEY=your_api_key_here
-NODE_ENV=development
-```
-
-### Custom Build Scripts
-```json
-// package.json scripts
-{
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "build:wp": "vite build && cp dist/assets/index-*.js admin/assets/",
-    "preview": "vite preview"
-  }
-}
-```
-
-### WordPress Constants
-```php
-// wp-config.php for development
-define('ACA_DEBUG', true);
-define('ACA_API_TIMEOUT', 120);
-define('ACA_MAX_RETRIES', 3);
-```
-
-## 📊 Performance Considerations
-
-### Bundle Size Optimization
-- Unminified build: ~320KB (for stability)
-- Minified would be: ~95KB (but causes TDZ issues)
-- Assets cached by WordPress and browsers
-
-### API Performance
-- Timeout: 120 seconds (increased for complex content)
-- Retry logic: 3 attempts with exponential backoff
-- Model fallback: gemini-2.0-flash → gemini-1.5-pro
-- Token limit: 4096 (increased for longer content)
-
-### WordPress Performance
-- Unique script handles prevent caching issues
-- File modification time used for cache busting
-- Error boundary prevents page crashes
-- Graceful degradation when services unavailable
+1. [Pro License System Implementation](#pro-license-system-implementation)
+2. [Architecture Overview](#architecture-overview)
+3. [Development Setup](#development-setup)
+4. [Build System](#build-system)
+5. [API Documentation](#api-documentation)
+6. [Database Schema](#database-schema)
+7. [Frontend Architecture](#frontend-architecture)
+8. [Testing](#testing)
+9. [Deployment](#deployment)
 
 ---
 
-**Development Guidelines**: Always test thoroughly, document changes, and maintain backward compatibility. The plugin should work reliably even when AI services are temporarily unavailable. 🚀
+## 🔑 Pro License System Implementation
+
+### Overview
+
+Version 1.9.0 introduces a comprehensive premium licensing system that integrates with Gumroad's License Key API to provide secure feature gating for advanced functionality.
+
+### Architecture
+
+#### Backend (PHP)
+
+**License Verification Endpoint**
+```php
+// POST /wp-json/aca/v1/license/verify
+public function verify_license_key($request) {
+    // Nonce verification for security
+    $nonce_check = $this->verify_nonce($request);
+    if (is_wp_error($nonce_check)) {
+        return $nonce_check;
+    }
+    
+    // Sanitize input
+    $params = $request->get_json_params();
+    $license_key = sanitize_text_field($params['license_key'] ?? '');
+    
+    // Call Gumroad API
+    $verification_result = $this->call_gumroad_api($product_id, $license_key);
+    
+    // Store license status
+    if ($verification_result['success']) {
+        update_option('aca_license_status', 'active');
+        update_option('aca_license_data', $verification_result);
+    }
+    
+    return rest_ensure_response($verification_result);
+}
+```
+
+**Gumroad API Integration**
+```php
+private function call_gumroad_api($product_id, $license_key) {
+    $url = 'https://api.gumroad.com/v2/licenses/verify';
+    
+    $response = wp_remote_post($url, array(
+        'headers' => array(
+            'Content-Type' => 'application/x-www-form-urlencoded'
+        ),
+        'body' => array(
+            'product_id' => $product_id,           // Use product_id for products after Jan 9, 2023
+            'license_key' => $license_key,
+            'increment_uses_count' => 'true'       // Track usage for analytics
+        ),
+        'timeout' => 30,
+        'blocking' => true,
+        'sslverify' => true
+    ));
+    
+    // Validation logic
+    $is_valid = ($data['success'] === true) && 
+                ($data['purchase']['refunded'] === false) && 
+                ($data['purchase']['chargebacked'] === false);
+}
+```
+
+**Global Helper Function**
+```php
+/**
+ * Check if ACA Pro is active
+ * 
+ * @return bool True if pro license is active, false otherwise
+ */
+function is_aca_pro_active() {
+    return get_option('aca_license_status') === 'active';
+}
+```
+
+#### Feature Gating Implementation
+
+**Automation Modes (class-aca-cron.php)**
+```php
+// Semi-automatic mode protection
+if (isset($settings['mode']) && $settings['mode'] === 'semi-automatic') {
+    if (is_aca_pro_active()) {
+        $this->generate_ideas_semi_auto();
+    } else {
+        error_log('ACA: Semi-automatic mode requires Pro license');
+    }
+}
+
+// Full-automatic mode protection
+if (isset($settings['mode']) && $settings['mode'] === 'full-automatic') {
+    if (is_aca_pro_active()) {
+        $this->run_full_automatic_cycle();
+    } else {
+        error_log('ACA: Full-automatic mode requires Pro license');
+    }
+}
+```
+
+**Google Search Console Integration**
+```php
+public function get_gsc_data($request) {
+    // Check if pro license is active
+    if (!is_aca_pro_active()) {
+        return new WP_Error(
+            'pro_required', 
+            'Google Search Console integration requires Pro license', 
+            array('status' => 403)
+        );
+    }
+    
+    // GSC data logic here...
+}
+```
+
+#### Frontend (React/TypeScript)
+
+**License API Service**
+```typescript
+// services/wordpressApi.ts
+export const licenseApi = {
+  verify: (licenseKey: string) => makeApiCall('license/verify', {
+    method: 'POST',
+    body: JSON.stringify({ license_key: licenseKey }),
+  }),
+  getStatus: () => makeApiCall('license/status'),
+};
+```
+
+**License State Management**
+```typescript
+// License-related state
+const [licenseKey, setLicenseKey] = useState('');
+const [licenseStatus, setLicenseStatus] = useState<{
+    status: string, 
+    is_active: boolean, 
+    verified_at?: string
+}>({status: 'inactive', is_active: false});
+const [isVerifyingLicense, setIsVerifyingLicense] = useState(false);
+
+// Load license status on component mount
+useEffect(() => {
+    const loadLicenseStatus = async () => {
+        try {
+            const status = await licenseApi.getStatus();
+            setLicenseStatus(status);
+        } catch (error) {
+            console.error('Failed to load license status:', error);
+        }
+    };
+    
+    loadLicenseStatus();
+}, []);
+```
+
+**Conditional Feature Rendering**
+```typescript
+// Automation Mode with Pro gating
+{currentSettings.is_pro ? (
+    <div className="aca-card">
+        {/* Full automation settings */}
+    </div>
+) : (
+    <UpgradePrompt 
+        title="Advanced Automation Modes"
+        description="Unlock Semi-Automatic and Full-Automatic modes"
+        features={[
+            "Semi-Automatic: Automated idea generation",
+            "Full-Automatic: Complete automation",
+            "Advanced scheduling options"
+        ]}
+    />
+)}
+```
+
+**Upgrade Prompt Component**
+```typescript
+export const UpgradePrompt: React.FC<UpgradePromptProps> = ({ 
+    title, description, features, gumroadUrl 
+}) => {
+    return (
+        <div className="aca-card" style={{ 
+            border: '2px solid #f0ad4e',
+            background: 'linear-gradient(135deg, #fff9e6 0%, #ffeaa7 100%)'
+        }}>
+            <div className="pro-badge">PRO</div>
+            <h3>{title}</h3>
+            <p>{description}</p>
+            <ul>
+                {features.map((feature, index) => (
+                    <li key={index}>{feature}</li>
+                ))}
+            </ul>
+            <a href={gumroadUrl} className="aca-button aca-button-primary">
+                Upgrade to Pro
+            </a>
+        </div>
+    );
+};
+```
+
+### Security Considerations
+
+1. **Input Sanitization**: All license keys are sanitized using `sanitize_text_field()`
+2. **Nonce Verification**: All API endpoints require valid WordPress nonces
+3. **Permission Checks**: Admin-only access to license endpoints
+4. **Secure Storage**: License data stored using WordPress options API
+5. **API Security**: HTTPS-only communication with Gumroad API
+
+### Testing the License System
+
+**Manual Testing**
+1. Activate plugin without license (free mode)
+2. Verify pro features show upgrade prompts
+3. Enter valid license key and verify activation
+4. Confirm pro features become available
+5. Test invalid license key handling
+
+**API Testing**
+```bash
+# Test license verification (replace with actual values)
+curl -X POST http://your-site.com/wp-json/aca/v1/license/verify \
+  -H "Content-Type: application/json" \
+  -H "X-WP-Nonce: your-nonce" \
+  -d '{"license_key": "your-license-key"}'
+
+# Test license status
+curl -X GET http://your-site.com/wp-json/aca/v1/license/status \
+  -H "X-WP-Nonce: your-nonce"
+```
+
+### Configuration
+
+**Product ID Setup**
+Replace the placeholder in `class-aca-rest-api.php`:
+```php
+// Line ~3143
+$product_id = 'YOUR_GUMROAD_PRODUCT_ID_HERE';
+```
+
+**Gumroad Store URL**
+Update the Gumroad URL in upgrade prompts:
+```typescript
+// components/UpgradePrompt.tsx
+gumroadUrl = "https://gumroad.com/l/your-actual-product-link"
+```
+
+---

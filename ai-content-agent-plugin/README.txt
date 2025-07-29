@@ -1,263 +1,220 @@
 === AI Content Agent (ACA) ===
 Contributors: aicontentagent
-Tags: ai, content, automation, calendar, scheduling, gemini, chatgpt, seo, blog
+Tags: ai, content, automation, calendar, seo, google-search-console, gemini, content-creation, scheduling, wordpress
 Requires at least: 5.0
-Tested up to: 6.4
+Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.3.8
+Stable tag: 1.4.9
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-AI-powered content creation and management with intelligent Content Calendar. Generate, schedule, and manage your WordPress content automatically.
+AI-powered content creation and management plugin with intelligent Content Calendar and real Google Search Console integration.
 
 == Description ==
 
-**AI Content Agent (ACA)** transforms your WordPress content workflow with intelligent automation and a revolutionary Content Calendar system. Create, schedule, and manage all your content from one beautiful interface.
+**AI Content Agent (ACA)** revolutionizes your WordPress content workflow with intelligent automation, beautiful calendar management, and real Google Search Console insights.
 
-= 🚀 Latest Updates - v1.3.8 =
+= 🚀 Latest Updates - v1.4.9 =
 
-**CRITICAL FIXES:**
-* **Published Posts Now Visible**: Fixed backend status mapping - all existing WordPress posts appear in calendar
-* **Complete WordPress Integration**: Full compatibility with existing content
-* **Status Filtering Fixed**: Resolved frontend filtering preventing published content display
+**CRITICAL ACTIVATION ERROR COMPLETELY FIXED**
+* Fixed PHP syntax error that prevented plugin activation
+* Corrected method indentation and structure in GSC integration
+* Plugin now activates without any errors
+* Maintained comprehensive error handling while fixing syntax issues
 
-**SMART MULTI-POST UI:**
-* **Expandable Calendar Cells**: Revolutionary design handles unlimited posts per day
-* **Intelligent Space Management**: Auto-expands with smooth animations
-* **Post Count Indicators**: Smart badges show total posts with visual hierarchy
-* **Enhanced UX**: Direct WordPress editor navigation, full drag & drop rescheduling
+= 🔍 Google Search Console Integration =
 
-= 🎯 Key Features =
+Connect your actual Google Search Console account for data-driven content creation:
 
-**📅 Intelligent Content Calendar**
-* Smart multi-post management with expandable cells
-* Visual post types: Scheduled (🟡), Published (🟢), Today (🔵)
-* Drag & drop scheduling and rescheduling
-* Direct WordPress editor integration
-* Real-time updates with notifications
+* **Real Search Data**: Access actual search queries, clicks, impressions, CTR, and position data
+* **OAuth2 Security**: Secure authentication with Google's OAuth2 system
+* **AI Enhancement**: Search Console data directly improves AI content suggestions
+* **Performance Insights**: Monitor top-performing and underperforming content
 
-**🤖 AI-Powered Content Creation**
-* Multi-AI support: Gemini, ChatGPT, Claude
-* Smart content generation with SEO optimization
-* Style guide management for consistent brand voice
-* Automated workflow from idea to publication
+= 📅 Intelligent Content Calendar =
 
-**📊 Advanced Management**
-* Comprehensive dashboard with real-time statistics
-* Activity logging and detailed tracking
-* Draft lifecycle management
-* Published content overview with analytics
+Manage your content pipeline with an intuitive drag-and-drop calendar:
 
-**⚙️ Professional Features**
-* Stock photo integration and optimization
-* Built-in SEO analysis and recommendations
-* Bulk operations and mass content creation
-* Advanced WordPress cron-based scheduling
+* **Smart Scheduling**: Drag drafts to any date for automatic scheduling
+* **Multi-Status Support**: View drafts, scheduled posts, and published content
+* **Visual Timeline**: Clear visual representation of your content pipeline
+* **Direct WordPress Integration**: Click any post to edit directly in WordPress
+* **Multi-Post Display**: Intelligent UI for handling multiple posts per day
 
-= 📖 How to Use =
+= 🤖 AI-Powered Content Creation =
 
-**Content Calendar Workflow:**
-1. View all content in the visual calendar
-2. Schedule content by dragging drafts to dates
-3. Reschedule by dragging existing posts
-4. Click any post to edit in WordPress
-5. Track progress with visual indicators
+* **Gemini AI Integration**: Advanced content generation using Google's Gemini AI
+* **Smart Idea Generation**: AI suggests content ideas based on your niche and search data
+* **Auto-Draft Creation**: Transform ideas into full blog posts automatically
+* **SEO Optimization**: Built-in SEO analysis and optimization suggestions
 
-**AI Content Creation:**
-1. Generate ideas with AI assistance
-2. Convert ideas to full blog posts
-3. Apply SEO recommendations and style guide
-4. Schedule strategically using the calendar
+= ⚙️ Automation Modes =
 
-= 🎨 Smart Calendar Design =
+Choose your preferred level of automation:
 
-* **Expandable Cells**: Days with multiple posts show compact view initially
-* **Click to Expand**: Reveal all posts with smooth animation
-* **Visual Hierarchy**: Different post types have distinct styling
-* **Responsive Layout**: Optimized for all screen sizes
-* **Direct Navigation**: Click posts to edit in WordPress
+* **Manual Mode**: Full manual control over content creation and publishing
+* **Semi-Automatic**: AI assists with content generation, manual publishing
+* **Full-Automatic**: Complete automation from idea generation to publishing
 
-= 🛠️ Technical Requirements =
+= 📊 Analytics & Management =
+
+* **Activity Logging**: Comprehensive activity tracking and reporting
+* **Performance Metrics**: Track content performance and engagement
+* **Style Guide Management**: Maintain consistent brand voice and style
+* **SEO Insights**: Monitor SEO performance and optimization opportunities
+
+== Installation ==
+
+= Automatic Installation =
+
+1. Download the latest release: `ai-content-agent-v1.4.9-activation-error-fix.zip`
+2. Go to WordPress Admin → Plugins → Add New → Upload Plugin
+3. Choose the downloaded zip file and click "Install Now"
+4. Activate the plugin
+5. Configure your settings in AI Content Agent → Settings
+
+= Manual Installation =
+
+1. Download and extract the plugin files
+2. Upload the `ai-content-agent-plugin` folder to `/wp-content/plugins/`
+3. Activate the plugin through the WordPress Plugins screen
+4. Configure your settings
+
+== Frequently Asked Questions ==
+
+= Do I need API keys to use this plugin? =
+
+Yes, you need a Gemini AI API key for content generation. Google Search Console integration is optional but recommended for better content insights.
+
+= Is Google Search Console integration required? =
+
+No, it's optional. The plugin works without GSC integration, but connecting your account provides real search data for better AI content suggestions.
+
+= How do I set up Google Search Console integration? =
+
+Follow the detailed setup guide included with the plugin (`GOOGLE_SEARCH_CONSOLE_SETUP.md`) for step-by-step instructions on creating Google Cloud credentials.
+
+= Can I use this plugin without automation? =
+
+Yes! The plugin offers three modes: Manual (full control), Semi-Automatic (AI assistance), and Full-Automatic (complete automation). Choose what works best for you.
+
+= What happens if I don't have the required dependencies? =
+
+The plugin automatically detects missing dependencies and offers to install them. If automatic installation fails, you can install them manually using composer.
+
+= Is my data secure? =
+
+Yes, the plugin follows WordPress security best practices. Google Search Console integration uses secure OAuth2 authentication, and all data is stored securely in your WordPress database.
+
+== Screenshots ==
+
+1. **Dashboard Overview** - Main dashboard with content statistics and quick actions
+2. **Content Calendar** - Intelligent drag-and-drop calendar interface
+3. **AI Idea Board** - Generate and manage content ideas with AI assistance
+4. **Settings Panel** - Comprehensive settings with Google Search Console integration
+5. **Draft Management** - Create and edit drafts with AI assistance
+6. **Activity Logs** - Track all plugin activities and performance
+
+== Changelog ==
+
+= 1.4.9 - 2025-01-28 - CRITICAL ACTIVATION ERROR FIX =
+
+**CRITICAL ACTIVATION ERROR FIXED**
+* Fixed PHP syntax error in gsc_connect method causing plugin activation failure
+* Corrected method indentation and structure in GSC integration
+* Resolved "Plugin could not be activated because it triggered a fatal error"
+* Maintained comprehensive error handling while fixing syntax issues
+
+**CODE QUALITY IMPROVEMENTS**
+* Fixed all code indentation issues in GSC methods
+* Ensured all PHP syntax is correct and valid
+* Added proper code structure to prevent activation errors
+* Validated all method structures are complete
+
+= 1.4.8 - 2025-01-28 - GSC 500 ERROR FIX =
+
+**CRITICAL GSC 500 ERROR FIXED**
+* Added comprehensive try-catch blocks to all GSC REST API methods
+* Added checks for class existence before instantiation
+* Added file existence checks before requiring GSC class
+* Proper error responses instead of 500 server errors
+
+= 1.4.7 - 2025-01-28 - CONSOLE ERRORS FIX =
+
+**CONSOLE ERRORS & SCRIPT LOADING FIXES**
+* Fixed potential filemtime() errors when CSS/JS files are not accessible
+* Added comprehensive error handling for missing window.aca_object
+* Improved error messages when plugin scripts fail to load
+* Added file_exists() checks before using filemtime()
+
+= 1.4.0 - 2025-01-28 - GOOGLE SEARCH CONSOLE INTEGRATION =
+
+**MAJOR NEW FEATURE: REAL GOOGLE SEARCH CONSOLE INTEGRATION**
+* Complete replacement of simulated data with actual Google Search Console API integration
+* Secure OAuth2 flow for connecting to user's Google Search Console account
+* Access to real search queries, clicks, impressions, CTR, and position data
+* AI content generation now uses actual search performance data
+
+= 1.3.9 - 2025-01-28 - AUTOMATION MODE FIXES =
+
+**AUTOMATION MODE RELIABILITY**
+* Fixed all three automation modes (Manual, Semi-Auto, Full-Auto)
+* Enhanced cron job reliability and error handling
+* Added comprehensive debug system for automation testing
+* Improved error logging and activity tracking
+
+= 1.3.8 - 2025-01-28 - SMART CALENDAR UI =
+
+**CONTENT CALENDAR IMPROVEMENTS**
+* Fixed critical published posts visibility issue
+* Implemented smart multi-post display with expandable calendar cells
+* Enhanced visual hierarchy and space management
+* Improved drag-and-drop functionality for content scheduling
+
+= 1.3.5 - 2025-01-28 - COMPREHENSIVE SCHEDULING FIX =
+
+**SCHEDULING SYSTEM OVERHAUL**
+* Complete rewrite of WordPress scheduling integration
+* Fixed timezone handling and date/time management
+* Improved post status management (draft, future, publish)
+* Enhanced calendar synchronization with WordPress
+
+== Upgrade Notice ==
+
+= 1.4.9 =
+CRITICAL UPDATE: Fixes plugin activation error. All users should upgrade immediately.
+
+= 1.4.8 =
+Important update fixing Google Search Console 500 errors. Recommended for all users.
+
+= 1.4.0 =
+Major update with real Google Search Console integration. Backup your site before upgrading.
+
+== Technical Requirements ==
 
 * WordPress 5.0 or higher
 * PHP 7.4 or higher
 * MySQL 5.6 or higher
-* 128MB memory minimum (256MB recommended)
-* Modern browser (Chrome, Firefox, Safari, Edge)
-
-= 🔧 Configuration =
-
-**Required Settings:**
-* AI Service selection (Gemini recommended)
-* API key configuration
-* Content settings (categories, tags, formats)
-
-**Optional Enhancements:**
-* Stock photo integration
-* SEO settings and meta optimization
-* Automated scheduling preferences
-
-== Installation ==
-
-= Method 1: WordPress Admin (Recommended) =
-
-1. Download `ai-content-agent-v1.3.8-optimized.zip` (161KB)
-2. Go to WordPress Admin → Plugins → Add New → Upload Plugin
-3. Choose the downloaded zip file
-4. Click Install Now → Activate Plugin
-5. Configure settings in AI Content Agent menu
-
-= Method 2: Manual Installation =
-
-1. Extract zip file to `/wp-content/plugins/` directory
-2. Activate plugin through WordPress admin
-3. Configure your AI API keys in settings
-
-= Method 3: WordPress Repository =
-
-1. Go to Plugins → Add New
-2. Search for "AI Content Agent"
-3. Install and activate
-4. Configure settings
-
-== Frequently Asked Questions ==
-
-= What AI services are supported? =
-
-ACA supports multiple AI providers including Google Gemini, ChatGPT, and Claude. Gemini is recommended for optimal performance and cost-effectiveness.
-
-= Do I need coding knowledge? =
-
-No! ACA is designed for non-technical users. The intuitive interface handles all technical aspects automatically.
-
-= Will it work with my existing content? =
-
-Yes! ACA integrates seamlessly with your existing WordPress posts. All published content appears in the Content Calendar automatically.
-
-= Can I schedule content for future dates? =
-
-Absolutely! Use the drag-and-drop calendar to schedule drafts for any future date. The plugin handles WordPress scheduling automatically.
-
-= Is my content data secure? =
-
-Yes. Content is processed through secure AI APIs and stored in your WordPress database. No content is stored on external servers.
-
-= Can I customize the AI writing style? =
-
-Yes! ACA includes a Style Guide feature that analyzes your existing content to maintain consistent brand voice across all AI-generated posts.
-
-== Screenshots ==
-
-1. **Smart Content Calendar** - Revolutionary expandable design handles multiple posts per day
-2. **AI Content Generation** - Create full blog posts with SEO optimization
-3. **Dashboard Overview** - Real-time statistics and content management
-4. **Drag & Drop Scheduling** - Intuitive content scheduling interface
-5. **Style Guide Management** - Consistent brand voice across all content
-6. **Settings Configuration** - Easy setup and customization options
-
-== Changelog ==
-
-= 1.3.8 - 2025-01-28 - CRITICAL STATUS FIX + SMART MULTI-POST UI =
-
-**CRITICAL FIXES:**
-* PUBLISHED POSTS NOW VISIBLE: Fixed backend status mapping from 'publish' to 'published'
-* Status Filtering Fixed: Frontend properly recognizes published posts
-* All WordPress Content: Existing published posts appear in calendar
-
-**SMART MULTI-POST UI REDESIGN:**
-* Expandable Calendar Cells: Revolutionary expandable/collapsible design
-* Intelligent Space Management: Auto-expands based on content density
-* Visual Hierarchy: Clear indicators for different post types
-* Post Count Badges: Smart badges show total posts per day
-* Hover Effects: Enhanced UX with smooth transitions
-* Compact Mode: Efficient space usage with smart truncation
-* Direct Navigation: Click posts to edit in WordPress
-* Drag & Drop: Full rescheduling support for all post types
-
-**UI/UX ENHANCEMENTS:**
-* Smooth Animations: 0.2s transitions for expand/collapse
-* Typography Improvements: Better readability and hierarchy
-* Color Coding: Intuitive visual indicators for post status
-* Responsive Design: Perfect on all screen sizes
-* Performance Optimized: Faster loading and smoother interactions
-
-= 1.3.7 - 2025-01-28 - Published Posts Fix + Multi-Post UI =
-
-**CRITICAL FIXES:**
-* Published Posts Now Visible: Fixed get_published_posts API
-* Meta Key Dependency Removed: No longer requires _aca_meta_title
-* Existing Content Integration: All WordPress posts appear in calendar
-
-**MULTI-POST UI ENHANCEMENTS:**
-* Scrollable Calendar Cells: Days with many posts have scrollable areas
-* Post Count Indicator: Orange badge shows total when >3 posts per day
-* Compact Design: Smaller items to fit more content
-* Visual Hierarchy: Posts beyond 3rd have reduced opacity
-* Improved Spacing: Tighter gaps and optimized padding
-
-= 1.3.6 - 2025-01-28 - Enhanced Calendar UX =
-
-**UX IMPROVEMENTS:**
-* Direct WordPress Editor: Click posts to edit directly in WordPress
-* Re-draggable Drafts: Scheduled drafts can be rescheduled by dragging
-* Published Posts Display: All published posts visible on calendar
-* Visual Enhancements: Better icons, colors, and layout
-* Icon System: Consistent custom icons throughout interface
-
-**TECHNICAL IMPROVEMENTS:**
-* WordPress Admin URL: Proper admin URL handling for editor links
-* Drag & Drop: Enhanced drag and drop for all post types
-* State Management: Improved React state handling
-* Build Process: Optimized compilation and asset management
-
-= 1.3.5 - 2025-01-28 - Comprehensive Scheduling Fix =
-
-**CRITICAL SCHEDULING FIX:**
-* WordPress Date/Time Compatibility: Complete rewrite of scheduling system
-* Timezone Handling: Proper WordPress timezone management
-* GMT Conversion: Correct local to GMT time conversion
-* Future Post Status: Proper 'future' status for scheduled posts
-* Edit Date Parameter: Added edit_date => true for draft modifications
-
-**TECHNICAL IMPROVEMENTS:**
-* DateTime Objects: Robust date parsing and manipulation
-* WordPress Functions: Using current_time() and get_gmt_from_date()
-* Debug Logging: Comprehensive scheduling debug information
-* Error Handling: Better error recovery and user feedback
-
-= 1.3.4 - 2025-01-28 - Critical Scheduling Fix =
-
-**SCHEDULING IMPROVEMENTS:**
-* Calendar Time Fix: Set default 9:00 AM time for calendar drops
-* Future Time Logic: Ensure scheduled posts are always in future
-* Debug Logging: Added detailed scheduling debug information
-* WordPress Integration: Better WordPress scheduling compatibility
-
-= 1.3.3 - 2025-01-28 - Content Calendar Fix =
-
-**CALENDAR FIXES:**
-* Drag-and-Drop: Fixed drafts disappearing after scheduling
-* WordPress Scheduling: Proper post_status 'future' implementation
-* Visual Indicators: Yellow background for scheduled drafts
-* API Parameters: Enhanced parameter handling and state management
-* Clickable Items: Scheduled drafts now clickable for editing
-
-== Upgrade Notice ==
-
-= 1.3.8 =
-CRITICAL UPDATE: Fixes published posts visibility and introduces revolutionary smart multi-post calendar UI. All existing WordPress content now appears in calendar. Highly recommended upgrade.
-
-= 1.3.7 =
-Important fix for published posts visibility. Adds multi-post UI improvements for better content management.
-
-= 1.3.6 =
-Major UX improvements with direct WordPress editor integration and re-draggable scheduled content.
-
-= 1.3.5 =
-Critical scheduling fix with complete WordPress date/time compatibility rewrite. Essential for proper content scheduling.
+* Memory: 128MB minimum (256MB recommended)
+* Storage: 15MB for plugin files
+* Google Cloud Project (for GSC integration, optional)
 
 == Support ==
 
-For support, documentation, and feature requests, please visit our plugin settings page which includes comprehensive help sections and troubleshooting guides.
+* Documentation: Comprehensive guides included with plugin
+* Setup Guide: Complete Google Search Console setup instructions
+* GitHub: Report issues and request features
+* WordPress Compatibility: Tested with latest WordPress versions
 
-**Transform your WordPress content workflow with intelligent automation!**
+== License ==
+
+This plugin is licensed under the GPL v2 or later.
+
+== Privacy Policy ==
+
+This plugin:
+* Does not collect personal data without user consent
+* Uses Google Search Console data only when explicitly connected by user
+* Stores API keys and tokens securely in WordPress database
+* Follows WordPress privacy and security best practices
+* Allows users to disconnect and delete their data at any time

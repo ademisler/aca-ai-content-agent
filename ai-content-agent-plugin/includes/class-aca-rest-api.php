@@ -3151,12 +3151,13 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             return new WP_Error('missing_license_key', 'License key is required', array('status' => 400));
         }
         
-        // Gumroad product permalink - to be replaced with actual product permalink
-        // If your product URL is "https://gumroad.com/l/QMGY" your product_permalink would be "QMGY"
-        $product_permalink = 'YOUR_GUMROAD_PRODUCT_PERMALINK_HERE';
+        // Gumroad product ID - to be replaced with actual product ID
+        // Get this from your Gumroad product's content page by expanding the license key module
+        // NOTE: For products created after Jan 9, 2023, use product_id instead of product_permalink
+        $product_id = 'YOUR_GUMROAD_PRODUCT_ID_HERE';
         
         try {
-            $verification_result = $this->call_gumroad_api($product_permalink, $license_key);
+            $verification_result = $this->call_gumroad_api($product_id, $license_key);
             
             if ($verification_result['success']) {
                 // Store license information
@@ -3216,7 +3217,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
     /**
      * Call Gumroad License Verification API
      */
-    private function call_gumroad_api($product_permalink, $license_key) {
+    private function call_gumroad_api($product_id, $license_key) {
         $url = 'https://api.gumroad.com/v2/licenses/verify';
         
         $response = wp_remote_post($url, array(
@@ -3224,7 +3225,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 'Content-Type' => 'application/x-www-form-urlencoded'
             ),
             'body' => array(
-                'product_permalink' => $product_permalink,
+                'product_id' => $product_id,
                 'license_key' => $license_key,
                 'increment_uses_count' => 'true' // Track license usage for analytics
             ),

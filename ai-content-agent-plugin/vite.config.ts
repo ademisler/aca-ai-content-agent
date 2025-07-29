@@ -4,6 +4,8 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
+    const isDev = mode === 'development';
+    
     return {
       plugins: [react({
         babel: {
@@ -23,7 +25,8 @@ export default defineConfig(({ mode }) => {
       },
       build: {
         target: 'es2015',
-        minify: 'esbuild',
+        minify: isDev ? false : 'esbuild', // Disable minification in development
+        sourcemap: true, // Enable source maps
         rollupOptions: {
           output: {
             manualChunks: undefined,

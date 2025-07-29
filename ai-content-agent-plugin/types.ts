@@ -74,7 +74,7 @@ export type ActivityLogType =
     | 'draft_scheduled'
     | 'idea_added';
 
-export type IconName = 'BookOpen' | 'Lightbulb' | 'FileText' | 'Send' | 'Settings' | 'Archive' | 'Edit' | 'Calendar' | 'Sparkles' | 'PlusCircle';
+export type IconName = 'BookOpen' | 'Lightbulb' | 'FileText' | 'Send' | 'Settings' | 'Archive' | 'Edit' | 'Calendar' | 'Sparkles' | 'PlusCircle' | 'Trash' | 'Pencil';
 
 export interface ActivityLog {
     id: number;

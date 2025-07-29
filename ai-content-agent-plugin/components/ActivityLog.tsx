@@ -1,29 +1,43 @@
 
 import React from 'react';
 import type { ActivityLog, IconName } from '../types';
-import * as Icons from './Icons';
+import { 
+    BookOpen, 
+    Lightbulb, 
+    FileText, 
+    Send, 
+    Settings, 
+    Trash, 
+    Pencil, 
+    Calendar, 
+    Sparkles, 
+    PlusCircle, 
+    Archive, 
+    Edit, 
+    Info 
+} from './Icons';
 
 interface ActivityLogListProps {
     logs: ActivityLog[];
 }
 
 const IconMap: { [key in IconName]: React.FC<{ className?: string; style?: React.CSSProperties }> } = {
-    BookOpen: Icons.BookOpen,
-    Lightbulb: Icons.Lightbulb,
-    FileText: Icons.FileText,
-    Send: Icons.Send,
-    Settings: Icons.Settings,
-    Trash: Icons.Trash,
-    Pencil: Icons.Pencil,
-    Calendar: Icons.Calendar,
-    Sparkles: Icons.Sparkles,
-    PlusCircle: Icons.PlusCircle,
-    Archive: Icons.Archive,
-    Edit: Icons.Edit,
+    BookOpen,
+    Lightbulb,
+    FileText,
+    Send,
+    Settings,
+    Archive,
+    Edit,
+    Calendar,
+    Sparkles,
+    PlusCircle,
+    Trash,
+    Pencil,
 };
 
 const ActivityLogItem: React.FC<{ log: ActivityLog }> = ({ log }) => {
-    const IconComponent = IconMap[log.icon] || Icons.Info;
+    const IconComponent = IconMap[log.icon] || Info;
     const timestamp = new Date(log.timestamp);
     const timeString = timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
@@ -64,7 +78,7 @@ export const ActivityLogList: React.FC<ActivityLogListProps> = ({ logs }) => {
                 color: '#646970',
                 fontSize: '13px'
             }}>
-                <Icons.Info style={{ 
+                                    <Info style={{ 
                     width: '24px', 
                     height: '24px', 
                     margin: '0 auto 10px auto', 

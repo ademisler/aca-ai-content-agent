@@ -202,37 +202,6 @@ class ACA_Dependencies_Installer {
             <?php
         }
     }
-    
-    /**
-     * Display dependency status in admin
-     */
-    public static function display_dependency_status() {
-        $status = self::get_dependency_status();
-        
-        if ($status['all_installed']) {
-            echo '<div class="notice notice-success"><p><strong>Google Search Console Integration:</strong> All dependencies are installed and ready!</p></div>';
-            return;
-        }
-        
-        echo '<div class="notice notice-warning">';
-        echo '<p><strong>Google Search Console Integration:</strong> Missing dependencies detected.</p>';
-        
-        if (!$status['vendor_exists']) {
-            echo '<p>• Vendor directory not found</p>';
-        }
-        
-        if (!$status['google_client_exists']) {
-            echo '<p>• Google API client library not found</p>';
-        }
-        
-        if ($status['can_auto_install']) {
-            echo '<p><button class="button button-primary" onclick="acaInstallDependencies()">Install Dependencies</button></p>';
-        } else {
-            echo '<p>Please run <code>composer install</code> in the plugin directory to install required dependencies.</p>';
-        }
-        
-        echo '</div>';
-    }
 }
 
 // Initialize the installer

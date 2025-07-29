@@ -379,7 +379,6 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
             'data_date' => date('Y-m-d H:i:s')
         );
     }
-    }
 } else {
     // Create a dummy class when dependencies are not available
     class ACA_Google_Search_Console {

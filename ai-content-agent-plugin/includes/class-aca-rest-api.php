@@ -2042,19 +2042,54 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
      * Get Google Search Console authentication status
      */
     public function get_gsc_auth_status($request) {
-        require_once ACA_PLUGIN_PATH . 'includes/class-aca-google-search-console.php';
-        
-        $gsc = new ACA_Google_Search_Console();
-        return rest_ensure_response($gsc->get_auth_status());
+        try {
+            if (!file_exists(ACA_PLUGIN_PATH . 'includes/class-aca-google-search-console.php')) {
+                return rest_ensure_response(array(
+                    'connected' => false, 
+                    'error' => 'Google Search Console class file not found'
+                ));
+            }
+            
+            require_once ACA_PLUGIN_PATH . 'includes/class-aca-google-search-console.php';
+            
+            if (!class_exists('ACA_Google_Search_Console')) {
+                return rest_ensure_response(array(
+                    'connected' => false, 
+                    'error' => 'Google Search Console class not loaded'
+                ));
+            }
+            
+            $gsc = new ACA_Google_Search_Console();
+            $status = $gsc->get_auth_status();
+            
+            return rest_ensure_response($status);
+        } catch (Exception $e) {
+            error_log('ACA GSC Auth Status Error: ' . $e->getMessage());
+            return rest_ensure_response(array(
+                'connected' => false, 
+                'error' => 'Failed to check GSC auth status: ' . $e->getMessage()
+            ));
+        } catch (Error $e) {
+            error_log('ACA GSC Auth Status Fatal Error: ' . $e->getMessage());
+            return rest_ensure_response(array(
+                'connected' => false, 
+                'error' => 'Fatal error checking GSC auth status'
+            ));
+        }
     }
     
     /**
      * Connect to Google Search Console
      */
     public function gsc_connect($request) {
-        require_once ACA_PLUGIN_PATH . 'includes/class-aca-google-search-console.php';
-        
-        $gsc = new ACA_Google_Search_Console();
+        try {
+            require_once ACA_PLUGIN_PATH . 'includes/class-aca-google-search-console.php';
+            
+            if (!class_exists('ACA_Google_Search_Console')) {
+                return new WP_Error('gsc_error', 'Google Search Console class not available');
+            }
+            
+            $gsc = new ACA_Google_Search_Console();
         
         // Check if this is an OAuth callback
         if (isset($_GET['code'])) {
@@ -2081,6 +2116,12 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             } else {
                 return new WP_Error('auth_error', 'Unable to generate authorization URL', array('status' => 500));
             }
+        } catch (Exception $e) {
+            error_log('ACA GSC Connect Error: ' . $e->getMessage());
+            return new WP_Error('gsc_error', 'Failed to connect to GSC: ' . $e->getMessage());
+        } catch (Error $e) {
+            error_log('ACA GSC Connect Fatal Error: ' . $e->getMessage());
+            return new WP_Error('gsc_error', 'Fatal error connecting to GSC');
         }
     }
     

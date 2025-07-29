@@ -2090,31 +2090,32 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             }
             
             $gsc = new ACA_Google_Search_Console();
-        
-        // Check if this is an OAuth callback
-        if (isset($_GET['code'])) {
-            $result = $gsc->handle_oauth_callback($_GET['code']);
             
-            if (is_wp_error($result)) {
-                return $result;
-            }
-            
-            $this->add_activity_log('gsc_connected', 'Connected to Google Search Console', 'Settings');
-            
-            return rest_ensure_response(array(
-                'success' => true,
-                'message' => 'Successfully connected to Google Search Console'
-            ));
-        } else {
-            // Return authorization URL
-            $auth_status = $gsc->get_auth_status();
-            
-            if (isset($auth_status['auth_url'])) {
+            // Check if this is an OAuth callback
+            if (isset($_GET['code'])) {
+                $result = $gsc->handle_oauth_callback($_GET['code']);
+                
+                if (is_wp_error($result)) {
+                    return $result;
+                }
+                
+                $this->add_activity_log('gsc_connected', 'Connected to Google Search Console', 'Settings');
+                
                 return rest_ensure_response(array(
-                    'auth_url' => $auth_status['auth_url']
+                    'success' => true,
+                    'message' => 'Successfully connected to Google Search Console'
                 ));
             } else {
-                return new WP_Error('auth_error', 'Unable to generate authorization URL', array('status' => 500));
+                // Return authorization URL
+                $auth_status = $gsc->get_auth_status();
+                
+                if (isset($auth_status['auth_url'])) {
+                    return rest_ensure_response(array(
+                        'auth_url' => $auth_status['auth_url']
+                    ));
+                } else {
+                    return new WP_Error('auth_error', 'Unable to generate authorization URL', array('status' => 500));
+                }
             }
         } catch (Exception $e) {
             error_log('ACA GSC Connect Error: ' . $e->getMessage());

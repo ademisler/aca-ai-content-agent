@@ -2,7 +2,7 @@
 /**
  * Plugin Name: AI Content Agent (ACA)
  * Description: AI-powered content creation and management plugin that generates blog posts, ideas, and manages your content workflow automatically.
- * Version: 1.4.6
+ * Version: 1.4.7
  * Author: AI Content Agent Team
  * License: GPL v2 or later
  * Text Domain: ai-content-agent
@@ -15,7 +15,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Plugin constants
-define('ACA_VERSION', '1.4.6');
+define('ACA_VERSION', '1.4.7');
 define('ACA_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('ACA_PLUGIN_PATH', plugin_dir_path(__FILE__));
 
@@ -120,8 +120,14 @@ class AI_Content_Agent {
         }
         
         // Enqueue the compiled React app
-        wp_enqueue_style('aca-styles', ACA_PLUGIN_URL . 'admin/css/index.css', array(), ACA_VERSION . '-' . filemtime(ACA_PLUGIN_PATH . 'admin/css/index.css'));
-        wp_enqueue_script('aca-app', ACA_PLUGIN_URL . 'admin/js/index.js', array(), ACA_VERSION . '-' . filemtime(ACA_PLUGIN_PATH . 'admin/js/index.js'), true);
+        $css_file = ACA_PLUGIN_PATH . 'admin/css/index.css';
+        $js_file = ACA_PLUGIN_PATH . 'admin/js/index.js';
+        
+        $css_version = ACA_VERSION . '-' . (file_exists($css_file) ? filemtime($css_file) : time());
+        $js_version = ACA_VERSION . '-' . (file_exists($js_file) ? filemtime($js_file) : time());
+        
+        wp_enqueue_style('aca-styles', ACA_PLUGIN_URL . 'admin/css/index.css', array(), $css_version);
+        wp_enqueue_script('aca-app', ACA_PLUGIN_URL . 'admin/js/index.js', array(), $js_version, true);
         
         // Pass data to React app
         wp_localize_script('aca-app', 'aca_object', array(

@@ -5,6 +5,25 @@ All notable changes to the AI Content Agent WordPress plugin will be documented 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.7] - 2025-01-28 - CONSOLE ERRORS FIX 🔧
+
+### 🔧 CONSOLE ERRORS & SCRIPT LOADING FIXES
+- **Script Loading**: Fixed potential filemtime() errors when CSS/JS files are not accessible
+- **Error Handling**: Added comprehensive error handling for missing window.aca_object
+- **User Feedback**: Improved error messages when plugin scripts fail to load
+- **File Existence Check**: Added file_exists() checks before using filemtime()
+
+### 🛠️ JAVASCRIPT IMPROVEMENTS
+- **API Error Handling**: Enhanced apiFetch with better error detection and user-friendly messages
+- **WordPress Integration**: Added fallback mechanisms when WordPress localized data is not available
+- **Console Logging**: Improved console error messages for debugging
+- **Type Safety**: Added proper TypeScript declarations for window.aca_object
+
+🔍 DEBUGGING IMPROVEMENTS:
+- Error Detection: Better detection of plugin loading issues
+- User Experience: Clear error messages instead of silent failures
+- Development: Enhanced console logging for easier troubleshooting
+
 ## [1.4.6] - 2025-01-28 - SITE CRASH FIX 🚨
 
 ### 🚨 CRITICAL SITE CRASH FIXES

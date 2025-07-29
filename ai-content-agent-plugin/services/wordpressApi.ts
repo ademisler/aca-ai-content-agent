@@ -17,6 +17,12 @@ declare global {
  * Make authenticated API requests to WordPress REST API
  */
 export async function apiFetch(path: string, options: RequestInit = {}): Promise<any> {
+  // Check if aca_object is available
+  if (!window.aca_object) {
+    console.error('ACA Error: window.aca_object is not defined. Plugin scripts may not be loaded correctly.');
+    throw new Error('Plugin configuration not loaded. Please refresh the page.');
+  }
+
   const headers = {
     'X-WP-Nonce': window.aca_object.nonce,
     'Content-Type': 'application/json',

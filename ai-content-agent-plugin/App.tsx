@@ -3,6 +3,17 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { settingsApi, styleGuideApi, ideasApi, draftsApi, publishedApi, activityApi } from './services/wordpressApi';
 import { setGeminiApiKey } from './services/geminiService';
 import type { StyleGuide, ContentIdea, Draft, View, AppSettings, ActivityLog, ActivityLogType, IconName } from './types';
+
+declare global {
+  interface Window {
+    aca_object: {
+      nonce: string;
+      api_url: string;
+      admin_url: string;
+      plugin_url: string;
+    };
+  }
+}
 import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './components/Dashboard';
 import { StyleGuideManager } from './components/StyleGuideManager';
@@ -47,6 +58,13 @@ const App: React.FC = () => {
     const publishedPosts = posts.filter(p => p.status === 'published');
 
     useEffect(() => {
+        // Check if WordPress localized data is available
+        if (!window.aca_object) {
+            console.error('ACA Error: WordPress localized data not available');
+            showToast('Plugin not properly loaded. Please refresh the page.', 'error');
+            return;
+        }
+        
         setGeminiApiKey(settings.geminiApiKey);
     }, [settings.geminiApiKey]);
 

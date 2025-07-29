@@ -137,14 +137,19 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
     const fetchSeoPlugins = async () => {
         try {
             setSeoPluginsLoading(true);
+            console.log('ACA: Fetching SEO plugins...');
+            
             const response = await fetch('/wp-json/aca/v1/seo-plugins', {
                 headers: {
                     'X-WP-Nonce': (window as any).acaData?.nonce || ''
                 }
             });
             
+            console.log('ACA: SEO plugins response status:', response.status);
+            
             if (response.ok) {
                 const data = await response.json();
+                console.log('ACA: SEO plugins data:', data);
                 setDetectedSeoPlugins(data.detected_plugins || []);
                 
                 // Auto-update settings based on detected plugins
@@ -155,9 +160,12 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                         handleSettingChange('seoPlugin', firstPlugin.plugin);
                     }
                 }
+            } else {
+                const errorText = await response.text();
+                console.error('ACA: Failed to fetch SEO plugins:', response.status, errorText);
             }
         } catch (error) {
-            console.error('Error fetching SEO plugins:', error);
+            console.error('ACA: Error fetching SEO plugins:', error);
         } finally {
             setSeoPluginsLoading(false);
         }

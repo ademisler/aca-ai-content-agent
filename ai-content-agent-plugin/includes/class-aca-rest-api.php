@@ -54,7 +54,7 @@ class ACA_Rest_Api {
         register_rest_route('aca/v1', '/seo-plugins', array(
             'methods' => 'GET',
             'callback' => array($this, 'get_seo_plugins'),
-            'permission_callback' => array($this, 'check_admin_permissions')
+            'permission_callback' => array($this, 'check_seo_permissions')
         ));
         
         // Google Search Console endpoints
@@ -234,6 +234,14 @@ class ACA_Rest_Api {
      */
     public function check_admin_permissions() {
         return current_user_can('manage_options');
+    }
+    
+    /**
+     * Check SEO permissions - more flexible for SEO plugin detection
+     */
+    public function check_seo_permissions() {
+        // Allow access for users who can edit posts or manage options
+        return current_user_can('edit_posts') || current_user_can('manage_options');
     }
     
     /**
@@ -2417,14 +2425,24 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
      * Get SEO plugins status endpoint
      */
     public function get_seo_plugins($request) {
-        $detected_plugins = $this->detect_seo_plugin();
-        
-        return rest_ensure_response(array(
-            'success' => true,
-            'detected_plugins' => $detected_plugins,
-            'count' => count($detected_plugins),
-            'auto_detection_enabled' => true
-        ));
+        try {
+            error_log('ACA: get_seo_plugins called');
+            
+            $detected_plugins = $this->detect_seo_plugin();
+            
+            error_log('ACA: Detected SEO plugins: ' . print_r($detected_plugins, true));
+            
+            return rest_ensure_response(array(
+                'success' => true,
+                'detected_plugins' => $detected_plugins,
+                'count' => count($detected_plugins),
+                'auto_detection_enabled' => true,
+                'timestamp' => current_time('mysql')
+            ));
+        } catch (Exception $e) {
+            error_log('ACA: Error in get_seo_plugins: ' . $e->getMessage());
+            return new WP_Error('seo_detection_failed', 'Failed to detect SEO plugins: ' . $e->getMessage(), array('status' => 500));
+        }
     }
     
     /**
@@ -2433,11 +2451,15 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
     private function detect_seo_plugin() {
         $detected_plugins = array();
         
+        error_log('ACA: Starting SEO plugin detection...');
+        
         // Check for RankMath - Enhanced detection
+        $rankmath_detected = false;
         if (is_plugin_active('seo-by-rank-math/rank-math.php') || 
             class_exists('RankMath') || 
             class_exists('\RankMath\Helper') ||
             defined('RANK_MATH_FILE')) {
+            $rankmath_detected = true;
             $detected_plugins[] = array(
                 'plugin' => 'rank_math',
                 'name' => 'Rank Math',
@@ -2446,12 +2468,15 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 'pro' => class_exists('\RankMath\Pro\Admin\Admin_Menu')
             );
         }
+        error_log('ACA: RankMath detection result: ' . ($rankmath_detected ? 'found' : 'not found'));
         
         // Check for Yoast SEO - Enhanced detection  
+        $yoast_detected = false;
         if (is_plugin_active('wordpress-seo/wp-seo.php') || 
             class_exists('WPSEO_Options') ||
             class_exists('WPSEO_Frontend') ||
             defined('WPSEO_VERSION')) {
+            $yoast_detected = true;
             $detected_plugins[] = array(
                 'plugin' => 'yoast',
                 'name' => 'Yoast SEO',
@@ -2460,13 +2485,16 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 'premium' => defined('WPSEO_PREMIUM_PLUGIN_FILE')
             );
         }
+        error_log('ACA: Yoast SEO detection result: ' . ($yoast_detected ? 'found' : 'not found'));
         
         // Check for All in One SEO (AIOSEO) - Enhanced detection
+        $aioseo_detected = false;
         if (is_plugin_active('all-in-one-seo-pack/all_in_one_seo_pack.php') ||
             is_plugin_active('all-in-one-seo-pack-pro/all_in_one_seo_pack.php') ||
             class_exists('AIOSEO\Plugin\AIOSEO') ||
             class_exists('All_in_One_SEO_Pack') ||
             defined('AIOSEO_VERSION')) {
+            $aioseo_detected = true;
             $detected_plugins[] = array(
                 'plugin' => 'aioseo',
                 'name' => 'All in One SEO',
@@ -2475,6 +2503,13 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 'pro' => is_plugin_active('all-in-one-seo-pack-pro/all_in_one_seo_pack.php') || defined('AIOSEO_PRO')
             );
         }
+        error_log('ACA: AIOSEO detection result: ' . ($aioseo_detected ? 'found' : 'not found'));
+        
+        // Log all active plugins for debugging
+        $active_plugins = get_option('active_plugins', array());
+        error_log('ACA: Active plugins: ' . print_r($active_plugins, true));
+        
+        error_log('ACA: Total detected SEO plugins: ' . count($detected_plugins));
         
         return $detected_plugins;
     }

@@ -9,6 +9,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Current Release
 
+## [1.5.8] - 2025-01-28 - FIXED SEO PLUGIN AUTO-DETECTION + 403 ERROR RESOLUTION 🔧
+
+### 🔧 **FIXED SEO PLUGIN AUTO-DETECTION**
+- **403 Error Resolution**: Fixed REST API endpoint permission issues causing 403 errors
+- **JavaScript Object Fix**: Corrected wp_localize_script object name from 'aca_object' to 'acaData'
+- **Automatic Detection**: SEO plugins now automatically detected on page load without manual button click
+- **Enhanced Permissions**: Added flexible permission callback for SEO plugin detection endpoint
+- **Better Error Handling**: Improved error logging and debugging for SEO plugin detection
+
+### 🔍 **ENHANCED DETECTION LOGIC**
+- **Comprehensive Logging**: Added detailed error logs for debugging SEO plugin detection
+- **Multiple Detection Methods**: Enhanced detection using is_plugin_active(), class_exists(), and defined() checks
+- **Active Plugins Debug**: Added logging of all active plugins for troubleshooting
+- **Response Debugging**: Improved frontend error handling with detailed console logging
+
+### 🚀 **IMPROVED USER EXPERIENCE**
+- **Automatic Loading**: SEO plugins now detected automatically when settings page loads
+- **Real-time Updates**: Plugin settings automatically updated based on detected SEO plugins
+- **Better Feedback**: Enhanced console logging for debugging and troubleshooting
+- **Error Messages**: Clearer error messages for failed API calls
+
+### ✅ **VERIFIED FUNCTIONALITY**
+- **Yoast SEO Detection**: Confirmed automatic detection of Yoast SEO plugin
+- **RankMath Detection**: Verified RankMath plugin automatic detection
+- **AIOSEO Detection**: Tested All in One SEO plugin detection
+- **REST API**: Fixed 403 errors and confirmed proper API responses
+- **Frontend Integration**: Verified automatic plugin detection on page load
+
 ## [1.5.7] - 2025-01-28 - FIXED ADMIN ASSETS + PROPER BUILD DEPLOYMENT 🔧
 
 ### 🔧 **FIXED ADMIN ASSETS DEPLOYMENT**

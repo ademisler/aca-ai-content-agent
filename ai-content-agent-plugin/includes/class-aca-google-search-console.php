@@ -41,6 +41,7 @@ class ACA_Google_Search_Console {
             ]);
             $this->client->setAccessType('offline');
             $this->client->setPrompt('select_account consent'); // Force consent screen for proper refresh token
+            $this->client->setApprovalPrompt('force'); // Ensure refresh token is always returned
             
             // Get credentials from settings
             $settings = get_option('aca_settings', array());
@@ -53,9 +54,9 @@ class ACA_Google_Search_Console {
             $this->client->setRedirectUri($this->get_redirect_uri());
             
             // Set access token if available
-            $access_token = get_option('aca_gsc_access_token');
-            if ($access_token) {
-                $this->client->setAccessToken($access_token);
+            $tokens = get_option('aca_gsc_tokens');
+            if ($tokens && is_array($tokens)) {
+                $this->client->setAccessToken($tokens);
                 
                 // Check if token is expired and refresh if needed
                 if ($this->client->isAccessTokenExpired()) {
@@ -107,8 +108,8 @@ class ACA_Google_Search_Console {
                 return new WP_Error('oauth_error', $token['error_description']);
             }
             
-            // Store access token
-            update_option('aca_gsc_access_token', $token);
+            // Store complete token array including refresh token
+            update_option('aca_gsc_tokens', $token);
             
             // Initialize service
             $this->service = new Google_Service_Webmasters($this->client);
@@ -137,11 +138,20 @@ class ACA_Google_Search_Console {
         try {
             $refresh_token = $this->client->getRefreshToken();
             if ($refresh_token) {
-                $new_token = $this->client->fetchAccessTokenWithRefreshToken($refresh_token);
-                update_option('aca_gsc_access_token', $new_token);
+                $new_tokens = $this->client->fetchAccessTokenWithRefreshToken($refresh_token);
+                
+                // Preserve refresh token if not returned in new token response
+                if (!isset($new_tokens['refresh_token']) && $refresh_token) {
+                    $new_tokens['refresh_token'] = $refresh_token;
+                }
+                
+                update_option('aca_gsc_tokens', $new_tokens);
+                error_log('ACA GSC: Successfully refreshed access token');
+            } else {
+                error_log('ACA GSC: No refresh token available');
             }
         } catch (Exception $e) {
-            error_log('GSC Token Refresh Error: ' . $e->getMessage());
+            error_log('ACA GSC Token Refresh Error: ' . $e->getMessage());
         }
     }
     
@@ -173,11 +183,11 @@ class ACA_Google_Search_Console {
      * Get authentication status
      */
     public function get_auth_status() {
-        $access_token = get_option('aca_gsc_access_token');
+        $tokens = get_option('aca_gsc_tokens');
         $settings = get_option('aca_settings', array());
         
         return array(
-            'is_authenticated' => !empty($access_token) && !empty($settings['searchConsoleUser']),
+            'is_authenticated' => !empty($tokens) && !empty($settings['searchConsoleUser']),
             'user' => isset($settings['searchConsoleUser']) ? $settings['searchConsoleUser'] : null,
             'has_credentials' => !empty($settings['gscClientId']) && !empty($settings['gscClientSecret'])
         );
@@ -187,7 +197,7 @@ class ACA_Google_Search_Console {
      * Disconnect from Google Search Console
      */
     public function disconnect() {
-        delete_option('aca_gsc_access_token');
+        delete_option('aca_gsc_tokens');
         
         $settings = get_option('aca_settings', array());
         $settings['searchConsoleUser'] = null;

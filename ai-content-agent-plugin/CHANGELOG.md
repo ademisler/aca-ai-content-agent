@@ -5,6 +5,32 @@ All notable changes to the AI Content Agent WordPress plugin will be documented 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.4] - 2025-01-28 - CRITICAL GSC TOKEN MANAGEMENT FIX 🚨
+
+### 🚨 CRITICAL FIXES
+- **Token Storage Issue**: Fixed critical bug where refresh tokens were not properly stored, causing re-authentication after token expiry
+- **Refresh Token Management**: Implemented proper token array storage instead of access token only
+- **Token Persistence**: Added refresh token preservation during token refresh cycles
+- **OAuth2 Configuration**: Added `setApprovalPrompt('force')` to ensure refresh tokens are always returned
+
+### 🔧 GOOGLE SEARCH CONSOLE IMPROVEMENTS
+- **Complete Token Storage**: Now stores entire token array (`aca_gsc_tokens`) including refresh_token, access_token, expires_in, etc.
+- **Enhanced Refresh Logic**: Improved token refresh mechanism with proper error logging and token preservation
+- **Authentication Persistence**: Users no longer need to re-authenticate after access token expiry
+- **Error Logging**: Added comprehensive logging for token operations and refresh cycles
+
+### 🛠️ TECHNICAL ENHANCEMENTS
+- **Token Migration**: Seamlessly migrated from `aca_gsc_access_token` to `aca_gsc_tokens` storage
+- **Backward Compatibility**: Maintained compatibility with existing authentication flows
+- **Error Handling**: Enhanced error handling for token refresh failures
+- **Service Initialization**: Improved service initialization with better token validation
+
+### 📚 DATA FLOW VERIFICATION
+- **End-to-End Testing**: Verified complete data flow from GSC authentication to AI content generation
+- **Content Integration**: Confirmed GSC data properly integrated into Gemini AI prompts
+- **API Functionality**: Validated all GSC API endpoints and data retrieval methods
+- **User Experience**: Ensured seamless user experience with persistent authentication
+
 ## [1.4.3] - 2025-01-28 - COMPREHENSIVE GSC VERIFICATION & OPTIMIZATION 🔍
 
 ### 🔍 COMPREHENSIVE VERIFICATION COMPLETED

@@ -69,8 +69,15 @@ const DraftCard: React.FC<{
             <div className="aca-list-item" style={{ padding: '15px 0 0 0', margin: 0, justifyContent: 'flex-end', gap: '12px' }}>
                 <button
                     onClick={() => {
+                        // Check if WordPress localized data is available
+                        if (!window.acaData) {
+                            console.error('ACA Error: window.acaData is not defined');
+                            alert('WordPress data not available. Please refresh the page.');
+                            return;
+                        }
+                        
                         // Open WordPress edit page in new tab
-                        const editUrl = `${(window as any).aca_object?.admin_url}post.php?post=${draft.id}&action=edit`;
+                        const editUrl = `${window.acaData.admin_url}post.php?post=${draft.id}&action=edit`;
                         window.open(editUrl, '_blank');
                     }}
                     disabled={isPublishing}

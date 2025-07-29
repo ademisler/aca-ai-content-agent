@@ -8,9 +8,10 @@ interface ContentCalendarProps {
     publishedPosts: Draft[];
     onScheduleDraft: (draftId: number, scheduledDate: string) => void;
     onSelectPost: (post: Draft) => void;
+    onPublishDraft?: (draftId: number) => void; // Optional for immediate publishing
 }
 
-export const ContentCalendar: React.FC<ContentCalendarProps> = ({ drafts, publishedPosts, onScheduleDraft, onSelectPost }) => {
+export const ContentCalendar: React.FC<ContentCalendarProps> = ({ drafts, publishedPosts, onScheduleDraft, onSelectPost, onPublishDraft }) => {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [dragOverDate, setDragOverDate] = useState<Date | null>(null);
     const [draggedDraft, setDraggedDraft] = useState<Draft | null>(null);
@@ -22,8 +23,15 @@ export const ContentCalendar: React.FC<ContentCalendarProps> = ({ drafts, publis
 
     // Function to open WordPress edit page
     const openWordPressEditor = (postId: number) => {
-        const adminUrl = (window as any).aca_object?.admin_url || '/wp-admin/';
-        window.open(`${adminUrl}post.php?post=${postId}&action=edit`, '_blank');
+        // Check if WordPress localized data is available
+        if (!window.acaData) {
+            console.error('ACA Error: window.acaData is not defined');
+            alert('WordPress data not available. Please refresh the page.');
+            return;
+        }
+        
+        const editUrl = `${window.acaData.admin_url}post.php?post=${postId}&action=edit`;
+        window.open(editUrl, '_blank');
     };
 
     // Get posts for a specific date
@@ -71,7 +79,34 @@ export const ContentCalendar: React.FC<ContentCalendarProps> = ({ drafts, publis
         e.preventDefault();
         const draftId = e.dataTransfer.getData('text/plain');
         if (draftId && draggedDraft) {
-            onScheduleDraft(parseInt(draftId), date.toISOString());
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Reset time to compare dates only
+            
+            const dropDate = new Date(date);
+            dropDate.setHours(0, 0, 0, 0);
+            
+            // If dropping on a past date, publish immediately
+            if (dropDate < today) {
+                // Show confirmation dialog
+                const confirmPublish = window.confirm(
+                    `You're scheduling this draft for a past date (${date.toLocaleDateString()}). ` +
+                    `This will publish the post immediately. Do you want to continue?`
+                );
+                
+                if (confirmPublish) {
+                    // Instead of scheduling, we'll call publish directly
+                    // We need to add a new prop for publishing
+                    if (onPublishDraft) {
+                        onPublishDraft(parseInt(draftId));
+                    } else {
+                        // Fallback: schedule for the past date (will be published by WordPress)
+                        onScheduleDraft(parseInt(draftId), date.toISOString());
+                    }
+                }
+            } else {
+                // Normal scheduling for future dates
+                onScheduleDraft(parseInt(draftId), date.toISOString());
+            }
         }
         setDragOverDate(null);
         setDraggedDraft(null);

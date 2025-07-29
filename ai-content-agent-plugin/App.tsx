@@ -178,6 +178,13 @@ const App: React.FC = () => {
 
         console.log('Creating draft for idea:', idea);
         setIsLoading(prev => ({ ...prev, [`draft_${ideaId}`]: true }));
+        
+        // Show loading toast
+        addToast({ 
+            message: `🤖 AI is generating draft for "${idea.title}"... This may take a moment.`, 
+            type: 'info' 
+        });
+        
         try {
             console.log('Calling draftsApi.createFromIdea with ideaId:', ideaId);
             const draft = await draftsApi.createFromIdea(ideaId);
@@ -287,6 +294,37 @@ const App: React.FC = () => {
         }
     }, [ideas, addToast, addLogEntry]);
 
+    const handleDeleteIdea = useCallback(async (ideaId: number) => {
+        try {
+            const idea = ideas.find(i => i.id === ideaId);
+            if (!idea) return;
+
+            await ideasApi.delete(ideaId);
+            setIdeas(prev => prev.filter(i => i.id !== ideaId));
+            addToast({ message: 'Idea deleted permanently!', type: 'success' });
+            addLogEntry('idea_deleted', `Deleted idea: "${idea.title}"`, 'Trash');
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Failed to delete idea';
+            addToast({ message: errorMessage, type: 'error' });
+        }
+    }, [ideas, addToast, addLogEntry]);
+
+    const handleRestoreIdea = useCallback(async (ideaId: number) => {
+        try {
+            const idea = ideas.find(i => i.id === ideaId);
+            if (!idea) return;
+
+            const updatedIdea = { ...idea, status: 'active' as const };
+            await ideasApi.update(ideaId, updatedIdea);
+            setIdeas(prev => prev.map(i => i.id === ideaId ? updatedIdea : i));
+            addToast({ message: 'Idea restored successfully!', type: 'success' });
+            addLogEntry('idea_restored', `Restored idea: "${idea.title}"`, 'Edit');
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Failed to restore idea';
+            addToast({ message: errorMessage, type: 'error' });
+        }
+    }, [ideas, addToast, addLogEntry]);
+
     const handleUpdateIdeaTitle = useCallback(async (ideaId: number, newTitle: string) => {
         try {
             const idea = ideas.find(i => i.id === ideaId);
@@ -341,7 +379,19 @@ const App: React.FC = () => {
             case 'style-guide':
                 return <StyleGuideManager styleGuide={styleGuide} onAnalyze={() => handleAnalyzeStyle(false)} onSaveStyleGuide={handleSaveStyleGuide} isLoading={isLoading['style']} />;
             case 'ideas':
-                return <IdeaBoard ideas={ideas} onGenerate={() => handleGenerateIdeas(false, 5)} onCreateDraft={(idea) => handleCreateDraft(idea.id)} onArchive={handleArchiveIdea} isLoading={isLoading['ideas']} isLoadingDraft={isLoading} onUpdateTitle={handleUpdateIdeaTitle} onGenerateSimilar={handleGenerateSimilarIdeas} onAddIdea={handleAddIdea} />;
+                return <IdeaBoard 
+                    ideas={ideas} 
+                    onGenerate={() => handleGenerateIdeas(false, 5)} 
+                    onCreateDraft={(idea) => handleCreateDraft(idea.id)} 
+                    onArchive={handleArchiveIdea}
+                    onDeleteIdea={handleDeleteIdea}
+                    onRestoreIdea={handleRestoreIdea}
+                    isLoading={isLoading['ideas']} 
+                    isLoadingDraft={isLoading} 
+                    onUpdateTitle={handleUpdateIdeaTitle} 
+                    onGenerateSimilar={handleGenerateSimilarIdeas} 
+                    onAddIdea={handleAddIdea} 
+                />;
             case 'drafts':
                 return <DraftsList drafts={drafts} onSelectDraft={setSelectedDraft} onPublish={handlePublishPost} publishingId={publishingId} />;
             case 'published':
@@ -349,7 +399,13 @@ const App: React.FC = () => {
             case 'settings':
                 return <Settings settings={settings} onSaveSettings={handleSaveSettings} />;
             case 'calendar':
-                return <ContentCalendar drafts={drafts} publishedPosts={publishedPosts} onScheduleDraft={handleScheduleDraft} onSelectPost={setSelectedDraft} />;
+                return <ContentCalendar 
+                    drafts={drafts} 
+                    publishedPosts={publishedPosts} 
+                    onScheduleDraft={handleScheduleDraft} 
+                    onSelectPost={setSelectedDraft}
+                    onPublishDraft={handlePublishPost}
+                />;
             case 'dashboard':
             default:
                 return <Dashboard

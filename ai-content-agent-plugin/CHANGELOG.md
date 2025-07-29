@@ -9,6 +9,63 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Current Release
 
+## [1.6.9] - 2025-01-29 - UI/UX IMPROVEMENTS & BUG FIXES 🎨
+
+### 🔧 **CRITICAL BUG FIXES**
+- **View Draft Button Fix**: Fixed "View Draft" button in Content Drafts page not navigating to correct WordPress edit page
+- **WordPress Data Integration**: Updated all components to use `window.acaData` instead of deprecated `window.aca_object`
+- **URL Generation Fix**: Improved WordPress admin URL generation with proper error handling and validation
+- **Component Integration**: Fixed inconsistent data access patterns across React components
+
+### 🎨 **ICON CONTRAST IMPROVEMENTS**
+- **Enhanced Visibility**: Fixed low contrast icons on dark backgrounds including sidebar, buttons, and card elements
+- **Better Accessibility**: Improved icon contrast ratios for WCAG compliance and better accessibility
+- **Dynamic Color Adaptation**: Icons now automatically adapt colors based on background context (dark/light)
+- **Hover State Improvements**: Enhanced hover states with proper color transitions for better visual feedback
+- **Filter Effects**: Added subtle filter effects for better icon visibility across different backgrounds
+
+### 📋 **IDEA MANAGEMENT ENHANCEMENTS**
+- **Archive Management**: Added ability to restore archived ideas back to active status with one click
+- **Permanent Deletion**: Added option to permanently delete ideas from archive with confirmation dialog
+- **Better Organization**: Improved archived ideas interface with dedicated restore and delete action buttons
+- **User Feedback**: Enhanced user feedback with confirmation dialogs, success messages, and proper error handling
+- **Interface Polish**: Added descriptive text and better visual hierarchy for archived ideas section
+
+### ⚡ **LOADING INDICATOR IMPROVEMENTS**
+- **Enhanced Create Draft UX**: Added comprehensive loading indicators for draft creation process with progress visualization
+- **Progress Bars**: Implemented animated progress bars with sliding animation for better visual feedback
+- **Informative Messages**: Added contextual loading messages, tooltips, and status updates during processing
+- **Visual Feedback**: Improved button states with disabled styling, card overlays, and shimmer effects
+- **Loading Animations**: Added CSS animations for progress bars, spinners, and shimmer effects
+
+### 🎯 **CALENDAR FUNCTIONALITY ENHANCEMENTS**
+- **Smart Auto-Publish**: Automatically publishes drafts when dragged to past dates with user confirmation dialog
+- **Improved Drag & Drop**: Enhanced drag and drop experience with better visual feedback and hover states
+- **Date Logic**: Intelligent date comparison and automatic status management for past/future dates
+- **User Confirmation**: Added confirmation dialogs for auto-publish actions with clear messaging
+- **Error Handling**: Better error handling for calendar operations with user-friendly messages
+
+### 🎨 **CSS AND STYLING IMPROVEMENTS**
+- **Progress Animations**: Added keyframe animations for progress bars and loading indicators
+- **Enhanced Button States**: Improved disabled button styling with proper opacity and cursor states
+- **Loading Overlays**: Added card loading overlays with processing messages and visual feedback
+- **Spinner Improvements**: Enhanced spinner styling with better sizing and positioning
+- **Shimmer Effects**: Added shimmer animation effects for loading states
+
+### ✅ **PRODUCTION READINESS**
+- **Enhanced Error Handling**: Better error messages and user guidance throughout the interface
+- **Improved Accessibility**: Better contrast ratios, keyboard navigation support, and screen reader compatibility
+- **Performance Optimizations**: Optimized animations and loading states for better performance
+- **Cross-Browser Compatibility**: Tested and verified across Chrome, Firefox, Safari, and Edge browsers
+- **User Experience**: Comprehensive UX improvements with better feedback and intuitive interactions
+
+### 🔬 **TECHNICAL IMPLEMENTATION DETAILS**
+- **Component Props**: Added new optional props for idea management (onDeleteIdea, onRestoreIdea, onPublishDraft)
+- **Event Handlers**: Implemented new event handlers for restore, delete, and auto-publish functionality
+- **CSS Animations**: Added @keyframes animations for progress slides, shimmer effects, and spinner rotations
+- **State Management**: Improved loading state management with better component lifecycle handling
+- **Error Boundaries**: Enhanced error boundary implementation for better error recovery
+
 ## [1.6.8] - 2025-01-29 - GEMINI API RETRY LOGIC & IMPROVED ERROR HANDLING 🤖
 
 ### 🔄 **GEMINI API RETRY LOGIC IMPLEMENTATION**

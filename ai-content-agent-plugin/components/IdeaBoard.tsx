@@ -8,6 +8,8 @@ interface IdeaBoardProps {
     onGenerate: () => void;
     onCreateDraft: (idea: ContentIdea) => void;
     onArchive: (id: number) => void;
+    onDeleteIdea?: (id: number) => void;
+    onRestoreIdea?: (id: number) => void;
     onUpdateTitle: (id: number, newTitle: string) => void;
     onGenerateSimilar: (idea: ContentIdea) => void;
     onAddIdea: (title: string) => void;
@@ -70,7 +72,7 @@ const IdeaCard: React.FC<{
     const sourceStyle = sourceStyles[idea.source];
 
     return (
-        <div className="aca-card" style={{ margin: 0, minHeight: '140px' }}>
+        <div className={`aca-card ${isLoading ? 'loading' : ''}`} style={{ margin: 0, minHeight: '140px' }}>
             {/* Idea Title */}
             <div style={{ flexGrow: 1, marginBottom: '15px' }}>
                 {isEditing ? (
@@ -101,8 +103,8 @@ const IdeaCard: React.FC<{
                         }}
                         title="Click to edit title"
                     >
-                        <span style={{ flexGrow: 1 }}>{idea.title}</span>
-                        <Edit style={{ width: '14px', height: '14px', opacity: 0.5, flexShrink: 0 }} />
+                        <Edit style={{ width: '14px', height: '14px', color: '#0073aa' }} />
+                        {idea.title}
                     </div>
                 )}
             </div>
@@ -148,14 +150,46 @@ const IdeaCard: React.FC<{
                         style={{ 
                             fontSize: '12px',
                             padding: '6px 16px',
-                            background: '#00a32a',
-                            borderColor: '#00a32a'
+                            background: isLoading ? '#f6f7f7' : '#00a32a',
+                            borderColor: isLoading ? '#ccd0d4' : '#00a32a',
+                            color: isLoading ? '#a7aaad' : '#ffffff',
+                            cursor: isLoading ? 'wait' : 'pointer',
+                            minWidth: '120px',
+                            position: 'relative',
+                            overflow: 'hidden'
                         }}
+                        title={isLoading ? 'AI is generating your draft...' : 'Create draft from this idea'}
                     >
                         {isLoading ? (
-                            <span className="aca-spinner" style={{ width: '14px', height: '14px' }}></span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <span className="aca-spinner" style={{ width: '14px', height: '14px' }}></span>
+                                <span style={{ fontSize: '11px' }}>Creating...</span>
+                            </div>
                         ) : (
-                            'Create Draft'
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <Sparkles style={{ width: '14px', height: '14px' }} />
+                                Create Draft
+                            </div>
+                        )}
+                        
+                        {/* Progress indicator overlay */}
+                        {isLoading && (
+                            <div style={{
+                                position: 'absolute',
+                                bottom: 0,
+                                left: 0,
+                                width: '100%',
+                                height: '2px',
+                                background: 'rgba(0, 163, 42, 0.3)',
+                                overflow: 'hidden'
+                            }}>
+                                <div style={{
+                                    width: '30%',
+                                    height: '100%',
+                                    background: '#00a32a',
+                                    animation: 'aca-progress-slide 2s infinite linear'
+                                }} />
+                            </div>
                         )}
                     </button>
                     
@@ -173,7 +207,19 @@ const IdeaCard: React.FC<{
     );
 };
 
-export const IdeaBoard: React.FC<IdeaBoardProps> = ({ ideas, onGenerate, onCreateDraft, onArchive, onUpdateTitle, onGenerateSimilar, onAddIdea, isLoading, isLoadingDraft }) => {
+export const IdeaBoard: React.FC<IdeaBoardProps> = ({ 
+    ideas, 
+    onGenerate, 
+    onCreateDraft, 
+    onArchive, 
+    onDeleteIdea,
+    onRestoreIdea,
+    onUpdateTitle, 
+    onGenerateSimilar, 
+    onAddIdea, 
+    isLoading, 
+    isLoadingDraft 
+}) => {
     const [newIdeaTitle, setNewIdeaTitle] = useState('');
 
     const handleAddIdeaSubmit = (e: React.FormEvent) => {
@@ -303,6 +349,9 @@ export const IdeaBoard: React.FC<IdeaBoardProps> = ({ ideas, onGenerate, onCreat
                         <h2 className="aca-card-title">
                             Archived Ideas ({archivedIdeas.length})
                         </h2>
+                        <p className="aca-page-description" style={{ margin: 0, fontSize: '14px' }}>
+                            Manage your archived ideas - restore them or delete permanently
+                        </p>
                     </div>
                     <div className="aca-list">
                         {archivedIdeas.map((idea, index) => (
@@ -316,9 +365,54 @@ export const IdeaBoard: React.FC<IdeaBoardProps> = ({ ideas, onGenerate, onCreat
                                     background: sourceStyles[idea.source].background,
                                     color: sourceStyles[idea.source].color,
                                     border: `1px solid ${sourceStyles[idea.source].borderColor}`,
-                                    flexShrink: 0
+                                    flexShrink: 0,
+                                    marginRight: '10px'
                                 }}>
                                     {sourceNames[idea.source]}
+                                </div>
+                                
+                                {/* Action buttons */}
+                                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                    {onRestoreIdea && (
+                                        <button
+                                            onClick={() => onRestoreIdea(idea.id)}
+                                            className="aca-button secondary"
+                                            style={{ 
+                                                fontSize: '11px', 
+                                                padding: '4px 8px', 
+                                                minWidth: 'auto',
+                                                background: '#e6f7e6',
+                                                borderColor: '#28a745',
+                                                color: '#0a5d0a'
+                                            }}
+                                            title="Restore to active ideas"
+                                        >
+                                            <Edit style={{ width: '12px', height: '12px', marginRight: '4px' }} />
+                                            Restore
+                                        </button>
+                                    )}
+                                    
+                                    {onDeleteIdea && (
+                                        <button
+                                            onClick={() => {
+                                                if (window.confirm(`Are you sure you want to permanently delete "${idea.title}"? This action cannot be undone.`)) {
+                                                    onDeleteIdea(idea.id);
+                                                }
+                                            }}
+                                            className="aca-button secondary"
+                                            style={{ 
+                                                fontSize: '11px', 
+                                                padding: '4px 8px', 
+                                                minWidth: 'auto',
+                                                background: '#ffeaea',
+                                                borderColor: '#dc3545',
+                                                color: '#721c24'
+                                            }}
+                                            title="Delete permanently"
+                                        >
+                                            <Trash style={{ width: '12px', height: '12px' }} />
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         ))}

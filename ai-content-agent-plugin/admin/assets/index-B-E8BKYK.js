@@ -138,6 +138,65 @@
   fill: #0073aa;
 }
 
+/* Enhanced icon contrast for dark backgrounds */
+
+.aca-sidebar .aca-nav-item-icon {
+  fill: #a7aaad;
+  transition: fill 0.2s ease;
+}
+
+.aca-sidebar .aca-nav-item:hover .aca-nav-item-icon {
+  fill: #ffffff;
+}
+
+.aca-sidebar .aca-nav-item.active .aca-nav-item-icon {
+  fill: #ffffff;
+}
+
+/* Icon contrast fixes for dark card backgrounds */
+
+.aca-card[style*="background: #23282d"] .aca-nav-item-icon,
+.aca-card[style*="background:#23282d"] .aca-nav-item-icon {
+  fill: #ffffff !important;
+}
+
+/* Icon contrast for buttons on dark backgrounds */
+
+.aca-button.secondary[style*="background: #23282d"] .aca-nav-item-icon,
+.aca-button.secondary[style*="background:#23282d"] .aca-nav-item-icon {
+  fill: #ffffff !important;
+}
+
+/* Better contrast for disabled buttons */
+
+.aca-button:disabled .aca-nav-item-icon {
+  fill: #a7aaad;
+}
+
+/* Ensure good contrast for all icon contexts */
+
+.aca-nav-item-icon {
+  filter: contrast(1.2);
+}
+
+/* Special handling for Eye icon (View Draft button) */
+
+.aca-button.secondary .aca-nav-item-icon {
+  fill: #0073aa;
+  stroke: none;
+}
+
+.aca-button.secondary:hover .aca-nav-item-icon {
+  fill: #005a87;
+}
+
+/* Toast notification icons */
+
+.aca-toast .aca-nav-item-icon {
+  fill: currentColor;
+  filter: brightness(1.1);
+}
+
 /* Dashboard action button icons - fix alignment and colors */
 
 .aca-action-button .aca-action-icon {
@@ -416,12 +475,13 @@
 
 .aca-spinner {
   display: inline-block;
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   border: 2px solid #f3f3f3;
   border-top: 2px solid #0073aa;
   border-radius: 50%;
   animation: aca-spin 1s linear infinite;
+  vertical-align: middle;
 }
 
 @keyframes aca-spin {
@@ -680,6 +740,98 @@
 #root .error,
 #root .updated {
   display: block !important;
+}
+
+/* Progress bar animation for loading states */
+
+@keyframes aca-progress-slide {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(300%);
+  }
+}
+
+/* Enhanced loading states */
+
+.aca-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed !important;
+}
+
+.aca-button.loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.aca-button.loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  animation: aca-shimmer 1.5s infinite;
+}
+
+@keyframes aca-shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Improved spinner animation */
+
+.aca-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #0073aa;
+  border-radius: 50%;
+  animation: aca-spin 1s linear infinite;
+  vertical-align: middle;
+}
+
+@keyframes aca-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Loading overlay for cards */
+
+.aca-card.loading {
+  position: relative;
+  pointer-events: none;
+}
+
+.aca-card.loading::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  z-index: 10;
+  border-radius: 6px;
+}
+
+.aca-card.loading::after {
+  content: 'Processing...';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 11;
+  font-size: 14px;
+  color: #0073aa;
+  font-weight: 500;
 }/*$vite$:1*/`;
   document.head.appendChild(__vite_style__);
   function getDefaultExportFromCjs(x) {
@@ -9829,7 +9981,7 @@
       }
     };
     const sourceStyle = sourceStyles[idea.source];
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", style: { margin: 0, minHeight: "140px" }, children: [
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `aca-card ${isLoading ? "loading" : ""}`, style: { margin: 0, minHeight: "140px" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { flexGrow: 1, marginBottom: "15px" }, children: isEditing ? /* @__PURE__ */ jsxRuntimeExports.jsx(
         "input",
         {
@@ -9860,8 +10012,8 @@
           },
           title: "Click to edit title",
           children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { flexGrow: 1 }, children: idea.title }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Edit, { style: { width: "14px", height: "14px", opacity: 0.5, flexShrink: 0 } })
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Edit, { style: { width: "14px", height: "14px", color: "#0073aa" } }),
+            idea.title
           ]
         }
       ) }),
@@ -9892,7 +10044,7 @@
               ]
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "button",
             {
               onClick: () => onCreateDraft(idea),
@@ -9901,10 +10053,38 @@
               style: {
                 fontSize: "12px",
                 padding: "6px 16px",
-                background: "#00a32a",
-                borderColor: "#00a32a"
+                background: isLoading ? "#f6f7f7" : "#00a32a",
+                borderColor: isLoading ? "#ccd0d4" : "#00a32a",
+                color: isLoading ? "#a7aaad" : "#ffffff",
+                cursor: isLoading ? "wait" : "pointer",
+                minWidth: "120px",
+                position: "relative",
+                overflow: "hidden"
               },
-              children: isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "aca-spinner", style: { width: "14px", height: "14px" } }) : "Create Draft"
+              title: isLoading ? "AI is generating your draft..." : "Create draft from this idea",
+              children: [
+                isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "6px" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "aca-spinner", style: { width: "14px", height: "14px" } }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "11px" }, children: "Creating..." })
+                ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "6px" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Sparkles, { style: { width: "14px", height: "14px" } }),
+                  "Create Draft"
+                ] }),
+                isLoading && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+                  position: "absolute",
+                  bottom: 0,
+                  left: 0,
+                  width: "100%",
+                  height: "2px",
+                  background: "rgba(0, 163, 42, 0.3)",
+                  overflow: "hidden"
+                }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+                  width: "30%",
+                  height: "100%",
+                  background: "#00a32a",
+                  animation: "aca-progress-slide 2s infinite linear"
+                } }) })
+              ]
             }
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -9921,7 +10101,19 @@
       ] })
     ] });
   };
-  const IdeaBoard = ({ ideas, onGenerate, onCreateDraft, onArchive, onUpdateTitle, onGenerateSimilar, onAddIdea, isLoading, isLoadingDraft }) => {
+  const IdeaBoard = ({
+    ideas,
+    onGenerate,
+    onCreateDraft,
+    onArchive,
+    onDeleteIdea,
+    onRestoreIdea,
+    onUpdateTitle,
+    onGenerateSimilar,
+    onAddIdea,
+    isLoading,
+    isLoadingDraft
+  }) => {
     const [newIdeaTitle, setNewIdeaTitle] = reactExports.useState("");
     const handleAddIdeaSubmit = (e) => {
       e.preventDefault();
@@ -10030,11 +10222,14 @@
         ) })
       ] }) }),
       archivedIdeas.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-card-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "aca-card-title", children: [
-          "Archived Ideas (",
-          archivedIdeas.length,
-          ")"
-        ] }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card-header", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "aca-card-title", children: [
+            "Archived Ideas (",
+            archivedIdeas.length,
+            ")"
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", style: { margin: 0, fontSize: "14px" }, children: "Manage your archived ideas - restore them or delete permanently" })
+        ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-list", children: archivedIdeas.map((idea, index) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-list-item", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { flexGrow: 1, marginRight: "15px" }, children: idea.title }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
@@ -10045,8 +10240,52 @@
             background: sourceStyles[idea.source].background,
             color: sourceStyles[idea.source].color,
             border: `1px solid ${sourceStyles[idea.source].borderColor}`,
-            flexShrink: 0
-          }, children: sourceNames[idea.source] })
+            flexShrink: 0,
+            marginRight: "10px"
+          }, children: sourceNames[idea.source] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "8px", alignItems: "center" }, children: [
+            onRestoreIdea && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                onClick: () => onRestoreIdea(idea.id),
+                className: "aca-button secondary",
+                style: {
+                  fontSize: "11px",
+                  padding: "4px 8px",
+                  minWidth: "auto",
+                  background: "#e6f7e6",
+                  borderColor: "#28a745",
+                  color: "#0a5d0a"
+                },
+                title: "Restore to active ideas",
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Edit, { style: { width: "12px", height: "12px", marginRight: "4px" } }),
+                  "Restore"
+                ]
+              }
+            ),
+            onDeleteIdea && /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                onClick: () => {
+                  if (window.confirm(`Are you sure you want to permanently delete "${idea.title}"? This action cannot be undone.`)) {
+                    onDeleteIdea(idea.id);
+                  }
+                },
+                className: "aca-button secondary",
+                style: {
+                  fontSize: "11px",
+                  padding: "4px 8px",
+                  minWidth: "auto",
+                  background: "#ffeaea",
+                  borderColor: "#dc3545",
+                  color: "#721c24"
+                },
+                title: "Delete permanently",
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash, { style: { width: "12px", height: "12px" } })
+              }
+            )
+          ] })
         ] }, idea.id)) })
       ] })
     ] });
@@ -10098,7 +10337,12 @@
           "button",
           {
             onClick: () => {
-              const editUrl = `${window.aca_object?.admin_url}post.php?post=${draft.id}&action=edit`;
+              if (!window.acaData) {
+                console.error("ACA Error: window.acaData is not defined");
+                alert("WordPress data not available. Please refresh the page.");
+                return;
+              }
+              const editUrl = `${window.acaData.admin_url}post.php?post=${draft.id}&action=edit`;
               window.open(editUrl, "_blank");
             },
             disabled: isPublishing,
@@ -11531,7 +11775,7 @@
       ] }) })
     ] });
   };
-  const ContentCalendar = ({ drafts, publishedPosts, onScheduleDraft, onSelectPost }) => {
+  const ContentCalendar = ({ drafts, publishedPosts, onScheduleDraft, onSelectPost, onPublishDraft }) => {
     const [currentDate, setCurrentDate] = reactExports.useState(/* @__PURE__ */ new Date());
     const [dragOverDate, setDragOverDate] = reactExports.useState(null);
     const [draggedDraft, setDraggedDraft] = reactExports.useState(null);
@@ -11539,8 +11783,13 @@
     const unscheduledDrafts = drafts.filter((draft) => !draft.scheduledFor);
     const scheduledDrafts = drafts.filter((draft) => draft.scheduledFor);
     const openWordPressEditor = (postId) => {
-      const adminUrl = window.aca_object?.admin_url || "/wp-admin/";
-      window.open(`${adminUrl}post.php?post=${postId}&action=edit`, "_blank");
+      if (!window.acaData) {
+        console.error("ACA Error: window.acaData is not defined");
+        alert("WordPress data not available. Please refresh the page.");
+        return;
+      }
+      const editUrl = `${window.acaData.admin_url}post.php?post=${postId}&action=edit`;
+      window.open(editUrl, "_blank");
     };
     const getPostsForDate = (date) => {
       const dateStr = date.toISOString().split("T")[0];
@@ -11578,7 +11827,24 @@
       e.preventDefault();
       const draftId = e.dataTransfer.getData("text/plain");
       if (draftId && draggedDraft) {
-        onScheduleDraft(parseInt(draftId), date.toISOString());
+        const today = /* @__PURE__ */ new Date();
+        today.setHours(0, 0, 0, 0);
+        const dropDate = new Date(date);
+        dropDate.setHours(0, 0, 0, 0);
+        if (dropDate < today) {
+          const confirmPublish = window.confirm(
+            `You're scheduling this draft for a past date (${date.toLocaleDateString()}). This will publish the post immediately. Do you want to continue?`
+          );
+          if (confirmPublish) {
+            if (onPublishDraft) {
+              onPublishDraft(parseInt(draftId));
+            } else {
+              onScheduleDraft(parseInt(draftId), date.toISOString());
+            }
+          }
+        } else {
+          onScheduleDraft(parseInt(draftId), date.toISOString());
+        }
       }
       setDragOverDate(null);
       setDraggedDraft(null);
@@ -11978,6 +12244,10 @@
       }
       console.log("Creating draft for idea:", idea);
       setIsLoading((prev) => ({ ...prev, [`draft_${ideaId}`]: true }));
+      addToast({
+        message: `🤖 AI is generating draft for "${idea.title}"... This may take a moment.`,
+        type: "info"
+      });
       try {
         console.log("Calling draftsApi.createFromIdea with ideaId:", ideaId);
         const draft = await draftsApi.createFromIdea(ideaId);
@@ -12068,6 +12338,33 @@
         addToast({ message: errorMessage, type: "error" });
       }
     }, [ideas, addToast, addLogEntry]);
+    const handleDeleteIdea = reactExports.useCallback(async (ideaId) => {
+      try {
+        const idea = ideas.find((i) => i.id === ideaId);
+        if (!idea) return;
+        await ideasApi.delete(ideaId);
+        setIdeas((prev) => prev.filter((i) => i.id !== ideaId));
+        addToast({ message: "Idea deleted permanently!", type: "success" });
+        addLogEntry("idea_deleted", `Deleted idea: "${idea.title}"`, "Trash");
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Failed to delete idea";
+        addToast({ message: errorMessage, type: "error" });
+      }
+    }, [ideas, addToast, addLogEntry]);
+    const handleRestoreIdea = reactExports.useCallback(async (ideaId) => {
+      try {
+        const idea = ideas.find((i) => i.id === ideaId);
+        if (!idea) return;
+        const updatedIdea = { ...idea, status: "active" };
+        await ideasApi.update(ideaId, updatedIdea);
+        setIdeas((prev) => prev.map((i) => i.id === ideaId ? updatedIdea : i));
+        addToast({ message: "Idea restored successfully!", type: "success" });
+        addLogEntry("idea_restored", `Restored idea: "${idea.title}"`, "Edit");
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Failed to restore idea";
+        addToast({ message: errorMessage, type: "error" });
+      }
+    }, [ideas, addToast, addLogEntry]);
     const handleUpdateIdeaTitle = reactExports.useCallback(async (ideaId, newTitle) => {
       try {
         const idea = ideas.find((i) => i.id === ideaId);
@@ -12116,7 +12413,22 @@
         case "style-guide":
           return /* @__PURE__ */ jsxRuntimeExports.jsx(StyleGuideManager, { styleGuide, onAnalyze: () => handleAnalyzeStyle(false), onSaveStyleGuide: handleSaveStyleGuide, isLoading: isLoading["style"] });
         case "ideas":
-          return /* @__PURE__ */ jsxRuntimeExports.jsx(IdeaBoard, { ideas, onGenerate: () => handleGenerateIdeas(false, 5), onCreateDraft: (idea) => handleCreateDraft(idea.id), onArchive: handleArchiveIdea, isLoading: isLoading["ideas"], isLoadingDraft: isLoading, onUpdateTitle: handleUpdateIdeaTitle, onGenerateSimilar: handleGenerateSimilarIdeas, onAddIdea: handleAddIdea });
+          return /* @__PURE__ */ jsxRuntimeExports.jsx(
+            IdeaBoard,
+            {
+              ideas,
+              onGenerate: () => handleGenerateIdeas(false, 5),
+              onCreateDraft: (idea) => handleCreateDraft(idea.id),
+              onArchive: handleArchiveIdea,
+              onDeleteIdea: handleDeleteIdea,
+              onRestoreIdea: handleRestoreIdea,
+              isLoading: isLoading["ideas"],
+              isLoadingDraft: isLoading,
+              onUpdateTitle: handleUpdateIdeaTitle,
+              onGenerateSimilar: handleGenerateSimilarIdeas,
+              onAddIdea: handleAddIdea
+            }
+          );
         case "drafts":
           return /* @__PURE__ */ jsxRuntimeExports.jsx(DraftsList, { drafts, onSelectDraft: setSelectedDraft, onPublish: handlePublishPost, publishingId });
         case "published":
@@ -12124,7 +12436,16 @@
         case "settings":
           return /* @__PURE__ */ jsxRuntimeExports.jsx(Settings, { settings, onSaveSettings: handleSaveSettings });
         case "calendar":
-          return /* @__PURE__ */ jsxRuntimeExports.jsx(ContentCalendar, { drafts, publishedPosts, onScheduleDraft: handleScheduleDraft, onSelectPost: setSelectedDraft });
+          return /* @__PURE__ */ jsxRuntimeExports.jsx(
+            ContentCalendar,
+            {
+              drafts,
+              publishedPosts,
+              onScheduleDraft: handleScheduleDraft,
+              onSelectPost: setSelectedDraft,
+              onPublishDraft: handlePublishPost
+            }
+          );
         case "dashboard":
         default:
           return /* @__PURE__ */ jsxRuntimeExports.jsx(

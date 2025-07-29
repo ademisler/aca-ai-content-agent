@@ -127,6 +127,58 @@
   fill: #0073aa;
 }
 
+/* Enhanced icon contrast for dark backgrounds */
+.aca-sidebar .aca-nav-item-icon {
+  fill: #a7aaad;
+  transition: fill 0.2s ease;
+}
+
+.aca-sidebar .aca-nav-item:hover .aca-nav-item-icon {
+  fill: #ffffff;
+}
+
+.aca-sidebar .aca-nav-item.active .aca-nav-item-icon {
+  fill: #ffffff;
+}
+
+/* Icon contrast fixes for dark card backgrounds */
+.aca-card[style*="background: #23282d"] .aca-nav-item-icon,
+.aca-card[style*="background:#23282d"] .aca-nav-item-icon {
+  fill: #ffffff !important;
+}
+
+/* Icon contrast for buttons on dark backgrounds */
+.aca-button.secondary[style*="background: #23282d"] .aca-nav-item-icon,
+.aca-button.secondary[style*="background:#23282d"] .aca-nav-item-icon {
+  fill: #ffffff !important;
+}
+
+/* Better contrast for disabled buttons */
+.aca-button:disabled .aca-nav-item-icon {
+  fill: #a7aaad;
+}
+
+/* Ensure good contrast for all icon contexts */
+.aca-nav-item-icon {
+  filter: contrast(1.2);
+}
+
+/* Special handling for Eye icon (View Draft button) */
+.aca-button.secondary .aca-nav-item-icon {
+  fill: #0073aa;
+  stroke: none;
+}
+
+.aca-button.secondary:hover .aca-nav-item-icon {
+  fill: #005a87;
+}
+
+/* Toast notification icons */
+.aca-toast .aca-nav-item-icon {
+  fill: currentColor;
+  filter: brightness(1.1);
+}
+
 /* Dashboard action button icons - fix alignment and colors */
 .aca-action-button .aca-action-icon {
   display: flex;
@@ -394,12 +446,13 @@
 /* Loading spinner */
 .aca-spinner {
   display: inline-block;
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   border: 2px solid #f3f3f3;
   border-top: 2px solid #0073aa;
   border-radius: 50%;
   animation: aca-spin 1s linear infinite;
+  vertical-align: middle;
 }
 
 @keyframes aca-spin {
@@ -648,4 +701,92 @@
 #root .error,
 #root .updated {
   display: block !important;
+}
+
+/* Progress bar animation for loading states */
+@keyframes aca-progress-slide {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(300%);
+  }
+}
+
+/* Enhanced loading states */
+.aca-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed !important;
+}
+
+.aca-button.loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.aca-button.loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  animation: aca-shimmer 1.5s infinite;
+}
+
+@keyframes aca-shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Improved spinner animation */
+.aca-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #0073aa;
+  border-radius: 50%;
+  animation: aca-spin 1s linear infinite;
+  vertical-align: middle;
+}
+
+@keyframes aca-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Loading overlay for cards */
+.aca-card.loading {
+  position: relative;
+  pointer-events: none;
+}
+
+.aca-card.loading::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  z-index: 10;
+  border-radius: 6px;
+}
+
+.aca-card.loading::after {
+  content: 'Processing...';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 11;
+  font-size: 14px;
+  color: #0073aa;
+  font-weight: 500;
 }

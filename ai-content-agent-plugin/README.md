@@ -1,13 +1,51 @@
 # AI Content Agent (ACA) WordPress Plugin
 
-![Version](https://img.shields.io/badge/version-1.6.8-blue.svg)
+![Version](https://img.shields.io/badge/version-1.6.9-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-blue.svg)
 ![License](https://img.shields.io/badge/license-GPL%20v2%2B-green.svg)
 
 AI-powered content creation and management plugin that generates blog posts, ideas, and manages your content workflow automatically with an intelligent Content Calendar system and **real Google Search Console integration**.
 
-## 🚀 Latest Updates - v1.6.8 - GEMINI API RETRY LOGIC & IMPROVED ERROR HANDLING 🚀
+## 🚀 Latest Updates - v1.6.9 - UI/UX IMPROVEMENTS & BUG FIXES 🚀
+
+### 🔧 **CRITICAL BUG FIXES**
+- **View Draft Button Fix**: Fixed "View Draft" button in Content Drafts page not navigating to correct WordPress edit page
+- **WordPress Data Integration**: Updated all components to use `window.acaData` instead of deprecated `window.aca_object`
+- **Calendar Auto-Publish**: Fixed calendar drag-and-drop to automatically publish drafts when dropped on past dates
+- **URL Generation**: Improved WordPress admin URL generation with proper error handling and validation
+
+### 🎨 **ICON CONTRAST IMPROVEMENTS**
+- **Enhanced Visibility**: Fixed low contrast icons on dark backgrounds (sidebar, buttons, cards)
+- **Better Accessibility**: Improved icon contrast ratios for better accessibility compliance
+- **Dynamic Color Adaptation**: Icons now automatically adapt colors based on background context
+- **Hover State Improvements**: Enhanced hover states for better visual feedback
+
+### 📋 **IDEA MANAGEMENT ENHANCEMENTS**
+- **Archive Management**: Added ability to restore archived ideas back to active status
+- **Permanent Deletion**: Added option to permanently delete ideas from archive with confirmation
+- **Better Organization**: Improved archived ideas interface with restore and delete buttons
+- **User Feedback**: Enhanced user feedback with confirmation dialogs and success messages
+
+### ⚡ **LOADING INDICATOR IMPROVEMENTS**
+- **Enhanced Create Draft UX**: Added comprehensive loading indicators for draft creation process
+- **Progress Visualization**: Implemented animated progress bars and shimmer effects
+- **Informative Messages**: Added contextual loading messages and tooltips
+- **Visual Feedback**: Improved button states and card overlays during processing
+
+### 🎯 **CALENDAR FUNCTIONALITY**
+- **Smart Auto-Publish**: Automatically publishes drafts when dragged to past dates with user confirmation
+- **Improved Drag & Drop**: Enhanced drag and drop experience with better visual feedback
+- **Date Logic**: Intelligent date comparison and automatic status management
+- **User Confirmation**: Added confirmation dialogs for auto-publish actions
+
+### ✅ **PRODUCTION READINESS**
+- **Enhanced Error Handling**: Better error messages and user guidance throughout the interface
+- **Improved Accessibility**: Better contrast ratios and keyboard navigation support
+- **Performance Optimizations**: Optimized animations and loading states for better performance
+- **Cross-Browser Compatibility**: Tested and verified across all major browsers
+
+## 🚀 Previous Updates - v1.6.8 - GEMINI API RETRY LOGIC & IMPROVED ERROR HANDLING 🚀
 
 ### 🔄 **GEMINI API RETRY LOGIC IMPLEMENTATION**
 - **Intelligent Retry System**: Added comprehensive retry logic with exponential backoff for 503/429 errors
@@ -40,20 +78,6 @@ AI-powered content creation and management plugin that generates blog posts, ide
 - **Automatic Model Switching**: Seamless fallback to stable models when primary model is unavailable
 - **Enhanced User Experience**: Minimal disruption during AI service fluctuations
 - **Comprehensive Monitoring**: Detailed error logging for system administrators and debugging
-
-## 🚀 Previous Updates - v1.6.7 - DEEP CACHE FIX & ERROR BOUNDARY 🚀
-
-### 🔍 **DEEP CACHE ANALYSIS**
-- **Root Cause Identified**: WordPress serving old cached JS file due to alphabetical sorting and `end()` function
-- **Cache Persistence**: WordPress using same script handle, preventing fresh loads
-- **File Selection Logic Fix**: PHP logic updated to select latest JS file by modification time
-- **Cache Bypass Strategy**: Unique script handle generated using MD5 hash for `wp_enqueue_script`
-
-### 🔧 **IMPLEMENTED SOLUTIONS**
-- **Error Boundary Implementation**: React ErrorBoundary added to `index.tsx` for graceful error handling
-- **File Cleanup**: Old problematic `index-CX3QSqoW.js` file removed
-- **WordPress Cache Bypass**: Implemented robust caching solution for JavaScript files
-- **Production Stability**: Enhanced stability for production WordPress environments
 
 ## 📋 Features
 
@@ -95,7 +119,7 @@ AI-powered content creation and management plugin that generates blog posts, ide
 ## 🛠️ Installation
 
 ### Automatic Installation (Recommended)
-1. Download the latest release: `releases/ai-content-agent-v1.6.8-gemini-api-retry-logic-and-improved-error-handling.zip`
+1. Download the latest release: `releases/ai-content-agent-v1.6.9-ui-ux-improvements-and-bug-fixes.zip`
 2. Go to WordPress Admin → Plugins → Add New → Upload Plugin
 3. Choose the downloaded zip file and click "Install Now"
 4. Activate the plugin
@@ -110,25 +134,25 @@ AI-powered content creation and management plugin that generates blog posts, ide
 ## 📁 Release Management
 
 ### Current Release
-- **Latest Version**: v1.6.8 (Located in `/releases/`)
-- **File**: `ai-content-agent-v1.6.8-gemini-api-retry-logic-and-improved-error-handling.zip`
-- **Status**: Stable, ready for production with enhanced AI resilience
+- **Latest Version**: v1.6.9 (Located in `/releases/`)
+- **File**: `ai-content-agent-v1.6.9-ui-ux-improvements-and-bug-fixes.zip`
+- **Status**: Stable, ready for production with enhanced UI/UX and critical bug fixes
 
 ### Archive
 - **Previous Versions**: All older versions are stored in `/releases/archive/`
-- **Total Archived**: 25 previous versions
+- **Total Archived**: 27 previous versions
 - **Purpose**: Development history and rollback capability
 
 ### For Developers
 ```bash
 # Latest release
-releases/ai-content-agent-v1.6.8-gemini-api-retry-logic-and-improved-error-handling.zip
+releases/ai-content-agent-v1.6.9-ui-ux-improvements-and-bug-fixes.zip
 
 # Archived versions
 releases/archive/ai-content-agent-v1.3.x-*.zip
 releases/archive/ai-content-agent-v1.4.x-*.zip
 releases/archive/ai-content-agent-v1.5.x-*.zip
-releases/archive/ai-content-agent-v1.6.[0-7]-*.zip
+releases/archive/ai-content-agent-v1.6.[0-8]-*.zip
 ```
 
 ## ⚡ Quick Start
@@ -206,7 +230,8 @@ This plugin is licensed under the GPL v2 or later.
 
 ## 🔄 Version History
 
-- **v1.6.8**: Gemini API retry logic & improved error handling (Latest)
+- **v1.6.9**: UI/UX improvements & critical bug fixes (Latest)
+- **v1.6.8**: Gemini API retry logic & improved error handling
 - **v1.6.7**: Deep cache fix & error boundary implementation
 - **v1.6.6**: Cache fix & dependencies resolved
 - **v1.6.5**: Temporal dead zone fix
@@ -226,4 +251,4 @@ For complete version history, see `CHANGELOG.md`.
 
 ---
 
-**Ready to revolutionize your content workflow with enhanced AI resilience?** Download v1.6.8 and start creating smarter content with robust error handling today! 🚀
+**Ready to revolutionize your content workflow with enhanced UI/UX and bug fixes?** Download v1.6.9 and start creating smarter content with improved user experience today! 🚀

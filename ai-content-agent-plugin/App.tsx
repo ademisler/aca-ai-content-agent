@@ -47,7 +47,7 @@ const App: React.FC = () => {
         pexelsApiKey: '',
         unsplashApiKey: '',
         pixabayApiKey: '',
-        seoPlugin: 'none',
+        seoPlugin: 'none', // Auto-detected, kept for backward compatibility
         geminiApiKey: '',
     });
     const [isLoading, setIsLoading] = useState<{ [key: string]: boolean }>({});
@@ -94,7 +94,7 @@ const App: React.FC = () => {
                     pexelsApiKey: '',
                     unsplashApiKey: '',
                     pixabayApiKey: '',
-                    seoPlugin: 'none',
+                    seoPlugin: 'none', // Auto-detected, kept for backward compatibility
                     geminiApiKey: '',
                 });
                 

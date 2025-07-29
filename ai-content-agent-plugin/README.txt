@@ -4,7 +4,7 @@ Tags: ai, content, automation, calendar, seo, google-search-console, gemini, con
 Requires at least: 5.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.5.2
+Stable tag: 1.5.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,16 +14,16 @@ AI-powered content creation and management plugin with intelligent Content Calen
 
 **AI Content Agent (ACA)** revolutionizes your WordPress content workflow with intelligent automation, beautiful calendar management, and real Google Search Console insights.
 
-= 🚀 Latest Updates - v1.5.2 =
+= 🚀 Latest Updates - v1.5.3 =
 
-**IMAGE INTEGRATION OVERHAUL + TEXT-FREE AI GENERATION**
-* Text-Free AI Images: Added explicit prompting to prevent text in AI-generated images
-* Enhanced Image Attachment: Improved image attachment process with proper post association
-* Better Image Relevance: Added key concept extraction from article titles
-* Negative Prompting: Comprehensive negative prompting to block text, logos, and readable content
-* Improved Error Handling: Detailed logging for image creation and attachment processes
-* Alt Text Support: Automatically sets alt text for accessibility compliance
-* All stock photo APIs confirmed working correctly (Pexels, Unsplash, Pixabay)
+**AUTOMATIC SEO PLUGIN INTEGRATION**
+* Automatic Detection: Plugin now automatically detects installed SEO plugins (RankMath and Yoast SEO)
+* Seamless Data Transfer: Meta descriptions and focus keywords are automatically sent to detected SEO plugins
+* Real-time Status: Live detection status with plugin version information in settings
+* Zero Configuration: No manual setup required - works automatically when SEO plugins are installed
+* Smart Integration: Proper meta field mapping for both RankMath and Yoast SEO formats
+* Multi-Plugin Support: Handles multiple SEO plugins simultaneously if both are installed
+* Error Handling: Comprehensive error handling with detailed logging for troubleshooting
 
 = 🔍 Google Search Console Integration =
 

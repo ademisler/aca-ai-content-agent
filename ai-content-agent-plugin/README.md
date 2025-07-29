@@ -1,26 +1,27 @@
 # AI Content Agent (ACA) WordPress Plugin
 
-![Version](https://img.shields.io/badge/version-1.5.2-blue.svg)
+![Version](https://img.shields.io/badge/version-1.5.3-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-blue.svg)
 ![License](https://img.shields.io/badge/license-GPL%20v2%2B-green.svg)
 
 AI-powered content creation and management plugin that generates blog posts, ideas, and manages your content workflow automatically with an intelligent Content Calendar system and **real Google Search Console integration**.
 
-## 🚀 Latest Updates - v1.5.2 - IMAGE INTEGRATION OVERHAUL + TEXT-FREE AI GENERATION 🖼️
+## 🚀 Latest Updates - v1.5.3 - AUTOMATIC SEO PLUGIN INTEGRATION 🔌
 
-### 🖼️ **COMPLETE IMAGE INTEGRATION OVERHAUL**
-- **Text-Free AI Images**: Added explicit prompting and negative prompting to prevent text, words, or readable content in AI-generated images
-- **Enhanced Image Attachment**: Improved image attachment process with proper post association and error handling
-- **Better Image Relevance**: Added key concept extraction from article titles for more relevant image generation
-- **Improved Error Handling**: Comprehensive error logging for image creation and attachment processes
-- **Alt Text Support**: Automatically sets alt text for accessibility compliance
+### 🔌 **AUTOMATIC SEO PLUGIN DETECTION & INTEGRATION**
+- **Automatic Detection**: Plugin now automatically detects installed SEO plugins (RankMath and Yoast SEO)
+- **Seamless Data Transfer**: Meta descriptions and focus keywords are automatically sent to detected SEO plugins
+- **Real-time Status**: Live detection status with plugin version information in settings
+- **Zero Configuration**: No manual setup required - works automatically when SEO plugins are installed
+- **Smart Integration**: Proper meta field mapping for both RankMath and Yoast SEO formats
 
-### 🚫 **TEXT PREVENTION IN AI IMAGES**
-- **Explicit Text Prevention**: Added clear instructions to prevent any textual elements in generated images
-- **Negative Prompting**: Implemented comprehensive negative prompting to block text, logos, watermarks, and readable content
-- **Visual-Only Focus**: Ensures AI-generated images are purely visual without any written elements
-- **Professional Quality**: Maintains high-quality visual output while preventing unwanted text overlay
+### 🎯 **ENHANCED SEO WORKFLOW**
+- **RankMath Integration**: Automatic data sending to proper RankMath meta fields
+- **Yoast SEO Integration**: Automatic data sending to proper Yoast SEO meta fields
+- **Multi-Plugin Support**: Handles multiple SEO plugins simultaneously if both are installed
+- **Error Handling**: Comprehensive error handling with detailed logging for troubleshooting
+- **Non-blocking**: SEO integration failures don't prevent post creation
 
 ### ✅ **ALL STOCK PHOTO APIS CONFIRMED WORKING**
 - **Pexels API**: ✅ Verified correct `Authorization: {API_KEY}` header implementation

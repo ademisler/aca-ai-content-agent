@@ -50,6 +50,13 @@ class ACA_Rest_Api {
             'permission_callback' => array($this, 'check_admin_permissions')
         ));
         
+        // SEO Plugin Detection endpoint
+        register_rest_route('aca/v1', '/seo-plugins', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_seo_plugins'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
+        
         // Google Search Console endpoints
         register_rest_route('aca/v1', '/gsc/auth-status', array(
             'methods' => 'GET',
@@ -1089,6 +1096,28 @@ class ACA_Rest_Api {
                 } else {
                     error_log('ACA: Failed to create attachment for featured image');
                 }
+            }
+            
+            // Send SEO data to detected SEO plugins
+            error_log('ACA DEBUG: Sending SEO data to detected SEO plugins');
+            try {
+                $focus_keywords_array = !empty($focus_keywords) ? explode(',', $focus_keywords) : array();
+                $focus_keywords_array = array_map('trim', $focus_keywords_array);
+                
+                $seo_results = $this->send_seo_data_to_plugins(
+                    $post_id,
+                    $draft_data['metaTitle'],
+                    $draft_data['metaDescription'],
+                    $focus_keywords_array
+                );
+                
+                if (!empty($seo_results)) {
+                    error_log('ACA DEBUG: SEO data sent successfully: ' . json_encode($seo_results));
+                } else {
+                    error_log('ACA DEBUG: No SEO plugins detected or no data sent');
+                }
+            } catch (Exception $e) {
+                error_log('ACA DEBUG: SEO data sending failed (non-blocking): ' . $e->getMessage());
             }
             
             // Update idea status instead of deleting (safer approach)
@@ -2382,5 +2411,177 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         }
         
         return rest_ensure_response($sites);
+    }
+    
+    /**
+     * Get SEO plugins status endpoint
+     */
+    public function get_seo_plugins($request) {
+        $detected_plugins = $this->detect_seo_plugin();
+        
+        return rest_ensure_response(array(
+            'success' => true,
+            'detected_plugins' => $detected_plugins,
+            'count' => count($detected_plugins),
+            'auto_detection_enabled' => true
+        ));
+    }
+    
+    /**
+     * Detect which SEO plugin is active and return plugin info
+     */
+    private function detect_seo_plugin() {
+        $detected_plugins = array();
+        
+        // Check for RankMath
+        if (is_plugin_active('seo-by-rank-math/rank-math.php') || class_exists('RankMath')) {
+            $detected_plugins[] = array(
+                'plugin' => 'rank_math',
+                'name' => 'Rank Math',
+                'version' => defined('RANK_MATH_VERSION') ? RANK_MATH_VERSION : 'unknown',
+                'active' => true
+            );
+        }
+        
+        // Check for Yoast SEO
+        if (is_plugin_active('wordpress-seo/wp-seo.php') || class_exists('WPSEO_Options')) {
+            $detected_plugins[] = array(
+                'plugin' => 'yoast',
+                'name' => 'Yoast SEO',
+                'version' => defined('WPSEO_VERSION') ? WPSEO_VERSION : 'unknown',
+                'active' => true
+            );
+        }
+        
+        return $detected_plugins;
+    }
+    
+    /**
+     * Send SEO data to detected SEO plugins
+     */
+    private function send_seo_data_to_plugins($post_id, $meta_title, $meta_description, $focus_keywords) {
+        $detected_plugins = $this->detect_seo_plugin();
+        $results = array();
+        
+        foreach ($detected_plugins as $plugin_info) {
+            switch ($plugin_info['plugin']) {
+                case 'rank_math':
+                    $result = $this->send_to_rankmath($post_id, $meta_title, $meta_description, $focus_keywords);
+                    $results['rank_math'] = $result;
+                    break;
+                    
+                case 'yoast':
+                    $result = $this->send_to_yoast($post_id, $meta_title, $meta_description, $focus_keywords);
+                    $results['yoast'] = $result;
+                    break;
+            }
+        }
+        
+        return $results;
+    }
+    
+    /**
+     * Send SEO data to RankMath
+     */
+    private function send_to_rankmath($post_id, $meta_title, $meta_description, $focus_keywords) {
+        try {
+            // RankMath stores data in post meta with specific keys
+            if (!empty($meta_title)) {
+                update_post_meta($post_id, 'rank_math_title', sanitize_text_field($meta_title));
+            }
+            
+            if (!empty($meta_description)) {
+                update_post_meta($post_id, 'rank_math_description', sanitize_textarea_field($meta_description));
+            }
+            
+            if (!empty($focus_keywords) && is_array($focus_keywords)) {
+                // RankMath stores focus keyword as a single string (first keyword)
+                $primary_keyword = sanitize_text_field($focus_keywords[0]);
+                update_post_meta($post_id, 'rank_math_focus_keyword', $primary_keyword);
+                
+                // Store all keywords in a custom meta for reference
+                update_post_meta($post_id, 'aca_focus_keywords', $focus_keywords);
+            }
+            
+            // Set some additional RankMath meta for better integration
+            update_post_meta($post_id, 'rank_math_primary_category', '');
+            
+            error_log('ACA: Successfully sent SEO data to RankMath for post ' . $post_id);
+            
+            return array(
+                'success' => true,
+                'message' => 'SEO data successfully sent to RankMath',
+                'plugin' => 'RankMath',
+                'data_sent' => array(
+                    'title' => !empty($meta_title),
+                    'description' => !empty($meta_description),
+                    'focus_keyword' => !empty($focus_keywords)
+                )
+            );
+            
+        } catch (Exception $e) {
+            error_log('ACA: Error sending to RankMath: ' . $e->getMessage());
+            return array(
+                'success' => false,
+                'message' => 'Error sending to RankMath: ' . $e->getMessage(),
+                'plugin' => 'RankMath'
+            );
+        }
+    }
+    
+    /**
+     * Send SEO data to Yoast SEO
+     */
+    private function send_to_yoast($post_id, $meta_title, $meta_description, $focus_keywords) {
+        try {
+            // Yoast stores data in post meta with _yoast_wpseo_ prefix
+            if (!empty($meta_title)) {
+                update_post_meta($post_id, '_yoast_wpseo_title', sanitize_text_field($meta_title));
+            }
+            
+            if (!empty($meta_description)) {
+                update_post_meta($post_id, '_yoast_wpseo_metadesc', sanitize_textarea_field($meta_description));
+            }
+            
+            if (!empty($focus_keywords) && is_array($focus_keywords)) {
+                // Yoast stores the primary focus keyword
+                $primary_keyword = sanitize_text_field($focus_keywords[0]);
+                update_post_meta($post_id, '_yoast_wpseo_focuskw', $primary_keyword);
+                
+                // For Yoast Premium, additional keywords can be stored
+                if (count($focus_keywords) > 1) {
+                    $additional_keywords = array_slice($focus_keywords, 1);
+                    update_post_meta($post_id, '_yoast_wpseo_focuskeywords', json_encode($additional_keywords));
+                }
+                
+                // Store all keywords in a custom meta for reference
+                update_post_meta($post_id, 'aca_focus_keywords', $focus_keywords);
+            }
+            
+            // Set some additional Yoast meta for better integration
+            update_post_meta($post_id, '_yoast_wpseo_content_score', '');
+            update_post_meta($post_id, '_yoast_wpseo_estimated-reading-time-minutes', '');
+            
+            error_log('ACA: Successfully sent SEO data to Yoast SEO for post ' . $post_id);
+            
+            return array(
+                'success' => true,
+                'message' => 'SEO data successfully sent to Yoast SEO',
+                'plugin' => 'Yoast SEO',
+                'data_sent' => array(
+                    'title' => !empty($meta_title),
+                    'description' => !empty($meta_description),
+                    'focus_keyword' => !empty($focus_keywords)
+                )
+            );
+            
+        } catch (Exception $e) {
+            error_log('ACA: Error sending to Yoast SEO: ' . $e->getMessage());
+            return array(
+                'success' => false,
+                'message' => 'Error sending to Yoast SEO: ' . $e->getMessage(),
+                'plugin' => 'Yoast SEO'
+            );
+        }
     }
 }

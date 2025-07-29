@@ -40,7 +40,7 @@ export interface Draft {
 export type AutomationMode = 'manual' | 'semi-automatic' | 'full-automatic';
 export type ImageSourceProvider = 'ai' | 'pexels' | 'unsplash' | 'pixabay';
 export type AiImageStyle = 'digital_art' | 'photorealistic';
-export type SeoPlugin = 'none' | 'rank_math' | 'yoast';
+export type SeoPlugin = 'none' | 'rank_math' | 'yoast'; // Kept for backward compatibility
 
 
 export interface AppSettings {

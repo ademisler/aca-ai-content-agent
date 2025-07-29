@@ -94,6 +94,8 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
     const [currentSettings, setCurrentSettings] = useState<AppSettings>(settings);
     const [isConnecting, setIsConnecting] = useState(false);
     const [isDetectingSeo, setIsDetectingSeo] = useState(false);
+    const [detectedSeoPlugins, setDetectedSeoPlugins] = useState<Array<{plugin: string, name: string, version: string, active: boolean}>>([]);
+    const [seoPluginsLoading, setSeoPluginsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [gscAuthStatus, setGscAuthStatus] = useState<any>(null);
 
@@ -112,6 +114,7 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
         };
         
         loadGscAuthStatus();
+        fetchSeoPlugins();
     }, []);
 
     useEffect(() => {
@@ -131,13 +134,40 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
         }
     };
 
+    const fetchSeoPlugins = async () => {
+        try {
+            setSeoPluginsLoading(true);
+            const response = await fetch('/wp-json/aca/v1/seo-plugins', {
+                headers: {
+                    'X-WP-Nonce': (window as any).acaData?.nonce || ''
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                setDetectedSeoPlugins(data.detected_plugins || []);
+                
+                // Auto-update settings based on detected plugins
+                if (data.detected_plugins && data.detected_plugins.length > 0) {
+                    // Use the first detected plugin as the active one
+                    const firstPlugin = data.detected_plugins[0];
+                    if (currentSettings.seoPlugin === 'none') {
+                        handleSettingChange('seoPlugin', firstPlugin.plugin);
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching SEO plugins:', error);
+        } finally {
+            setSeoPluginsLoading(false);
+        }
+    };
+
     const handleAutoDetectSeo = () => {
         setIsDetectingSeo(true);
-        setTimeout(() => {
-            const detectedPlugin = Math.random() > 0.5 ? 'rank_math' : 'yoast';
-            handleSettingChange('seoPlugin', detectedPlugin);
+        fetchSeoPlugins().finally(() => {
             setIsDetectingSeo(false);
-        }, 1500);
+        });
     };
 
     const handleGSCConnect = async () => {
@@ -544,32 +574,72 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                     <IntegrationCard 
                         title="SEO Integration" 
                         icon={<SettingsIcon className="aca-nav-item-icon" />}
-                        isConfigured={currentSettings.seoPlugin !== 'none'}
+                        isConfigured={detectedSeoPlugins.length > 0}
                     >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px', flexWrap: 'wrap' }}>
-                            <div className="aca-form-group" style={{ flexGrow: 1, marginBottom: 0 }}>
-                                <label className="aca-label">SEO Plugin</label>
-                                <select 
-                                    value={currentSettings.seoPlugin} 
-                                    onChange={(e) => handleSettingChange('seoPlugin', e.target.value as SeoPlugin)} 
-                                    className="aca-select"
-                                    style={{ maxWidth: '200px' }}
-                                >
-                                    <option value="none">None</option>
-                                    <option value="rank_math">Rank Math</option>
-                                    <option value="yoast">Yoast SEO</option>
-                                </select>
+                        {seoPluginsLoading ? (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <span className="aca-spinner"></span>
+                                <span>Detecting SEO plugins...</span>
                             </div>
-                            <button 
-                                onClick={handleAutoDetectSeo} 
-                                disabled={isDetectingSeo} 
-                                className="aca-button secondary"
-                                style={{ flexShrink: 0 }}
-                            >
-                                {isDetectingSeo && <span className="aca-spinner"></span>}
-                                {isDetectingSeo ? "Detecting..." : "Auto-Detect"}
-                            </button>
-                        </div>
+                        ) : detectedSeoPlugins.length > 0 ? (
+                            <div>
+                                <p className="aca-page-description" style={{ marginBottom: '15px', color: '#22c55e' }}>
+                                    ✅ Automatic detection enabled - SEO data will be sent to detected plugins
+                                </p>
+                                {detectedSeoPlugins.map((plugin, index) => (
+                                    <div key={plugin.plugin} style={{ 
+                                        padding: '12px', 
+                                        backgroundColor: '#f8f9fa', 
+                                        borderRadius: '6px', 
+                                        marginBottom: index < detectedSeoPlugins.length - 1 ? '8px' : '0',
+                                        border: '1px solid #e9ecef'
+                                    }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <div>
+                                                <strong>{plugin.name}</strong>
+                                                <span style={{ color: '#6c757d', marginLeft: '8px' }}>v{plugin.version}</span>
+                                            </div>
+                                            <span style={{ 
+                                                backgroundColor: '#22c55e', 
+                                                color: 'white', 
+                                                padding: '2px 8px', 
+                                                borderRadius: '12px', 
+                                                fontSize: '12px',
+                                                fontWeight: '500'
+                                            }}>
+                                                Active
+                                            </span>
+                                        </div>
+                                        <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#6c757d' }}>
+                                            Meta descriptions and focus keywords will be automatically sent to this plugin
+                                        </p>
+                                    </div>
+                                ))}
+                                <button 
+                                    onClick={handleAutoDetectSeo} 
+                                    disabled={isDetectingSeo} 
+                                    className="aca-button secondary"
+                                    style={{ marginTop: '15px' }}
+                                >
+                                    {isDetectingSeo && <span className="aca-spinner"></span>}
+                                    {isDetectingSeo ? "Re-detecting..." : "Refresh Detection"}
+                                </button>
+                            </div>
+                        ) : (
+                            <div>
+                                <p className="aca-page-description" style={{ marginBottom: '15px', color: '#f59e0b' }}>
+                                    ⚠️ No SEO plugins detected. Install RankMath or Yoast SEO to enable automatic SEO data integration.
+                                </p>
+                                <button 
+                                    onClick={handleAutoDetectSeo} 
+                                    disabled={isDetectingSeo} 
+                                    className="aca-button secondary"
+                                >
+                                    {isDetectingSeo && <span className="aca-spinner"></span>}
+                                    {isDetectingSeo ? "Detecting..." : "Check Again"}
+                                </button>
+                            </div>
+                        )}
                     </IntegrationCard>
 
                     {/* Google Search Console */}

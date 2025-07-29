@@ -56,6 +56,12 @@ class AI_Content_Agent {
         
         // Enqueue admin scripts
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
+        
+        // Prevent jQuery loading on our plugin page
+        add_action('admin_enqueue_scripts', array($this, 'dequeue_jquery_on_plugin_page'), 100);
+        
+        // Add script loader tag modification to prevent jQuery conflicts
+        add_filter('script_loader_tag', array($this, 'modify_script_loader_tag'), 10, 3);
     }
     
     /**
@@ -127,6 +133,7 @@ class AI_Content_Agent {
         $js_version = ACA_VERSION . '-' . (file_exists($js_file) ? filemtime($js_file) : time());
         
         wp_enqueue_style('aca-styles', ACA_PLUGIN_URL . 'admin/css/index.css', array(), $css_version);
+        // Explicitly set no dependencies to prevent jQuery from being loaded
         wp_enqueue_script('aca-app', ACA_PLUGIN_URL . 'admin/js/index.js', array(), $js_version, true);
         
         // Pass data to React app
@@ -136,6 +143,40 @@ class AI_Content_Agent {
             'admin_url' => admin_url(),
             'plugin_url' => ACA_PLUGIN_URL,
         ));
+    }
+    
+    /**
+     * Dequeue jQuery on plugin page to prevent migrate warnings
+     * 
+     * This method prevents the jQuery Migrate warning:
+     * "JQMIGRATE: Migrate is installed, version 3.4.1"
+     * 
+     * The warning appears because WordPress automatically loads jQuery and jQuery Migrate
+     * when scripts are enqueued in the admin area. Since this plugin uses React and doesn't
+     * need jQuery, we dequeue these scripts to prevent unnecessary warnings.
+     */
+    public function dequeue_jquery_on_plugin_page($hook) {
+        // Only dequeue on our plugin page
+        if ('toplevel_page_ai-content-agent' == $hook) {
+            // Remove jQuery and related scripts to prevent migrate warnings
+            wp_dequeue_script('jquery-migrate');
+            wp_dequeue_script('jquery-core');
+            wp_dequeue_script('jquery');
+            wp_dequeue_script('utils');
+            wp_dequeue_script('wp-polyfill');
+        }
+    }
+    
+    /**
+     * Modify script loader tag to prevent jQuery conflicts
+     */
+    public function modify_script_loader_tag($tag, $handle, $src) {
+        // Only modify our plugin script
+        if ($handle === 'aca-app') {
+            // Add defer attribute to prevent conflicts
+            $tag = str_replace(' src', ' defer src', $tag);
+        }
+        return $tag;
     }
 }
 

@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Archive
 - **Previous Versions**: All older versions stored in `releases/archive/`
-- **Total Archived**: 20+ previous versions
+- **Total Archived**: 20 previous versions
 - **Purpose**: Development history and rollback capability
 
 ### For Developers

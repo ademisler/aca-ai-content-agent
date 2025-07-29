@@ -82,17 +82,17 @@ AI-powered content creation and management plugin that generates blog posts, ide
 
 ### Archive
 - **Previous Versions**: All older versions are stored in `/releases/archive/`
-- **Total Archived**: 20+ previous versions
+- **Total Archived**: 20 previous versions
 - **Purpose**: Development history and rollback capability
 
 ### For Developers
 ```bash
 # Latest release
-/releases/ai-content-agent-v1.4.9-activation-error-fix.zip
+releases/ai-content-agent-v1.4.9-activation-error-fix.zip
 
 # Archived versions
-/releases/archive/ai-content-agent-v1.3.x-*.zip
-/releases/archive/ai-content-agent-v1.4.[0-8]-*.zip
+releases/archive/ai-content-agent-v1.3.x-*.zip
+releases/archive/ai-content-agent-v1.4.[0-8]-*.zip
 ```
 
 ## ⚡ Quick Start

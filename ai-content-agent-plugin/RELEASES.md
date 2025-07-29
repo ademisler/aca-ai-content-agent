@@ -54,7 +54,7 @@ The `releases/archive/` directory contains all previous versions for:
 - **Documentation**: Reference for changelog and feature evolution
 
 ### Archive Statistics
-- **Total Archived Versions**: 20+ releases
+- **Total Archived Versions**: 20 releases
 - **Version Range**: v1.3.2 to v1.4.8 (archived)
 - **Storage**: Organized chronologically
 - **Accessibility**: All versions remain accessible for developers
@@ -110,7 +110,6 @@ ai-content-agent-v{MAJOR}.{MINOR}.{PATCH}-{DESCRIPTION}.zip
 Examples:
 - ai-content-agent-v1.4.9-activation-error-fix.zip
 - ai-content-agent-v1.4.8-gsc-500-error-fix.zip
-- ai-content-agent-v1.3.8-optimized.zip
 - ai-content-agent-v1.3.8-optimized.zip
 ```
 

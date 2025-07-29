@@ -40,7 +40,7 @@ class ACA_Google_Search_Console {
                 'https://www.googleapis.com/auth/webmasters.readonly'
             ]);
             $this->client->setAccessType('offline');
-            $this->client->setPrompt('consent');
+            $this->client->setPrompt('select_account consent'); // Force consent screen for proper refresh token
             
             // Get credentials from settings
             $settings = get_option('aca_settings', array());

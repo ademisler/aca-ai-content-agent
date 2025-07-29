@@ -9,6 +9,35 @@ AI-powered content creation and management plugin that generates blog posts, ide
 
 ## 🚀 Latest Updates - v1.8.0 - COMPREHENSIVE FEATURE ENHANCEMENTS & IMPROVEMENTS 🚀
 
+### 🎯 **DASHBOARD STATISTICS OPTIMIZATION**
+- **Active Ideas Count**: Dashboard now shows only active ideas count instead of all ideas (active + archived)
+- **Better Statistics**: More intuitive statistics display for better user understanding
+- **Enhanced User Experience**: Clearer representation of actual working content pipeline
+
+### 👨‍💻 **AUTHOR & BRANDING UPDATES**
+- **Author Information**: Updated plugin author to Adem Isler across all files
+- **Website Integration**: Added author website (ademisler.com/en) to plugin header and documentation
+- **Proper Attribution**: Updated all documentation files with correct authorship and contact information
+- **Version Consistency**: Updated version to 1.8.0 across all files for consistency
+
+### ✅ **FEATURE VERIFICATION & OPTIMIZATION**
+- **Idea Board Archive System**: Verified and optimized existing archive functionality
+- **Calendar Drag & Drop**: Confirmed advanced drag & drop for published posts is working correctly
+- **Automation Settings**: Verified comprehensive automation configuration options are properly implemented
+- **Content Analysis Integration**: Confirmed content analysis frequency settings work with automation modes
+- **Quick Actions Navigation**: Verified automatic navigation to Idea Board after idea generation
+- **Loading Animations**: Confirmed comprehensive loading animations for Create Draft button
+- **Image Source Ordering**: Verified proper ordering with Pexels as default and AI generated as last option
+- **Debug Panel Documentation**: Confirmed excellent documentation for developers and advanced users
+
+### 🔧 **TECHNICAL IMPROVEMENTS**
+- **Code Review**: Comprehensive review of all plugin features and functionality
+- **Quality Assurance**: Verified all requested features are properly implemented and working
+- **Documentation Updates**: Updated all documentation to reflect current state and authorship
+- **Version Management**: Proper version increment and consistency across all files
+
+## 🚀 Previous Updates - v1.7.0 - COMPREHENSIVE FEATURE ENHANCEMENTS & IMPROVEMENTS 🚀
+
 ### 🎯 **IDEA BOARD ARCHIVE SYSTEM OVERHAUL**
 - **Complete Archive Fix**: Fixed idea board archive system to show all generated ideas including archived ones
 - **Restore Functionality**: Added ability to restore archived ideas back to active status
@@ -44,11 +73,6 @@ AI-powered content creation and management plugin that generates blog posts, ide
 - **Enhanced Documentation**: Added clear explanation of debug panel purpose
 - **User Guidance**: Indicated that debug panel is for developers and advanced users
 - **Better Descriptions**: Improved tooltips and help text for debug functions
-
-### 👨‍💻 **AUTHOR & BRANDING UPDATES**
-- **Author Information**: Updated plugin author to Adem Isler
-- **Website Integration**: Added author website (ademisler.com/en)
-- **Proper Attribution**: Updated all documentation with correct authorship
 
 ### 🔧 **TECHNICAL IMPROVEMENTS**
 - **API Enhancements**: Added new REST API endpoints for advanced functionality

@@ -99,6 +99,8 @@
 - **v1.8.0**: Comprehensive feature enhancements & improvements ⭐ **CURRENT**
 - **v1.7.0**: Comprehensive feature enhancements & improvements
 - **v1.6.9**: UI/UX improvements & critical bug fixes
+- **v1.6.8**: Gemini API retry logic & improved error handling
+- **v1.6.7**: Deep cache fix & error boundary implementation
 - **v1.6.6**: Cache fix & dependencies resolved
 - **v1.6.5**: Temporal dead zone fix
 - **v1.6.4**: Critical JavaScript initialization error fix

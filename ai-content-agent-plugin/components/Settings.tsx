@@ -352,13 +352,100 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                 </p>
             </div>
 
-            {/* Automation Mode */}
+            {/* 1. License Activation - First Priority */}
+            <div className="aca-card">
+                <div className="aca-card-header">
+                    <h2 className="aca-card-title">
+                        <Shield className="aca-nav-item-icon" />
+                        Pro License Activation
+                    </h2>
+                </div>
+                <p className="aca-page-description">
+                    Activate your Pro license to unlock advanced automation modes and Google Search Console integration.
+                </p>
+                
+                <div className="aca-stat-item" style={{ margin: '0 0 20px 0' }}>
+                    <div className="aca-stat-info">
+                        <div className="aca-stat-icon">
+                            {licenseStatus.is_active ? (
+                                <CheckCircle style={{ color: '#27ae60', width: '20px', height: '20px' }} />
+                            ) : (
+                                <Shield style={{ color: '#e74c3c', width: '20px', height: '20px' }} />
+                            )}
+                        </div>
+                        <div>
+                            <div className="aca-stat-number">
+                                {licenseStatus.is_active ? 'Pro Active' : 'Free Version'}
+                            </div>
+                            <div className="aca-stat-label">
+                                {licenseStatus.is_active 
+                                    ? `Verified ${licenseStatus.verified_at ? new Date(licenseStatus.verified_at).toLocaleDateString() : ''}`
+                                    : 'Upgrade to unlock Pro features'
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {!licenseStatus.is_active && (
+                    <div className="aca-form-group">
+                        <label className="aca-label" htmlFor="license-key">License Key</label>
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                            <input
+                                id="license-key"
+                                type="text"
+                                className="aca-input"
+                                value={licenseKey}
+                                onChange={(e) => setLicenseKey(e.target.value)}
+                                placeholder="Enter your Pro license key"
+                                disabled={isVerifyingLicense}
+                            />
+                            <button
+                                onClick={handleLicenseVerification}
+                                disabled={isVerifyingLicense || !licenseKey.trim()}
+                                className="aca-button aca-button-primary"
+                                style={{ minWidth: '120px' }}
+                            >
+                                {isVerifyingLicense ? (
+                                    <>
+                                        <Spinner className="aca-spinner" />
+                                        Verifying...
+                                    </>
+                                ) : (
+                                    'Verify License'
+                                )}
+                            </button>
+                        </div>
+                        <p className="aca-page-description" style={{ marginTop: '10px' }}>
+                            Don't have a Pro license? <a href="https://gumroad.com/l/your-product-link" target="_blank" rel="noopener noreferrer" style={{ color: '#0073aa' }}>Purchase here</a>
+                        </p>
+                    </div>
+                )}
+
+                {licenseStatus.is_active && (
+                    <div className="aca-alert aca-alert-success" style={{ margin: '20px 0' }}>
+                        <CheckCircle style={{ width: '16px', height: '16px', marginRight: '8px' }} />
+                        Pro license is active! You now have access to all premium features.
+                    </div>
+                )}
+            </div>
+
+            {/* 2. Automation Mode - Core Functionality */}
             {currentSettings.is_pro ? (
                 <div className="aca-card">
                     <div className="aca-card-header">
                         <h2 className="aca-card-title">
                             <Zap className="aca-nav-item-icon" />
                             Automation Mode
+                            <span style={{ 
+                                marginLeft: '10px',
+                                background: 'linear-gradient(135deg, #f39c12 0%, #e67e22 100%)',
+                                color: 'white',
+                                padding: '2px 8px',
+                                borderRadius: '8px',
+                                fontSize: '10px',
+                                fontWeight: 'bold'
+                            }}>PRO</span>
                         </h2>
                     </div>
                     <p className="aca-page-description">
@@ -553,39 +640,7 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                 />
             )}
 
-            {/* Content Analysis Settings */}
-            <div className="aca-card">
-                <div className="aca-card-header">
-                    <h2 className="aca-card-title">
-                        <SettingsIcon className="aca-nav-item-icon" />
-                        Content Analysis Settings
-                    </h2>
-                </div>
-                <p className="aca-page-description">
-                    Configure how often the AI should analyze your content to update the style guide.
-                </p>
-                
-                <div className="aca-form-group">
-                    <label className="aca-label" htmlFor="analyze-frequency">Content Analysis Frequency</label>
-                    <select 
-                        id="analyze-frequency"
-                        className="aca-input" 
-                        value={currentSettings.analyzeContentFrequency || 'manual'} 
-                        onChange={(e) => handleSettingChange('analyzeContentFrequency', e.target.value)}
-                        style={{ marginTop: '5px' }}
-                    >
-                        <option value="manual">Manual - Only when you click the analyze button</option>
-                        <option value="daily">Daily - Analyze content automatically every day</option>
-                        <option value="weekly">Weekly - Analyze content automatically every week</option>
-                        <option value="monthly">Monthly - Analyze content automatically every month</option>
-                    </select>
-                    <p className="aca-page-description" style={{ marginTop: '5px', margin: '5px 0 0 0' }}>
-                        How often should the AI automatically analyze your site content to update the style guide? Manual mode gives you full control.
-                    </p>
-                </div>
-            </div>
-            
-            {/* Integrations */}
+            {/* 3. Integrations - External Services */}
             <div className="aca-card">
                 <div className="aca-card-header">
                     <h2 className="aca-card-title">
@@ -1104,11 +1159,25 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                     </IntegrationCard>
 
                     {/* Google Search Console */}
-                    <IntegrationCard 
-                        title="Google Search Console" 
-                        icon={<Google className="aca-nav-item-icon" />}
-                        isConfigured={!!currentSettings.searchConsoleUser}
-                    >
+                    {currentSettings.is_pro ? (
+                        <IntegrationCard 
+                            title={
+                                <span style={{ display: 'flex', alignItems: 'center' }}>
+                                    Google Search Console
+                                    <span style={{ 
+                                        marginLeft: '10px',
+                                        background: 'linear-gradient(135deg, #f39c12 0%, #e67e22 100%)',
+                                        color: 'white',
+                                        padding: '2px 8px',
+                                        borderRadius: '8px',
+                                        fontSize: '10px',
+                                        fontWeight: 'bold'
+                                    }}>PRO</span>
+                                </span>
+                            }
+                            icon={<Google className="aca-nav-item-icon" />}
+                            isConfigured={!!currentSettings.searchConsoleUser}
+                        >
                         {/* Dependencies Status */}
                         <div className="aca-form-group">
                             <div id="aca-dependencies-status">
@@ -1201,88 +1270,54 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                             )}
                         </div>
                     </IntegrationCard>
+                    ) : (
+                        <UpgradePrompt
+                            title="Google Search Console Integration"
+                            description="Connect your GSC account to generate content ideas based on your search performance data and improve SEO targeting."
+                            features={[
+                                "Data-driven content ideas from your search queries",
+                                "Target keywords you're already ranking for",
+                                "Identify content gaps and opportunities",
+                                "Improve content relevance and SEO performance"
+                            ]}
+                        />
+                    )}
                 </div>
             </div>
             
-            {/* License Activation */}
+            {/* 4. Content Analysis Settings - AI Optimization */}
             <div className="aca-card">
                 <div className="aca-card-header">
                     <h2 className="aca-card-title">
-                        <Shield className="aca-nav-item-icon" />
-                        Pro License Activation
+                        <SettingsIcon className="aca-nav-item-icon" />
+                        Content Analysis Settings
                     </h2>
                 </div>
                 <p className="aca-page-description">
-                    Activate your Pro license to unlock advanced automation modes and Google Search Console integration.
+                    Configure how often the AI should analyze your content to update the style guide.
                 </p>
                 
-                <div className="aca-stat-item" style={{ margin: '0 0 20px 0' }}>
-                    <div className="aca-stat-info">
-                        <div className="aca-stat-icon">
-                            {licenseStatus.is_active ? (
-                                <CheckCircle style={{ color: '#27ae60', width: '20px', height: '20px' }} />
-                            ) : (
-                                <Shield style={{ color: '#e74c3c', width: '20px', height: '20px' }} />
-                            )}
-                        </div>
-                        <div>
-                            <div className="aca-stat-number">
-                                {licenseStatus.is_active ? 'Pro Active' : 'Free Version'}
-                            </div>
-                            <div className="aca-stat-label">
-                                {licenseStatus.is_active 
-                                    ? `Verified ${licenseStatus.verified_at ? new Date(licenseStatus.verified_at).toLocaleDateString() : ''}`
-                                    : 'Upgrade to unlock Pro features'
-                                }
-                            </div>
-                        </div>
-                    </div>
+                <div className="aca-form-group">
+                    <label className="aca-label" htmlFor="analyze-frequency">Content Analysis Frequency</label>
+                    <select 
+                        id="analyze-frequency"
+                        className="aca-input" 
+                        value={currentSettings.analyzeContentFrequency || 'manual'} 
+                        onChange={(e) => handleSettingChange('analyzeContentFrequency', e.target.value)}
+                        style={{ marginTop: '5px' }}
+                    >
+                        <option value="manual">Manual - Only when you click the analyze button</option>
+                        <option value="daily">Daily - Analyze content automatically every day</option>
+                        <option value="weekly">Weekly - Analyze content automatically every week</option>
+                        <option value="monthly">Monthly - Analyze content automatically every month</option>
+                    </select>
+                    <p className="aca-page-description" style={{ marginTop: '5px', margin: '5px 0 0 0' }}>
+                        How often should the AI automatically analyze your site content to update the style guide? Manual mode gives you full control.
+                    </p>
                 </div>
-
-                {!licenseStatus.is_active && (
-                    <div className="aca-form-group">
-                        <label className="aca-label" htmlFor="license-key">License Key</label>
-                        <div style={{ display: 'flex', gap: '10px' }}>
-                            <input
-                                id="license-key"
-                                type="text"
-                                className="aca-input"
-                                value={licenseKey}
-                                onChange={(e) => setLicenseKey(e.target.value)}
-                                placeholder="Enter your Pro license key"
-                                disabled={isVerifyingLicense}
-                            />
-                            <button
-                                onClick={handleLicenseVerification}
-                                disabled={isVerifyingLicense || !licenseKey.trim()}
-                                className="aca-button aca-button-primary"
-                                style={{ minWidth: '120px' }}
-                            >
-                                {isVerifyingLicense ? (
-                                    <>
-                                        <Spinner className="aca-spinner" />
-                                        Verifying...
-                                    </>
-                                ) : (
-                                    'Verify License'
-                                )}
-                            </button>
-                        </div>
-                        <p className="aca-page-description" style={{ marginTop: '10px' }}>
-                            Don't have a Pro license? <a href="https://gumroad.com/l/your-product-link" target="_blank" rel="noopener noreferrer" style={{ color: '#0073aa' }}>Purchase here</a>
-                        </p>
-                    </div>
-                )}
-
-                {licenseStatus.is_active && (
-                    <div className="aca-alert aca-alert-success" style={{ margin: '20px 0' }}>
-                        <CheckCircle style={{ width: '16px', height: '16px', marginRight: '8px' }} />
-                        Pro license is active! You now have access to all premium features.
-                    </div>
-                )}
             </div>
             
-            {/* Debug Panel for Automation Testing */}
+            {/* 5. Debug Panel for Automation Testing - For Developers */}
             <div className="aca-card">
                 <div className="aca-card-header">
                     <h2 className="aca-card-title">

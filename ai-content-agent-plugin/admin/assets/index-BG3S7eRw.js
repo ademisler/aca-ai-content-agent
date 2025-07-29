@@ -10801,10 +10801,71 @@
         /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "aca-page-title", children: "Settings" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", children: "Configure automation modes, integrations, and content generation preferences to customize your AI Content Agent experience." })
       ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-card-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "aca-card-title", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Shield, { className: "aca-nav-item-icon" }),
+          "Pro License Activation"
+        ] }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", children: "Activate your Pro license to unlock advanced automation modes and Google Search Console integration." }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-stat-item", style: { margin: "0 0 20px 0" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-stat-info", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-stat-icon", children: licenseStatus.is_active ? /* @__PURE__ */ jsxRuntimeExports.jsx(CheckCircle, { style: { color: "#27ae60", width: "20px", height: "20px" } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Shield, { style: { color: "#e74c3c", width: "20px", height: "20px" } }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-stat-number", children: licenseStatus.is_active ? "Pro Active" : "Free Version" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-stat-label", children: licenseStatus.is_active ? `Verified ${licenseStatus.verified_at ? new Date(licenseStatus.verified_at).toLocaleDateString() : ""}` : "Upgrade to unlock Pro features" })
+          ] })
+        ] }) }),
+        !licenseStatus.is_active && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-form-group", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "aca-label", htmlFor: "license-key", children: "License Key" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "10px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                id: "license-key",
+                type: "text",
+                className: "aca-input",
+                value: licenseKey,
+                onChange: (e) => setLicenseKey(e.target.value),
+                placeholder: "Enter your Pro license key",
+                disabled: isVerifyingLicense
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                onClick: handleLicenseVerification,
+                disabled: isVerifyingLicense || !licenseKey.trim(),
+                className: "aca-button aca-button-primary",
+                style: { minWidth: "120px" },
+                children: isVerifyingLicense ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { className: "aca-spinner" }),
+                  "Verifying..."
+                ] }) : "Verify License"
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "aca-page-description", style: { marginTop: "10px" }, children: [
+            "Don't have a Pro license? ",
+            /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: "https://gumroad.com/l/your-product-link", target: "_blank", rel: "noopener noreferrer", style: { color: "#0073aa" }, children: "Purchase here" })
+          ] })
+        ] }),
+        licenseStatus.is_active && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-alert aca-alert-success", style: { margin: "20px 0" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(CheckCircle, { style: { width: "16px", height: "16px", marginRight: "8px" } }),
+          "Pro license is active! You now have access to all premium features."
+        ] })
+      ] }),
       currentSettings.is_pro ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-card-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "aca-card-title", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { className: "aca-nav-item-icon" }),
-          "Automation Mode"
+          "Automation Mode",
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: {
+            marginLeft: "10px",
+            background: "linear-gradient(135deg, #f39c12 0%, #e67e22 100%)",
+            color: "white",
+            padding: "2px 8px",
+            borderRadius: "8px",
+            fontSize: "10px",
+            fontWeight: "bold"
+          }, children: "PRO" })
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", children: "Choose how you want the AI Content Agent to operate. You can change this at any time." }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "15px" }, children: [
@@ -10987,33 +11048,6 @@
           ]
         }
       ),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-card-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "aca-card-title", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$1, { className: "aca-nav-item-icon" }),
-          "Content Analysis Settings"
-        ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", children: "Configure how often the AI should analyze your content to update the style guide." }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-form-group", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "aca-label", htmlFor: "analyze-frequency", children: "Content Analysis Frequency" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "select",
-            {
-              id: "analyze-frequency",
-              className: "aca-input",
-              value: currentSettings.analyzeContentFrequency || "manual",
-              onChange: (e) => handleSettingChange("analyzeContentFrequency", e.target.value),
-              style: { marginTop: "5px" },
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "manual", children: "Manual - Only when you click the analyze button" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "daily", children: "Daily - Analyze content automatically every day" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "weekly", children: "Weekly - Analyze content automatically every week" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "monthly", children: "Monthly - Analyze content automatically every month" })
-              ]
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", style: { marginTop: "5px", margin: "5px 0 0 0" }, children: "How often should the AI automatically analyze your site content to update the style guide? Manual mode gives you full control." })
-        ] })
-      ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-card-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "aca-card-title", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Shield, { className: "aca-nav-item-icon" }),
@@ -11506,10 +11540,21 @@
               ] })
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          currentSettings.is_pro ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
             IntegrationCard,
             {
-              title: "Google Search Console",
+              title: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "flex", alignItems: "center" }, children: [
+                "Google Search Console",
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: {
+                  marginLeft: "10px",
+                  background: "linear-gradient(135deg, #f39c12 0%, #e67e22 100%)",
+                  color: "white",
+                  padding: "2px 8px",
+                  borderRadius: "8px",
+                  fontSize: "10px",
+                  fontWeight: "bold"
+                }, children: "PRO" })
+              ] }),
               icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Google, { className: "aca-nav-item-icon" }),
               isConfigured: !!currentSettings.searchConsoleUser,
               children: [
@@ -11598,59 +11643,46 @@
                 ] })
               ]
             }
+          ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
+            UpgradePrompt,
+            {
+              title: "Google Search Console Integration",
+              description: "Connect your GSC account to generate content ideas based on your search performance data and improve SEO targeting.",
+              features: [
+                "Data-driven content ideas from your search queries",
+                "Target keywords you're already ranking for",
+                "Identify content gaps and opportunities",
+                "Improve content relevance and SEO performance"
+              ]
+            }
           )
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-card-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "aca-card-title", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Shield, { className: "aca-nav-item-icon" }),
-          "Pro License Activation"
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$1, { className: "aca-nav-item-icon" }),
+          "Content Analysis Settings"
         ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", children: "Activate your Pro license to unlock advanced automation modes and Google Search Console integration." }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-stat-item", style: { margin: "0 0 20px 0" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-stat-info", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-stat-icon", children: licenseStatus.is_active ? /* @__PURE__ */ jsxRuntimeExports.jsx(CheckCircle, { style: { color: "#27ae60", width: "20px", height: "20px" } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Shield, { style: { color: "#e74c3c", width: "20px", height: "20px" } }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-stat-number", children: licenseStatus.is_active ? "Pro Active" : "Free Version" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-stat-label", children: licenseStatus.is_active ? `Verified ${licenseStatus.verified_at ? new Date(licenseStatus.verified_at).toLocaleDateString() : ""}` : "Upgrade to unlock Pro features" })
-          ] })
-        ] }) }),
-        !licenseStatus.is_active && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-form-group", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "aca-label", htmlFor: "license-key", children: "License Key" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "10px" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                id: "license-key",
-                type: "text",
-                className: "aca-input",
-                value: licenseKey,
-                onChange: (e) => setLicenseKey(e.target.value),
-                placeholder: "Enter your Pro license key",
-                disabled: isVerifyingLicense
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "button",
-              {
-                onClick: handleLicenseVerification,
-                disabled: isVerifyingLicense || !licenseKey.trim(),
-                className: "aca-button aca-button-primary",
-                style: { minWidth: "120px" },
-                children: isVerifyingLicense ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { className: "aca-spinner" }),
-                  "Verifying..."
-                ] }) : "Verify License"
-              }
-            )
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "aca-page-description", style: { marginTop: "10px" }, children: [
-            "Don't have a Pro license? ",
-            /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: "https://gumroad.com/l/your-product-link", target: "_blank", rel: "noopener noreferrer", style: { color: "#0073aa" }, children: "Purchase here" })
-          ] })
-        ] }),
-        licenseStatus.is_active && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-alert aca-alert-success", style: { margin: "20px 0" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(CheckCircle, { style: { width: "16px", height: "16px", marginRight: "8px" } }),
-          "Pro license is active! You now have access to all premium features."
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", children: "Configure how often the AI should analyze your content to update the style guide." }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-form-group", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "aca-label", htmlFor: "analyze-frequency", children: "Content Analysis Frequency" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "select",
+            {
+              id: "analyze-frequency",
+              className: "aca-input",
+              value: currentSettings.analyzeContentFrequency || "manual",
+              onChange: (e) => handleSettingChange("analyzeContentFrequency", e.target.value),
+              style: { marginTop: "5px" },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "manual", children: "Manual - Only when you click the analyze button" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "daily", children: "Daily - Analyze content automatically every day" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "weekly", children: "Weekly - Analyze content automatically every week" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "monthly", children: "Monthly - Analyze content automatically every month" })
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", style: { marginTop: "5px", margin: "5px 0 0 0" }, children: "How often should the AI automatically analyze your site content to update the style guide? Manual mode gives you full control." })
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", children: [

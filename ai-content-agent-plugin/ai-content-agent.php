@@ -19,12 +19,15 @@ if (!defined('ABSPATH')) {
 define('ACA_VERSION', '1.8.0');
 define('ACA_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('ACA_PLUGIN_PATH', plugin_dir_path(__FILE__));
+define('ACA_PLUGIN_FILE', __FILE__);
 
 // Include required files
 require_once ACA_PLUGIN_PATH . 'includes/class-aca-activator.php';
 require_once ACA_PLUGIN_PATH . 'includes/class-aca-deactivator.php';
 require_once ACA_PLUGIN_PATH . 'includes/class-aca-rest-api.php';
 require_once ACA_PLUGIN_PATH . 'includes/class-aca-cron.php';
+require_once ACA_PLUGIN_PATH . 'includes/class-aca-wordpress-compatibility.php';
+require_once ACA_PLUGIN_PATH . 'includes/class-aca-metrics-tracker.php';
 
 // Activation and deactivation hooks
 register_activation_hook(__FILE__, array('ACA_Activator', 'activate'));
@@ -48,6 +51,12 @@ class AI_Content_Agent {
         
         // Initialize Cron jobs
         new ACA_Cron();
+        
+        // Initialize WordPress compatibility checks
+        ACA_WordPress_Compatibility::init();
+        
+        // Initialize metrics tracking
+        ACA_Metrics_Tracker::init();
         
         // Handle Google Search Console OAuth callback
         add_action('admin_init', array($this, 'handle_gsc_oauth_callback'));

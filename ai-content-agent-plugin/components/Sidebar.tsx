@@ -1,7 +1,7 @@
 
 import React from 'react';
 import type { View } from '../types';
-import { Lightbulb, BookOpen, Settings, LayoutDashboard, FileText, Send, Calendar } from './Icons';
+import { Lightbulb, BookOpen, Settings, LayoutDashboard, FileText, Send, Calendar, BarChart } from './Icons';
 
 interface SidebarProps {
     currentView: View;
@@ -96,6 +96,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, isOpen, 
             </nav>
             
             <div style={{ paddingTop: '20px', borderTop: '1px solid #32373c', marginTop: 'auto' }}>
+                <NavItem 
+                    icon={<BarChart />} 
+                    label="Metrics" 
+                    view="metrics" 
+                    currentView={currentView} 
+                    onClick={() => handleNavigation('metrics')} 
+                />
                 <NavItem 
                     icon={<Settings />} 
                     label="Settings" 

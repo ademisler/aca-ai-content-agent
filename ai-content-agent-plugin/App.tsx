@@ -16,6 +16,7 @@ const DraftsList = React.lazy(() => import('./components/DraftsList').then(modul
 const Settings = React.lazy(() => import('./components/Settings').then(module => ({ default: module.Settings })));
 const PublishedList = React.lazy(() => import('./components/PublishedList').then(module => ({ default: module.PublishedList })));
 const ContentCalendar = React.lazy(() => import('./components/ContentCalendar').then(module => ({ default: module.ContentCalendar })));
+const MetricsDashboard = React.lazy(() => import('./components/MetricsDashboard').then(module => ({ default: module.default })));
 
 // Loading component for Suspense fallback
 const LoadingSpinner: React.FC = () => (
@@ -456,6 +457,12 @@ const App: React.FC = () => {
                 return (
                     <Suspense fallback={<LoadingSpinner />}>
                         <Settings settings={settings} onSaveSettings={handleSaveSettings} />
+                    </Suspense>
+                );
+            case 'metrics':
+                return (
+                    <Suspense fallback={<LoadingSpinner />}>
+                        <MetricsDashboard />
                     </Suspense>
                 );
             case 'calendar':

@@ -22,8 +22,8 @@ export default defineConfig(({ mode }) => {
         }
       },
       build: {
-        target: 'es2015',
-        minify: 'esbuild',
+        target: 'es2020',
+        minify: 'terser',
         rollupOptions: {
           output: {
             manualChunks: undefined,
@@ -33,11 +33,25 @@ export default defineConfig(({ mode }) => {
         },
         commonjsOptions: {
           include: [/node_modules/]
+        },
+        terserOptions: {
+          compress: {
+            drop_console: false,
+            drop_debugger: false,
+          },
+          mangle: {
+            keep_fnames: true,
+            keep_classnames: true,
+          },
+          format: {
+            comments: false,
+          }
         }
       },
       esbuild: {
         keepNames: true,
-        legalComments: 'none'
+        legalComments: 'none',
+        target: 'es2020'
       }
     };
 });

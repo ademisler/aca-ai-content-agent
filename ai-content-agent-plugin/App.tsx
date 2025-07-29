@@ -58,6 +58,37 @@ const App: React.FC = () => {
     const drafts = posts.filter(p => p.status === 'draft');
     const publishedPosts = posts.filter(p => p.status === 'published');
 
+    const addToast = useCallback((toast: Omit<ToastData, 'id'>) => {
+        const id = Date.now();
+        setToasts(prev => [...prev, { ...toast, id }]);
+    }, []);
+
+    const showToast = useCallback((message: string, type: 'success' | 'error' | 'warning' | 'info') => {
+        addToast({ message, type });
+    }, [addToast]);
+
+    const removeToast = useCallback((id: number) => {
+        setToasts(currentToasts => currentToasts.filter(toast => toast.id !== id));
+    }, []);
+    
+    const addLogEntry = useCallback((type: ActivityLogType, details: string, icon: IconName) => {
+        const newLog: ActivityLog = {
+            id: Date.now(),
+            type,
+            details,
+            timestamp: new Date().toISOString(),
+            icon
+        };
+        setActivityLogs(prev => [newLog, ...prev.slice(0, 49)]);
+        
+        // Save to WordPress with correct parameter names
+        activityApi.create({
+            type,
+            message: details,
+            icon
+        }).catch(console.error);
+    }, []);
+
     useEffect(() => {
         // Check if WordPress localized data is available
         if (!window.acaData) {
@@ -111,38 +142,7 @@ const App: React.FC = () => {
         };
         
         loadInitialData();
-    }, []);
-
-    const addToast = useCallback((toast: Omit<ToastData, 'id'>) => {
-        const id = Date.now();
-        setToasts(prev => [...prev, { ...toast, id }]);
-    }, []);
-
-    const showToast = useCallback((message: string, type: 'success' | 'error' | 'warning' | 'info') => {
-        addToast({ message, type });
     }, [addToast]);
-    
-    const addLogEntry = useCallback((type: ActivityLogType, details: string, icon: IconName) => {
-        const newLog: ActivityLog = {
-            id: Date.now(),
-            type,
-            details,
-            timestamp: new Date().toISOString(),
-            icon
-        };
-        setActivityLogs(prev => [newLog, ...prev.slice(0, 49)]);
-        
-        // Save to WordPress with correct parameter names
-        activityApi.create({
-            type,
-            message: details,
-            icon
-        }).catch(console.error);
-    }, []);
-
-    const removeToast = useCallback((id: number) => {
-        setToasts(currentToasts => currentToasts.filter(toast => toast.id !== id));
-    }, []);
 
     const handleAnalyzeStyle = useCallback(async (showToast = true) => {
         setIsLoading(prev => ({ ...prev, style: true }));

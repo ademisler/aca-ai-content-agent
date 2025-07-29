@@ -1,20 +1,22 @@
-# AI Image Generation Setup Guide - v1.6.8
+# AI Image Generation Setup Guide - v1.8.0
 
 This guide explains how to set up AI image generation using Google's Imagen 3.0 API in the AI Content Agent plugin.
 
-## 🖼️ Latest Updates - v1.6.8
+## 🖼️ Latest Updates - v1.8.0
 
-### ✅ **GEMINI API RETRY LOGIC & IMPROVED ERROR HANDLING**
+### ✅ **COMPREHENSIVE FEATURE ENHANCEMENTS & IMPROVEMENTS**
+- **Author Updates**: Updated plugin author to Adem Isler with website integration (ademisler.com/en)
 - **Enhanced Error Handling**: Improved error handling for AI image generation with intelligent retry logic
 - **Better API Reliability**: Automatic retry mechanism for image generation API failures
 - **User-Friendly Messages**: Clear error messages and recovery instructions for image generation issues
 - **Improved Stability**: Enhanced stability when generating images during content creation
 - **Timeout Handling**: Better handling of image generation timeouts with automatic retry
 - **Fallback Mechanisms**: Graceful fallback to stock photo APIs when AI generation fails
+- **Image Source Optimization**: Moved AI generated images to last position, Pexels set as default
 
 ## 📋 Overview
 
-The AI Content Agent plugin now supports **real AI image generation** using Google's Imagen 3.0 API through Google Cloud Vertex AI with enhanced error handling and retry capabilities. This replaces the previous placeholder implementation with actual image generation capabilities and robust error management.
+The AI Content Agent plugin v1.8.0 supports **real AI image generation** using Google's Imagen 3.0 API through Google Cloud Vertex AI with enhanced error handling and retry capabilities. This replaces the previous placeholder implementation with actual image generation capabilities and robust error management.
 
 ### **Supported Image Sources:**
 - ✅ **AI Generated** - Google Imagen 3.0 API (Enhanced with retry logic)

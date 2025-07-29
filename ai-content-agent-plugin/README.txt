@@ -14,25 +14,32 @@ AI-powered content creation and management plugin with intelligent Content Calen
 
 ## 🚀 Latest Updates - v1.8.0 - COMPREHENSIVE FEATURE ENHANCEMENTS & IMPROVEMENTS 🚀
 
-### 🔄 **GEMINI API RETRY LOGIC IMPLEMENTATION**
-- **Intelligent Retry System**: Added comprehensive retry logic with exponential backoff for 503/429 errors
-- **Model Fallback Strategy**: Automatic fallback from gemini-2.0-flash to gemini-1.5-pro when overloaded
-- **Enhanced Error Detection**: Smart detection for overload, timeout, and API key configuration issues
-- **Maximum Retry Attempts**: Up to 3 retry attempts with intelligent delay strategy (2s, 4s, 8s)
-- **Production Resilience**: Enhanced API call resilience for stable production environments
+### 🎯 **DASHBOARD STATISTICS OPTIMIZATION**
+- **Active Ideas Count**: Dashboard now shows only active ideas count instead of all ideas (active + archived)
+- **Better Statistics**: More intuitive statistics display for better user understanding
+- **Enhanced User Experience**: Clearer representation of actual working content pipeline
 
-### 🛡️ **ERROR HANDLING IMPROVEMENTS**
-- **User-Friendly Messages**: Contextual error messages with emojis and clear action guidance
-- **Specific Error Scenarios**: Tailored messages for different failure types (overload, timeout, API key)
-- **Better Timeout Handling**: Increased timeout limits (120 seconds) for complex content generation
-- **Enhanced Token Limits**: Increased maxOutputTokens to 4096 for longer, more detailed content
-- **Graceful Degradation**: Smooth user experience even when AI services are temporarily unavailable
+### 👨‍💻 **AUTHOR & BRANDING UPDATES**
+- **Author Information**: Updated plugin author information to Adem Isler across all files
+- **Website Integration**: Added author website (ademisler.com/en) to plugin header and documentation
+- **Proper Attribution**: Updated all documentation files with correct authorship and contact information
+- **Version Consistency**: Updated version to 1.8.0 across all files for consistency
 
-### ✅ **PRODUCTION READINESS**
-- **Robust Overload Handling**: Automatic handling of Gemini API overload situations without user intervention
-- **Automatic Model Switching**: Seamless fallback to stable models when primary model is unavailable
-- **Enhanced User Experience**: Minimal disruption during AI service fluctuations
-- **Comprehensive Monitoring**: Detailed error logging for system administrators and debugging
+### ✅ **FEATURE VERIFICATION & OPTIMIZATION**
+- **Idea Board Archive System**: Verified and optimized existing archive functionality
+- **Calendar Drag & Drop**: Confirmed advanced drag & drop for published posts is working correctly
+- **Automation Settings**: Verified comprehensive automation configuration options are properly implemented
+- **Content Analysis Integration**: Confirmed content analysis frequency settings work with automation modes
+- **Quick Actions Navigation**: Verified automatic navigation to Idea Board after idea generation
+- **Loading Animations**: Confirmed comprehensive loading animations for Create Draft button
+- **Image Source Ordering**: Verified proper ordering with Pexels as default and AI generated as last option
+- **Debug Panel Documentation**: Confirmed excellent documentation for developers and advanced users
+
+### 🔧 **TECHNICAL IMPROVEMENTS**
+- **Code Review**: Comprehensive review of all plugin features and functionality
+- **Quality Assurance**: Verified all requested features are properly implemented and working
+- **Documentation Updates**: Updated all documentation to reflect current state and authorship
+- **Version Management**: Proper version increment and consistency across all files
 
 ## 🚀 Previous Updates - v1.6.7 - DEEP CACHE FIX & ERROR BOUNDARY 🚀
 

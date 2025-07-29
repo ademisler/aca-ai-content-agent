@@ -1,15 +1,17 @@
-# Google Search Console Integration Setup Guide - v1.6.8
+# Google Search Console Integration Setup Guide - v1.8.0
 
 This guide will walk you through setting up Google Search Console integration with the AI Content Agent plugin to access real search performance data for your content creation.
 
-## 🚨 Latest Updates - v1.6.8
+## 🚨 Latest Updates - v1.8.0
 
-**GEMINI API RETRY LOGIC & IMPROVED ERROR HANDLING**
+**COMPREHENSIVE FEATURE ENHANCEMENTS & IMPROVEMENTS**
+- **Author Updates**: Updated plugin author to Adem Isler with website integration (ademisler.com/en)
 - Enhanced error handling for GSC API calls with intelligent retry logic
 - Improved user feedback when GSC integration encounters issues
 - Better error messages and recovery instructions for GSC connection problems
 - Enhanced stability when using GSC data for AI content generation
 - Automatic retry mechanism for GSC API timeouts and temporary failures
+- **Feature Verification**: Confirmed all GSC integration features are working correctly
 
 ## 🎯 Overview
 

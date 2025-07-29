@@ -187,31 +187,31 @@ npm run test  # if tests are available
 #### 4. Create Release Package
 ```bash
 # Move previous release to archive
-mv releases/ai-content-agent-v1.6.7-*.zip releases/archive/
+mv releases/ai-content-agent-v1.7.0-*.zip releases/archive/
 
 # Create new release zip
-zip -r ai-content-agent-v1.6.8-gemini-api-retry-logic-and-improved-error-handling.zip \
+zip -r ai-content-agent-v1.8.0-comprehensive-feature-enhancements-and-improvements.zip \
   ai-content-agent-plugin/ \
   -x "*/node_modules/*" "*/.git/*" "*/dist/*" \
      "*/package-lock.json" "*/.gitignore" "*/.DS_Store" \
      "*/tsconfig.json" "*/vite.config.ts"
 
 # Move to releases directory
-mv ai-content-agent-v1.6.8-*.zip releases/
+mv ai-content-agent-v1.8.0-*.zip releases/
 ```
 
 #### 5. Git Operations
 ```bash
 # Commit all changes
 git add .
-git commit -m "🚀 RELEASE v1.6.8: GEMINI API RETRY LOGIC & IMPROVED ERROR HANDLING"
+git commit -m "🚀 RELEASE v1.8.0: COMPREHENSIVE FEATURE ENHANCEMENTS & IMPROVEMENTS"
 
 # Push to main branch
 git push origin main
 
 # Create and push tag
-git tag v1.6.8
-git push origin v1.6.8
+git tag v1.8.0
+git push origin v1.8.0
 ```
 
 ### Release Naming Convention
@@ -219,9 +219,9 @@ git push origin v1.6.8
 ai-content-agent-v{MAJOR}.{MINOR}.{PATCH}-{DESCRIPTION}.zip
 
 Examples:
+- ai-content-agent-v1.8.0-comprehensive-feature-enhancements-and-improvements.zip
+- ai-content-agent-v1.7.0-comprehensive-feature-enhancements-and-improvements.zip
 - ai-content-agent-v1.6.8-gemini-api-retry-logic-and-improved-error-handling.zip
-- ai-content-agent-v1.6.7-deep-cache-fix-and-error-boundary.zip
-- ai-content-agent-v1.6.6-cache-fix-and-dependencies-resolved.zip
 ```
 
 ## 📚 Documentation Standards

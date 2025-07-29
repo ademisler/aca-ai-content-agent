@@ -26,10 +26,10 @@
 - **Size**: ~340KB (optimized with comprehensive feature enhancements)
 
 ### Archive Statistics
-- **Total Archived Versions**: 29
-- **Archive Size**: ~5.2MB
+- **Total Archived Versions**: 30
+- **Archive Size**: ~5.6MB
 - **First Release**: v1.4.4 (2025-01-27)
-- **Latest Archived**: v1.6.9 (2025-01-29)
+- **Latest Archived**: v1.7.0 (2025-01-29)
 
 ## 📁 Directory Structure
 

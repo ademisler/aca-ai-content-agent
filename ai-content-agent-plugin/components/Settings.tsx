@@ -10,6 +10,8 @@ import {
     Image, 
     Shield 
 } from './Icons';
+import { UpgradePrompt } from './UpgradePrompt';
+import { licenseApi } from '../services/wordpressApi';
 
 declare global {
     interface Window {
@@ -117,6 +119,15 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
     const [seoPluginsLoading, setSeoPluginsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [gscAuthStatus, setGscAuthStatus] = useState<any>(null);
+    
+    // License-related state
+    const [licenseKey, setLicenseKey] = useState('');
+    const [licenseStatus, setLicenseStatus] = useState<{
+        status: string, 
+        is_active: boolean, 
+        verified_at?: string
+    }>({status: 'inactive', is_active: false});
+    const [isVerifyingLicense, setIsVerifyingLicense] = useState(false);
 
     // Load GSC auth status on component mount
     useEffect(() => {
@@ -139,7 +150,52 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
         
         loadGscAuthStatus();
         fetchSeoPlugins();
+        loadLicenseStatus();
     }, []);
+    
+    // Load license status
+    const loadLicenseStatus = async () => {
+        try {
+            const status = await licenseApi.getStatus();
+            setLicenseStatus(status);
+        } catch (error) {
+            console.error('Failed to load license status:', error);
+        }
+    };
+    
+    // Verify license key
+    const handleLicenseVerification = async () => {
+        if (!licenseKey.trim()) {
+            alert('Please enter a license key');
+            return;
+        }
+        
+        setIsVerifyingLicense(true);
+        
+        try {
+            const result = await licenseApi.verify(licenseKey);
+            
+            if (result.success) {
+                setLicenseStatus({
+                    status: 'active',
+                    is_active: true,
+                    verified_at: new Date().toISOString()
+                });
+                setLicenseKey(''); // Clear the input
+                alert('License verified successfully! Pro features are now active.');
+                
+                // Reload settings to get updated pro status
+                window.location.reload();
+            } else {
+                alert('Invalid license key. Please check and try again.');
+            }
+        } catch (error) {
+            console.error('License verification failed:', error);
+            alert('License verification failed. Please try again.');
+        } finally {
+            setIsVerifyingLicense(false);
+        }
+    };
 
     useEffect(() => {
         setCurrentSettings(settings);
@@ -152,6 +208,12 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
     };
     
     const handleModeChange = (mode: AutomationMode) => {
+        // Prevent selection of pro modes without active license
+        if ((mode === 'semi-automatic' || mode === 'full-automatic') && !currentSettings.is_pro) {
+            alert('This automation mode requires a Pro license. Please upgrade or activate your license to use this feature.');
+            return;
+        }
+        
         handleSettingChange('mode', mode);
         if (mode !== 'full-automatic') {
             handleSettingChange('autoPublish', false);
@@ -291,16 +353,17 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
             </div>
 
             {/* Automation Mode */}
-            <div className="aca-card">
-                <div className="aca-card-header">
-                    <h2 className="aca-card-title">
-                        <Zap className="aca-nav-item-icon" />
-                        Automation Mode
-                    </h2>
-                </div>
-                <p className="aca-page-description">
-                    Choose how you want the AI Content Agent to operate. You can change this at any time.
-                </p>
+            {currentSettings.is_pro ? (
+                <div className="aca-card">
+                    <div className="aca-card-header">
+                        <h2 className="aca-card-title">
+                            <Zap className="aca-nav-item-icon" />
+                            Automation Mode
+                        </h2>
+                    </div>
+                    <p className="aca-page-description">
+                        Choose how you want the AI Content Agent to operate. You can change this at any time.
+                    </p>
                 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                     <RadioCard 
@@ -477,6 +540,18 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                     </div>
                 </div>
             </div>
+            ) : (
+                <UpgradePrompt 
+                    title="Advanced Automation Modes"
+                    description="Unlock Semi-Automatic and Full-Automatic modes to automate your content creation workflow"
+                    features={[
+                        "Semi-Automatic: Automated idea generation with manual publishing",
+                        "Full-Automatic: Complete automation from idea to published post",
+                        "Advanced scheduling and frequency controls",
+                        "Auto-publish with customizable timing"
+                    ]}
+                />
+            )}
 
             {/* Content Analysis Settings */}
             <div className="aca-card">
@@ -1127,6 +1202,84 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                         </div>
                     </IntegrationCard>
                 </div>
+            </div>
+            
+            {/* License Activation */}
+            <div className="aca-card">
+                <div className="aca-card-header">
+                    <h2 className="aca-card-title">
+                        <Shield className="aca-nav-item-icon" />
+                        Pro License Activation
+                    </h2>
+                </div>
+                <p className="aca-page-description">
+                    Activate your Pro license to unlock advanced automation modes and Google Search Console integration.
+                </p>
+                
+                <div className="aca-stat-item" style={{ margin: '0 0 20px 0' }}>
+                    <div className="aca-stat-info">
+                        <div className="aca-stat-icon">
+                            {licenseStatus.is_active ? (
+                                <CheckCircle style={{ color: '#27ae60', width: '20px', height: '20px' }} />
+                            ) : (
+                                <Shield style={{ color: '#e74c3c', width: '20px', height: '20px' }} />
+                            )}
+                        </div>
+                        <div>
+                            <div className="aca-stat-number">
+                                {licenseStatus.is_active ? 'Pro Active' : 'Free Version'}
+                            </div>
+                            <div className="aca-stat-label">
+                                {licenseStatus.is_active 
+                                    ? `Verified ${licenseStatus.verified_at ? new Date(licenseStatus.verified_at).toLocaleDateString() : ''}`
+                                    : 'Upgrade to unlock Pro features'
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {!licenseStatus.is_active && (
+                    <div className="aca-form-group">
+                        <label className="aca-label" htmlFor="license-key">License Key</label>
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                            <input
+                                id="license-key"
+                                type="text"
+                                className="aca-input"
+                                value={licenseKey}
+                                onChange={(e) => setLicenseKey(e.target.value)}
+                                placeholder="Enter your Pro license key"
+                                disabled={isVerifyingLicense}
+                            />
+                            <button
+                                onClick={handleLicenseVerification}
+                                disabled={isVerifyingLicense || !licenseKey.trim()}
+                                className="aca-button aca-button-primary"
+                                style={{ minWidth: '120px' }}
+                            >
+                                {isVerifyingLicense ? (
+                                    <>
+                                        <Spinner className="aca-spinner" />
+                                        Verifying...
+                                    </>
+                                ) : (
+                                    'Verify License'
+                                )}
+                            </button>
+                        </div>
+                        <p className="aca-page-description" style={{ marginTop: '10px' }}>
+                            Don't have a Pro license? <a href="https://gumroad.com/l/your-product-link" target="_blank" rel="noopener noreferrer" style={{ color: '#0073aa' }}>Purchase here</a>
+                        </p>
+                    </div>
+                )}
+
+                {licenseStatus.is_active && (
+                    <div className="aca-alert aca-alert-success" style={{ margin: '20px 0' }}>
+                        <CheckCircle style={{ width: '16px', height: '16px', marginRight: '8px' }} />
+                        Pro license is active! You now have access to all premium features.
+                    </div>
+                )}
             </div>
             
             {/* Debug Panel for Automation Testing */}

@@ -7968,6 +7968,13 @@
       body: JSON.stringify(log)
     })
   };
+  const licenseApi = {
+    verify: (licenseKey) => makeApiCall("license/verify", {
+      method: "POST",
+      body: JSON.stringify({ license_key: licenseKey })
+    }),
+    getStatus: () => makeApiCall("license/status")
+  };
   var SchemaType;
   (function(SchemaType2) {
     SchemaType2["STRING"] = "string";
@@ -10448,6 +10455,102 @@
       ] }) })
     ] });
   };
+  const UpgradePrompt = ({
+    title,
+    description,
+    features,
+    gumroadUrl = "https://gumroad.com/l/your-product-link"
+  }) => {
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", style: {
+      margin: 0,
+      border: "2px solid #f0ad4e",
+      background: "linear-gradient(135deg, #fff9e6 0%, #ffeaa7 100%)",
+      position: "relative",
+      overflow: "hidden"
+    }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+        position: "absolute",
+        top: "15px",
+        right: "15px",
+        background: "linear-gradient(135deg, #f39c12 0%, #e67e22 100%)",
+        color: "white",
+        padding: "4px 12px",
+        borderRadius: "12px",
+        fontSize: "12px",
+        fontWeight: "bold",
+        boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
+      }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Shield, { style: { width: "12px", height: "12px", marginRight: "4px" } }),
+        "PRO"
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-card-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "aca-card-title", style: { marginTop: "0", color: "#d68910" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { className: "aca-nav-item-icon", style: { color: "#f39c12" } }),
+        title
+      ] }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "#8b6914", marginBottom: "20px", fontSize: "14px" }, children: description }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "20px" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { color: "#d68910", marginBottom: "10px", fontSize: "14px" }, children: "🚀 Unlock Pro Features:" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { style: {
+          listStyle: "none",
+          padding: 0,
+          margin: 0,
+          color: "#8b6914"
+        }, children: features.map((feature, index) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { style: {
+          marginBottom: "8px",
+          paddingLeft: "20px",
+          position: "relative",
+          fontSize: "13px"
+        }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: {
+            position: "absolute",
+            left: "0",
+            color: "#27ae60",
+            fontWeight: "bold"
+          }, children: "✓" }),
+          feature
+        ] }, index)) })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { textAlign: "center" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "a",
+        {
+          href: gumroadUrl,
+          target: "_blank",
+          rel: "noopener noreferrer",
+          className: "aca-button aca-button-primary",
+          style: {
+            background: "linear-gradient(135deg, #f39c12 0%, #e67e22 100%)",
+            border: "none",
+            color: "white",
+            padding: "12px 24px",
+            borderRadius: "6px",
+            textDecoration: "none",
+            fontWeight: "bold",
+            display: "inline-block",
+            boxShadow: "0 3px 6px rgba(0,0,0,0.1)",
+            transition: "all 0.3s ease"
+          },
+          onMouseOver: (e) => {
+            e.currentTarget.style.transform = "translateY(-2px)";
+            e.currentTarget.style.boxShadow = "0 5px 10px rgba(0,0,0,0.2)";
+          },
+          onMouseOut: (e) => {
+            e.currentTarget.style.transform = "translateY(0)";
+            e.currentTarget.style.boxShadow = "0 3px 6px rgba(0,0,0,0.1)";
+          },
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Shield, { style: { width: "16px", height: "16px", marginRight: "8px" } }),
+            "Upgrade to Pro"
+          ]
+        }
+      ) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+        textAlign: "center",
+        marginTop: "15px",
+        fontSize: "12px",
+        color: "#a67c00"
+      }, children: "💡 One-time purchase • Lifetime updates • 30-day money-back guarantee" })
+    ] });
+  };
   const RadioCard = ({ id, title, description, currentSelection, onChange }) => {
     const isChecked = currentSelection === id;
     return /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -10518,6 +10621,9 @@
     const [seoPluginsLoading, setSeoPluginsLoading] = reactExports.useState(true);
     const [isSaving, setIsSaving] = reactExports.useState(false);
     const [gscAuthStatus, setGscAuthStatus] = reactExports.useState(null);
+    const [licenseKey, setLicenseKey] = reactExports.useState("");
+    const [licenseStatus, setLicenseStatus] = reactExports.useState({ status: "inactive", is_active: false });
+    const [isVerifyingLicense, setIsVerifyingLicense] = reactExports.useState(false);
     reactExports.useEffect(() => {
       const loadGscAuthStatus = async () => {
         if (!window.acaData) {
@@ -10536,7 +10642,43 @@
       };
       loadGscAuthStatus();
       fetchSeoPlugins();
+      loadLicenseStatus();
     }, []);
+    const loadLicenseStatus = async () => {
+      try {
+        const status = await licenseApi.getStatus();
+        setLicenseStatus(status);
+      } catch (error) {
+        console.error("Failed to load license status:", error);
+      }
+    };
+    const handleLicenseVerification = async () => {
+      if (!licenseKey.trim()) {
+        alert("Please enter a license key");
+        return;
+      }
+      setIsVerifyingLicense(true);
+      try {
+        const result = await licenseApi.verify(licenseKey);
+        if (result.success) {
+          setLicenseStatus({
+            status: "active",
+            is_active: true,
+            verified_at: (/* @__PURE__ */ new Date()).toISOString()
+          });
+          setLicenseKey("");
+          alert("License verified successfully! Pro features are now active.");
+          window.location.reload();
+        } else {
+          alert("Invalid license key. Please check and try again.");
+        }
+      } catch (error) {
+        console.error("License verification failed:", error);
+        alert("License verification failed. Please try again.");
+      } finally {
+        setIsVerifyingLicense(false);
+      }
+    };
     reactExports.useEffect(() => {
       setCurrentSettings(settings);
     }, [settings]);
@@ -10545,6 +10687,10 @@
       setCurrentSettings((prev) => ({ ...prev, [field]: value }));
     };
     const handleModeChange = (mode) => {
+      if ((mode === "semi-automatic" || mode === "full-automatic") && !currentSettings.is_pro) {
+        alert("This automation mode requires a Pro license. Please upgrade or activate your license to use this feature.");
+        return;
+      }
       handleSettingChange("mode", mode);
       if (mode !== "full-automatic") {
         handleSettingChange("autoPublish", false);
@@ -10655,7 +10801,7 @@
         /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "aca-page-title", children: "Settings" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", children: "Configure automation modes, integrations, and content generation preferences to customize your AI Content Agent experience." })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", children: [
+      currentSettings.is_pro ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-card-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "aca-card-title", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { className: "aca-nav-item-icon" }),
           "Automation Mode"
@@ -10828,7 +10974,19 @@
             ] })
           ] })
         ] })
-      ] }),
+      ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx(
+        UpgradePrompt,
+        {
+          title: "Advanced Automation Modes",
+          description: "Unlock Semi-Automatic and Full-Automatic modes to automate your content creation workflow",
+          features: [
+            "Semi-Automatic: Automated idea generation with manual publishing",
+            "Full-Automatic: Complete automation from idea to published post",
+            "Advanced scheduling and frequency controls",
+            "Auto-publish with customizable timing"
+          ]
+        }
+      ),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-card-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "aca-card-title", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$1, { className: "aca-nav-item-icon" }),
@@ -11441,6 +11599,58 @@
               ]
             }
           )
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-card-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "aca-card-title", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Shield, { className: "aca-nav-item-icon" }),
+          "Pro License Activation"
+        ] }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", children: "Activate your Pro license to unlock advanced automation modes and Google Search Console integration." }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-stat-item", style: { margin: "0 0 20px 0" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-stat-info", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-stat-icon", children: licenseStatus.is_active ? /* @__PURE__ */ jsxRuntimeExports.jsx(CheckCircle, { style: { color: "#27ae60", width: "20px", height: "20px" } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Shield, { style: { color: "#e74c3c", width: "20px", height: "20px" } }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-stat-number", children: licenseStatus.is_active ? "Pro Active" : "Free Version" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-stat-label", children: licenseStatus.is_active ? `Verified ${licenseStatus.verified_at ? new Date(licenseStatus.verified_at).toLocaleDateString() : ""}` : "Upgrade to unlock Pro features" })
+          ] })
+        ] }) }),
+        !licenseStatus.is_active && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-form-group", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "aca-label", htmlFor: "license-key", children: "License Key" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "10px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                id: "license-key",
+                type: "text",
+                className: "aca-input",
+                value: licenseKey,
+                onChange: (e) => setLicenseKey(e.target.value),
+                placeholder: "Enter your Pro license key",
+                disabled: isVerifyingLicense
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                onClick: handleLicenseVerification,
+                disabled: isVerifyingLicense || !licenseKey.trim(),
+                className: "aca-button aca-button-primary",
+                style: { minWidth: "120px" },
+                children: isVerifyingLicense ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { className: "aca-spinner" }),
+                  "Verifying..."
+                ] }) : "Verify License"
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "aca-page-description", style: { marginTop: "10px" }, children: [
+            "Don't have a Pro license? ",
+            /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: "https://gumroad.com/l/your-product-link", target: "_blank", rel: "noopener noreferrer", style: { color: "#0073aa" }, children: "Purchase here" })
+          ] })
+        ] }),
+        licenseStatus.is_active && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-alert aca-alert-success", style: { margin: "20px 0" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(CheckCircle, { style: { width: "16px", height: "16px", marginRight: "8px" } }),
+          "Pro license is active! You now have access to all premium features."
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", children: [

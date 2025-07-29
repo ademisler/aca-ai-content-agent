@@ -1,16 +1,16 @@
-# AI Image Generation Setup Guide - v1.5.2
+# AI Image Generation Setup Guide - v1.6.3
 
 This guide explains how to set up AI image generation using Google's Imagen 3.0 API in the AI Content Agent plugin.
 
-## 🖼️ Latest Updates - v1.5.2
+## 🖼️ Latest Updates - v1.6.3
 
-### ✅ **IMAGE INTEGRATION OVERHAUL + TEXT-FREE AI GENERATION**
-- **Text-Free AI Images**: Added explicit prompting and negative prompting to prevent text, words, or readable content in AI-generated images
-- **Enhanced Image Attachment**: Improved image attachment process with proper post association and error handling
-- **Better Image Relevance**: Added key concept extraction from article titles for more relevant image generation
-- **Improved Error Handling**: Comprehensive error logging for image creation and attachment processes
-- **Alt Text Support**: Automatically sets alt text for accessibility compliance
-- **Text Prevention**: Comprehensive negative prompting to block text, logos, watermarks, and readable content
+### ✅ **DOCUMENTATION UPDATE & ENHANCED SETUP GUIDE**
+- **Enhanced Setup Instructions**: Improved setup guide with clearer step-by-step instructions
+- **Better Error Handling Documentation**: More detailed troubleshooting section with specific solutions
+- **Updated Version References**: All version information updated to reflect current plugin version
+- **Improved Integration Info**: Better integration with overall plugin documentation system
+- **Text-Free AI Images**: Maintained explicit prompting to prevent text in generated images
+- **Enhanced Image Attachment**: Continued improved image attachment process with proper error handling
 
 ## 📋 Overview
 
@@ -204,5 +204,5 @@ For additional support, ensure all prerequisites are met and the Google Cloud Ve
 ---
 
 **Last Updated**: January 2025  
-**Plugin Version**: 1.5.0+  
+**Plugin Version**: 1.6.3+  
 **Imagen Model**: imagen-3.0-generate-002

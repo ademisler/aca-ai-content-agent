@@ -87,15 +87,27 @@ composer install
 
 ## 📦 Release Management
 
+### For Developers
+```bash
+# Latest release
+releases/ai-content-agent-v1.6.3-documentation-update-and-build-optimization.zip
+
+# Archived versions
+releases/archive/ai-content-agent-v1.3.x-*.zip
+releases/archive/ai-content-agent-v1.4.x-*.zip
+releases/archive/ai-content-agent-v1.5.x-*.zip
+releases/archive/ai-content-agent-v1.6.[0-2]-*.zip
+```
+
 ### Version Update Process
 1. **Update Version Numbers**:
    ```bash
    # Update in ai-content-agent.php
-   # Line 5: * Version: 1.4.9
-   # Line 18: define('ACA_VERSION', '1.4.9');
+   # Line 5: * Version: 1.6.3
+   # Line 18: define('ACA_VERSION', '1.6.3');
    
    # Update in package.json
-   # Line 4: "version": "1.4.9",
+   # Line 4: "version": "1.6.3",
    ```
 
 2. **Update Documentation**:
@@ -119,7 +131,7 @@ composer install
    
    # Create new release zip
    cd ..
-   zip -r ai-content-agent-v1.4.9-description.zip ai-content-agent-plugin/ \
+   zip -r ai-content-agent-v1.6.3-description.zip ai-content-agent-plugin/ \
      -x "*/node_modules/*" "*/.git/*" "*/dist/*" "*/package-lock.json"
    
    # Move to releases directory
@@ -129,10 +141,10 @@ composer install
 5. **Git Management**:
    ```bash
    git add .
-   git commit -m "🚀 RELEASE v1.4.9: Description"
+   git commit -m "🚀 RELEASE v1.6.3: Description"
    git push origin main
-   git tag v1.4.9
-   git push origin v1.4.9
+   git tag v1.6.3
+   git push origin v1.6.3
    ```
 
 ### Release Naming Convention
@@ -140,8 +152,9 @@ composer install
 ai-content-agent-v{MAJOR}.{MINOR}.{PATCH}-{DESCRIPTION}.zip
 
 Examples:
+- ai-content-agent-v1.6.3-documentation-update-and-build-optimization.zip
+- ai-content-agent-v1.6.2-fixed-javascript-initialization-error.zip
 - ai-content-agent-v1.4.9-activation-error-fix.zip
-- ai-content-agent-v1.5.0-new-features.zip
 ```
 
 ## 📚 Documentation Standards
@@ -304,5 +317,5 @@ Examples:
 ---
 
 **Last Updated**: January 2025  
-**Plugin Version**: 1.4.9  
-**Guide Version**: 1.0
+**Plugin Version**: 1.6.3  
+**Guide Version**: 1.1

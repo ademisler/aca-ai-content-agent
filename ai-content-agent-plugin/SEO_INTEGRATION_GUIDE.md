@@ -1,4 +1,4 @@
-# SEO Integration Guide - v1.5.5
+# SEO Integration Guide - v1.6.3
 
 This guide explains the automatic SEO plugin detection and integration system in the AI Content Agent plugin.
 
@@ -335,6 +335,6 @@ Look for log entries starting with:
 
 ---
 
-**Last Updated**: January 28, 2025 - v1.5.5
+**Last Updated**: January 29, 2025 - v1.6.3
 **Compatibility**: WordPress 5.0+, PHP 7.4+
 **SEO Plugin Versions**: RankMath 1.0+, Yoast SEO 19.0+, All in One SEO 4.0+

@@ -24,11 +24,19 @@ export default defineConfig(({ mode }) => {
       build: {
         target: 'es2015',
         minify: 'esbuild',
+        outDir: 'admin',
         rollupOptions: {
           output: {
             manualChunks: undefined,
             format: 'iife',
-            inlineDynamicImports: true
+            inlineDynamicImports: true,
+            entryFileNames: 'js/index.js',
+            assetFileNames: (assetInfo) => {
+              if (assetInfo.name?.endsWith('.css')) {
+                return 'css/index.css';
+              }
+              return '[name].[ext]';
+            }
           }
         },
         commonjsOptions: {

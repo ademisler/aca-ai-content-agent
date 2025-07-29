@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && npm run copy-css",
+    "copy-css": "mkdir -p admin/css && cp index.css admin/css/index.css",
     "preview": "vite preview"
   },
   "dependencies": {

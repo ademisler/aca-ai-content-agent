@@ -1,13 +1,68 @@
 # AI Content Agent (ACA) WordPress Plugin
 
-![Version](https://img.shields.io/badge/version-1.6.9-blue.svg)
+![Version](https://img.shields.io/badge/version-1.7.0-blue.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-blue.svg)
 ![License](https://img.shields.io/badge/license-GPL%20v2%2B-green.svg)
 
 AI-powered content creation and management plugin that generates blog posts, ideas, and manages your content workflow automatically with an intelligent Content Calendar system and **real Google Search Console integration**.
 
-## 🚀 Latest Updates - v1.6.9 - UI/UX IMPROVEMENTS & BUG FIXES 🚀
+## 🚀 Latest Updates - v1.7.0 - COMPREHENSIVE FEATURE ENHANCEMENTS & IMPROVEMENTS 🚀
+
+### 🎯 **IDEA BOARD ARCHIVE SYSTEM OVERHAUL**
+- **Complete Archive Fix**: Fixed idea board archive system to show all generated ideas including archived ones
+- **Restore Functionality**: Added ability to restore archived ideas back to active status
+- **Permanent Delete**: Added option to permanently delete ideas from archive with confirmation
+- **Enhanced API**: Updated backend API to properly handle idea archiving vs permanent deletion
+- **Better Organization**: Improved archived ideas interface with restore and delete buttons
+
+### ⚡ **ENHANCED NAVIGATION & USER FLOW**
+- **Smart Navigation**: Quick Actions "Generate Ideas" button now automatically navigates to Idea Board after completion
+- **Improved User Journey**: Streamlined workflow from dashboard to idea management
+- **Better UX Flow**: Enhanced user experience with logical navigation patterns
+
+### 📅 **ADVANCED CALENDAR FUNCTIONALITY**
+- **Published Post Drag & Drop**: Added ability to drag and move published posts on calendar
+- **Smart Date Handling**: Intelligent handling of past vs future dates for published posts
+- **Convert to Draft**: Moving published posts to future dates converts them to scheduled drafts
+- **Date Updates**: Moving published posts to past dates updates their publish date
+- **Enhanced Confirmations**: Added confirmation dialogs for all calendar operations
+
+### ⚙️ **COMPREHENSIVE AUTOMATION SETTINGS**
+- **Semi-Automatic Frequency**: Added idea generation frequency settings (daily, weekly, monthly)
+- **Full-Automatic Configuration**: Added daily post count and publishing frequency settings
+- **Content Analysis Control**: Added content analysis frequency settings with automation mode integration
+- **Detailed Options**: Comprehensive automation configuration for all modes
+- **Better User Guidance**: Clear explanations for all automation settings
+
+### 🎨 **IMAGE SOURCE OPTIMIZATION**
+- **Reordered Options**: Moved AI image generation to last position (most complex option)
+- **Simplified Defaults**: Changed default image source to Pexels (simplest option)
+- **Better User Experience**: Prioritized easier-to-configure options first
+
+### 🛠️ **DEBUG PANEL IMPROVEMENTS**
+- **Enhanced Documentation**: Added clear explanation of debug panel purpose
+- **User Guidance**: Indicated that debug panel is for developers and advanced users
+- **Better Descriptions**: Improved tooltips and help text for debug functions
+
+### 👨‍💻 **AUTHOR & BRANDING UPDATES**
+- **Author Information**: Updated plugin author to Adem Isler
+- **Website Integration**: Added author website (ademisler.com/en)
+- **Proper Attribution**: Updated all documentation with correct authorship
+
+### 🔧 **TECHNICAL IMPROVEMENTS**
+- **API Enhancements**: Added new REST API endpoints for advanced functionality
+- **Backend Optimizations**: Improved database queries and data handling
+- **Frontend Optimizations**: Enhanced React component performance and state management
+- **Type Safety**: Updated TypeScript types for new features
+
+### ✅ **PRODUCTION READINESS**
+- **Comprehensive Testing**: All new features thoroughly tested
+- **Backward Compatibility**: Maintained compatibility with existing installations
+- **Error Handling**: Enhanced error handling throughout the application
+- **Performance**: Optimized performance for all new features
+
+## 🚀 Previous Updates - v1.6.9 - UI/UX IMPROVEMENTS & BUG FIXES 🚀
 
 ### 🔧 **CRITICAL BUG FIXES**
 - **View Draft Button Fix**: Fixed "View Draft" button in Content Drafts page not navigating to correct WordPress edit page
@@ -119,7 +174,7 @@ AI-powered content creation and management plugin that generates blog posts, ide
 ## 🛠️ Installation
 
 ### Automatic Installation (Recommended)
-1. Download the latest release: `releases/ai-content-agent-v1.6.9-ui-ux-improvements-and-bug-fixes.zip`
+1. Download the latest release: `releases/ai-content-agent-v1.7.0-comprehensive-feature-enhancements-and-improvements.zip`
 2. Go to WordPress Admin → Plugins → Add New → Upload Plugin
 3. Choose the downloaded zip file and click "Install Now"
 4. Activate the plugin
@@ -134,9 +189,9 @@ AI-powered content creation and management plugin that generates blog posts, ide
 ## 📁 Release Management
 
 ### Current Release
-- **Latest Version**: v1.6.9 (Located in `/releases/`)
-- **File**: `ai-content-agent-v1.6.9-ui-ux-improvements-and-bug-fixes.zip`
-- **Status**: Stable, ready for production with enhanced UI/UX and critical bug fixes
+- **Latest Version**: v1.7.0 (Located in `/releases/`)
+- **File**: `ai-content-agent-v1.7.0-comprehensive-feature-enhancements-and-improvements.zip`
+- **Status**: Stable, ready for production with comprehensive feature enhancements and improvements
 
 ### Archive
 - **Previous Versions**: All older versions are stored in `/releases/archive/`
@@ -146,13 +201,13 @@ AI-powered content creation and management plugin that generates blog posts, ide
 ### For Developers
 ```bash
 # Latest release
-releases/ai-content-agent-v1.6.9-ui-ux-improvements-and-bug-fixes.zip
+releases/ai-content-agent-v1.7.0-comprehensive-feature-enhancements-and-improvements.zip
 
 # Archived versions
 releases/archive/ai-content-agent-v1.3.x-*.zip
 releases/archive/ai-content-agent-v1.4.x-*.zip
 releases/archive/ai-content-agent-v1.5.x-*.zip
-releases/archive/ai-content-agent-v1.6.[0-8]-*.zip
+releases/archive/ai-content-agent-v1.6.x-*.zip
 ```
 
 ## ⚡ Quick Start
@@ -230,7 +285,8 @@ This plugin is licensed under the GPL v2 or later.
 
 ## 🔄 Version History
 
-- **v1.6.9**: UI/UX improvements & critical bug fixes (Latest)
+- **v1.7.0**: Comprehensive feature enhancements & improvements (Latest)
+- **v1.6.9**: UI/UX improvements & critical bug fixes
 - **v1.6.8**: Gemini API retry logic & improved error handling
 - **v1.6.7**: Deep cache fix & error boundary implementation
 - **v1.6.6**: Cache fix & dependencies resolved
@@ -251,4 +307,4 @@ For complete version history, see `CHANGELOG.md`.
 
 ---
 
-**Ready to revolutionize your content workflow with enhanced UI/UX and bug fixes?** Download v1.6.9 and start creating smarter content with improved user experience today! 🚀
+**Ready to revolutionize your content workflow with comprehensive feature enhancements?** Download v1.7.0 and start creating smarter content with advanced automation, improved calendar functionality, and enhanced user experience today! 🚀

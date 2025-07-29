@@ -7932,7 +7932,9 @@
       method: "PUT",
       body: JSON.stringify(updates)
     }),
-    delete: (id) => makeApiCall(`ideas/${id}`, { method: "DELETE" })
+    delete: (id) => makeApiCall(`ideas/${id}`, { method: "DELETE" }),
+    restore: (id) => makeApiCall(`ideas/${id}/restore`, { method: "POST" }),
+    permanentDelete: (id) => makeApiCall(`ideas/${id}/permanent-delete`, { method: "DELETE" })
   };
   const draftsApi = {
     get: () => makeApiCall("drafts"),
@@ -7953,6 +7955,10 @@
     get: () => makeApiCall("published"),
     publish: (draftId) => makeApiCall(`drafts/${draftId}/publish`, {
       method: "POST"
+    }),
+    updateDate: (postId, newDate, shouldConvertToDraft = false) => makeApiCall(`published/${postId}/update-date`, {
+      method: "POST",
+      body: JSON.stringify({ newDate, shouldConvertToDraft })
     })
   };
   const activityApi = {
@@ -10666,16 +10672,62 @@
               onChange: handleModeChange
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            RadioCard,
-            {
-              id: "semi-automatic",
-              title: "Semi-Automatic Mode",
-              description: "The AI automatically generates new ideas periodically. You choose which ideas to turn into drafts.",
-              currentSelection: currentSettings.mode,
-              onChange: handleModeChange
-            }
-          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", style: {
+            margin: 0,
+            border: "2px solid",
+            borderColor: currentSettings.mode === "semi-automatic" ? "#0073aa" : "#ccd0d4",
+            background: currentSettings.mode === "semi-automatic" ? "#f0f6fc" : "#ffffff",
+            boxShadow: currentSettings.mode === "semi-automatic" ? "0 2px 4px rgba(0, 0, 0, 0.1)" : "none"
+          }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { htmlFor: "semi-automatic", style: { display: "flex", alignItems: "flex-start", cursor: "pointer", gap: "12px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "radio",
+                  id: "semi-automatic",
+                  name: "automation-mode",
+                  checked: currentSettings.mode === "semi-automatic",
+                  onChange: () => handleModeChange("semi-automatic"),
+                  style: {
+                    marginTop: "2px",
+                    width: "18px",
+                    height: "18px",
+                    accentColor: "#0073aa",
+                    flexShrink: 0
+                  }
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "aca-card-title", style: { marginBottom: "8px" }, children: "Semi-Automatic Mode" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", style: { margin: 0 }, children: "The AI automatically generates new ideas periodically. You choose which ideas to turn into drafts." })
+              ] })
+            ] }),
+            currentSettings.mode === "semi-automatic" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-form-group", style: {
+              paddingLeft: "30px",
+              paddingTop: "20px",
+              marginTop: "20px",
+              borderTop: "1px solid #e0e0e0",
+              marginBottom: 0
+            }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "aca-label", htmlFor: "semi-auto-frequency", children: "Idea Generation Frequency" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "select",
+                {
+                  id: "semi-auto-frequency",
+                  className: "aca-input",
+                  value: currentSettings.semiAutoIdeaFrequency || "weekly",
+                  onChange: (e) => handleSettingChange("semiAutoIdeaFrequency", e.target.value),
+                  style: { marginTop: "5px" },
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "daily", children: "Daily - Generate new ideas every day" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "weekly", children: "Weekly - Generate new ideas every week" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "monthly", children: "Monthly - Generate new ideas every month" })
+                  ]
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", style: { marginTop: "5px", margin: "5px 0 0 0" }, children: "How often should the AI automatically generate new content ideas?" })
+            ] })
+          ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", style: {
             margin: 0,
             border: "2px solid",
@@ -10706,34 +10758,102 @@
                 /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", style: { margin: 0 }, children: "The AI handles everything: generates ideas, picks the best ones, and creates drafts automatically." })
               ] })
             ] }),
-            currentSettings.mode === "full-automatic" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-form-group", style: {
+            currentSettings.mode === "full-automatic" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
               paddingLeft: "30px",
               paddingTop: "20px",
               marginTop: "20px",
               borderTop: "1px solid #e0e0e0",
               marginBottom: 0
-            }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { htmlFor: "auto-publish", style: { display: "flex", alignItems: "flex-start", cursor: "pointer", gap: "12px" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "input",
-                {
-                  type: "checkbox",
-                  id: "auto-publish",
-                  checked: currentSettings.autoPublish,
-                  onChange: (e) => handleSettingChange("autoPublish", e.target.checked),
-                  style: {
-                    marginTop: "2px",
-                    width: "16px",
-                    height: "16px",
-                    accentColor: "#0073aa"
+            }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-form-group", style: { marginBottom: "20px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "aca-label", htmlFor: "daily-post-count", children: "Daily Post Count" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "select",
+                  {
+                    id: "daily-post-count",
+                    className: "aca-input",
+                    value: currentSettings.fullAutoDailyPostCount || 1,
+                    onChange: (e) => handleSettingChange("fullAutoDailyPostCount", parseInt(e.target.value)),
+                    style: { marginTop: "5px" },
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: 1, children: "1 post per day" }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: 2, children: "2 posts per day" }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: 3, children: "3 posts per day" }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: 5, children: "5 posts per day" })
+                    ]
                   }
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "aca-label", children: "Enable Auto-Publish" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", style: { marginTop: "5px", margin: "5px 0 0 0" }, children: "When enabled, the AI will not only create drafts but also publish them automatically." })
-              ] })
-            ] }) })
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", style: { marginTop: "5px", margin: "5px 0 0 0" }, children: "How many posts should be created daily in full-automatic mode?" })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-form-group", style: { marginBottom: "20px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "aca-label", htmlFor: "publish-frequency", children: "Publishing Frequency" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "select",
+                  {
+                    id: "publish-frequency",
+                    className: "aca-input",
+                    value: currentSettings.fullAutoPublishFrequency || "daily",
+                    onChange: (e) => handleSettingChange("fullAutoPublishFrequency", e.target.value),
+                    style: { marginTop: "5px" },
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "hourly", children: "Every hour - Publish posts throughout the day" }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "daily", children: "Daily - Publish once per day" }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "weekly", children: "Weekly - Publish once per week" })
+                    ]
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", style: { marginTop: "5px", margin: "5px 0 0 0" }, children: "How often should created drafts be published automatically?" })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-form-group", style: { marginBottom: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { htmlFor: "auto-publish", style: { display: "flex", alignItems: "flex-start", cursor: "pointer", gap: "12px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "checkbox",
+                    id: "auto-publish",
+                    checked: currentSettings.autoPublish,
+                    onChange: (e) => handleSettingChange("autoPublish", e.target.checked),
+                    style: {
+                      marginTop: "2px",
+                      width: "16px",
+                      height: "16px",
+                      accentColor: "#0073aa"
+                    }
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "aca-label", children: "Enable Auto-Publish" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", style: { marginTop: "5px", margin: "5px 0 0 0" }, children: "When enabled, the AI will automatically publish posts according to the frequency settings above." })
+                ] })
+              ] }) })
+            ] })
           ] })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-card-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "aca-card-title", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$1, { className: "aca-nav-item-icon" }),
+          "Content Analysis Settings"
+        ] }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", children: "Configure how often the AI should analyze your content to update the style guide." }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-form-group", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "aca-label", htmlFor: "analyze-frequency", children: "Content Analysis Frequency" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "select",
+            {
+              id: "analyze-frequency",
+              className: "aca-input",
+              value: currentSettings.analyzeContentFrequency || "manual",
+              onChange: (e) => handleSettingChange("analyzeContentFrequency", e.target.value),
+              style: { marginTop: "5px" },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "manual", children: "Manual - Only when you click the analyze button" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "daily", children: "Daily - Analyze content automatically every day" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "weekly", children: "Weekly - Analyze content automatically every week" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "monthly", children: "Monthly - Analyze content automatically every month" })
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", style: { marginTop: "5px", margin: "5px 0 0 0" }, children: "How often should the AI automatically analyze your site content to update the style guide? Manual mode gives you full control." })
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", children: [
@@ -10789,7 +10909,7 @@
               isConfigured: isImageSourceConfigured,
               children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", children: "Select where to get featured images. For stock photo sites, an API key is required." }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-grid aca-grid-2", style: { marginBottom: "25px" }, children: ["ai", "pexels", "unsplash", "pixabay"].map((provider) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-grid aca-grid-2", style: { marginBottom: "25px" }, children: ["pexels", "unsplash", "pixabay", "ai"].map((provider) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
                   "label",
                   {
                     className: `aca-button ${currentSettings.imageSourceProvider === provider ? "" : "secondary"}`,
@@ -11328,7 +11448,11 @@
           /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$1, { className: "aca-nav-item-icon" }),
           "Automation Debug Panel"
         ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", children: "Test automation functionality and check cron status." }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-alert info", style: { marginBottom: "20px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { style: { margin: 0, fontSize: "14px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "🛠️ For Developers & Advanced Users:" }),
+          " This panel is designed for testing and debugging automation features. Use these tools to manually trigger automation tasks, check cron job status, and troubleshoot issues. Regular users typically don't need to use this panel."
+        ] }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", children: "Test automation functionality and check cron status. Click the buttons below to manually trigger automation tasks or check their status." }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "10px", marginBottom: "20px" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "button",
@@ -11775,7 +11899,7 @@
       ] }) })
     ] });
   };
-  const ContentCalendar = ({ drafts, publishedPosts, onScheduleDraft, onSelectPost, onPublishDraft }) => {
+  const ContentCalendar = ({ drafts, publishedPosts, onScheduleDraft, onSelectPost, onPublishDraft, onUpdatePostDate }) => {
     const [currentDate, setCurrentDate] = reactExports.useState(/* @__PURE__ */ new Date());
     const [dragOverDate, setDragOverDate] = reactExports.useState(null);
     const [draggedDraft, setDraggedDraft] = reactExports.useState(null);
@@ -11825,25 +11949,44 @@
     };
     const handleDrop = (e, date) => {
       e.preventDefault();
-      const draftId = e.dataTransfer.getData("text/plain");
-      if (draftId && draggedDraft) {
+      const postId = e.dataTransfer.getData("text/plain");
+      if (postId && draggedDraft) {
         const today = /* @__PURE__ */ new Date();
         today.setHours(0, 0, 0, 0);
         const dropDate = new Date(date);
         dropDate.setHours(0, 0, 0, 0);
-        if (dropDate < today) {
-          const confirmPublish = window.confirm(
-            `You're scheduling this draft for a past date (${date.toLocaleDateString()}). This will publish the post immediately. Do you want to continue?`
-          );
-          if (confirmPublish) {
-            if (onPublishDraft) {
-              onPublishDraft(parseInt(draftId));
-            } else {
-              onScheduleDraft(parseInt(draftId), date.toISOString());
+        const isPublishedPost = draggedDraft.status === "published";
+        if (isPublishedPost) {
+          if (dropDate > today) {
+            const confirmConvert = window.confirm(
+              `You're moving a published post to a future date (${date.toLocaleDateString()}). This will convert it to a scheduled draft. Do you want to continue?`
+            );
+            if (confirmConvert && onUpdatePostDate) {
+              onUpdatePostDate(parseInt(postId), date.toISOString(), true);
+            }
+          } else {
+            const confirmMove = window.confirm(
+              `You're changing the publish date of this post to ${date.toLocaleDateString()}. Do you want to continue?`
+            );
+            if (confirmMove && onUpdatePostDate) {
+              onUpdatePostDate(parseInt(postId), date.toISOString(), false);
             }
           }
         } else {
-          onScheduleDraft(parseInt(draftId), date.toISOString());
+          if (dropDate < today) {
+            const confirmPublish = window.confirm(
+              `You're scheduling this draft for a past date (${date.toLocaleDateString()}). This will publish the post immediately. Do you want to continue?`
+            );
+            if (confirmPublish) {
+              if (onPublishDraft) {
+                onPublishDraft(parseInt(postId));
+              } else {
+                onScheduleDraft(parseInt(postId), date.toISOString());
+              }
+            }
+          } else {
+            onScheduleDraft(parseInt(postId), date.toISOString());
+          }
         }
       }
       setDragOverDate(null);
@@ -11881,8 +12024,8 @@
       return /* @__PURE__ */ jsxRuntimeExports.jsxs(
         "div",
         {
-          draggable: isScheduled,
-          onDragStart: isScheduled ? (e) => handleDragStart(e, post) : void 0,
+          draggable: true,
+          onDragStart: (e) => handleDragStart(e, post),
           onClick: () => openWordPressEditor(post.id),
           className: "aca-action-button",
           style: {
@@ -11902,7 +12045,7 @@
             minHeight: isCompact ? "18px" : "20px",
             transition: "all 0.2s ease"
           },
-          title: `${isScheduled ? "Scheduled" : "Published"}: ${post.title || `${isScheduled ? "Draft" : "Post"} ${post.id}`} (Click to edit${isScheduled ? ", drag to reschedule" : ""})`,
+          title: `${isScheduled ? "Scheduled" : "Published"}: ${post.title || `${isScheduled ? "Draft" : "Post"} ${post.id}`} (Click to edit, drag to reschedule)`,
           children: [
             isScheduled ? /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { style: { width: isCompact ? "8px" : "9px", height: isCompact ? "8px" : "9px", flexShrink: 0 } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Eye, { style: { width: isCompact ? "8px" : "9px", height: isCompact ? "8px" : "9px", flexShrink: 0 } }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { flex: 1, overflow: "hidden", textOverflow: "ellipsis" }, children: post.title || `${isScheduled ? "Draft" : "Post"} ${post.id}` }),
@@ -12121,7 +12264,8 @@
       searchConsoleUser: null,
       gscClientId: "",
       gscClientSecret: "",
-      imageSourceProvider: "ai",
+      imageSourceProvider: "pexels",
+      // Changed default to simplest option
       aiImageStyle: "photorealistic",
       googleCloudProjectId: "",
       googleCloudLocation: "us-central1",
@@ -12130,7 +12274,12 @@
       pixabayApiKey: "",
       seoPlugin: "none",
       // Auto-detected, kept for backward compatibility
-      geminiApiKey: ""
+      geminiApiKey: "",
+      // Automation frequency settings with defaults
+      semiAutoIdeaFrequency: "weekly",
+      fullAutoDailyPostCount: 1,
+      fullAutoPublishFrequency: "daily",
+      analyzeContentFrequency: "manual"
     });
     const [isLoading, setIsLoading] = reactExports.useState({});
     const [toasts, setToasts] = reactExports.useState([]);
@@ -12310,6 +12459,18 @@
         setPublishingId(null);
       }
     }, [addToast, addLogEntry]);
+    const handleUpdatePostDate = reactExports.useCallback(async (postId, newDate, shouldConvertToDraft = false) => {
+      try {
+        const updatedPost = await publishedApi.updateDate(postId, newDate, shouldConvertToDraft);
+        setPosts((prev) => prev.map((p) => p.id === postId ? updatedPost : p));
+        const action = shouldConvertToDraft ? "converted to scheduled draft" : "publish date updated";
+        addToast({ message: `Post ${action} successfully!`, type: "success" });
+        addLogEntry("draft_updated", `Post "${updatedPost.title}" ${action}`, "Calendar");
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Failed to update post date";
+        addToast({ message: errorMessage, type: "error" });
+      }
+    }, [addToast, addLogEntry]);
     const handleScheduleDraft = reactExports.useCallback(async (draftId, scheduledDate) => {
       try {
         const updatedDraft = await draftsApi.schedule(draftId, scheduledDate);
@@ -12328,8 +12489,8 @@
       try {
         const idea = ideas.find((i) => i.id === ideaId);
         if (!idea) return;
+        await ideasApi.delete(ideaId);
         const updatedIdea = { ...idea, status: "archived" };
-        await ideasApi.update(ideaId, updatedIdea);
         setIdeas((prev) => prev.map((i) => i.id === ideaId ? updatedIdea : i));
         addToast({ message: "Idea archived successfully!", type: "success" });
         addLogEntry("idea_archived", `Archived idea: "${idea.title}"`, "Archive");
@@ -12342,10 +12503,10 @@
       try {
         const idea = ideas.find((i) => i.id === ideaId);
         if (!idea) return;
-        await ideasApi.delete(ideaId);
+        await ideasApi.permanentDelete(ideaId);
         setIdeas((prev) => prev.filter((i) => i.id !== ideaId));
         addToast({ message: "Idea deleted permanently!", type: "success" });
-        addLogEntry("idea_deleted", `Deleted idea: "${idea.title}"`, "Trash");
+        addLogEntry("idea_updated", `Permanently deleted idea: "${idea.title}"`, "Trash");
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : "Failed to delete idea";
         addToast({ message: errorMessage, type: "error" });
@@ -12355,8 +12516,8 @@
       try {
         const idea = ideas.find((i) => i.id === ideaId);
         if (!idea) return;
+        await ideasApi.restore(ideaId);
         const updatedIdea = { ...idea, status: "active" };
-        await ideasApi.update(ideaId, updatedIdea);
         setIdeas((prev) => prev.map((i) => i.id === ideaId ? updatedIdea : i));
         addToast({ message: "Idea restored successfully!", type: "success" });
         addLogEntry("idea_restored", `Restored idea: "${idea.title}"`, "Edit");
@@ -12365,6 +12526,10 @@
         addToast({ message: errorMessage, type: "error" });
       }
     }, [ideas, addToast, addLogEntry]);
+    const handleGenerateIdeasAndNavigate = reactExports.useCallback(async () => {
+      await handleGenerateIdeas(false, 5);
+      setView("ideas");
+    }, [handleGenerateIdeas]);
     const handleUpdateIdeaTitle = reactExports.useCallback(async (ideaId, newTitle) => {
       try {
         const idea = ideas.find((i) => i.id === ideaId);
@@ -12443,7 +12608,8 @@
               publishedPosts,
               onScheduleDraft: handleScheduleDraft,
               onSelectPost: setSelectedDraft,
-              onPublishDraft: handlePublishPost
+              onPublishDraft: handlePublishPost,
+              onUpdatePostDate: handleUpdatePostDate
             }
           );
         case "dashboard":
@@ -12455,7 +12621,7 @@
               lastAnalyzed: styleGuide?.lastAnalyzed,
               activityLogs,
               onNavigate: setView,
-              onGenerateIdeas: () => handleGenerateIdeas(false, 5),
+              onGenerateIdeas: handleGenerateIdeasAndNavigate,
               onUpdateStyleGuide: () => handleAnalyzeStyle(false),
               isLoadingIdeas: isLoading["ideas"] || false,
               isLoadingStyle: isLoading["style"] || false
@@ -12488,14 +12654,19 @@
             searchConsoleUser: null,
             gscClientId: "",
             gscClientSecret: "",
-            imageSourceProvider: "ai",
+            imageSourceProvider: "pexels",
             aiImageStyle: "photorealistic",
             pexelsApiKey: "",
             unsplashApiKey: "",
             pixabayApiKey: "",
             seoPlugin: "none",
             // Auto-detected, kept for backward compatibility
-            geminiApiKey: ""
+            geminiApiKey: "",
+            // Automation frequency settings with defaults
+            semiAutoIdeaFrequency: "weekly",
+            fullAutoDailyPostCount: 1,
+            fullAutoPublishFrequency: "daily",
+            analyzeContentFrequency: "manual"
           });
           if (styleGuideData) {
             setStyleGuide(styleGuideData);

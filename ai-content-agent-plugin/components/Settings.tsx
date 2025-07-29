@@ -310,13 +310,64 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                         currentSelection={currentSettings.mode} 
                         onChange={handleModeChange} 
                     />
-                    <RadioCard 
-                        id="semi-automatic" 
-                        title="Semi-Automatic Mode" 
-                        description="The AI automatically generates new ideas periodically. You choose which ideas to turn into drafts." 
-                        currentSelection={currentSettings.mode} 
-                        onChange={handleModeChange} 
-                    />
+                    <div className="aca-card" style={{
+                        margin: 0,
+                        border: '2px solid',
+                        borderColor: currentSettings.mode === 'semi-automatic' ? '#0073aa' : '#ccd0d4',
+                        background: currentSettings.mode === 'semi-automatic' ? '#f0f6fc' : '#ffffff',
+                        boxShadow: currentSettings.mode === 'semi-automatic' ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none'
+                    }}>
+                        <label htmlFor="semi-automatic" style={{ display: 'flex', alignItems: 'flex-start', cursor: 'pointer', gap: '12px' }}>
+                            <input 
+                                type="radio" 
+                                id="semi-automatic" 
+                                name="automation-mode" 
+                                checked={currentSettings.mode === 'semi-automatic'} 
+                                onChange={() => handleModeChange('semi-automatic')} 
+                                style={{
+                                    marginTop: '2px',
+                                    width: '18px',
+                                    height: '18px',
+                                    accentColor: '#0073aa',
+                                    flexShrink: 0
+                                }}
+                            />
+                            <div>
+                                <h4 className="aca-card-title" style={{ marginBottom: '8px' }}>
+                                    Semi-Automatic Mode
+                                </h4>
+                                <p className="aca-page-description" style={{ margin: 0 }}>
+                                    The AI automatically generates new ideas periodically. You choose which ideas to turn into drafts.
+                                </p>
+                            </div>
+                        </label>
+                        
+                        {currentSettings.mode === 'semi-automatic' && (
+                            <div className="aca-form-group" style={{ 
+                                paddingLeft: '30px', 
+                                paddingTop: '20px', 
+                                marginTop: '20px', 
+                                borderTop: '1px solid #e0e0e0',
+                                marginBottom: 0
+                            }}>
+                                <label className="aca-label" htmlFor="semi-auto-frequency">Idea Generation Frequency</label>
+                                <select 
+                                    id="semi-auto-frequency"
+                                    className="aca-input" 
+                                    value={currentSettings.semiAutoIdeaFrequency || 'weekly'} 
+                                    onChange={(e) => handleSettingChange('semiAutoIdeaFrequency', e.target.value)}
+                                    style={{ marginTop: '5px' }}
+                                >
+                                    <option value="daily">Daily - Generate new ideas every day</option>
+                                    <option value="weekly">Weekly - Generate new ideas every week</option>
+                                    <option value="monthly">Monthly - Generate new ideas every month</option>
+                                </select>
+                                <p className="aca-page-description" style={{ marginTop: '5px', margin: '5px 0 0 0' }}>
+                                    How often should the AI automatically generate new content ideas?
+                                </p>
+                            </div>
+                        )}
+                    </div>
                     
                     {/* Full Automatic with Auto-Publish Option */}
                     <div className="aca-card" style={{
@@ -352,36 +403,110 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                         </label>
                         
                         {currentSettings.mode === 'full-automatic' && (
-                            <div className="aca-form-group" style={{ 
+                            <div style={{ 
                                 paddingLeft: '30px', 
                                 paddingTop: '20px', 
                                 marginTop: '20px', 
                                 borderTop: '1px solid #e0e0e0',
                                 marginBottom: 0
                             }}>
-                                <label htmlFor="auto-publish" style={{ display: 'flex', alignItems: 'flex-start', cursor: 'pointer', gap: '12px' }}>
-                                    <input 
-                                        type="checkbox" 
-                                        id="auto-publish" 
-                                        checked={currentSettings.autoPublish} 
-                                        onChange={(e) => handleSettingChange('autoPublish', e.target.checked)} 
-                                        style={{
-                                            marginTop: '2px',
-                                            width: '16px',
-                                            height: '16px',
-                                            accentColor: '#0073aa'
-                                        }}
-                                    />
-                                    <div>
-                                        <span className="aca-label">Enable Auto-Publish</span>
-                                        <p className="aca-page-description" style={{ marginTop: '5px', margin: '5px 0 0 0' }}>
-                                            When enabled, the AI will not only create drafts but also publish them automatically.
-                                        </p>
-                                    </div>
-                                </label>
+                                {/* Daily Post Count */}
+                                <div className="aca-form-group" style={{ marginBottom: '20px' }}>
+                                    <label className="aca-label" htmlFor="daily-post-count">Daily Post Count</label>
+                                    <select 
+                                        id="daily-post-count"
+                                        className="aca-input" 
+                                        value={currentSettings.fullAutoDailyPostCount || 1} 
+                                        onChange={(e) => handleSettingChange('fullAutoDailyPostCount', parseInt(e.target.value))}
+                                        style={{ marginTop: '5px' }}
+                                    >
+                                        <option value={1}>1 post per day</option>
+                                        <option value={2}>2 posts per day</option>
+                                        <option value={3}>3 posts per day</option>
+                                        <option value={5}>5 posts per day</option>
+                                    </select>
+                                    <p className="aca-page-description" style={{ marginTop: '5px', margin: '5px 0 0 0' }}>
+                                        How many posts should be created daily in full-automatic mode?
+                                    </p>
+                                </div>
+
+                                {/* Publishing Frequency */}
+                                <div className="aca-form-group" style={{ marginBottom: '20px' }}>
+                                    <label className="aca-label" htmlFor="publish-frequency">Publishing Frequency</label>
+                                    <select 
+                                        id="publish-frequency"
+                                        className="aca-input" 
+                                        value={currentSettings.fullAutoPublishFrequency || 'daily'} 
+                                        onChange={(e) => handleSettingChange('fullAutoPublishFrequency', e.target.value)}
+                                        style={{ marginTop: '5px' }}
+                                    >
+                                        <option value="hourly">Every hour - Publish posts throughout the day</option>
+                                        <option value="daily">Daily - Publish once per day</option>
+                                        <option value="weekly">Weekly - Publish once per week</option>
+                                    </select>
+                                    <p className="aca-page-description" style={{ marginTop: '5px', margin: '5px 0 0 0' }}>
+                                        How often should created drafts be published automatically?
+                                    </p>
+                                </div>
+
+                                {/* Auto-Publish Checkbox */}
+                                <div className="aca-form-group" style={{ marginBottom: 0 }}>
+                                    <label htmlFor="auto-publish" style={{ display: 'flex', alignItems: 'flex-start', cursor: 'pointer', gap: '12px' }}>
+                                        <input 
+                                            type="checkbox" 
+                                            id="auto-publish" 
+                                            checked={currentSettings.autoPublish} 
+                                            onChange={(e) => handleSettingChange('autoPublish', e.target.checked)} 
+                                            style={{
+                                                marginTop: '2px',
+                                                width: '16px',
+                                                height: '16px',
+                                                accentColor: '#0073aa'
+                                            }}
+                                        />
+                                        <div>
+                                            <span className="aca-label">Enable Auto-Publish</span>
+                                            <p className="aca-page-description" style={{ marginTop: '5px', margin: '5px 0 0 0' }}>
+                                                When enabled, the AI will automatically publish posts according to the frequency settings above.
+                                            </p>
+                                        </div>
+                                    </label>
+                                </div>
                             </div>
                         )}
                     </div>
+                </div>
+            </div>
+
+            {/* Content Analysis Settings */}
+            <div className="aca-card">
+                <div className="aca-card-header">
+                    <h2 className="aca-card-title">
+                        <SettingsIcon className="aca-nav-item-icon" />
+                        Content Analysis Settings
+                    </h2>
+                </div>
+                <p className="aca-page-description">
+                    Configure how often the AI should analyze your content to update the style guide.
+                </p>
+                
+                <div className="aca-form-group">
+                    <label className="aca-label" htmlFor="analyze-frequency">Content Analysis Frequency</label>
+                    <select 
+                        id="analyze-frequency"
+                        className="aca-input" 
+                        value={currentSettings.analyzeContentFrequency || 'manual'} 
+                        onChange={(e) => handleSettingChange('analyzeContentFrequency', e.target.value)}
+                        style={{ marginTop: '5px' }}
+                    >
+                        <option value="manual">Manual - Only when you click the analyze button</option>
+                        <option value="daily">Daily - Analyze content automatically every day</option>
+                        <option value="weekly">Weekly - Analyze content automatically every week</option>
+                        <option value="monthly">Monthly - Analyze content automatically every month</option>
+                    </select>
+                    <p className="aca-page-description" style={{ marginTop: '5px', margin: '5px 0 0 0' }}>
+                        How often should the AI automatically analyze your site content to update the style guide? Manual mode gives you full control.
+                    </p>
                 </div>
             </div>
             
@@ -442,7 +567,7 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                         </p>
                         
                         <div className="aca-grid aca-grid-2" style={{ marginBottom: '25px' }}>
-                           {(['ai', 'pexels', 'unsplash', 'pixabay'] as ImageSourceProvider[]).map(provider => (
+                           {(['pexels', 'unsplash', 'pixabay', 'ai'] as ImageSourceProvider[]).map(provider => (
                                 <label 
                                     key={provider} 
                                     className={`aca-button ${currentSettings.imageSourceProvider === provider ? '' : 'secondary'}`}
@@ -1012,8 +1137,15 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                         Automation Debug Panel
                     </h2>
                 </div>
+                <div className="aca-alert info" style={{ marginBottom: '20px' }}>
+                    <p style={{ margin: 0, fontSize: '14px' }}>
+                        <strong>🛠️ For Developers & Advanced Users:</strong> This panel is designed for testing and debugging automation features. 
+                        Use these tools to manually trigger automation tasks, check cron job status, and troubleshoot issues. 
+                        Regular users typically don't need to use this panel.
+                    </p>
+                </div>
                 <p className="aca-page-description">
-                    Test automation functionality and check cron status.
+                    Test automation functionality and check cron status. Click the buttons below to manually trigger automation tasks or check their status.
                 </p>
                 
                 <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>

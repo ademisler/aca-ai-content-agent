@@ -39,7 +39,7 @@ const App: React.FC = () => {
         searchConsoleUser: null,
         gscClientId: '',
         gscClientSecret: '',
-        imageSourceProvider: 'ai',
+        imageSourceProvider: 'pexels', // Changed default to simplest option
         aiImageStyle: 'photorealistic',
         googleCloudProjectId: '',
         googleCloudLocation: 'us-central1',
@@ -48,6 +48,11 @@ const App: React.FC = () => {
         pixabayApiKey: '',
         seoPlugin: 'none', // Auto-detected, kept for backward compatibility
         geminiApiKey: '',
+        // Automation frequency settings with defaults
+        semiAutoIdeaFrequency: 'weekly',
+        fullAutoDailyPostCount: 1,
+        fullAutoPublishFrequency: 'daily',
+        analyzeContentFrequency: 'manual',
     });
     const [isLoading, setIsLoading] = useState<{ [key: string]: boolean }>({});
     const [toasts, setToasts] = useState<ToastData[]>([]);
@@ -259,6 +264,22 @@ const App: React.FC = () => {
         }
     }, [addToast, addLogEntry]);
 
+    const handleUpdatePostDate = useCallback(async (postId: number, newDate: string, shouldConvertToDraft: boolean = false) => {
+        try {
+            const updatedPost = await publishedApi.updateDate(postId, newDate, shouldConvertToDraft);
+            
+            // Update the posts state
+            setPosts(prev => prev.map(p => p.id === postId ? updatedPost : p));
+            
+            const action = shouldConvertToDraft ? 'converted to scheduled draft' : 'publish date updated';
+            addToast({ message: `Post ${action} successfully!`, type: 'success' });
+            addLogEntry('draft_updated', `Post "${updatedPost.title}" ${action}`, 'Calendar');
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Failed to update post date';
+            addToast({ message: errorMessage, type: 'error' });
+        }
+    }, [addToast, addLogEntry]);
+
     const handleScheduleDraft = useCallback(async (draftId: number, scheduledDate: string) => {
         try {
             const updatedDraft = await draftsApi.schedule(draftId, scheduledDate);
@@ -283,8 +304,9 @@ const App: React.FC = () => {
             const idea = ideas.find(i => i.id === ideaId);
             if (!idea) return;
 
+            // Use delete API which now archives the idea
+            await ideasApi.delete(ideaId);
             const updatedIdea = { ...idea, status: 'archived' as const };
-            await ideasApi.update(ideaId, updatedIdea);
             setIdeas(prev => prev.map(i => i.id === ideaId ? updatedIdea : i));
             addToast({ message: 'Idea archived successfully!', type: 'success' });
             addLogEntry('idea_archived', `Archived idea: "${idea.title}"`, 'Archive');
@@ -299,10 +321,11 @@ const App: React.FC = () => {
             const idea = ideas.find(i => i.id === ideaId);
             if (!idea) return;
 
-            await ideasApi.delete(ideaId);
+            // Use permanent delete API
+            await ideasApi.permanentDelete(ideaId);
             setIdeas(prev => prev.filter(i => i.id !== ideaId));
             addToast({ message: 'Idea deleted permanently!', type: 'success' });
-            addLogEntry('idea_deleted', `Deleted idea: "${idea.title}"`, 'Trash');
+            addLogEntry('idea_updated', `Permanently deleted idea: "${idea.title}"`, 'Trash');
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Failed to delete idea';
             addToast({ message: errorMessage, type: 'error' });
@@ -314,8 +337,9 @@ const App: React.FC = () => {
             const idea = ideas.find(i => i.id === ideaId);
             if (!idea) return;
 
+            // Use restore API
+            await ideasApi.restore(ideaId);
             const updatedIdea = { ...idea, status: 'active' as const };
-            await ideasApi.update(ideaId, updatedIdea);
             setIdeas(prev => prev.map(i => i.id === ideaId ? updatedIdea : i));
             addToast({ message: 'Idea restored successfully!', type: 'success' });
             addLogEntry('idea_restored', `Restored idea: "${idea.title}"`, 'Edit');
@@ -324,6 +348,12 @@ const App: React.FC = () => {
             addToast({ message: errorMessage, type: 'error' });
         }
     }, [ideas, addToast, addLogEntry]);
+
+    const handleGenerateIdeasAndNavigate = useCallback(async () => {
+        await handleGenerateIdeas(false, 5);
+        // Navigate to ideas view after successful generation
+        setView('ideas');
+    }, [handleGenerateIdeas]);
 
     const handleUpdateIdeaTitle = useCallback(async (ideaId: number, newTitle: string) => {
         try {
@@ -405,6 +435,7 @@ const App: React.FC = () => {
                     onScheduleDraft={handleScheduleDraft} 
                     onSelectPost={setSelectedDraft}
                     onPublishDraft={handlePublishPost}
+                    onUpdatePostDate={handleUpdatePostDate}
                 />;
             case 'dashboard':
             default:
@@ -413,7 +444,7 @@ const App: React.FC = () => {
                     lastAnalyzed={styleGuide?.lastAnalyzed}
                     activityLogs={activityLogs}
                     onNavigate={setView}
-                    onGenerateIdeas={() => handleGenerateIdeas(false, 5)}
+                    onGenerateIdeas={handleGenerateIdeasAndNavigate}
                     onUpdateStyleGuide={() => handleAnalyzeStyle(false)}
                     isLoadingIdeas={isLoading['ideas'] || false}
                     isLoadingStyle={isLoading['style'] || false}
@@ -451,13 +482,18 @@ const App: React.FC = () => {
                     searchConsoleUser: null,
                     gscClientId: '',
                     gscClientSecret: '',
-                    imageSourceProvider: 'ai',
+                    imageSourceProvider: 'pexels',
                     aiImageStyle: 'photorealistic',
                     pexelsApiKey: '',
                     unsplashApiKey: '',
                     pixabayApiKey: '',
                     seoPlugin: 'none', // Auto-detected, kept for backward compatibility
                     geminiApiKey: '',
+                    // Automation frequency settings with defaults
+                    semiAutoIdeaFrequency: 'weekly',
+                    fullAutoDailyPostCount: 1,
+                    fullAutoPublishFrequency: 'daily',
+                    analyzeContentFrequency: 'manual',
                 });
                 
                 if (styleGuideData) {

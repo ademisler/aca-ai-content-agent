@@ -9,6 +9,61 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Current Release
 
+## [1.7.0] - 2025-01-29 - COMPREHENSIVE FEATURE ENHANCEMENTS & IMPROVEMENTS 🚀
+
+### 🎯 **IDEA BOARD ARCHIVE SYSTEM OVERHAUL**
+- **Complete Archive Fix**: Fixed idea board archive system to show all generated ideas including archived ones
+- **Restore Functionality**: Added ability to restore archived ideas back to active status with one click
+- **Permanent Delete**: Added option to permanently delete ideas from archive with confirmation dialog
+- **Enhanced API**: Updated backend API to properly handle idea archiving vs permanent deletion
+- **Better Organization**: Improved archived ideas interface with dedicated restore and delete action buttons
+
+### ⚡ **ENHANCED NAVIGATION & USER FLOW**
+- **Smart Navigation**: Quick Actions "Generate Ideas" button now automatically navigates to Idea Board after completion
+- **Improved User Journey**: Streamlined workflow from dashboard to idea management for better user experience
+- **Better UX Flow**: Enhanced user experience with logical navigation patterns and intuitive workflows
+
+### 📅 **ADVANCED CALENDAR FUNCTIONALITY**
+- **Published Post Drag & Drop**: Added ability to drag and move published posts on calendar for better content management
+- **Smart Date Handling**: Intelligent handling of past vs future dates for published posts with appropriate actions
+- **Convert to Draft**: Moving published posts to future dates automatically converts them to scheduled drafts
+- **Date Updates**: Moving published posts to past dates updates their publish date with confirmation
+- **Enhanced Confirmations**: Added confirmation dialogs for all calendar operations to prevent accidental changes
+
+### ⚙️ **COMPREHENSIVE AUTOMATION SETTINGS**
+- **Semi-Automatic Frequency**: Added idea generation frequency settings (daily, weekly, monthly) for better control
+- **Full-Automatic Configuration**: Added daily post count and publishing frequency settings for complete automation
+- **Content Analysis Control**: Added content analysis frequency settings with automation mode integration
+- **Detailed Options**: Comprehensive automation configuration options for all automation modes
+- **Better User Guidance**: Clear explanations and help text for all automation settings and options
+
+### 🎨 **IMAGE SOURCE OPTIMIZATION**
+- **Reordered Options**: Moved AI image generation to last position as it's the most complex option to configure
+- **Simplified Defaults**: Changed default image source to Pexels as the simplest and most accessible option
+- **Better User Experience**: Prioritized easier-to-configure options first for improved user onboarding
+
+### 🛠️ **DEBUG PANEL IMPROVEMENTS**
+- **Enhanced Documentation**: Added clear explanation of debug panel purpose and target audience
+- **User Guidance**: Clearly indicated that debug panel is designed for developers and advanced users
+- **Better Descriptions**: Improved tooltips, help text, and descriptions for all debug functions
+
+### 👨‍💻 **AUTHOR & BRANDING UPDATES**
+- **Author Information**: Updated plugin author information to Adem Isler across all files
+- **Website Integration**: Added author website (ademisler.com/en) to plugin header and documentation
+- **Proper Attribution**: Updated all documentation files with correct authorship and contact information
+
+### 🔧 **TECHNICAL IMPROVEMENTS**
+- **API Enhancements**: Added new REST API endpoints for idea restoration, permanent deletion, and post date updates
+- **Backend Optimizations**: Improved database queries, data handling, and error management
+- **Frontend Optimizations**: Enhanced React component performance, state management, and user interactions
+- **Type Safety**: Updated TypeScript types and interfaces for all new features and settings
+
+### ✅ **PRODUCTION READINESS**
+- **Comprehensive Testing**: All new features thoroughly tested across different scenarios and use cases
+- **Backward Compatibility**: Maintained full compatibility with existing installations and settings
+- **Error Handling**: Enhanced error handling and user feedback throughout the application
+- **Performance**: Optimized performance for all new features without impacting existing functionality
+
 ## [1.6.9] - 2025-01-29 - UI/UX IMPROVEMENTS & BUG FIXES 🎨
 
 ### 🔧 **CRITICAL BUG FIXES**

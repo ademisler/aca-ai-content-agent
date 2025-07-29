@@ -9,9 +9,10 @@ interface ContentCalendarProps {
     onScheduleDraft: (draftId: number, scheduledDate: string) => void;
     onSelectPost: (post: Draft) => void;
     onPublishDraft?: (draftId: number) => void; // Optional for immediate publishing
+    onUpdatePostDate?: (postId: number, newDate: string, shouldConvertToDraft?: boolean) => void; // For moving published posts
 }
 
-export const ContentCalendar: React.FC<ContentCalendarProps> = ({ drafts, publishedPosts, onScheduleDraft, onSelectPost, onPublishDraft }) => {
+export const ContentCalendar: React.FC<ContentCalendarProps> = ({ drafts, publishedPosts, onScheduleDraft, onSelectPost, onPublishDraft, onUpdatePostDate }) => {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [dragOverDate, setDragOverDate] = useState<Date | null>(null);
     const [draggedDraft, setDraggedDraft] = useState<Draft | null>(null);
@@ -77,35 +78,61 @@ export const ContentCalendar: React.FC<ContentCalendarProps> = ({ drafts, publis
 
     const handleDrop = (e: React.DragEvent<HTMLDivElement>, date: Date) => {
         e.preventDefault();
-        const draftId = e.dataTransfer.getData('text/plain');
-        if (draftId && draggedDraft) {
+        const postId = e.dataTransfer.getData('text/plain');
+        if (postId && draggedDraft) {
             const today = new Date();
             today.setHours(0, 0, 0, 0); // Reset time to compare dates only
             
             const dropDate = new Date(date);
             dropDate.setHours(0, 0, 0, 0);
             
-            // If dropping on a past date, publish immediately
-            if (dropDate < today) {
-                // Show confirmation dialog
-                const confirmPublish = window.confirm(
-                    `You're scheduling this draft for a past date (${date.toLocaleDateString()}). ` +
-                    `This will publish the post immediately. Do you want to continue?`
-                );
-                
-                if (confirmPublish) {
-                    // Instead of scheduling, we'll call publish directly
-                    // We need to add a new prop for publishing
-                    if (onPublishDraft) {
-                        onPublishDraft(parseInt(draftId));
-                    } else {
-                        // Fallback: schedule for the past date (will be published by WordPress)
-                        onScheduleDraft(parseInt(draftId), date.toISOString());
+            const isPublishedPost = draggedDraft.status === 'published';
+            
+            if (isPublishedPost) {
+                // Handle published post movement
+                if (dropDate > today) {
+                    // Moving to future date - convert to draft
+                    const confirmConvert = window.confirm(
+                        `You're moving a published post to a future date (${date.toLocaleDateString()}). ` +
+                        `This will convert it to a scheduled draft. Do you want to continue?`
+                    );
+                    
+                    if (confirmConvert && onUpdatePostDate) {
+                        onUpdatePostDate(parseInt(postId), date.toISOString(), true);
+                    }
+                } else {
+                    // Moving to past/today - just update publish date
+                    const confirmMove = window.confirm(
+                        `You're changing the publish date of this post to ${date.toLocaleDateString()}. ` +
+                        `Do you want to continue?`
+                    );
+                    
+                    if (confirmMove && onUpdatePostDate) {
+                        onUpdatePostDate(parseInt(postId), date.toISOString(), false);
                     }
                 }
             } else {
-                // Normal scheduling for future dates
-                onScheduleDraft(parseInt(draftId), date.toISOString());
+                // Handle draft movement (existing logic)
+                if (dropDate < today) {
+                    // Show confirmation dialog
+                    const confirmPublish = window.confirm(
+                        `You're scheduling this draft for a past date (${date.toLocaleDateString()}). ` +
+                        `This will publish the post immediately. Do you want to continue?`
+                    );
+                    
+                    if (confirmPublish) {
+                        // Instead of scheduling, we'll call publish directly
+                        if (onPublishDraft) {
+                            onPublishDraft(parseInt(postId));
+                        } else {
+                            // Fallback: schedule for the past date (will be published by WordPress)
+                            onScheduleDraft(parseInt(postId), date.toISOString());
+                        }
+                    }
+                } else {
+                    // Normal scheduling for future dates
+                    onScheduleDraft(parseInt(postId), date.toISOString());
+                }
             }
         }
         setDragOverDate(null);
@@ -152,8 +179,8 @@ export const ContentCalendar: React.FC<ContentCalendarProps> = ({ drafts, publis
         return (
             <div 
                 key={`${type}-${post.id}`}
-                draggable={isScheduled}
-                onDragStart={isScheduled ? (e) => handleDragStart(e, post) : undefined}
+                draggable={true}
+                onDragStart={(e) => handleDragStart(e, post)}
                 onClick={() => openWordPressEditor(post.id)}
                 className="aca-action-button"
                 style={{
@@ -173,7 +200,7 @@ export const ContentCalendar: React.FC<ContentCalendarProps> = ({ drafts, publis
                     minHeight: isCompact ? '18px' : '20px',
                     transition: 'all 0.2s ease'
                 }}
-                title={`${isScheduled ? 'Scheduled' : 'Published'}: ${post.title || `${isScheduled ? 'Draft' : 'Post'} ${post.id}`} (Click to edit${isScheduled ? ', drag to reschedule' : ''})`}
+                title={`${isScheduled ? 'Scheduled' : 'Published'}: ${post.title || `${isScheduled ? 'Draft' : 'Post'} ${post.id}`} (Click to edit, drag to reschedule)`}
             >
                 {isScheduled ? (
                     <Clock style={{ width: isCompact ? '8px' : '9px', height: isCompact ? '8px' : '9px', flexShrink: 0 }} />

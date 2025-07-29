@@ -138,6 +138,20 @@ class ACA_Rest_Api {
             'permission_callback' => array($this, 'check_permissions')
         ));
         
+        // Restore archived idea
+        register_rest_route('aca/v1', '/ideas/(?P<id>\d+)/restore', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'restore_idea'),
+            'permission_callback' => array($this, 'check_permissions')
+        ));
+        
+        // Permanently delete idea
+        register_rest_route('aca/v1', '/ideas/(?P<id>\d+)/permanent-delete', array(
+            'methods' => 'DELETE',
+            'callback' => array($this, 'permanent_delete_idea'),
+            'permission_callback' => array($this, 'check_permissions')
+        ));
+        
         // Drafts endpoints
         register_rest_route('aca/v1', '/drafts', array(
             'methods' => 'GET',
@@ -173,6 +187,13 @@ class ACA_Rest_Api {
         register_rest_route('aca/v1', '/published', array(
             'methods' => 'GET',
             'callback' => array($this, 'get_published_posts'),
+            'permission_callback' => array($this, 'check_permissions')
+        ));
+        
+        // Update published post date
+        register_rest_route('aca/v1', '/published/(?P<id>\d+)/update-date', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'update_published_post_date'),
             'permission_callback' => array($this, 'check_permissions')
         ));
         
@@ -438,9 +459,19 @@ class ACA_Rest_Api {
     public function get_ideas($request) {
         global $wpdb;
         
+        // Get all ideas including archived ones - frontend will filter them
         $ideas = $wpdb->get_results(
-            "SELECT * FROM {$wpdb->prefix}aca_ideas WHERE status = 'new' ORDER BY created_at DESC"
+            "SELECT * FROM {$wpdb->prefix}aca_ideas ORDER BY created_at DESC"
         );
+        
+        // Map database status to frontend status
+        foreach ($ideas as $idea) {
+            if ($idea->status === 'new') {
+                $idea->status = 'active';
+            } elseif ($idea->status === 'archived') {
+                $idea->status = 'archived';
+            }
+        }
         
         return rest_ensure_response($ideas);
     }
@@ -730,6 +761,79 @@ class ACA_Rest_Api {
             $id
         ));
         
+        // Archive the idea instead of deleting it
+        $result = $wpdb->update(
+            $wpdb->prefix . 'aca_ideas',
+            array('status' => 'archived'),
+            array('id' => $id)
+        );
+        
+        if ($result !== false) {
+            if ($idea) {
+                $this->add_activity_log('idea_archived', "Archived idea: \"{$idea->title}\"", 'Archive');
+            }
+            return rest_ensure_response(array('success' => true));
+        }
+        
+        return new WP_Error('archive_failed', 'Failed to archive idea', array('status' => 500));
+    }
+    
+    /**
+     * Restore archived idea
+     */
+    public function restore_idea($request) {
+        $nonce_check = $this->verify_nonce($request);
+        if (is_wp_error($nonce_check)) {
+            return $nonce_check;
+        }
+        
+        $id = $request['id'];
+        
+        global $wpdb;
+        
+        // Get idea title for logging
+        $idea = $wpdb->get_row($wpdb->prepare(
+            "SELECT title FROM {$wpdb->prefix}aca_ideas WHERE id = %d",
+            $id
+        ));
+        
+        // Restore the idea by setting status to 'new' (which maps to 'active' in frontend)
+        $result = $wpdb->update(
+            $wpdb->prefix . 'aca_ideas',
+            array('status' => 'new'),
+            array('id' => $id)
+        );
+        
+        if ($result !== false) {
+            if ($idea) {
+                $this->add_activity_log('idea_updated', "Restored idea: \"{$idea->title}\"", 'Edit');
+            }
+            return rest_ensure_response(array('success' => true));
+        }
+        
+        return new WP_Error('restore_failed', 'Failed to restore idea', array('status' => 500));
+    }
+    
+    /**
+     * Permanently delete idea
+     */
+    public function permanent_delete_idea($request) {
+        $nonce_check = $this->verify_nonce($request);
+        if (is_wp_error($nonce_check)) {
+            return $nonce_check;
+        }
+        
+        $id = $request['id'];
+        
+        global $wpdb;
+        
+        // Get idea title for logging
+        $idea = $wpdb->get_row($wpdb->prepare(
+            "SELECT title FROM {$wpdb->prefix}aca_ideas WHERE id = %d",
+            $id
+        ));
+        
+        // Permanently delete the idea from database
         $result = $wpdb->delete(
             $wpdb->prefix . 'aca_ideas',
             array('id' => $id)
@@ -737,12 +841,12 @@ class ACA_Rest_Api {
         
         if ($result) {
             if ($idea) {
-                $this->add_activity_log('idea_archived', "Archived idea: \"{$idea->title}\"", 'Archive');
+                $this->add_activity_log('idea_updated', "Permanently deleted idea: \"{$idea->title}\"", 'Trash');
             }
             return rest_ensure_response(array('success' => true));
         }
         
-        return new WP_Error('delete_failed', 'Failed to delete idea', array('status' => 500));
+        return new WP_Error('delete_failed', 'Failed to permanently delete idea', array('status' => 500));
     }
     
     /**
@@ -785,6 +889,60 @@ class ACA_Rest_Api {
         }
         
         return rest_ensure_response($formatted_posts);
+    }
+    
+    /**
+     * Update published post date
+     */
+    public function update_published_post_date($request) {
+        $nonce_check = $this->verify_nonce($request);
+        if (is_wp_error($nonce_check)) {
+            return $nonce_check;
+        }
+        
+        $post_id = (int) $request['id'];
+        $params = $request->get_json_params();
+        
+        if (!isset($params['newDate'])) {
+            return new WP_Error('missing_date', 'New date is required', array('status' => 400));
+        }
+        
+        $new_date = $params['newDate'];
+        $should_convert_to_draft = isset($params['shouldConvertToDraft']) ? $params['shouldConvertToDraft'] : false;
+        
+        // Get the post
+        $post = get_post($post_id);
+        if (!$post) {
+            return new WP_Error('post_not_found', 'Post not found', array('status' => 404));
+        }
+        
+        // Prepare update data
+        $update_data = array(
+            'ID' => $post_id,
+            'post_date' => date('Y-m-d H:i:s', strtotime($new_date)),
+            'post_date_gmt' => get_gmt_from_date(date('Y-m-d H:i:s', strtotime($new_date))),
+            'edit_date' => true
+        );
+        
+        // If converting to draft (future date)
+        if ($should_convert_to_draft) {
+            $update_data['post_status'] = 'future';
+        }
+        
+        // Update the post
+        $result = wp_update_post($update_data, true);
+        
+        if (is_wp_error($result)) {
+            return $result;
+        }
+        
+        // Log the activity
+        $action = $should_convert_to_draft ? 'converted to scheduled draft' : 'date updated';
+        $this->add_activity_log('draft_updated', "Post \"{$post->post_title}\" {$action}", 'Calendar');
+        
+        // Return the updated post
+        $updated_post = get_post($post_id);
+        return rest_ensure_response($this->format_post_for_api($updated_post));
     }
     
     /**

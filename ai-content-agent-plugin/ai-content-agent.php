@@ -119,15 +119,29 @@ class AI_Content_Agent {
             return;
         }
         
-        // Enqueue the compiled React app
-        $css_file = ACA_PLUGIN_PATH . 'admin/css/index.css';
-        $js_file = ACA_PLUGIN_PATH . 'admin/js/index.js';
+        // Find the latest built JS file in admin/assets
+        $assets_dir = ACA_PLUGIN_PATH . 'admin/assets/';
+        $js_files = glob($assets_dir . 'index-*.js');
         
-        $css_version = ACA_VERSION . '-' . (file_exists($css_file) ? filemtime($css_file) : time());
-        $js_version = ACA_VERSION . '-' . (file_exists($js_file) ? filemtime($js_file) : time());
-        
-        wp_enqueue_style('aca-styles', ACA_PLUGIN_URL . 'admin/css/index.css', array(), $css_version);
-        wp_enqueue_script('aca-app', ACA_PLUGIN_URL . 'admin/js/index.js', array(), $js_version, true);
+        if (!empty($js_files)) {
+            // Get the most recent JS file
+            $js_file = end($js_files);
+            $js_filename = basename($js_file);
+            $js_version = ACA_VERSION . '-' . filemtime($js_file);
+            
+            // Enqueue the compiled React app (CSS is inlined in JS)
+            wp_enqueue_script('aca-app', ACA_PLUGIN_URL . 'admin/assets/' . $js_filename, array(), $js_version, true);
+        } else {
+            // Fallback to old files if new build doesn't exist
+            $css_file = ACA_PLUGIN_PATH . 'admin/css/index.css';
+            $js_file = ACA_PLUGIN_PATH . 'admin/js/index.js';
+            
+            $css_version = ACA_VERSION . '-' . (file_exists($css_file) ? filemtime($css_file) : time());
+            $js_version = ACA_VERSION . '-' . (file_exists($js_file) ? filemtime($js_file) : time());
+            
+            wp_enqueue_style('aca-styles', ACA_PLUGIN_URL . 'admin/css/index.css', array(), $css_version);
+            wp_enqueue_script('aca-app', ACA_PLUGIN_URL . 'admin/js/index.js', array(), $js_version, true);
+        }
         
         // Pass data to React app
         wp_localize_script('aca-app', 'acaData', array(

@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:wp": "vite build && cp -r dist/assets/* admin/assets/",
     "preview": "vite preview"
   },
   "dependencies": {

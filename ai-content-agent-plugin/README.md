@@ -125,8 +125,9 @@ releases/archive/ai-content-agent-v1.4.[0-8]-*.zip
 ## 📚 Documentation
 
 - **Setup Guide**: `GOOGLE_SEARCH_CONSOLE_SETUP.md` - Complete GSC integration guide
+- **Developer Guide**: `DEVELOPER_GUIDE.md` - Comprehensive development and deployment guide
+- **Release Management**: `RELEASES.md` - Release organization and management
 - **Changelog**: `CHANGELOG.md` - Detailed version history
-- **Developer Docs**: Available in the `/docs` folder (if applicable)
 
 ## 🐛 Troubleshooting
 

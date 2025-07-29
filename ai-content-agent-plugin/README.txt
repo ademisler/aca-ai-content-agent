@@ -203,6 +203,8 @@ Major update with real Google Search Console integration. Backup your site befor
 
 * Documentation: Comprehensive guides included with plugin
 * Setup Guide: Complete Google Search Console setup instructions
+* Developer Guide: Development and deployment procedures
+* Release Management: Version control and release procedures
 * GitHub: Report issues and request features
 * WordPress Compatibility: Tested with latest WordPress versions
 

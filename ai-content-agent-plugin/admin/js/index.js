@@ -138,6 +138,65 @@
   fill: #0073aa;
 }
 
+/* Enhanced icon contrast for dark backgrounds */
+
+.aca-sidebar .aca-nav-item-icon {
+  fill: #a7aaad;
+  transition: fill 0.2s ease;
+}
+
+.aca-sidebar .aca-nav-item:hover .aca-nav-item-icon {
+  fill: #ffffff;
+}
+
+.aca-sidebar .aca-nav-item.active .aca-nav-item-icon {
+  fill: #ffffff;
+}
+
+/* Icon contrast fixes for dark card backgrounds */
+
+.aca-card[style*="background: #23282d"] .aca-nav-item-icon,
+.aca-card[style*="background:#23282d"] .aca-nav-item-icon {
+  fill: #ffffff !important;
+}
+
+/* Icon contrast for buttons on dark backgrounds */
+
+.aca-button.secondary[style*="background: #23282d"] .aca-nav-item-icon,
+.aca-button.secondary[style*="background:#23282d"] .aca-nav-item-icon {
+  fill: #ffffff !important;
+}
+
+/* Better contrast for disabled buttons */
+
+.aca-button:disabled .aca-nav-item-icon {
+  fill: #a7aaad;
+}
+
+/* Ensure good contrast for all icon contexts */
+
+.aca-nav-item-icon {
+  filter: contrast(1.2);
+}
+
+/* Special handling for Eye icon (View Draft button) */
+
+.aca-button.secondary .aca-nav-item-icon {
+  fill: #0073aa;
+  stroke: none;
+}
+
+.aca-button.secondary:hover .aca-nav-item-icon {
+  fill: #005a87;
+}
+
+/* Toast notification icons */
+
+.aca-toast .aca-nav-item-icon {
+  fill: currentColor;
+  filter: brightness(1.1);
+}
+
 /* Dashboard action button icons - fix alignment and colors */
 
 .aca-action-button .aca-action-icon {
@@ -416,12 +475,13 @@
 
 .aca-spinner {
   display: inline-block;
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   border: 2px solid #f3f3f3;
   border-top: 2px solid #0073aa;
   border-radius: 50%;
   animation: aca-spin 1s linear infinite;
+  vertical-align: middle;
 }
 
 @keyframes aca-spin {
@@ -680,6 +740,98 @@
 #root .error,
 #root .updated {
   display: block !important;
+}
+
+/* Progress bar animation for loading states */
+
+@keyframes aca-progress-slide {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(300%);
+  }
+}
+
+/* Enhanced loading states */
+
+.aca-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed !important;
+}
+
+.aca-button.loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.aca-button.loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  animation: aca-shimmer 1.5s infinite;
+}
+
+@keyframes aca-shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Improved spinner animation */
+
+.aca-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #0073aa;
+  border-radius: 50%;
+  animation: aca-spin 1s linear infinite;
+  vertical-align: middle;
+}
+
+@keyframes aca-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Loading overlay for cards */
+
+.aca-card.loading {
+  position: relative;
+  pointer-events: none;
+}
+
+.aca-card.loading::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  z-index: 10;
+  border-radius: 6px;
+}
+
+.aca-card.loading::after {
+  content: 'Processing...';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 11;
+  font-size: 14px;
+  color: #0073aa;
+  font-weight: 500;
 }/*$vite$:1*/`;
   document.head.appendChild(__vite_style__);
   function getDefaultExportFromCjs(x) {
@@ -999,6 +1151,8 @@
     return jsxRuntime.exports;
   }
   var jsxRuntimeExports = requireJsxRuntime();
+  var reactExports = requireReact();
+  const React = /* @__PURE__ */ getDefaultExportFromCjs(reactExports);
   var client = {};
   var reactDom = { exports: {} };
   var reactDom_production_min = {};
@@ -7702,7 +7856,6 @@
   }
   var clientExports = requireClient();
   const ReactDOM = /* @__PURE__ */ getDefaultExportFromCjs(clientExports);
-  var reactExports = requireReact();
   const makeApiCall = async (path, options = {}) => {
     if (!window.acaData) {
       console.error("ACA Error: window.acaData is not defined. Plugin scripts may not be loaded correctly.");
@@ -7779,7 +7932,9 @@
       method: "PUT",
       body: JSON.stringify(updates)
     }),
-    delete: (id) => makeApiCall(`ideas/${id}`, { method: "DELETE" })
+    delete: (id) => makeApiCall(`ideas/${id}`, { method: "DELETE" }),
+    restore: (id) => makeApiCall(`ideas/${id}/restore`, { method: "POST" }),
+    permanentDelete: (id) => makeApiCall(`ideas/${id}/permanent-delete`, { method: "DELETE" })
   };
   const draftsApi = {
     get: () => makeApiCall("drafts"),
@@ -7800,6 +7955,10 @@
     get: () => makeApiCall("published"),
     publish: (draftId) => makeApiCall(`drafts/${draftId}/publish`, {
       method: "POST"
+    }),
+    updateDate: (postId, newDate, shouldConvertToDraft = false) => makeApiCall(`published/${postId}/update-date`, {
+      method: "POST",
+      body: JSON.stringify({ newDate, shouldConvertToDraft })
     })
   };
   const activityApi = {
@@ -9828,7 +9987,7 @@
       }
     };
     const sourceStyle = sourceStyles[idea.source];
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", style: { margin: 0, minHeight: "140px" }, children: [
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `aca-card ${isLoading ? "loading" : ""}`, style: { margin: 0, minHeight: "140px" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { flexGrow: 1, marginBottom: "15px" }, children: isEditing ? /* @__PURE__ */ jsxRuntimeExports.jsx(
         "input",
         {
@@ -9859,8 +10018,8 @@
           },
           title: "Click to edit title",
           children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { flexGrow: 1 }, children: idea.title }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Edit, { style: { width: "14px", height: "14px", opacity: 0.5, flexShrink: 0 } })
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Edit, { style: { width: "14px", height: "14px", color: "#0073aa" } }),
+            idea.title
           ]
         }
       ) }),
@@ -9891,7 +10050,7 @@
               ]
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "button",
             {
               onClick: () => onCreateDraft(idea),
@@ -9900,10 +10059,38 @@
               style: {
                 fontSize: "12px",
                 padding: "6px 16px",
-                background: "#00a32a",
-                borderColor: "#00a32a"
+                background: isLoading ? "#f6f7f7" : "#00a32a",
+                borderColor: isLoading ? "#ccd0d4" : "#00a32a",
+                color: isLoading ? "#a7aaad" : "#ffffff",
+                cursor: isLoading ? "wait" : "pointer",
+                minWidth: "120px",
+                position: "relative",
+                overflow: "hidden"
               },
-              children: isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "aca-spinner", style: { width: "14px", height: "14px" } }) : "Create Draft"
+              title: isLoading ? "AI is generating your draft..." : "Create draft from this idea",
+              children: [
+                isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "6px" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "aca-spinner", style: { width: "14px", height: "14px" } }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "11px" }, children: "Creating..." })
+                ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "6px" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Sparkles, { style: { width: "14px", height: "14px" } }),
+                  "Create Draft"
+                ] }),
+                isLoading && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+                  position: "absolute",
+                  bottom: 0,
+                  left: 0,
+                  width: "100%",
+                  height: "2px",
+                  background: "rgba(0, 163, 42, 0.3)",
+                  overflow: "hidden"
+                }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+                  width: "30%",
+                  height: "100%",
+                  background: "#00a32a",
+                  animation: "aca-progress-slide 2s infinite linear"
+                } }) })
+              ]
             }
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -9920,7 +10107,19 @@
       ] })
     ] });
   };
-  const IdeaBoard = ({ ideas, onGenerate, onCreateDraft, onArchive, onUpdateTitle, onGenerateSimilar, onAddIdea, isLoading, isLoadingDraft }) => {
+  const IdeaBoard = ({
+    ideas,
+    onGenerate,
+    onCreateDraft,
+    onArchive,
+    onDeleteIdea,
+    onRestoreIdea,
+    onUpdateTitle,
+    onGenerateSimilar,
+    onAddIdea,
+    isLoading,
+    isLoadingDraft
+  }) => {
     const [newIdeaTitle, setNewIdeaTitle] = reactExports.useState("");
     const handleAddIdeaSubmit = (e) => {
       e.preventDefault();
@@ -10029,11 +10228,14 @@
         ) })
       ] }) }),
       archivedIdeas.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-card-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "aca-card-title", children: [
-          "Archived Ideas (",
-          archivedIdeas.length,
-          ")"
-        ] }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card-header", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "aca-card-title", children: [
+            "Archived Ideas (",
+            archivedIdeas.length,
+            ")"
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", style: { margin: 0, fontSize: "14px" }, children: "Manage your archived ideas - restore them or delete permanently" })
+        ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-list", children: archivedIdeas.map((idea, index) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-list-item", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { flexGrow: 1, marginRight: "15px" }, children: idea.title }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
@@ -10044,8 +10246,52 @@
             background: sourceStyles[idea.source].background,
             color: sourceStyles[idea.source].color,
             border: `1px solid ${sourceStyles[idea.source].borderColor}`,
-            flexShrink: 0
-          }, children: sourceNames[idea.source] })
+            flexShrink: 0,
+            marginRight: "10px"
+          }, children: sourceNames[idea.source] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "8px", alignItems: "center" }, children: [
+            onRestoreIdea && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                onClick: () => onRestoreIdea(idea.id),
+                className: "aca-button secondary",
+                style: {
+                  fontSize: "11px",
+                  padding: "4px 8px",
+                  minWidth: "auto",
+                  background: "#e6f7e6",
+                  borderColor: "#28a745",
+                  color: "#0a5d0a"
+                },
+                title: "Restore to active ideas",
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Edit, { style: { width: "12px", height: "12px", marginRight: "4px" } }),
+                  "Restore"
+                ]
+              }
+            ),
+            onDeleteIdea && /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                onClick: () => {
+                  if (window.confirm(`Are you sure you want to permanently delete "${idea.title}"? This action cannot be undone.`)) {
+                    onDeleteIdea(idea.id);
+                  }
+                },
+                className: "aca-button secondary",
+                style: {
+                  fontSize: "11px",
+                  padding: "4px 8px",
+                  minWidth: "auto",
+                  background: "#ffeaea",
+                  borderColor: "#dc3545",
+                  color: "#721c24"
+                },
+                title: "Delete permanently",
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash, { style: { width: "12px", height: "12px" } })
+              }
+            )
+          ] })
         ] }, idea.id)) })
       ] })
     ] });
@@ -10097,7 +10343,12 @@
           "button",
           {
             onClick: () => {
-              const editUrl = `${window.aca_object?.admin_url}post.php?post=${draft.id}&action=edit`;
+              if (!window.acaData) {
+                console.error("ACA Error: window.acaData is not defined");
+                alert("WordPress data not available. Please refresh the page.");
+                return;
+              }
+              const editUrl = `${window.acaData.admin_url}post.php?post=${draft.id}&action=edit`;
               window.open(editUrl, "_blank");
             },
             disabled: isPublishing,
@@ -10421,16 +10672,62 @@
               onChange: handleModeChange
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            RadioCard,
-            {
-              id: "semi-automatic",
-              title: "Semi-Automatic Mode",
-              description: "The AI automatically generates new ideas periodically. You choose which ideas to turn into drafts.",
-              currentSelection: currentSettings.mode,
-              onChange: handleModeChange
-            }
-          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", style: {
+            margin: 0,
+            border: "2px solid",
+            borderColor: currentSettings.mode === "semi-automatic" ? "#0073aa" : "#ccd0d4",
+            background: currentSettings.mode === "semi-automatic" ? "#f0f6fc" : "#ffffff",
+            boxShadow: currentSettings.mode === "semi-automatic" ? "0 2px 4px rgba(0, 0, 0, 0.1)" : "none"
+          }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { htmlFor: "semi-automatic", style: { display: "flex", alignItems: "flex-start", cursor: "pointer", gap: "12px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "radio",
+                  id: "semi-automatic",
+                  name: "automation-mode",
+                  checked: currentSettings.mode === "semi-automatic",
+                  onChange: () => handleModeChange("semi-automatic"),
+                  style: {
+                    marginTop: "2px",
+                    width: "18px",
+                    height: "18px",
+                    accentColor: "#0073aa",
+                    flexShrink: 0
+                  }
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "aca-card-title", style: { marginBottom: "8px" }, children: "Semi-Automatic Mode" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", style: { margin: 0 }, children: "The AI automatically generates new ideas periodically. You choose which ideas to turn into drafts." })
+              ] })
+            ] }),
+            currentSettings.mode === "semi-automatic" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-form-group", style: {
+              paddingLeft: "30px",
+              paddingTop: "20px",
+              marginTop: "20px",
+              borderTop: "1px solid #e0e0e0",
+              marginBottom: 0
+            }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "aca-label", htmlFor: "semi-auto-frequency", children: "Idea Generation Frequency" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "select",
+                {
+                  id: "semi-auto-frequency",
+                  className: "aca-input",
+                  value: currentSettings.semiAutoIdeaFrequency || "weekly",
+                  onChange: (e) => handleSettingChange("semiAutoIdeaFrequency", e.target.value),
+                  style: { marginTop: "5px" },
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "daily", children: "Daily - Generate new ideas every day" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "weekly", children: "Weekly - Generate new ideas every week" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "monthly", children: "Monthly - Generate new ideas every month" })
+                  ]
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", style: { marginTop: "5px", margin: "5px 0 0 0" }, children: "How often should the AI automatically generate new content ideas?" })
+            ] })
+          ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", style: {
             margin: 0,
             border: "2px solid",
@@ -10461,34 +10758,102 @@
                 /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", style: { margin: 0 }, children: "The AI handles everything: generates ideas, picks the best ones, and creates drafts automatically." })
               ] })
             ] }),
-            currentSettings.mode === "full-automatic" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-form-group", style: {
+            currentSettings.mode === "full-automatic" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
               paddingLeft: "30px",
               paddingTop: "20px",
               marginTop: "20px",
               borderTop: "1px solid #e0e0e0",
               marginBottom: 0
-            }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { htmlFor: "auto-publish", style: { display: "flex", alignItems: "flex-start", cursor: "pointer", gap: "12px" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "input",
-                {
-                  type: "checkbox",
-                  id: "auto-publish",
-                  checked: currentSettings.autoPublish,
-                  onChange: (e) => handleSettingChange("autoPublish", e.target.checked),
-                  style: {
-                    marginTop: "2px",
-                    width: "16px",
-                    height: "16px",
-                    accentColor: "#0073aa"
+            }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-form-group", style: { marginBottom: "20px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "aca-label", htmlFor: "daily-post-count", children: "Daily Post Count" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "select",
+                  {
+                    id: "daily-post-count",
+                    className: "aca-input",
+                    value: currentSettings.fullAutoDailyPostCount || 1,
+                    onChange: (e) => handleSettingChange("fullAutoDailyPostCount", parseInt(e.target.value)),
+                    style: { marginTop: "5px" },
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: 1, children: "1 post per day" }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: 2, children: "2 posts per day" }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: 3, children: "3 posts per day" }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: 5, children: "5 posts per day" })
+                    ]
                   }
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "aca-label", children: "Enable Auto-Publish" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", style: { marginTop: "5px", margin: "5px 0 0 0" }, children: "When enabled, the AI will not only create drafts but also publish them automatically." })
-              ] })
-            ] }) })
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", style: { marginTop: "5px", margin: "5px 0 0 0" }, children: "How many posts should be created daily in full-automatic mode?" })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-form-group", style: { marginBottom: "20px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "aca-label", htmlFor: "publish-frequency", children: "Publishing Frequency" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "select",
+                  {
+                    id: "publish-frequency",
+                    className: "aca-input",
+                    value: currentSettings.fullAutoPublishFrequency || "daily",
+                    onChange: (e) => handleSettingChange("fullAutoPublishFrequency", e.target.value),
+                    style: { marginTop: "5px" },
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "hourly", children: "Every hour - Publish posts throughout the day" }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "daily", children: "Daily - Publish once per day" }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "weekly", children: "Weekly - Publish once per week" })
+                    ]
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", style: { marginTop: "5px", margin: "5px 0 0 0" }, children: "How often should created drafts be published automatically?" })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-form-group", style: { marginBottom: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { htmlFor: "auto-publish", style: { display: "flex", alignItems: "flex-start", cursor: "pointer", gap: "12px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "checkbox",
+                    id: "auto-publish",
+                    checked: currentSettings.autoPublish,
+                    onChange: (e) => handleSettingChange("autoPublish", e.target.checked),
+                    style: {
+                      marginTop: "2px",
+                      width: "16px",
+                      height: "16px",
+                      accentColor: "#0073aa"
+                    }
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "aca-label", children: "Enable Auto-Publish" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", style: { marginTop: "5px", margin: "5px 0 0 0" }, children: "When enabled, the AI will automatically publish posts according to the frequency settings above." })
+                ] })
+              ] }) })
+            ] })
           ] })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-card-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "aca-card-title", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$1, { className: "aca-nav-item-icon" }),
+          "Content Analysis Settings"
+        ] }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", children: "Configure how often the AI should analyze your content to update the style guide." }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-form-group", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "aca-label", htmlFor: "analyze-frequency", children: "Content Analysis Frequency" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "select",
+            {
+              id: "analyze-frequency",
+              className: "aca-input",
+              value: currentSettings.analyzeContentFrequency || "manual",
+              onChange: (e) => handleSettingChange("analyzeContentFrequency", e.target.value),
+              style: { marginTop: "5px" },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "manual", children: "Manual - Only when you click the analyze button" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "daily", children: "Daily - Analyze content automatically every day" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "weekly", children: "Weekly - Analyze content automatically every week" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "monthly", children: "Monthly - Analyze content automatically every month" })
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", style: { marginTop: "5px", margin: "5px 0 0 0" }, children: "How often should the AI automatically analyze your site content to update the style guide? Manual mode gives you full control." })
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", children: [
@@ -10544,7 +10909,7 @@
               isConfigured: isImageSourceConfigured,
               children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", children: "Select where to get featured images. For stock photo sites, an API key is required." }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-grid aca-grid-2", style: { marginBottom: "25px" }, children: ["ai", "pexels", "unsplash", "pixabay"].map((provider) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-grid aca-grid-2", style: { marginBottom: "25px" }, children: ["pexels", "unsplash", "pixabay", "ai"].map((provider) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
                   "label",
                   {
                     className: `aca-button ${currentSettings.imageSourceProvider === provider ? "" : "secondary"}`,
@@ -11083,7 +11448,11 @@
           /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$1, { className: "aca-nav-item-icon" }),
           "Automation Debug Panel"
         ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", children: "Test automation functionality and check cron status." }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-alert info", style: { marginBottom: "20px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { style: { margin: 0, fontSize: "14px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "🛠️ For Developers & Advanced Users:" }),
+          " This panel is designed for testing and debugging automation features. Use these tools to manually trigger automation tasks, check cron job status, and troubleshoot issues. Regular users typically don't need to use this panel."
+        ] }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", children: "Test automation functionality and check cron status. Click the buttons below to manually trigger automation tasks or check their status." }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "10px", marginBottom: "20px" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "button",
@@ -11530,7 +11899,7 @@
       ] }) })
     ] });
   };
-  const ContentCalendar = ({ drafts, publishedPosts, onScheduleDraft, onSelectPost }) => {
+  const ContentCalendar = ({ drafts, publishedPosts, onScheduleDraft, onSelectPost, onPublishDraft, onUpdatePostDate }) => {
     const [currentDate, setCurrentDate] = reactExports.useState(/* @__PURE__ */ new Date());
     const [dragOverDate, setDragOverDate] = reactExports.useState(null);
     const [draggedDraft, setDraggedDraft] = reactExports.useState(null);
@@ -11538,8 +11907,13 @@
     const unscheduledDrafts = drafts.filter((draft) => !draft.scheduledFor);
     const scheduledDrafts = drafts.filter((draft) => draft.scheduledFor);
     const openWordPressEditor = (postId) => {
-      const adminUrl = window.aca_object?.admin_url || "/wp-admin/";
-      window.open(`${adminUrl}post.php?post=${postId}&action=edit`, "_blank");
+      if (!window.acaData) {
+        console.error("ACA Error: window.acaData is not defined");
+        alert("WordPress data not available. Please refresh the page.");
+        return;
+      }
+      const editUrl = `${window.acaData.admin_url}post.php?post=${postId}&action=edit`;
+      window.open(editUrl, "_blank");
     };
     const getPostsForDate = (date) => {
       const dateStr = date.toISOString().split("T")[0];
@@ -11575,9 +11949,45 @@
     };
     const handleDrop = (e, date) => {
       e.preventDefault();
-      const draftId = e.dataTransfer.getData("text/plain");
-      if (draftId && draggedDraft) {
-        onScheduleDraft(parseInt(draftId), date.toISOString());
+      const postId = e.dataTransfer.getData("text/plain");
+      if (postId && draggedDraft) {
+        const today = /* @__PURE__ */ new Date();
+        today.setHours(0, 0, 0, 0);
+        const dropDate = new Date(date);
+        dropDate.setHours(0, 0, 0, 0);
+        const isPublishedPost = draggedDraft.status === "published";
+        if (isPublishedPost) {
+          if (dropDate > today) {
+            const confirmConvert = window.confirm(
+              `You're moving a published post to a future date (${date.toLocaleDateString()}). This will convert it to a scheduled draft. Do you want to continue?`
+            );
+            if (confirmConvert && onUpdatePostDate) {
+              onUpdatePostDate(parseInt(postId), date.toISOString(), true);
+            }
+          } else {
+            const confirmMove = window.confirm(
+              `You're changing the publish date of this post to ${date.toLocaleDateString()}. Do you want to continue?`
+            );
+            if (confirmMove && onUpdatePostDate) {
+              onUpdatePostDate(parseInt(postId), date.toISOString(), false);
+            }
+          }
+        } else {
+          if (dropDate < today) {
+            const confirmPublish = window.confirm(
+              `You're scheduling this draft for a past date (${date.toLocaleDateString()}). This will publish the post immediately. Do you want to continue?`
+            );
+            if (confirmPublish) {
+              if (onPublishDraft) {
+                onPublishDraft(parseInt(postId));
+              } else {
+                onScheduleDraft(parseInt(postId), date.toISOString());
+              }
+            }
+          } else {
+            onScheduleDraft(parseInt(postId), date.toISOString());
+          }
+        }
       }
       setDragOverDate(null);
       setDraggedDraft(null);
@@ -11614,8 +12024,8 @@
       return /* @__PURE__ */ jsxRuntimeExports.jsxs(
         "div",
         {
-          draggable: isScheduled,
-          onDragStart: isScheduled ? (e) => handleDragStart(e, post) : void 0,
+          draggable: true,
+          onDragStart: (e) => handleDragStart(e, post),
           onClick: () => openWordPressEditor(post.id),
           className: "aca-action-button",
           style: {
@@ -11635,7 +12045,7 @@
             minHeight: isCompact ? "18px" : "20px",
             transition: "all 0.2s ease"
           },
-          title: `${isScheduled ? "Scheduled" : "Published"}: ${post.title || `${isScheduled ? "Draft" : "Post"} ${post.id}`} (Click to edit${isScheduled ? ", drag to reschedule" : ""})`,
+          title: `${isScheduled ? "Scheduled" : "Published"}: ${post.title || `${isScheduled ? "Draft" : "Post"} ${post.id}`} (Click to edit, drag to reschedule)`,
           children: [
             isScheduled ? /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { style: { width: isCompact ? "8px" : "9px", height: isCompact ? "8px" : "9px", flexShrink: 0 } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Eye, { style: { width: isCompact ? "8px" : "9px", height: isCompact ? "8px" : "9px", flexShrink: 0 } }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { flex: 1, overflow: "hidden", textOverflow: "ellipsis" }, children: post.title || `${isScheduled ? "Draft" : "Post"} ${post.id}` }),
@@ -11854,7 +12264,8 @@
       searchConsoleUser: null,
       gscClientId: "",
       gscClientSecret: "",
-      imageSourceProvider: "ai",
+      imageSourceProvider: "pexels",
+      // Changed default to simplest option
       aiImageStyle: "photorealistic",
       googleCloudProjectId: "",
       googleCloudLocation: "us-central1",
@@ -11863,7 +12274,12 @@
       pixabayApiKey: "",
       seoPlugin: "none",
       // Auto-detected, kept for backward compatibility
-      geminiApiKey: ""
+      geminiApiKey: "",
+      // Automation frequency settings with defaults
+      semiAutoIdeaFrequency: "weekly",
+      fullAutoDailyPostCount: 1,
+      fullAutoPublishFrequency: "daily",
+      analyzeContentFrequency: "manual"
     });
     const [isLoading, setIsLoading] = reactExports.useState({});
     const [toasts, setToasts] = reactExports.useState([]);
@@ -11977,6 +12393,10 @@
       }
       console.log("Creating draft for idea:", idea);
       setIsLoading((prev) => ({ ...prev, [`draft_${ideaId}`]: true }));
+      addToast({
+        message: `🤖 AI is generating draft for "${idea.title}"... This may take a moment.`,
+        type: "info"
+      });
       try {
         console.log("Calling draftsApi.createFromIdea with ideaId:", ideaId);
         const draft = await draftsApi.createFromIdea(ideaId);
@@ -11992,8 +12412,24 @@
         addLogEntry("draft_created", `Created draft: "${draft.title}" with full WordPress integration`, "FileText");
       } catch (error) {
         console.error("Error creating draft:", error);
-        const errorMessage = error instanceof Error ? error.message : "Failed to create draft";
-        addToast({ message: `Failed to create draft: ${errorMessage}`, type: "error" });
+        let errorMessage = "Failed to create draft. Please try again.";
+        if (error instanceof Error) {
+          const message = error.message.toLowerCase();
+          if (message.includes("503") || message.includes("overloaded") || message.includes("unavailable")) {
+            errorMessage = "🤖 AI service is temporarily overloaded. Please wait a moment and try again.";
+          } else if (message.includes("timeout")) {
+            errorMessage = "⏱️ Request timed out. The AI service might be busy. Please try again.";
+          } else if (message.includes("api key")) {
+            errorMessage = "🔑 AI API key is not configured. Please check your settings.";
+          } else if (message.includes("style guide")) {
+            errorMessage = "📋 Style guide is required. Please create one first.";
+          } else if (message.includes("after") && message.includes("attempts")) {
+            errorMessage = "🔄 AI service is currently unavailable after multiple attempts. Please try again in a few minutes.";
+          } else if (message.includes("ai content generation failed")) {
+            errorMessage = "🤖 AI content generation failed. The service might be temporarily unavailable. Please try again.";
+          }
+        }
+        addToast({ message: errorMessage, type: "error" });
       } finally {
         setIsLoading((prev) => ({ ...prev, [`draft_${ideaId}`]: false }));
       }
@@ -12023,6 +12459,18 @@
         setPublishingId(null);
       }
     }, [addToast, addLogEntry]);
+    const handleUpdatePostDate = reactExports.useCallback(async (postId, newDate, shouldConvertToDraft = false) => {
+      try {
+        const updatedPost = await publishedApi.updateDate(postId, newDate, shouldConvertToDraft);
+        setPosts((prev) => prev.map((p) => p.id === postId ? updatedPost : p));
+        const action = shouldConvertToDraft ? "converted to scheduled draft" : "publish date updated";
+        addToast({ message: `Post ${action} successfully!`, type: "success" });
+        addLogEntry("draft_updated", `Post "${updatedPost.title}" ${action}`, "Calendar");
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Failed to update post date";
+        addToast({ message: errorMessage, type: "error" });
+      }
+    }, [addToast, addLogEntry]);
     const handleScheduleDraft = reactExports.useCallback(async (draftId, scheduledDate) => {
       try {
         const updatedDraft = await draftsApi.schedule(draftId, scheduledDate);
@@ -12041,8 +12489,8 @@
       try {
         const idea = ideas.find((i) => i.id === ideaId);
         if (!idea) return;
+        await ideasApi.delete(ideaId);
         const updatedIdea = { ...idea, status: "archived" };
-        await ideasApi.update(ideaId, updatedIdea);
         setIdeas((prev) => prev.map((i) => i.id === ideaId ? updatedIdea : i));
         addToast({ message: "Idea archived successfully!", type: "success" });
         addLogEntry("idea_archived", `Archived idea: "${idea.title}"`, "Archive");
@@ -12051,6 +12499,37 @@
         addToast({ message: errorMessage, type: "error" });
       }
     }, [ideas, addToast, addLogEntry]);
+    const handleDeleteIdea = reactExports.useCallback(async (ideaId) => {
+      try {
+        const idea = ideas.find((i) => i.id === ideaId);
+        if (!idea) return;
+        await ideasApi.permanentDelete(ideaId);
+        setIdeas((prev) => prev.filter((i) => i.id !== ideaId));
+        addToast({ message: "Idea deleted permanently!", type: "success" });
+        addLogEntry("idea_updated", `Permanently deleted idea: "${idea.title}"`, "Trash");
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Failed to delete idea";
+        addToast({ message: errorMessage, type: "error" });
+      }
+    }, [ideas, addToast, addLogEntry]);
+    const handleRestoreIdea = reactExports.useCallback(async (ideaId) => {
+      try {
+        const idea = ideas.find((i) => i.id === ideaId);
+        if (!idea) return;
+        await ideasApi.restore(ideaId);
+        const updatedIdea = { ...idea, status: "active" };
+        setIdeas((prev) => prev.map((i) => i.id === ideaId ? updatedIdea : i));
+        addToast({ message: "Idea restored successfully!", type: "success" });
+        addLogEntry("idea_restored", `Restored idea: "${idea.title}"`, "Edit");
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Failed to restore idea";
+        addToast({ message: errorMessage, type: "error" });
+      }
+    }, [ideas, addToast, addLogEntry]);
+    const handleGenerateIdeasAndNavigate = reactExports.useCallback(async () => {
+      await handleGenerateIdeas(false, 5);
+      setView("ideas");
+    }, [handleGenerateIdeas]);
     const handleUpdateIdeaTitle = reactExports.useCallback(async (ideaId, newTitle) => {
       try {
         const idea = ideas.find((i) => i.id === ideaId);
@@ -12099,7 +12578,22 @@
         case "style-guide":
           return /* @__PURE__ */ jsxRuntimeExports.jsx(StyleGuideManager, { styleGuide, onAnalyze: () => handleAnalyzeStyle(false), onSaveStyleGuide: handleSaveStyleGuide, isLoading: isLoading["style"] });
         case "ideas":
-          return /* @__PURE__ */ jsxRuntimeExports.jsx(IdeaBoard, { ideas, onGenerate: () => handleGenerateIdeas(false, 5), onCreateDraft: (idea) => handleCreateDraft(idea.id), onArchive: handleArchiveIdea, isLoading: isLoading["ideas"], isLoadingDraft: isLoading, onUpdateTitle: handleUpdateIdeaTitle, onGenerateSimilar: handleGenerateSimilarIdeas, onAddIdea: handleAddIdea });
+          return /* @__PURE__ */ jsxRuntimeExports.jsx(
+            IdeaBoard,
+            {
+              ideas,
+              onGenerate: () => handleGenerateIdeas(false, 5),
+              onCreateDraft: (idea) => handleCreateDraft(idea.id),
+              onArchive: handleArchiveIdea,
+              onDeleteIdea: handleDeleteIdea,
+              onRestoreIdea: handleRestoreIdea,
+              isLoading: isLoading["ideas"],
+              isLoadingDraft: isLoading,
+              onUpdateTitle: handleUpdateIdeaTitle,
+              onGenerateSimilar: handleGenerateSimilarIdeas,
+              onAddIdea: handleAddIdea
+            }
+          );
         case "drafts":
           return /* @__PURE__ */ jsxRuntimeExports.jsx(DraftsList, { drafts, onSelectDraft: setSelectedDraft, onPublish: handlePublishPost, publishingId });
         case "published":
@@ -12107,17 +12601,27 @@
         case "settings":
           return /* @__PURE__ */ jsxRuntimeExports.jsx(Settings, { settings, onSaveSettings: handleSaveSettings });
         case "calendar":
-          return /* @__PURE__ */ jsxRuntimeExports.jsx(ContentCalendar, { drafts, publishedPosts, onScheduleDraft: handleScheduleDraft, onSelectPost: setSelectedDraft });
+          return /* @__PURE__ */ jsxRuntimeExports.jsx(
+            ContentCalendar,
+            {
+              drafts,
+              publishedPosts,
+              onScheduleDraft: handleScheduleDraft,
+              onSelectPost: setSelectedDraft,
+              onPublishDraft: handlePublishPost,
+              onUpdatePostDate: handleUpdatePostDate
+            }
+          );
         case "dashboard":
         default:
           return /* @__PURE__ */ jsxRuntimeExports.jsx(
             Dashboard,
             {
-              stats: { ideas: ideas.length, drafts: drafts.length, published: publishedPosts.length },
+              stats: { ideas: ideas.filter((idea) => idea.status === "active").length, drafts: drafts.length, published: publishedPosts.length },
               lastAnalyzed: styleGuide?.lastAnalyzed,
               activityLogs,
               onNavigate: setView,
-              onGenerateIdeas: () => handleGenerateIdeas(false, 5),
+              onGenerateIdeas: handleGenerateIdeasAndNavigate,
               onUpdateStyleGuide: () => handleAnalyzeStyle(false),
               isLoadingIdeas: isLoading["ideas"] || false,
               isLoadingStyle: isLoading["style"] || false
@@ -12150,14 +12654,19 @@
             searchConsoleUser: null,
             gscClientId: "",
             gscClientSecret: "",
-            imageSourceProvider: "ai",
+            imageSourceProvider: "pexels",
             aiImageStyle: "photorealistic",
             pexelsApiKey: "",
             unsplashApiKey: "",
             pixabayApiKey: "",
             seoPlugin: "none",
             // Auto-detected, kept for backward compatibility
-            geminiApiKey: ""
+            geminiApiKey: "",
+            // Automation frequency settings with defaults
+            semiAutoIdeaFrequency: "weekly",
+            fullAutoDailyPostCount: 1,
+            fullAutoPublishFrequency: "daily",
+            analyzeContentFrequency: "manual"
           });
           if (styleGuideData) {
             setStyleGuide(styleGuideData);
@@ -12218,10 +12727,58 @@
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-toast-container", children: toasts.map((toast) => /* @__PURE__ */ jsxRuntimeExports.jsx(Toast, { ...toast, onDismiss: removeToast }, toast.id)) })
     ] });
   };
+  class ErrorBoundary extends React.Component {
+    constructor(props) {
+      super(props);
+      this.state = { hasError: false };
+    }
+    static getDerivedStateFromError(error) {
+      return { hasError: true, error };
+    }
+    componentDidCatch(error, errorInfo) {
+      console.error("ACA Plugin Error:", error, errorInfo);
+    }
+    render() {
+      if (this.state.hasError) {
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+          padding: "20px",
+          background: "#ffebee",
+          border: "1px solid #f44336",
+          borderRadius: "4px",
+          margin: "20px"
+        }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { style: { color: "#d32f2f", margin: "0 0 10px 0" }, children: "AI Content Agent - Loading Error" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: "0 0 10px 0" }, children: "The plugin interface failed to load. This might be a browser cache issue." }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { style: { margin: "0 0 10px 0", fontSize: "12px", color: "#666" }, children: [
+            "Error: ",
+            this.state.error?.message || "Unknown error"
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              onClick: () => window.location.reload(),
+              style: {
+                padding: "8px 16px",
+                background: "#1976d2",
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer"
+              },
+              children: "Reload Page"
+            }
+          )
+        ] });
+      }
+      return this.props.children;
+    }
+  }
   const rootElement = document.getElementById("root");
   if (!rootElement) {
     throw new Error("Could not find root element to mount to");
   }
   const root = ReactDOM.createRoot(rootElement);
-  root.render(/* @__PURE__ */ jsxRuntimeExports.jsx(App, {}));
+  root.render(
+    /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorBoundary, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) })
+  );
 })();

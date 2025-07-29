@@ -67,7 +67,7 @@ Choose your preferred level of automation:
 
 = Automatic Installation =
 
-1. Download the latest release: `ai-content-agent-v1.4.9-activation-error-fix.zip`
+1. Download the latest release: `releases/ai-content-agent-v1.4.9-activation-error-fix.zip`
 2. Go to WordPress Admin → Plugins → Add New → Upload Plugin
 3. Choose the downloaded zip file and click "Install Now"
 4. Activate the plugin

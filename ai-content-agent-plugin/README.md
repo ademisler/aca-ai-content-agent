@@ -61,7 +61,7 @@ AI-powered content creation and management plugin that generates blog posts, ide
 ## 🛠️ Installation
 
 ### Automatic Installation (Recommended)
-1. Download the latest release: `ai-content-agent-v1.4.9-activation-error-fix.zip`
+1. Download the latest release: `releases/ai-content-agent-v1.4.9-activation-error-fix.zip`
 2. Go to WordPress Admin → Plugins → Add New → Upload Plugin
 3. Choose the downloaded zip file and click "Install Now"
 4. Activate the plugin

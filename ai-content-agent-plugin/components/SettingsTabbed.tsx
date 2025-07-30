@@ -42,6 +42,10 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
     }>({status: 'inactive', is_active: false});
     const [isVerifyingLicense, setIsVerifyingLicense] = useState(false);
     const [isLoadingLicenseStatus, setIsLoadingLicenseStatus] = useState(true);
+    const [detectedSeoPlugins, setDetectedSeoPlugins] = useState<Array<{plugin: string, name: string, version: string, active: boolean}>>([]);
+    const [isDetectingSeo, setIsDetectingSeo] = useState(false);
+    const [seoPluginsLoading, setSeoPluginsLoading] = useState(false);
+    const [isConnecting, setIsConnecting] = useState(false);
 
     // Load license status on component mount
     useEffect(() => {
@@ -368,6 +372,141 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
         setCurrentSettings(prev => ({ ...prev, [field]: value }));
     };
 
+    // SEO Plugin Detection Functions
+    const fetchSeoPlugins = async () => {
+        try {
+            setSeoPluginsLoading(true);
+            console.log('ACA: Fetching SEO plugins...');
+            
+            if (!window.acaData) {
+                console.error('ACA: WordPress data not available');
+                return;
+            }
+            
+            const response = await fetch(`${window.acaData.api_url}seo-plugins`, {
+                headers: {
+                    'X-WP-Nonce': window.acaData.nonce
+                }
+            });
+            
+            console.log('ACA: SEO plugins response status:', response.status);
+            
+            if (response.ok) {
+                const data = await response.json();
+                console.log('ACA: SEO plugins data:', data);
+                setDetectedSeoPlugins(data.detected_plugins || []);
+                
+                // Auto-update settings based on detected plugins
+                if (data.detected_plugins && data.detected_plugins.length > 0) {
+                    // Use the first detected plugin as the active one
+                    const firstPlugin = data.detected_plugins[0];
+                    if (currentSettings.seoPlugin === 'none') {
+                        handleSettingChange('seoPlugin', firstPlugin.plugin);
+                    }
+                }
+                
+                if (onShowToast) {
+                    onShowToast(`Found ${data.detected_plugins?.length || 0} SEO plugin(s)`, 'info');
+                }
+            } else {
+                const errorText = await response.text();
+                console.error('ACA: Failed to fetch SEO plugins:', response.status, errorText);
+                if (onShowToast) {
+                    onShowToast('Failed to detect SEO plugins', 'error');
+                }
+            }
+        } catch (error) {
+            console.error('ACA: Error fetching SEO plugins:', error);
+            if (onShowToast) {
+                onShowToast('Error detecting SEO plugins', 'error');
+            }
+        } finally {
+            setSeoPluginsLoading(false);
+        }
+    };
+
+    const handleAutoDetectSeo = () => {
+        setIsDetectingSeo(true);
+        fetchSeoPlugins().finally(() => {
+            setIsDetectingSeo(false);
+        });
+    };
+
+    // Google Search Console Connection
+    const handleGSCConnect = async () => {
+        // Check if credentials are set
+        if (!currentSettings.gscClientId || !currentSettings.gscClientSecret) {
+            if (onShowToast) {
+                onShowToast('Please enter your Google Search Console Client ID and Client Secret first.', 'warning');
+            }
+            return;
+        }
+        
+        if (!window.acaData) {
+            console.error('ACA: WordPress data not available');
+            return;
+        }
+        
+        setIsConnecting(true);
+        try {
+            const response = await fetch(window.acaData.api_url + 'gsc/connect', {
+                method: 'POST',
+                headers: { 'X-WP-Nonce': window.acaData.nonce }
+            });
+            const data = await response.json();
+            
+            if (data.auth_url) {
+                // Redirect to Google OAuth
+                window.location.href = data.auth_url;
+            } else {
+                if (onShowToast) {
+                    onShowToast('Failed to initiate Google Search Console connection', 'error');
+                }
+            }
+        } catch (error) {
+            console.error('GSC connection error:', error);
+            if (onShowToast) {
+                onShowToast('Error connecting to Google Search Console', 'error');
+            }
+        } finally {
+            setIsConnecting(false);
+        }
+    };
+
+    const handleGSCDisconnect = async () => {
+        if (!window.acaData) {
+            console.error('ACA: WordPress data not available');
+            return;
+        }
+        
+        setIsConnecting(true);
+        try {
+            const response = await fetch(window.acaData.api_url + 'gsc/disconnect', {
+                method: 'POST',
+                headers: { 'X-WP-Nonce': window.acaData.nonce }
+            });
+            
+            if (response.ok) {
+                // Update settings to reflect disconnection
+                setCurrentSettings(prev => ({ ...prev, searchConsoleUser: null }));
+                if (onShowToast) {
+                    onShowToast('Google Search Console disconnected successfully', 'info');
+                }
+            } else {
+                if (onShowToast) {
+                    onShowToast('Failed to disconnect Google Search Console', 'error');
+                }
+            }
+        } catch (error) {
+            console.error('GSC disconnect error:', error);
+            if (onShowToast) {
+                onShowToast('Error disconnecting Google Search Console', 'error');
+            }
+        } finally {
+            setIsConnecting(false);
+        }
+    };
+
     // RadioCard component for automation modes
     const RadioCard: React.FC<{
         id: AutomationMode;
@@ -442,37 +581,16 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
 
         if (!isProActive()) {
             return (
-                <div>
-                    <div style={{ 
-                        padding: '30px', 
-                        backgroundColor: '#fef3cd', 
-                        borderRadius: '8px', 
-                        border: '1px solid #fbbf24',
-                        textAlign: 'center'
-                    }}>
-                        <Shield style={{ width: '48px', height: '48px', color: '#f59e0b', marginBottom: '16px' }} />
-                        <h3 style={{ color: '#92400e', margin: '0 0 8px 0' }}>Pro License Required</h3>
-                        <p style={{ color: '#92400e', margin: '0 0 16px 0' }}>
-                            Automation features are available with a Pro license.
-                        </p>
-                        <a 
-                            href="https://ademisler.gumroad.com/l/ai-content-agent-pro" 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            style={{
-                                display: 'inline-block',
-                                padding: '10px 20px',
-                                backgroundColor: '#f59e0b',
-                                color: 'white',
-                                textDecoration: 'none',
-                                borderRadius: '6px',
-                                fontWeight: '500'
-                            }}
-                        >
-                            Upgrade to Pro
-                        </a>
-                    </div>
-                </div>
+                <UpgradePrompt 
+                    title="Advanced Automation Modes"
+                    description="Unlock Semi-Automatic and Full-Automatic modes to automate your content creation workflow"
+                    features={[
+                        "Semi-Automatic: Automated idea generation with manual publishing",
+                        "Full-Automatic: Complete automation from idea to published post",
+                        "Advanced scheduling and frequency controls",
+                        "Auto-publish with customizable timing"
+                    ]}
+                />
             );
         }
 
@@ -634,13 +752,42 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                                     </label>
                                     <select 
                                         className="aca-input" 
-                                        value={currentSettings.fullAutoFrequency || 'weekly'} 
-                                        onChange={(e) => handleSettingChange('fullAutoFrequency', e.target.value)}
+                                        value={currentSettings.fullAutoPublishFrequency || 'weekly'} 
+                                        onChange={(e) => handleSettingChange('fullAutoPublishFrequency', e.target.value)}
                                     >
-                                        <option value="daily">Daily - Generate and create content every day</option>
-                                        <option value="weekly">Weekly - Generate and create content every week</option>
-                                        <option value="monthly">Monthly - Generate and create content every month</option>
+                                        <option value="hourly">Hourly - Generate content every hour</option>
+                                        <option value="daily">Daily - Generate content every day</option>
+                                        <option value="weekly">Weekly - Generate content every week</option>
                                     </select>
+                                </div>
+                                
+                                <div style={{ marginBottom: '20px' }}>
+                                    <label style={{ 
+                                        display: 'block',
+                                        fontSize: '14px',
+                                        fontWeight: '500',
+                                        color: '#374151',
+                                        marginBottom: '8px'
+                                    }}>
+                                        Daily Post Count
+                                    </label>
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        max="10"
+                                        value={currentSettings.fullAutoDailyPostCount || 1}
+                                        onChange={(e) => handleSettingChange('fullAutoDailyPostCount', parseInt(e.target.value))}
+                                        className="aca-input"
+                                        style={{ width: '100%' }}
+                                    />
+                                    <p style={{ 
+                                        color: '#64748b',
+                                        fontSize: '12px',
+                                        margin: '4px 0 0 0',
+                                        lineHeight: '1.4'
+                                    }}>
+                                        Maximum number of posts to create per day (1-10)
+                                    </p>
                                 </div>
                                 
                                 <div style={{ marginBottom: '15px' }}>
@@ -753,7 +900,7 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                         { id: 'pexels', name: 'Pexels', description: 'Free stock photos (Recommended for beginners)', apiKeyField: 'pexelsApiKey' },
                         { id: 'unsplash', name: 'Unsplash', description: 'High-quality photos from professional photographers', apiKeyField: 'unsplashApiKey' },
                         { id: 'pixabay', name: 'Pixabay', description: 'Large collection of free images and illustrations', apiKeyField: 'pixabayApiKey' },
-                        { id: 'google-ai', name: 'Google AI Generated', description: 'AI-generated images using Google Cloud (Pro feature)', apiKeyField: null }
+                        { id: 'ai', name: 'Google AI Generated', description: 'AI-generated images using Google Cloud (Pro feature)', apiKeyField: null }
                     ].map((provider) => (
                         <label 
                             key={provider.id}
@@ -789,7 +936,7 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                                         color: '#1e293b'
                                     }}>
                                         {provider.name}
-                                        {provider.id === 'google-ai' && (
+                                        {provider.id === 'ai' && (
                                             <span style={{ 
                                                 marginLeft: '8px',
                                                 background: 'linear-gradient(135deg, #f39c12 0%, #e67e22 100%)',
@@ -844,7 +991,7 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                             )}
                             
                             {/* Google AI settings */}
-                            {currentSettings.imageSourceProvider === 'google-ai' && (
+                            {currentSettings.imageSourceProvider === 'ai' && (
                                 <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
                                     <div style={{ marginBottom: '16px' }}>
                                         <label style={{ 
@@ -883,16 +1030,65 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                                             style={{ width: '100%' }}
                                         >
                                             <option value="photorealistic">Photorealistic</option>
-                                            <option value="artistic">Artistic</option>
-                                            <option value="illustration">Illustration</option>
-                                            <option value="cartoon">Cartoon</option>
-                                            <option value="abstract">Abstract</option>
+                                            <option value="digital_art">Digital Art</option>
                                         </select>
                                     </div>
                                 </div>
                             )}
                         </label>
                     ))}
+                </div>
+            </div>
+
+            {/* Content Analysis Frequency */}
+            <div style={{ marginBottom: '30px' }}>
+                <h3 style={{ 
+                    fontSize: '18px',
+                    fontWeight: '600',
+                    margin: '0 0 16px 0',
+                    color: '#1e293b',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                }}>
+                    <SettingsIcon style={{ width: '20px', height: '20px', color: '#8b5cf6' }} />
+                    Content Analysis
+                </h3>
+                
+                <div style={{ 
+                    padding: '20px', 
+                    backgroundColor: '#f8fafc', 
+                    borderRadius: '8px', 
+                    border: '1px solid #e2e8f0'
+                }}>
+                    <label style={{ 
+                        display: 'block',
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        color: '#374151',
+                        marginBottom: '8px'
+                    }}>
+                        Analysis Frequency
+                    </label>
+                    <select 
+                        value={currentSettings.analyzeContentFrequency || 'manual'} 
+                        onChange={(e) => handleSettingChange('analyzeContentFrequency', e.target.value)}
+                        className="aca-input"
+                        style={{ width: '100%' }}
+                    >
+                        <option value="manual">Manual - Analyze only when requested</option>
+                        <option value="daily">Daily - Analyze content every day</option>
+                        <option value="weekly">Weekly - Analyze content every week</option>
+                        <option value="monthly">Monthly - Analyze content every month</option>
+                    </select>
+                    <p style={{ 
+                        color: '#64748b',
+                        fontSize: '12px',
+                        margin: '8px 0 0 0',
+                        lineHeight: '1.4'
+                    }}>
+                        How often should the AI analyze your content for improvements and SEO optimization?
+                    </p>
                 </div>
             </div>
 
@@ -927,28 +1123,109 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                         We'll detect which SEO plugin you're using and optimize accordingly.
                     </p>
                     
-                    <label style={{ 
-                        display: 'block',
-                        fontSize: '14px',
-                        fontWeight: '500',
-                        color: '#374151',
-                        marginBottom: '8px'
-                    }}>
-                        SEO Plugin
-                    </label>
-                    <select 
-                        value={currentSettings.seoPlugin || 'auto'} 
-                        onChange={(e) => handleSettingChange('seoPlugin', e.target.value)}
-                        className="aca-input"
-                        style={{ width: '100%' }}
-                    >
-                        <option value="auto">Auto-detect</option>
-                        <option value="yoast">Yoast SEO</option>
-                        <option value="rankmath">RankMath</option>
-                        <option value="aioseo">All in One SEO</option>
-                        <option value="seopress">SEOPress</option>
-                        <option value="none">No SEO Plugin</option>
-                    </select>
+                    <div style={{ marginBottom: '16px' }}>
+                        <label style={{ 
+                            display: 'block',
+                            fontSize: '14px',
+                            fontWeight: '500',
+                            color: '#374151',
+                            marginBottom: '8px'
+                        }}>
+                            SEO Plugin
+                        </label>
+                        <select 
+                            value={currentSettings.seoPlugin || 'none'} 
+                            onChange={(e) => handleSettingChange('seoPlugin', e.target.value)}
+                            className="aca-input"
+                            style={{ width: '100%' }}
+                        >
+                            <option value="none">No SEO Plugin / Auto-detect</option>
+                            <option value="yoast">Yoast SEO</option>
+                            <option value="rank_math">RankMath</option>
+                        </select>
+                    </div>
+
+                    {/* SEO Plugin Detection */}
+                    <div style={{ marginBottom: '16px' }}>
+                        <button
+                            onClick={handleAutoDetectSeo}
+                            disabled={isDetectingSeo}
+                            style={{
+                                width: '100%',
+                                padding: '10px 16px',
+                                backgroundColor: '#0073aa',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '6px',
+                                fontSize: '14px',
+                                fontWeight: '500',
+                                cursor: isDetectingSeo ? 'not-allowed' : 'pointer',
+                                opacity: isDetectingSeo ? 0.7 : 1,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '8px'
+                            }}
+                        >
+                            {isDetectingSeo && <Spinner style={{ width: '16px', height: '16px' }} />}
+                            {isDetectingSeo ? "Detecting plugins..." : "🔍 Check for SEO Plugins"}
+                        </button>
+                    </div>
+
+                    {/* Detected SEO Plugins */}
+                    {detectedSeoPlugins.length > 0 && (
+                        <div style={{ 
+                            padding: '16px',
+                            backgroundColor: '#dcfce7',
+                            borderRadius: '6px',
+                            border: '1px solid #16a34a'
+                        }}>
+                            <h4 style={{ 
+                                fontSize: '14px',
+                                fontWeight: '600',
+                                margin: '0 0 12px 0',
+                                color: '#166534',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px'
+                            }}>
+                                <CheckCircle style={{ width: '16px', height: '16px' }} />
+                                Detected SEO Plugins ({detectedSeoPlugins.length})
+                            </h4>
+                            <div style={{ display: 'grid', gap: '8px' }}>
+                                {detectedSeoPlugins.map((plugin, index) => (
+                                    <div key={index} style={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        padding: '8px 12px',
+                                        backgroundColor: 'white',
+                                        borderRadius: '4px',
+                                        fontSize: '13px'
+                                    }}>
+                                        <div>
+                                            <span style={{ fontWeight: '500', color: '#166534' }}>
+                                                {plugin.name}
+                                            </span>
+                                            <span style={{ color: '#16a34a', marginLeft: '8px' }}>
+                                                v{plugin.version}
+                                            </span>
+                                        </div>
+                                        <span style={{
+                                            padding: '2px 6px',
+                                            backgroundColor: plugin.active ? '#16a34a' : '#64748b',
+                                            color: 'white',
+                                            borderRadius: '4px',
+                                            fontSize: '11px',
+                                            fontWeight: '500'
+                                        }}>
+                                            {plugin.active ? 'Active' : 'Inactive'}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
@@ -1092,27 +1369,76 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                             borderRadius: '6px',
                             border: `1px solid ${currentSettings.searchConsoleUser ? '#16a34a' : '#ef4444'}`
                         }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    {currentSettings.searchConsoleUser ? (
+                                        <CheckCircle style={{ width: '16px', height: '16px', color: '#16a34a' }} />
+                                    ) : (
+                                        <SettingsIcon style={{ width: '16px', height: '16px', color: '#ef4444' }} />
+                                    )}
+                                    <span style={{ 
+                                        fontSize: '14px',
+                                        fontWeight: '500',
+                                        color: currentSettings.searchConsoleUser ? '#166534' : '#991b1b'
+                                    }}>
+                                        {currentSettings.searchConsoleUser ? 'Connected' : 'Not Connected'}
+                                    </span>
+                                </div>
+                                
+                                {/* Connect/Disconnect Button */}
                                 {currentSettings.searchConsoleUser ? (
-                                    <CheckCircle style={{ width: '16px', height: '16px', color: '#16a34a' }} />
+                                    <button 
+                                        onClick={handleGSCDisconnect}
+                                        disabled={isConnecting}
+                                        style={{
+                                            padding: '6px 12px',
+                                            backgroundColor: '#ef4444',
+                                            color: 'white',
+                                            border: 'none',
+                                            borderRadius: '4px',
+                                            fontSize: '12px',
+                                            fontWeight: '500',
+                                            cursor: isConnecting ? 'not-allowed' : 'pointer',
+                                            opacity: isConnecting ? 0.7 : 1,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '4px'
+                                        }}
+                                    >
+                                        {isConnecting && <Spinner style={{ width: '12px', height: '12px' }} />}
+                                        {isConnecting ? 'Disconnecting...' : 'Disconnect'}
+                                    </button>
                                 ) : (
-                                    <SettingsIcon style={{ width: '16px', height: '16px', color: '#ef4444' }} />
+                                    <button 
+                                        onClick={handleGSCConnect}
+                                        disabled={isConnecting || !currentSettings.gscClientId || !currentSettings.gscClientSecret}
+                                        style={{
+                                            padding: '6px 12px',
+                                            backgroundColor: '#16a34a',
+                                            color: 'white',
+                                            border: 'none',
+                                            borderRadius: '4px',
+                                            fontSize: '12px',
+                                            fontWeight: '500',
+                                            cursor: (isConnecting || !currentSettings.gscClientId || !currentSettings.gscClientSecret) ? 'not-allowed' : 'pointer',
+                                            opacity: (isConnecting || !currentSettings.gscClientId || !currentSettings.gscClientSecret) ? 0.7 : 1,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '4px'
+                                        }}
+                                    >
+                                        {isConnecting && <Spinner style={{ width: '12px', height: '12px' }} />}
+                                        {isConnecting ? 'Connecting...' : 'Connect'}
+                                    </button>
                                 )}
-                                <span style={{ 
-                                    fontSize: '14px',
-                                    fontWeight: '500',
-                                    color: currentSettings.searchConsoleUser ? '#166534' : '#991b1b'
-                                }}>
-                                    {currentSettings.searchConsoleUser ? 'Connected' : 'Not Connected'}
-                                </span>
                             </div>
                             {currentSettings.searchConsoleUser && (
                                 <p style={{ 
-                                    margin: '4px 0 0 24px',
+                                    margin: '8px 0 0 24px',
                                     fontSize: '12px',
                                     color: '#166534'
                                 }}>
-                                    Connected as: {currentSettings.searchConsoleUser}
+                                    Connected as: {currentSettings.searchConsoleUser.email || currentSettings.searchConsoleUser}
                                 </p>
                             )}
                         </div>

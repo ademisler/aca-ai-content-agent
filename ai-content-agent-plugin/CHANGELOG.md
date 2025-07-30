@@ -1,5 +1,44 @@
 # Changelog
 
+## [2.3.3] - 2025-01-30
+
+### Fixed - CRITICAL TYPE & FUNCTIONALITY CORRECTIONS
+- **CRITICAL**: Fixed all type mismatches that could cause runtime errors
+  - Fixed `ImageSourceProvider` type: 'google-ai' → 'ai' (matches type definition)
+  - Fixed `AiImageStyle` options: removed invalid options, kept 'photorealistic' and 'digital_art'
+  - Fixed `SeoPlugin` options: aligned with actual type definition ('none', 'yoast', 'rank_math')
+- **CRITICAL**: Added missing SEO plugin auto-detection functionality
+  - Implemented `fetchSeoPlugins()` function with WordPress API integration
+  - Added `handleAutoDetectSeo()` with loading states and error handling
+  - Added visual display of detected SEO plugins with status indicators
+  - Auto-updates SEO plugin setting when plugins are detected
+- **CRITICAL**: Added missing Google Search Console connection functionality
+  - Implemented `handleGSCConnect()` for OAuth2 authentication flow
+  - Implemented `handleGSCDisconnect()` for disconnecting GSC
+  - Added Connect/Disconnect buttons with proper loading states
+  - Added proper error handling and user feedback
+- **CRITICAL**: Added missing automation frequency settings
+  - Fixed `fullAutoFrequency` → `fullAutoPublishFrequency` (matches type)
+  - Added `fullAutoDailyPostCount` input with validation (1-10 posts)
+  - Added `analyzeContentFrequency` setting for content analysis
+- **CRITICAL**: Restored proper UpgradePrompt component usage
+  - Replaced custom Pro license warnings with proper UpgradePrompt component
+  - Maintains consistent UX with rest of plugin
+
+### Enhanced
+- Improved SEO plugin integration with real-time detection
+- Enhanced Google Search Console integration with full OAuth2 flow
+- Better error handling and user feedback throughout all settings
+- More comprehensive automation settings matching original functionality
+- Improved visual consistency using proper plugin components
+
+### Technical Improvements
+- All TypeScript types now properly aligned with definitions
+- No unused imports or dead code
+- Proper state management for all async operations
+- Comprehensive error handling for all API calls
+- Better loading states and user feedback
+
 ## [2.3.2] - 2025-01-30
 
 ### Fixed

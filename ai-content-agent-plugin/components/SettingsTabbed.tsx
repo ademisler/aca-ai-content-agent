@@ -247,6 +247,49 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
         }
     };
 
+    // License deactivation (RESTORED from working v2.3.0)
+    const handleLicenseDeactivation = async () => {
+        if (!confirm('Are you sure you want to deactivate your Pro license? This will disable all Pro features.')) {
+            return;
+        }
+        
+        setIsVerifyingLicense(true);
+        try {
+            const result = await licenseApi.deactivate();
+            if (result.success) {
+                setLicenseStatus({
+                    status: 'inactive',
+                    is_active: false,
+                    verified_at: undefined
+                });
+                
+                // Update settings to reflect non-pro status
+                const updatedSettings = { ...settings, is_pro: false };
+                setCurrentSettings(updatedSettings);
+                
+                try {
+                    await onSaveSettings(updatedSettings);
+                } catch (saveError) {
+                    console.error('Settings save error:', saveError);
+                }
+                
+                onShowToast?.('License deactivated successfully. Pro features are now disabled.', 'success');
+                
+                // Refresh app state instead of reloading page
+                if (onRefreshApp) {
+                    setTimeout(onRefreshApp, 100);
+                }
+            } else {
+                onShowToast?.('Failed to deactivate license. Please try again.', 'error');
+            }
+        } catch (error) {
+            console.error('License deactivation failed:', error);
+            onShowToast?.('License deactivation failed. Please try again.', 'error');
+        } finally {
+            setIsVerifyingLicense(false);
+        }
+    };
+
     // SEO Detection
     const fetchSeoPlugins = async () => {
         setSeoPluginsLoading(true);
@@ -438,6 +481,59 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                         Don't have a license? <a href="https://aicontentagent.com/pricing" target="_blank" rel="noopener noreferrer" style={{ color: '#0073aa' }}>Get Pro License →</a>
                     </p>
                 </div>
+            )}
+
+            {/* License Deactivation Section (RESTORED from working v2.3.0) */}
+            {licenseStatus.is_active && (
+                <>
+                    <div style={{ 
+                        padding: '16px', 
+                        backgroundColor: '#d4edda', 
+                        border: '1px solid #c3e6cb', 
+                        borderRadius: '8px',
+                        marginBottom: '20px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px'
+                    }}>
+                        <CheckCircle style={{ width: '16px', height: '16px', color: '#155724' }} />
+                        <span style={{ color: '#155724', fontSize: '14px', fontWeight: '500' }}>
+                            Pro license is active! You now have access to all premium features.
+                        </span>
+                    </div>
+                    <div style={{ marginTop: '15px' }}>
+                        <button
+                            onClick={handleLicenseDeactivation}
+                            disabled={isVerifyingLicense}
+                            style={{
+                                padding: '10px 16px',
+                                backgroundColor: '#dc3545',
+                                border: '1px solid #dc3545',
+                                color: '#ffffff',
+                                borderRadius: '6px',
+                                fontSize: '14px',
+                                fontWeight: '500',
+                                cursor: isVerifyingLicense ? 'not-allowed' : 'pointer',
+                                opacity: isVerifyingLicense ? 0.7 : 1,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                minWidth: '140px'
+                            }}
+                        >
+                            {isVerifyingLicense && <Spinner style={{ width: '16px', height: '16px' }} />}
+                            {isVerifyingLicense ? 'Deactivating...' : 'Deactivate License'}
+                        </button>
+                        <p style={{ 
+                            marginTop: '8px', 
+                            fontSize: '12px', 
+                            color: '#64748b',
+                            lineHeight: '1.4'
+                        }}>
+                            This will disable all Pro features and allow you to use the license on another site.
+                        </p>
+                    </div>
+                </>
             )}
         </div>
     );

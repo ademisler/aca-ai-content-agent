@@ -1,8 +1,8 @@
-# SEO Integration Guide - v1.8.0
+# SEO Integration Guide - v2.0.3
 
 This guide explains the automatic SEO plugin detection and integration system in the AI Content Agent plugin.
 
-## 🚀 Latest Updates - v1.8.0
+## 🚀 Latest Updates - v2.0.3
 
 **COMPREHENSIVE FEATURE ENHANCEMENTS & IMPROVEMENTS**
 - **Author Updates**: Updated plugin author to Adem Isler with website integration (ademisler.com/en)

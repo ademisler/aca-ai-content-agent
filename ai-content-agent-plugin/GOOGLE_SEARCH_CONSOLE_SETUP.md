@@ -1,8 +1,8 @@
-# Google Search Console Integration Setup Guide - v1.8.0
+# Google Search Console Integration Setup Guide - v2.0.3
 
 This guide will walk you through setting up Google Search Console integration with the AI Content Agent plugin to access real search performance data for your content creation.
 
-## 🚨 Latest Updates - v1.8.0
+## 🚨 Latest Updates - v2.0.3
 
 **COMPREHENSIVE FEATURE ENHANCEMENTS & IMPROVEMENTS**
 - **Author Updates**: Updated plugin author to Adem Isler with website integration (ademisler.com/en)

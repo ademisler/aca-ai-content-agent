@@ -5,7 +5,7 @@ Tags: ai, content, automation, gemini, seo, pro, license
 Requires at least: 5.0
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 1.9.1
+Stable tag: 2.0.3
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -15,9 +15,10 @@ AI-powered WordPress plugin with Pro licensing for automated content creation, S
 
 AI Content Agent (ACA) transforms your WordPress site into an intelligent content creation powerhouse using Google's Gemini AI technology.
 
-**🚀 Latest v1.9.1 Features:**
-* Enhanced Settings page with user-focused layout
-* Pro feature badges for clear premium feature identification  
+**🚀 Latest v2.0.3 Features:**
+* Dual-asset system for proper WordPress integration
+* Cache invalidation fixes for better performance
+* Enhanced View button icon contrast and accessibility  
 * Improved license activation workflow
 * Google Search Console Pro integration with upgrade prompts
 * Optimized user experience and accessibility
@@ -143,4 +144,30 @@ Critical JavaScript initialization error fix. Essential update for users experie
 * Plugin only sends content to Google's Gemini AI for generation
 * No personal data is stored or transmitted without explicit user action
 * Google Search Console data is only accessed with explicit user authorization
+
+== Changelog ==
+
+= 2.0.3 =
+* Fixed: Dual-asset system implementation for proper WordPress integration
+* Fixed: Cache invalidation issues with updated file timestamps
+* Enhanced: View button icon contrast and accessibility improvements
+* Improved: Build process following DEVELOPER_GUIDE.md exactly
+* Updated: WordPress asset loading system with proper file selection
+
+= 2.0.2 =
+* Fixed: Build process and asset verification
+* Improved: Asset deployment and file management
+* Updated: Quality assurance for user-visible changes
+
+= 2.0.1 =
+* Enhanced: View button icon contrast in Published Posts and Drafts
+* Improved: Stroke-based icon handling in CSS
+* Fixed: Color contrast ratios for better accessibility
+* Updated: Icon styling architecture for consistency
+
+= 2.0.0 =
+* Fixed: Idea Board overflow issues in 4-column layout
+* Improved: Grid layout responsiveness and button placement
+* Enhanced: CSS grid system with better breakpoints
+* Updated: Visual consistency across UI components
 * All API communications are secured with HTTPS

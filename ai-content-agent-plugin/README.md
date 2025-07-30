@@ -1,18 +1,18 @@
 # AI Content Agent for WordPress
 
-**Version:** 2.0.1  
+**Version:** 2.0.3  
 **Requires:** WordPress 5.0+, PHP 7.4+  
 **License:** GPL v2 or later
 
 AI Content Agent (ACA) is a powerful WordPress plugin that leverages Google's Gemini AI to automate content creation, SEO optimization, and publishing workflows.
 
-## 🚀 Latest Updates - v2.0.1
+## 🚀 Latest Updates - v2.0.3
 
-### 🎨 Enhanced Settings Page & Pro Feature Visibility
-- **Reorganized Settings Layout**: User-focused section ordering for better workflow
-- **Pro Feature Badges**: Clear visual indicators for premium features
-- **Improved User Journey**: License activation → Feature configuration flow
-- **Enhanced Google Search Console Integration**: Pro badge and upgrade prompts
+### 🔄 Asset Deployment & Cache Invalidation
+- **Dual-Asset System**: Properly implemented WordPress asset loading system
+- **Cache Invalidation**: Fixed WordPress cache issues with updated timestamps
+- **Icon Contrast**: Enhanced View button icons with better visibility and accessibility
+- **Build Process**: Corrected deployment following DEVELOPER_GUIDE.md exactly
 
 ## 🚀 Features
 
@@ -69,8 +69,8 @@ AI Content Agent (ACA) is a powerful WordPress plugin that leverages Google's Ge
 ## 📁 Release Management
 
 ### Current Release
-- **Latest Version**: v2.0.1 (Located in `/releases/`)
-- **File**: `ai-content-agent-v2.0.1-icon-contrast-fixes-and-improvements.zip`
+- **Latest Version**: v2.0.3 (Located in `/releases/`)
+- **File**: `ai-content-agent-v2.0.3-asset-deployment-and-cache-invalidation.zip`
 - **Status**: Stable, ready for production with comprehensive feature enhancements and improvements
 
 ### Archive
@@ -81,7 +81,7 @@ AI Content Agent (ACA) is a powerful WordPress plugin that leverages Google's Ge
 ### For Developers
 ```bash
 # Latest release
-releases/ai-content-agent-v2.0.1-icon-contrast-fixes-and-improvements.zip
+releases/ai-content-agent-v2.0.3-asset-deployment-and-cache-invalidation.zip
 
 # Development build (after making changes)
 npm run build:wp  # Builds and copies to both admin/assets/ and admin/js/
@@ -171,7 +171,7 @@ This plugin is licensed under the GPL v2 or later.
 
 ## 🔄 Version History
 
-- **v2.0.1**: Icon contrast fixes & improvements (Latest)
+- **v2.0.3**: Asset deployment & cache invalidation (Latest)
 - **v1.7.0**: Comprehensive feature enhancements & improvements
 - **v1.6.9**: UI/UX improvements & critical bug fixes
 - **v1.6.8**: Gemini API retry logic & improved error handling
@@ -194,4 +194,4 @@ For complete version history, see `CHANGELOG.md`.
 
 ---
 
-**Ready to revolutionize your content workflow with improved icon contrast and enhanced accessibility?** Download v2.0.1 and start creating smarter content with better visual clarity, improved button contrast, and enhanced user experience today! 🚀
+**Ready to revolutionize your content workflow with proper asset deployment and enhanced performance?** Download v2.0.3 and start creating smarter content with optimized WordPress integration, improved cache handling, and enhanced user experience today! 🚀

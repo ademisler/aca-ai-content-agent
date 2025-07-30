@@ -2,27 +2,51 @@
 
 ## 📦 Current Release
 
-### v1.9.1 - Enhanced UX and Pro Features (Latest)
-- **File**: `ai-content-agent-v1.9.1-enhanced-ux-and-pro-features.zip`
-- **Release Date**: December 19, 2024
+### v2.0.3 - Asset Deployment & Cache Invalidation (Latest)
+- **File**: `ai-content-agent-v2.0.3-asset-deployment-and-cache-invalidation.zip`
+- **Release Date**: January 30, 2025
 - **Status**: ✅ Production Ready
-- **Size**: ~360KB
+- **Size**: ~350KB
 
-#### 🎨 Key Features:
-- **Enhanced Settings Layout**: User-focused section reorganization
-- **Pro Feature Badges**: Clear visual indicators for premium features  
-- **Improved User Journey**: License activation → Feature configuration flow
-- **Google Search Console Pro Badge**: Enhanced Pro feature visibility
-- **Optimized UX/UI**: Better accessibility and visual hierarchy
+#### 🔄 Key Features:
+- **Dual-Asset System**: Properly implemented WordPress asset loading system
+- **Cache Invalidation**: Fixed WordPress cache issues with updated timestamps
+- **Icon Contrast**: Enhanced View button icons with better visibility and accessibility
+- **Build Process**: Corrected deployment following DEVELOPER_GUIDE.md exactly
+- **WordPress Integration**: Proper file selection by modification time
 
 ---
 
 ## 📋 Previous Releases
 
+### v2.0.2 - Build Fix & Proper Deployment
+- **File**: `ai-content-agent-v2.0.2-build-fix-and-proper-deployment.zip` (Archived)
+- **Release Date**: January 30, 2025
+- **Status**: 🗄️ Archived - Superseded by v2.0.3
+- **Features**: Build process fixes and asset verification
+
+### v2.0.1 - Icon Contrast Fixes & Improvements
+- **File**: `ai-content-agent-v2.0.1-icon-contrast-fixes-and-improvements.zip` (Archived)
+- **Release Date**: January 30, 2025
+- **Status**: 🗄️ Archived - Superseded by v2.0.3
+- **Features**: Enhanced View button icon contrast and accessibility
+
+### v2.0.0 - UI Improvements & Stability Enhancements
+- **File**: `ai-content-agent-v2.0.0-ui-improvements-and-stability-enhancements.zip` (Archived)
+- **Release Date**: January 30, 2025
+- **Status**: 🗄️ Archived - Superseded by v2.0.3
+- **Features**: Grid layout optimization and responsive design improvements
+
+### v1.9.1 - Enhanced UX and Pro Features
+- **File**: `ai-content-agent-v1.9.1-enhanced-ux-and-pro-features.zip` (Archived)
+- **Release Date**: December 19, 2024
+- **Status**: 🗄️ Archived - Superseded by v2.0.3
+- **Features**: Enhanced Settings Layout and Pro Feature Badges
+
 ### v1.9.0 - Pro Features & License System
 - **File**: `ai-content-agent-v1.9.0-initial-pro-features.zip` (Archived)
 - **Release Date**: December 19, 2024
-- **Status**: 🗄️ Archived - Superseded by v1.9.1
+- **Status**: 🗄️ Archived - Superseded by v2.0.3
 - **Features**: Initial Pro license system implementation
 
 ### v1.8.0 - Comprehensive Feature Enhancements

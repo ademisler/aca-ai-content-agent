@@ -3186,9 +3186,6 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 update_option('aca_license_data', $verification_result);
                 update_option('aca_license_site_hash', $current_site_hash);
                 
-                // Log license activation
-                $this->log_activity('license_activated', 'Pro license activated successfully');
-                
                 // Add success message to response
                 $verification_result['message'] = 'License verified successfully! Pro features are now active.';
             } else {
@@ -3250,9 +3247,6 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             delete_option('aca_license_data');
             delete_option('aca_license_site_hash');
             
-            // Log license deactivation
-            $this->log_activity('license_deactivated', 'Pro license deactivated successfully');
-            
             error_log('ACA: License deactivated successfully');
             
             return rest_ensure_response(array(
@@ -3312,7 +3306,14 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         ));
         
         if (is_wp_error($response)) {
-            throw new Exception('Gumroad API request failed: ' . $response->get_error_message());
+            error_log('ACA: Gumroad API request failed: ' . $response->get_error_message());
+            return array(
+                'success' => false,
+                'message' => 'Gumroad API request failed: ' . $response->get_error_message(),
+                'purchase_data' => null,
+                'verified_at' => current_time('mysql'),
+                'error_code' => 'network_error'
+            );
         }
         
         $response_code = wp_remote_retrieve_response_code($response);
@@ -3349,7 +3350,13 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         // Check if response has success field and purchase data
         if (!isset($data['success'])) {
             error_log('ACA: Missing success field in Gumroad response');
-            throw new Exception('Invalid Gumroad API response format');
+            return array(
+                'success' => false,
+                'message' => 'Invalid Gumroad API response format',
+                'purchase_data' => null,
+                'verified_at' => current_time('mysql'),
+                'error_code' => 'invalid_response'
+            );
         }
         
         $is_valid = ($data['success'] === true);

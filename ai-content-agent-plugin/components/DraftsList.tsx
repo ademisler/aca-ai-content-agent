@@ -8,6 +8,7 @@ interface DraftsListProps {
     onSelectDraft: (draft: Draft) => void;
     onPublish: (id: number) => void;
     publishingId: number | null;
+    onNavigateToIdeas?: () => void;
 }
 
 const DraftCard: React.FC<{
@@ -123,7 +124,7 @@ const DraftCard: React.FC<{
     );
 };
 
-export const DraftsList: React.FC<DraftsListProps> = ({ drafts, onSelectDraft, onPublish, publishingId }) => {
+export const DraftsList: React.FC<DraftsListProps> = ({ drafts, onSelectDraft, onPublish, publishingId, onNavigateToIdeas }) => {
     const scheduledDrafts = drafts.filter(draft => draft.scheduledFor);
     const unscheduledDrafts = drafts.filter(draft => !draft.scheduledFor);
 
@@ -274,7 +275,7 @@ export const DraftsList: React.FC<DraftsListProps> = ({ drafts, onSelectDraft, o
                             Create content ideas first, then turn them into drafts to see them here.
                         </p>
                         <button 
-                            onClick={() => window.location.hash = '#ideas'} 
+                            onClick={onNavigateToIdeas || (() => window.location.hash = '#ideas')} 
                             className="aca-button large"
                         >
                             <FileText style={{ width: '16px', height: '16px' }} />

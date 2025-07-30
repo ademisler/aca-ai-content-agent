@@ -29,6 +29,7 @@ interface SettingsProps {
     onSaveSettings: (settings: AppSettings) => void;
     onRefreshApp?: () => void;
     onShowToast?: (message: string, type: 'success' | 'error' | 'warning' | 'info') => void;
+    openSection?: string; // Section to open when component loads
 }
 
 const RadioCard: React.FC<{
@@ -113,7 +114,7 @@ const IntegrationCard: React.FC<{
     </div>
 );
 
-export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, onRefreshApp, onShowToast }) => {
+export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, onRefreshApp, onShowToast, openSection }) => {
     const [currentSettings, setCurrentSettings] = useState<AppSettings>(settings);
     const [isConnecting, setIsConnecting] = useState(false);
     const [isDetectingSeo, setIsDetectingSeo] = useState(false);
@@ -159,6 +160,27 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
         
         loadLicenseStatus();
     }, []);
+
+    // Open specific section if requested
+    useEffect(() => {
+        if (openSection) {
+            setCollapsedSections(prev => ({
+                ...prev,
+                [openSection]: false
+            }));
+            
+            // Scroll to the section after a short delay to ensure it's rendered
+            setTimeout(() => {
+                const sectionElement = document.getElementById(`section-content-${openSection}`);
+                if (sectionElement) {
+                    sectionElement.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'start' 
+                    });
+                }
+            }, 300);
+        }
+    }, [openSection]);
 
     // Load GSC auth status on component mount
     useEffect(() => {
@@ -502,30 +524,10 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
     };
 
     const toggleSection = (sectionKey: string) => {
-        // Prevent any scroll behavior during toggle
-        const rootElement = document.getElementById('root');
-        const currentScrollTop = rootElement ? rootElement.scrollTop : 0;
-        
-        // Temporarily disable scroll behavior
-        if (rootElement) {
-            rootElement.style.scrollBehavior = 'auto';
-        }
-        
         setCollapsedSections(prev => ({
             ...prev,
             [sectionKey]: !prev[sectionKey]
         }));
-        
-        // Maintain scroll position and restore behavior
-        requestAnimationFrame(() => {
-            if (rootElement) {
-                rootElement.scrollTop = currentScrollTop;
-                // Re-enable smooth scroll after a short delay
-                setTimeout(() => {
-                    rootElement.style.scrollBehavior = 'smooth';
-                }, 50);
-            }
-        });
     };
 
     const CollapsibleSection: React.FC<{
@@ -615,19 +617,17 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
                 <div 
                     id={`section-content-${id}`}
                     style={{ 
-                        transform: isCollapsed ? 'scaleY(0)' : 'scaleY(1)',
+                        maxHeight: isCollapsed ? '0' : '2000px',
                         opacity: isCollapsed ? 0 : 1,
-                        overflow: isCollapsed ? 'hidden' : 'visible',
-                        transition: 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease',
-                        padding: isCollapsed ? '0' : '20px 0 0 0',
-                        transformOrigin: 'top',
-                        willChange: 'transform, opacity',
-                        backfaceVisibility: 'hidden',
-                        height: isCollapsed ? '0' : 'auto'
+                        overflow: 'hidden',
+                        transition: 'max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease',
+                        padding: isCollapsed ? '0 0 0 0' : '20px 0 0 0'
                     }}
                     aria-hidden={isCollapsed}
                 >
-                    {children}
+                    <div style={{ padding: isCollapsed ? '0' : '0' }}>
+                        {children}
+                    </div>
                 </div>
             </div>
         );

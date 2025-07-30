@@ -11595,7 +11595,7 @@ body.toplevel_page_ai-content-agent #wpfooter {
       ] })
     ] });
   };
-  const DraftsList = ({ drafts, onSelectDraft, onPublish, publishingId }) => {
+  const DraftsList = ({ drafts, onSelectDraft, onPublish, publishingId, onNavigateToIdeas }) => {
     const scheduledDrafts = drafts.filter((draft) => draft.scheduledFor);
     const unscheduledDrafts = drafts.filter((draft) => !draft.scheduledFor);
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-fade-in", children: [
@@ -11727,7 +11727,7 @@ body.toplevel_page_ai-content-agent #wpfooter {
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",
           {
-            onClick: () => window.location.hash = "#ideas",
+            onClick: onNavigateToIdeas || (() => window.location.hash = "#ideas"),
             className: "aca-button large",
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { style: { width: "16px", height: "16px" } }),
@@ -11896,7 +11896,7 @@ body.toplevel_page_ai-content-agent #wpfooter {
     ] }) }),
     children
   ] });
-  const Settings = ({ settings, onSaveSettings, onRefreshApp, onShowToast }) => {
+  const Settings = ({ settings, onSaveSettings, onRefreshApp, onShowToast, openSection }) => {
     const [currentSettings, setCurrentSettings] = reactExports.useState(settings);
     const [isConnecting, setIsConnecting] = reactExports.useState(false);
     const [isDetectingSeo, setIsDetectingSeo] = reactExports.useState(false);
@@ -11933,6 +11933,23 @@ body.toplevel_page_ai-content-agent #wpfooter {
       };
       loadLicenseStatus2();
     }, []);
+    reactExports.useEffect(() => {
+      if (openSection) {
+        setCollapsedSections((prev) => ({
+          ...prev,
+          [openSection]: false
+        }));
+        setTimeout(() => {
+          const sectionElement = document.getElementById(`section-content-${openSection}`);
+          if (sectionElement) {
+            sectionElement.scrollIntoView({
+              behavior: "smooth",
+              block: "start"
+            });
+          }
+        }, 300);
+      }
+    }, [openSection]);
     reactExports.useEffect(() => {
       const loadGscAuthStatus = async () => {
         if (!window.acaData) {
@@ -12218,23 +12235,10 @@ body.toplevel_page_ai-content-agent #wpfooter {
       }, 700);
     };
     const toggleSection = (sectionKey) => {
-      const rootElement2 = document.getElementById("root");
-      const currentScrollTop = rootElement2 ? rootElement2.scrollTop : 0;
-      if (rootElement2) {
-        rootElement2.style.scrollBehavior = "auto";
-      }
       setCollapsedSections((prev) => ({
         ...prev,
         [sectionKey]: !prev[sectionKey]
       }));
-      requestAnimationFrame(() => {
-        if (rootElement2) {
-          rootElement2.scrollTop = currentScrollTop;
-          setTimeout(() => {
-            rootElement2.style.scrollBehavior = "smooth";
-          }, 50);
-        }
-      });
     };
     const CollapsibleSection = ({ id, title, description, icon, children, defaultOpen = false }) => {
       const isCollapsed = collapsedSections[id] ?? !defaultOpen;
@@ -12323,18 +12327,14 @@ body.toplevel_page_ai-content-agent #wpfooter {
           {
             id: `section-content-${id}`,
             style: {
-              transform: isCollapsed ? "scaleY(0)" : "scaleY(1)",
+              maxHeight: isCollapsed ? "0" : "2000px",
               opacity: isCollapsed ? 0 : 1,
-              overflow: isCollapsed ? "hidden" : "visible",
-              transition: "transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease",
-              padding: isCollapsed ? "0" : "20px 0 0 0",
-              transformOrigin: "top",
-              willChange: "transform, opacity",
-              backfaceVisibility: "hidden",
-              height: isCollapsed ? "0" : "auto"
+              overflow: "hidden",
+              transition: "max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease",
+              padding: isCollapsed ? "0 0 0 0" : "20px 0 0 0"
             },
             "aria-hidden": isCollapsed,
-            children
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: isCollapsed ? "0" : "0" }, children })
           }
         )
       ] });
@@ -13865,7 +13865,7 @@ body.toplevel_page_ai-content-agent #wpfooter {
       ) })
     ] });
   };
-  const PublishedList = ({ posts, onSelectPost }) => {
+  const PublishedList = ({ posts, onSelectPost, onNavigateToDrafts }) => {
     const sortedPosts = [...posts].sort((a, b) => {
       if (!a.publishedAt) return 1;
       if (!b.publishedAt) return -1;
@@ -13972,7 +13972,7 @@ body.toplevel_page_ai-content-agent #wpfooter {
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", gap: "10px", justifyContent: "center", flexWrap: "wrap" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",
           {
-            onClick: () => window.location.hash = "#drafts",
+            onClick: onNavigateToDrafts || (() => window.location.hash = "#drafts"),
             className: "aca-button large",
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Send, { style: { width: "16px", height: "16px" } }),
@@ -15035,9 +15035,15 @@ body.toplevel_page_ai-content-agent #wpfooter {
     const [isSidebarOpen, setIsSidebarOpen] = reactExports.useState(false);
     const [publishingId, setPublishingId] = reactExports.useState(null);
     const [contentFreshness, setContentFreshness] = reactExports.useState(null);
+    const [settingsOpenSection, setSettingsOpenSection] = reactExports.useState(void 0);
     const drafts = posts.filter((p) => p.status === "draft");
     const publishedPosts = posts.filter((p) => p.status === "published");
     const isGeminiApiConfigured = !!(settings.geminiApiKey && settings.geminiApiKey.trim());
+    reactExports.useEffect(() => {
+      if (view !== "settings") {
+        setSettingsOpenSection(void 0);
+      }
+    }, [view]);
     const addToast = reactExports.useCallback((toast) => {
       const id = Date.now();
       setToasts((prev) => [...prev, { ...toast, id }]);
@@ -15402,11 +15408,36 @@ body.toplevel_page_ai-content-agent #wpfooter {
             }
           );
         case "drafts":
-          return /* @__PURE__ */ jsxRuntimeExports.jsx(DraftsList, { drafts, onSelectDraft: setSelectedDraft, onPublish: handlePublishPost, publishingId });
+          return /* @__PURE__ */ jsxRuntimeExports.jsx(
+            DraftsList,
+            {
+              drafts,
+              onSelectDraft: setSelectedDraft,
+              onPublish: handlePublishPost,
+              publishingId,
+              onNavigateToIdeas: () => setView("ideas")
+            }
+          );
         case "published":
-          return /* @__PURE__ */ jsxRuntimeExports.jsx(PublishedList, { posts: publishedPosts, onSelectPost: setSelectedDraft });
+          return /* @__PURE__ */ jsxRuntimeExports.jsx(
+            PublishedList,
+            {
+              posts: publishedPosts,
+              onSelectPost: setSelectedDraft,
+              onNavigateToDrafts: () => setView("drafts")
+            }
+          );
         case "settings":
-          return /* @__PURE__ */ jsxRuntimeExports.jsx(Settings, { settings, onSaveSettings: handleSaveSettings, onRefreshApp: handleRefreshApp, onShowToast: showToast });
+          return /* @__PURE__ */ jsxRuntimeExports.jsx(
+            Settings,
+            {
+              settings,
+              onSaveSettings: handleSaveSettings,
+              onRefreshApp: handleRefreshApp,
+              onShowToast: showToast,
+              openSection: settingsOpenSection
+            }
+          );
         case "calendar":
           return /* @__PURE__ */ jsxRuntimeExports.jsx(
             ContentCalendar,
@@ -15551,7 +15582,10 @@ body.toplevel_page_ai-content-agent #wpfooter {
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold text-white", children: "AI Content Agent (ACA)" })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-fade-in", children: [
-            !isGeminiApiConfigured && view !== "settings" && /* @__PURE__ */ jsxRuntimeExports.jsx(GeminiApiWarning, { onNavigateToSettings: () => setView("settings") }),
+            !isGeminiApiConfigured && view !== "settings" && /* @__PURE__ */ jsxRuntimeExports.jsx(GeminiApiWarning, { onNavigateToSettings: () => {
+              setSettingsOpenSection("integrations");
+              setView("settings");
+            } }),
             renderView()
           ] })
         ] })

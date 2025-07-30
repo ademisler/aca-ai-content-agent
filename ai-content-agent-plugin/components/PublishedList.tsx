@@ -6,6 +6,7 @@ import { Send, Eye, CheckCircle, ExternalLink } from './Icons';
 interface PublishedListProps {
     posts: Draft[];
     onSelectPost: (post: Draft) => void;
+    onNavigateToDrafts?: () => void;
 }
 
 const PublishedPostCard: React.FC<{
@@ -91,7 +92,7 @@ const PublishedPostCard: React.FC<{
     );
 };
 
-export const PublishedList: React.FC<PublishedListProps> = ({ posts, onSelectPost }) => {
+export const PublishedList: React.FC<PublishedListProps> = ({ posts, onSelectPost, onNavigateToDrafts }) => {
     // Sort posts by publication date (newest first)
     const sortedPosts = [...posts].sort((a, b) => {
         if (!a.publishedAt) return 1;
@@ -217,7 +218,7 @@ export const PublishedList: React.FC<PublishedListProps> = ({ posts, onSelectPos
                         </p>
                         <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
                             <button 
-                                onClick={() => window.location.hash = '#drafts'} 
+                                onClick={onNavigateToDrafts || (() => window.location.hash = '#drafts')} 
                                 className="aca-button large"
                             >
                                 <Send style={{ width: '16px', height: '16px' }} />

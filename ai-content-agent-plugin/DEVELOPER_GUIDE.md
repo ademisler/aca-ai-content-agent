@@ -138,10 +138,10 @@ export default defineConfig({
 ## 📦 Release Management
 
 ### Current Release Information
-- **Latest Version**: v2.1.0
-- **Release File**: `ai-content-agent-v2.1.0-content-freshness-system.zip`
-- **Status**: Production ready with revolutionary AI-powered content freshness system
-- **Key Features**: AI content analysis, automated monitoring, priority-based updates, Google Search Console integration, Pro feature gating, comprehensive UI
+- **Latest Version**: v2.2.4
+- **Release File**: `ai-content-agent-v2.2.4-ux-improvements-and-navigation-fixes.zip`
+- **Status**: Production ready with UX improvements and navigation fixes
+- **Key Features**: Fixed Settings dropdown jumping, enhanced navigation system, stable accordion animations, smart API configuration targeting
 
 ### Release Process
 

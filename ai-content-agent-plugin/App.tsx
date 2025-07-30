@@ -65,12 +65,20 @@ const App: React.FC = () => {
         needsUpdate: number;
         averageScore: number;
     } | null>(null);
+    const [settingsOpenSection, setSettingsOpenSection] = useState<string | undefined>(undefined);
 
     const drafts = posts.filter(p => p.status === 'draft');
     const publishedPosts = posts.filter(p => p.status === 'published');
     
     // Check if Gemini API key is configured
     const isGeminiApiConfigured = !!(settings.geminiApiKey && settings.geminiApiKey.trim());
+
+    // Clear openSection when view changes away from settings
+    useEffect(() => {
+        if (view !== 'settings') {
+            setSettingsOpenSection(undefined);
+        }
+    }, [view]);
 
     const addToast = useCallback((toast: Omit<ToastData, 'id'>) => {
         const id = Date.now();
@@ -507,11 +515,27 @@ const App: React.FC = () => {
                     onAddIdea={handleAddIdea} 
                 />;
             case 'drafts':
-                return <DraftsList drafts={drafts} onSelectDraft={setSelectedDraft} onPublish={handlePublishPost} publishingId={publishingId} />;
+                return <DraftsList 
+                    drafts={drafts} 
+                    onSelectDraft={setSelectedDraft} 
+                    onPublish={handlePublishPost} 
+                    publishingId={publishingId}
+                    onNavigateToIdeas={() => setView('ideas')}
+                />;
             case 'published':
-                return <PublishedList posts={publishedPosts} onSelectPost={setSelectedDraft} />;
+                return <PublishedList 
+                    posts={publishedPosts} 
+                    onSelectPost={setSelectedDraft}
+                    onNavigateToDrafts={() => setView('drafts')}
+                />;
             case 'settings':
-                return <Settings settings={settings} onSaveSettings={handleSaveSettings} onRefreshApp={handleRefreshApp} onShowToast={showToast} />;
+                return <Settings 
+            settings={settings} 
+            onSaveSettings={handleSaveSettings} 
+            onRefreshApp={handleRefreshApp} 
+            onShowToast={showToast} 
+            openSection={settingsOpenSection}
+        />;
             case 'calendar':
                 return <ContentCalendar 
                     drafts={drafts} 
@@ -666,7 +690,10 @@ const App: React.FC = () => {
                     <div className="aca-fade-in">
                         {/* Gemini API Warning - Show on all pages except Settings if API key is missing */}
                         {!isGeminiApiConfigured && view !== 'settings' && (
-                            <GeminiApiWarning onNavigateToSettings={() => setView('settings')} />
+                            <GeminiApiWarning onNavigateToSettings={() => {
+                                setSettingsOpenSection('integrations');
+                                setView('settings');
+                            }} />
                         )}
                         {renderView()}
                     </div>

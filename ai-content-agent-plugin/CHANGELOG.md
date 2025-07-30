@@ -2,6 +2,35 @@
 
 All notable changes to AI Content Agent (ACA) will be documented in this file.
 
+## [2.2.4] - 2025-01-30
+
+### 🔧 UX/UI IMPROVEMENTS & NAVIGATION FIXES
+
+#### ✅ Settings Page Dropdown Jumping Fix
+- **Stable Accordion Animation**: Replaced problematic `scaleY` transform with `max-height` transition
+- **Smooth Expansion**: Eliminated page jumping when opening Settings dropdown sections
+- **Better User Experience**: Sections now expand and collapse smoothly without layout shifts
+- **Removed Complex Scroll Logic**: Simplified toggle mechanism for better reliability
+
+#### 🎯 Enhanced Navigation System
+- **Smart Settings Navigation**: "Go to Settings" button now opens specific Integrations section
+- **Direct API Configuration**: Gemini API warning now scrolls directly to API key input field
+- **Fixed Idea Board Navigation**: "Go to Idea Board" button now properly navigates using React state
+- **Fixed Drafts Navigation**: "Go to Drafts" button now uses proper navigation instead of hash routing
+- **Consistent Navigation**: All internal navigation now uses proper React state management
+
+#### 📱 Technical Improvements
+- **Collapsible Sections**: Improved CollapsibleSection component with stable animations
+- **Navigation Props**: Added proper navigation callback props to DraftsList and PublishedList
+- **State Management**: Enhanced App component with openSection state for targeted navigation
+- **Component Architecture**: Better separation of concerns for navigation logic
+
+#### 🎨 User Experience Enhancements
+- **Immediate Focus**: Clicking "Go to Settings" from API warning opens and scrolls to API configuration
+- **Smooth Transitions**: All dropdown sections use consistent, stable animation timing
+- **No Layout Shifts**: Eliminated visual jumping and layout instability in Settings page
+- **Intuitive Navigation**: All navigation buttons now work as users expect
+
 ## [2.1.0] - 2025-01-31
 
 ### 🚀 MAJOR FEATURE: AI-POWERED CONTENT FRESHNESS & UPDATING SYSTEM (PRO)

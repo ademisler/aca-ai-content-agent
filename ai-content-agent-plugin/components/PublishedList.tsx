@@ -65,8 +65,13 @@ const PublishedPostCard: React.FC<{
                 <button
                     onClick={() => onSelectPost(post)}
                     className="aca-button secondary"
+                    style={{ 
+                        background: '#f6f7f7',
+                        borderColor: '#0073aa',
+                        color: '#0073aa'
+                    }}
                 >
-                    <Eye className="aca-nav-item-icon" />
+                    <Eye className="aca-nav-item-icon" style={{ color: '#0073aa' }} />
                     View Content
                 </button>
                 

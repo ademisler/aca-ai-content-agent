@@ -47,7 +47,7 @@ ai-content-agent-plugin/
 ├── services/                 # Frontend services
 ├── includes/                 # PHP backend classes
 ├── releases/                 # Release management
-│   ├── ai-content-agent-v1.6.8-*.zip  # Latest release
+│   ├── ai-content-agent-v2.0.0-*.zip  # Latest release
 │   └── archive/              # Previous versions
 ├── vendor/                   # PHP dependencies (placeholders)
 ├── dist/                     # Vite build output
@@ -138,10 +138,10 @@ export default defineConfig({
 ## 📦 Release Management
 
 ### Current Release Information
-- **Latest Version**: v1.8.0
-- **Release File**: `ai-content-agent-v1.8.0-comprehensive-feature-enhancements-and-improvements.zip`
-- **Status**: Production ready with comprehensive feature enhancements and improvements
-- **Key Features**: Author updates, dashboard optimization, feature verification, quality assurance
+- **Latest Version**: v2.0.0
+- **Release File**: `ai-content-agent-v2.0.0-ui-improvements-and-stability-enhancements.zip`
+- **Status**: Production ready with UI improvements and stability enhancements
+- **Key Features**: Fixed Idea Board overflow issues, improved View button contrast, updated documentation
 
 ### Release Process
 
@@ -152,8 +152,8 @@ npm version patch  # or minor/major
 
 # Update WordPress plugin header
 # In ai-content-agent.php:
-# Version: 1.6.8
-# define('ACA_VERSION', '1.6.8');
+# Version: 2.0.0
+# define('ACA_VERSION', '2.0.0');
 ```
 
 #### 2. Build and Test
@@ -187,31 +187,31 @@ npm run test  # if tests are available
 #### 4. Create Release Package
 ```bash
 # Move previous release to archive
-mv releases/ai-content-agent-v1.7.0-*.zip releases/archive/
+mv releases/ai-content-agent-v1.9.0-*.zip releases/archive/
 
 # Create new release zip
-zip -r ai-content-agent-v1.8.0-comprehensive-feature-enhancements-and-improvements.zip \
+zip -r ai-content-agent-v2.0.0-ui-improvements-and-stability-enhancements.zip \
   ai-content-agent-plugin/ \
   -x "*/node_modules/*" "*/.git/*" "*/dist/*" \
      "*/package-lock.json" "*/.gitignore" "*/.DS_Store" \
      "*/tsconfig.json" "*/vite.config.ts"
 
 # Move to releases directory
-mv ai-content-agent-v1.8.0-*.zip releases/
+mv ai-content-agent-v2.0.0-*.zip releases/
 ```
 
 #### 5. Git Operations
 ```bash
 # Commit all changes
 git add .
-git commit -m "🚀 RELEASE v1.8.0: COMPREHENSIVE FEATURE ENHANCEMENTS & IMPROVEMENTS"
+git commit -m "🚀 RELEASE v2.0.0: UI IMPROVEMENTS & STABILITY ENHANCEMENTS"
 
 # Push to main branch
 git push origin main
 
 # Create and push tag
-git tag v1.8.0
-git push origin v1.8.0
+git tag v2.0.0
+git push origin v2.0.0
 ```
 
 ### Release Naming Convention
@@ -219,9 +219,9 @@ git push origin v1.8.0
 ai-content-agent-v{MAJOR}.{MINOR}.{PATCH}-{DESCRIPTION}.zip
 
 Examples:
+- ai-content-agent-v2.0.0-ui-improvements-and-stability-enhancements.zip
+- ai-content-agent-v1.9.0-pro-features-and-license-system.zip
 - ai-content-agent-v1.8.0-comprehensive-feature-enhancements-and-improvements.zip
-- ai-content-agent-v1.7.0-comprehensive-feature-enhancements-and-improvements.zip
-- ai-content-agent-v1.6.8-gemini-api-retry-logic-and-improved-error-handling.zip
 ```
 
 ## 📚 Documentation Standards

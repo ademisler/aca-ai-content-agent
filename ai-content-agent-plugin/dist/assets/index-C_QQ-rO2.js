@@ -347,7 +347,7 @@
 }
 
 .aca-grid-2 {
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
 }
 
 .aca-grid-3 {
@@ -704,6 +704,18 @@
 }
 
 /* Responsive adjustments */
+
+@media (max-width: 1200px) {
+  .aca-grid-2 {
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .aca-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
 
 @media (max-width: 782px) {
   .aca-main {
@@ -10360,9 +10372,14 @@
             },
             disabled: isPublishing,
             className: "aca-button secondary",
-            style: { minWidth: "110px" },
+            style: {
+              minWidth: "110px",
+              background: "#f6f7f7",
+              borderColor: "#0073aa",
+              color: "#0073aa"
+            },
             children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Eye, { className: "aca-nav-item-icon" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Eye, { className: "aca-nav-item-icon", style: { color: "#0073aa" } }),
               "View Draft"
             ]
           }
@@ -12089,8 +12106,13 @@
         {
           onClick: () => onSelectPost(post),
           className: "aca-button secondary",
+          style: {
+            background: "#f6f7f7",
+            borderColor: "#0073aa",
+            color: "#0073aa"
+          },
           children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Eye, { className: "aca-nav-item-icon" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Eye, { className: "aca-nav-item-icon", style: { color: "#0073aa" } }),
             "View Content"
           ]
         }

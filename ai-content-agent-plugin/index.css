@@ -322,7 +322,7 @@
 }
 
 .aca-grid-2 {
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
 }
 
 .aca-grid-3 {
@@ -668,6 +668,18 @@
 }
 
 /* Responsive adjustments */
+@media (max-width: 1200px) {
+  .aca-grid-2 {
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .aca-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 782px) {
   .aca-main {
     padding: 15px;

@@ -2,6 +2,36 @@
 
 All notable changes to AI Content Agent will be documented in this file.
 
+## [2.0.0] - 2025-01-30
+
+### 🎨 UI IMPROVEMENTS & STABILITY ENHANCEMENTS
+
+#### ✨ Fixed Idea Board Overflow Issues
+- **Grid Layout Optimization**: Increased minimum grid item width from 300px to 350px
+- **Responsive Design**: Added better breakpoints to prevent 4-column layout on medium screens
+- **Button Overflow Fix**: Resolved delete button overflow issues in Idea Board cards
+- **Mobile Compatibility**: Enhanced responsive behavior for better mobile experience
+
+#### 🔍 Improved View Button Contrast
+- **Enhanced Visibility**: Fixed poor contrast in View button icons in Published Posts and Drafts
+- **Color Consistency**: Applied consistent blue color scheme (#0073aa) for better readability
+- **Accessibility**: Improved color contrast ratios for better accessibility compliance
+- **Visual Hierarchy**: Better distinction between primary and secondary actions
+
+#### 📚 Documentation Updates
+- **Version Consistency**: Updated all documentation files to reflect v2.0.0
+- **Developer Guide**: Updated build process and release management information
+- **README Updates**: Refreshed installation and feature descriptions
+- **Release Notes**: Added comprehensive changelog entries for transparency
+
+#### 🔧 Technical Improvements
+- **CSS Grid Optimization**: Better responsive grid system with improved breakpoints
+- **Component Styling**: Enhanced button styling for better visual consistency
+- **Build Process**: Maintained stable build pipeline with updated version references
+- **Code Quality**: Improved maintainability with consistent styling patterns
+
+---
+
 ## [1.9.1] - 2024-12-19
 
 ### 🎨 MAJOR UX/UI IMPROVEMENTS: Enhanced Settings Layout & Pro Feature Visibility

@@ -386,19 +386,39 @@ const App: React.FC = () => {
     const handleRefreshApp = useCallback(async () => {
         try {
             // Reload all app data to reflect license changes
-            await Promise.all([
-                loadSettings(),
-                loadIdeas(),
-                loadDrafts(),
-                loadPublishedPosts(),
-                loadActivityLogs()
+            const [settingsData, ideasData, draftsData, publishedData, activityData] = await Promise.all([
+                settingsApi.get(),
+                ideasApi.get(),
+                draftsApi.get(),
+                publishedApi.get(),
+                activityApi.get()
             ]);
+            
+            // Update state with fresh data
+            setSettings(settingsData || {
+                mode: 'manual',
+                autoPublish: false,
+                searchConsoleUser: null,
+                gscClientId: '',
+                gscClientSecret: '',
+                gscSiteUrl: '',
+                geminiApiKey: '',
+                is_pro: false,
+                seoPlugin: 'none',
+                imageSource: 'none',
+                aiImageStyle: 'photographic'
+            });
+            setIdeas(ideasData || []);
+            setDrafts(draftsData || []);
+            setPublishedPosts(publishedData || []);
+            setActivityLogs(activityData || []);
+            
             addToast({ message: 'App data refreshed successfully!', type: 'success' });
         } catch (error) {
             console.error('Failed to refresh app data:', error);
             addToast({ message: 'Failed to refresh app data', type: 'error' });
         }
-    }, [loadSettings, loadIdeas, loadDrafts, loadPublishedPosts, loadActivityLogs, addToast]);
+    }, [addToast]);
 
     const handleAddIdea = useCallback(async (title: string, description?: string) => {
         try {

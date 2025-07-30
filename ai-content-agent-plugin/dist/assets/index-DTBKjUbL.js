@@ -40,12 +40,12 @@
 /* Sidebar styles */
 
 .aca-sidebar {
-  width: 220px;
+  width: 200px;
   background: #23282d;
   border-right: 1px solid #ccd0d4;
   position: fixed;
   top: 32px; /* Account for WordPress admin bar */
-  left: 155px; /* Closer to WordPress admin menu */
+  left: 160px; /* Right next to WordPress admin menu */
   height: calc(100vh - 32px); /* Fixed height */
   z-index: 9999;
   overflow-y: auto; /* Allow internal scrolling */
@@ -263,7 +263,7 @@
   }
   
   .aca-main {
-    margin-left: 380px; /* WordPress admin menu (155px) + Plugin sidebar (220px) + minimal gap (5px) */
+    margin-left: 365px; /* Sidebar ends at 360px (160px + 200px) + 5px gap */
     padding: 20px;
   }
 }
@@ -1191,7 +1191,7 @@
 
 @media screen and (min-width: 783px) {
   .wp-admin .aca-sidebar {
-    left: 155px !important; /* Closer to WordPress admin menu */
+    left: 160px !important; /* Right next to WordPress admin menu */
     top: 32px !important; /* Desktop admin bar height */
     height: calc(100vh - 32px) !important;
   }
@@ -1200,7 +1200,7 @@
 /* No admin bar fallback */
 
 .no-admin-bar .aca-sidebar {
-  left: 155px !important; /* Closer to WordPress admin menu */
+  left: 160px !important; /* Right next to WordPress admin menu */
   top: 0 !important;
   height: 100vh !important;
 }/*$vite$:1*/`;

@@ -31,6 +31,8 @@ class ACA_Deactivator {
         delete_option('aca_style_guide');
         delete_option('aca_google_auth_token');
         delete_option('aca_gsc_site_url');
+        delete_option('aca_freshness_settings');
+        delete_option('aca_last_freshness_analysis');
         
         error_log('ACA: Plugin data cleaned up on deactivation');
     }

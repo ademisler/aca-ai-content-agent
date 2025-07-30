@@ -5,7 +5,7 @@ Tags: ai, content, automation, gemini, seo, pro, license
 Requires at least: 5.0
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 2.0.5
+Stable tag: 2.1.0
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -15,9 +15,13 @@ AI Content Agent (ACA) - AI-powered WordPress plugin with Pro licensing for auto
 
 AI Content Agent (ACA) transforms your WordPress site into an intelligent content creation powerhouse using Google's Gemini AI technology.
 
-**🚀 Latest v2.0.5 Features:**
-* Essential Gemini API warning system for new users
-* Persistent warning banner when API key is missing
+**🚀 Latest v2.1.0 Features:**
+* Revolutionary AI-Powered Content Freshness System (PRO)
+* Comprehensive content analysis with multi-factor scoring
+* Automated monitoring with configurable frequency
+* Priority-based update recommendations
+* Google Search Console integration for SEO scoring
+* Beautiful management interface with statistics
 * Smart "Go to Settings" navigation button
 * Real-time warning removal when API key is configured
 * Improved first-run experience preventing user confusion
@@ -162,6 +166,31 @@ Critical JavaScript initialization error fix. Essential update for users experie
 * Google Search Console data is only accessed with explicit user authorization
 
 == Changelog ==
+
+= 2.1.0 =
+* NEW: AI-Powered Content Freshness System (PRO) - Revolutionary content maintenance
+* NEW: Multi-factor freshness scoring (Age + SEO + AI analysis) with 0-100 scale
+* NEW: Automated content monitoring with configurable frequency (daily/weekly/monthly)
+* NEW: Priority-based update recommendations (1-5 scale) with actionable suggestions
+* NEW: Google Search Console integration for performance-based scoring
+* NEW: Beautiful ContentFreshnessManager interface with statistics and controls
+* NEW: Database schema with content_updates and content_freshness tables
+* NEW: 6 new REST API endpoints with Pro license gating
+* NEW: Cron-based automated analysis with queue management system
+* NEW: Activity logging with content_freshness_analysis type
+* NEW: Dashboard widget showing freshness statistics and quick navigation
+* Enhanced: Pro license validation across all new features
+* Enhanced: Comprehensive error handling and fallback mechanisms
+* Enhanced: TypeScript interfaces for complete type safety
+
+= 2.0.5 =
+* NEW: Essential Gemini API warning system for improved user experience
+* NEW: Persistent warning banner when API key is missing or invalid
+* NEW: Smart "Go to Settings" navigation button for immediate configuration
+* NEW: Real-time warning removal when valid API key is configured
+* Enhanced: First-run experience with clear guidance and instructions
+* Enhanced: User-friendly messaging explaining API requirements
+* Fixed: Confusion when quick actions don't work without API key
 
 = 2.0.3 =
 * Fixed: Dual-asset system implementation for proper WordPress integration

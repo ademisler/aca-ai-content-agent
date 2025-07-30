@@ -16,6 +16,11 @@ class ACA_Content_Freshness {
      * @return array Freshness analysis results
      */
     public function analyze_post_freshness($post_id) {
+        // Check if Pro license is active (content freshness is a Pro feature)
+        if (!is_aca_pro_active()) {
+            return new WP_Error('pro_required', 'Content freshness analysis requires Pro license');
+        }
+        
         $post = get_post($post_id);
         if (!$post) {
             return new WP_Error('invalid_post', 'Post not found');
@@ -513,6 +518,11 @@ Return only valid JSON format.";
      * @return array|null Freshness data or null if not found
      */
     public function get_freshness_data($post_id) {
+        // Check if Pro license is active
+        if (!is_aca_pro_active()) {
+            return null;
+        }
+        
         global $wpdb;
         
         $table_name = $wpdb->prefix . 'aca_content_freshness';
@@ -535,6 +545,11 @@ Return only valid JSON format.";
      * @return array Array of post IDs
      */
     public function get_posts_needing_analysis($limit = 10) {
+        // Check if Pro license is active
+        if (!is_aca_pro_active()) {
+            return array();
+        }
+        
         global $wpdb;
         
         $freshness_table = $wpdb->prefix . 'aca_content_freshness';
@@ -569,6 +584,11 @@ Return only valid JSON format.";
      * @return array Array of post data with freshness information
      */
     public function get_posts_needing_updates($limit = 20) {
+        // Check if Pro license is active
+        if (!is_aca_pro_active()) {
+            return array();
+        }
+        
         global $wpdb;
         
         $freshness_table = $wpdb->prefix . 'aca_content_freshness';
@@ -595,6 +615,11 @@ Return only valid JSON format.";
      * @return bool Success status
      */
     public function queue_content_update($post_id, $analysis_data) {
+        // Check if Pro license is active
+        if (!is_aca_pro_active()) {
+            return false;
+        }
+        
         global $wpdb;
         
         $table_name = $wpdb->prefix . 'aca_content_updates';

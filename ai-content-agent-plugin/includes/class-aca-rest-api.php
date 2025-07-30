@@ -3500,6 +3500,12 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
      * Analyze content freshness for multiple posts
      */
     public function analyze_content_freshness($request) {
+        // Verify nonce for security
+        $nonce_check = $this->verify_nonce($request);
+        if (is_wp_error($nonce_check)) {
+            return $nonce_check;
+        }
+        
         require_once ACA_PLUGIN_PATH . 'includes/class-aca-content-freshness.php';
         
         $freshness_manager = new ACA_Content_Freshness();
@@ -3540,6 +3546,12 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
      * Analyze content freshness for a single post
      */
     public function analyze_single_post_freshness($request) {
+        // Verify nonce for security
+        $nonce_check = $this->verify_nonce($request);
+        if (is_wp_error($nonce_check)) {
+            return $nonce_check;
+        }
+        
         require_once ACA_PLUGIN_PATH . 'includes/class-aca-content-freshness.php';
         
         $post_id = $request->get_param('id');
@@ -3566,6 +3578,12 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
      * Update content with AI suggestions
      */
     public function update_content_with_ai($request) {
+        // Verify nonce for security
+        $nonce_check = $this->verify_nonce($request);
+        if (is_wp_error($nonce_check)) {
+            return $nonce_check;
+        }
+        
         $post_id = $request->get_param('id');
         $update_type = $request->get_param('update_type') ?: 'suggestions';
         
@@ -3602,6 +3620,14 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
      * Manage freshness settings (GET and POST)
      */
     public function manage_freshness_settings($request) {
+        // Verify nonce for security (only for POST requests)
+        if ($request->get_method() === 'POST') {
+            $nonce_check = $this->verify_nonce($request);
+            if (is_wp_error($nonce_check)) {
+                return $nonce_check;
+            }
+        }
+        
         $method = $request->get_method();
         
         if ($method === 'GET') {

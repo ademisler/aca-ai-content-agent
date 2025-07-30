@@ -68,7 +68,7 @@ class ACA_Activator {
         $sql_content_freshness = "CREATE TABLE $content_freshness_table_name (
             post_id bigint(20) NOT NULL,
             freshness_score tinyint(3) DEFAULT 0,
-            last_analyzed datetime NOT NULL,
+            last_analyzed datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
             needs_update tinyint(1) DEFAULT 0,
             update_priority tinyint(1) DEFAULT 1,
             PRIMARY KEY  (post_id)

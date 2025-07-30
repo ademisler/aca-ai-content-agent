@@ -518,6 +518,18 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
     }> = ({ id, title, description, icon, children, defaultOpen = false }) => {
         const isCollapsed = collapsedSections[id] ?? !defaultOpen;
         
+        // Different gradient colors for each section
+        const getGradientColor = (sectionId: string) => {
+            switch (sectionId) {
+                case 'license': return 'linear-gradient(135deg, #3b82f6, #1d4ed8)'; // Blue
+                case 'automation': return 'linear-gradient(135deg, #f59e0b, #d97706)'; // Orange
+                case 'integrations': return 'linear-gradient(135deg, #10b981, #059669)'; // Green
+                case 'content': return 'linear-gradient(135deg, #8b5cf6, #7c3aed)'; // Purple
+                case 'advanced': return 'linear-gradient(135deg, #ef4444, #dc2626)'; // Red
+                default: return 'linear-gradient(135deg, #6b7280, #4b5563)'; // Gray
+            }
+        };
+        
         return (
             <div className="aca-card" style={{ 
                 background: 'linear-gradient(145deg, #fefefe 0%, #f8f9fa 100%)',
@@ -534,6 +546,17 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
                         userSelect: 'none'
                     }}
                     onClick={() => toggleSection(id)}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            toggleSection(id);
+                        }
+                    }}
+                    tabIndex={0}
+                    role="button"
+                    aria-expanded={!isCollapsed}
+                    aria-controls={`section-content-${id}`}
+                    aria-label={`Toggle ${title} section`}
                 >
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <h2 className="aca-card-title" style={{ 
@@ -546,7 +569,7 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
                             <div style={{ 
                                 width: '32px', 
                                 height: '32px', 
-                                background: 'linear-gradient(135deg, #10b981, #059669)',
+                                background: getGradientColor(id),
                                 borderRadius: '8px',
                                 display: 'flex',
                                 alignItems: 'center',
@@ -569,11 +592,19 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
                         {description}
                     </p>
                 </div>
-                {!isCollapsed && (
-                    <div style={{ padding: '20px 0 0 0' }}>
-                        {children}
-                    </div>
-                )}
+                <div 
+                    id={`section-content-${id}`}
+                    style={{ 
+                        maxHeight: isCollapsed ? '0' : '2000px',
+                        opacity: isCollapsed ? 0 : 1,
+                        overflow: 'hidden',
+                        transition: 'max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease',
+                        padding: isCollapsed ? '0' : '20px 0 0 0'
+                    }}
+                    aria-hidden={isCollapsed}
+                >
+                    {children}
+                </div>
             </div>
         );
     };

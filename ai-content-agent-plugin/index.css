@@ -758,6 +758,7 @@
 
 @media (max-width: 782px) {
   .aca-main {
+    margin-left: 0 !important; /* Reset sidebar margin on mobile */
     padding: 15px;
   }
   

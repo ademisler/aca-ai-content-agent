@@ -795,6 +795,7 @@
 
 @media (max-width: 782px) {
   .aca-main {
+    margin-left: 0 !important; /* Reset sidebar margin on mobile */
     padding: 15px;
   }
   
@@ -11991,6 +11992,27 @@
     };
     const CollapsibleSection = ({ id, title, description, icon, children, defaultOpen = false }) => {
       const isCollapsed = collapsedSections[id] ?? !defaultOpen;
+      const getGradientColor = (sectionId) => {
+        switch (sectionId) {
+          case "license":
+            return "linear-gradient(135deg, #3b82f6, #1d4ed8)";
+          // Blue
+          case "automation":
+            return "linear-gradient(135deg, #f59e0b, #d97706)";
+          // Orange
+          case "integrations":
+            return "linear-gradient(135deg, #10b981, #059669)";
+          // Green
+          case "content":
+            return "linear-gradient(135deg, #8b5cf6, #7c3aed)";
+          // Purple
+          case "advanced":
+            return "linear-gradient(135deg, #ef4444, #dc2626)";
+          // Red
+          default:
+            return "linear-gradient(135deg, #6b7280, #4b5563)";
+        }
+      };
       return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", style: {
         background: "linear-gradient(145deg, #fefefe 0%, #f8f9fa 100%)",
         border: "1px solid #e2e8f0",
@@ -12008,6 +12030,17 @@
               userSelect: "none"
             },
             onClick: () => toggleSection(id),
+            onKeyDown: (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                toggleSection(id);
+              }
+            },
+            tabIndex: 0,
+            role: "button",
+            "aria-expanded": !isCollapsed,
+            "aria-controls": `section-content-${id}`,
+            "aria-label": `Toggle ${title} section`,
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between" }, children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "aca-card-title", style: {
@@ -12020,7 +12053,7 @@
                   /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
                     width: "32px",
                     height: "32px",
-                    background: "linear-gradient(135deg, #10b981, #059669)",
+                    background: getGradientColor(id),
                     borderRadius: "8px",
                     display: "flex",
                     alignItems: "center",
@@ -12039,7 +12072,21 @@
             ]
           }
         ),
-        !isCollapsed && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "20px 0 0 0" }, children })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            id: `section-content-${id}`,
+            style: {
+              maxHeight: isCollapsed ? "0" : "2000px",
+              opacity: isCollapsed ? 0 : 1,
+              overflow: "hidden",
+              transition: "max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease",
+              padding: isCollapsed ? "0" : "20px 0 0 0"
+            },
+            "aria-hidden": isCollapsed,
+            children
+          }
+        )
       ] });
     };
     const isImageSourceConfigured = currentSettings.imageSourceProvider === "ai" || currentSettings.imageSourceProvider === "pexels" && !!currentSettings.pexelsApiKey || currentSettings.imageSourceProvider === "unsplash" && !!currentSettings.unsplashApiKey || currentSettings.imageSourceProvider === "pixabay" && !!currentSettings.pixabayApiKey;

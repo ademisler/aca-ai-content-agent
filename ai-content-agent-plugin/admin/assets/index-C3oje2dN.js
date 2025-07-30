@@ -1008,7 +1008,7 @@
   }
 }
 
-/* COMPREHENSIVE WORDPRESS ADMIN NOTIFICATIONS HIDING */
+/* AGGRESSIVE WORDPRESS ADMIN NOTIFICATIONS HIDING */
 
 /* Hide all WordPress admin notices/notifications on plugin page */
 
@@ -1031,13 +1031,22 @@ body.toplevel_page_ai-content-agent #wpbody-content > .updated,
 body.toplevel_page_ai-content-agent #wpbody-content > .error,
 body.toplevel_page_ai-content-agent .wrap > .notice,
 body.toplevel_page_ai-content-agent .wrap > .updated,
-body.toplevel_page_ai-content-agent .wrap > .error {
+body.toplevel_page_ai-content-agent .wrap > .error,
+body.toplevel_page_ai-content-agent #wpbody-content > div[class*="notice"],
+body.toplevel_page_ai-content-agent #wpbody-content > div[class*="updated"],
+body.toplevel_page_ai-content-agent #wpbody-content > div[class*="error"],
+body.toplevel_page_ai-content-agent #wpbody-content > div[id*="message"],
+body.toplevel_page_ai-content-agent #wpbody-content > div[id*="notice"],
+body.toplevel_page_ai-content-agent #wpbody-content > *:not(#root) {
   display: none !important;
   visibility: hidden !important;
   opacity: 0 !important;
   height: 0 !important;
   margin: 0 !important;
   padding: 0 !important;
+  position: absolute !important;
+  top: -9999px !important;
+  left: -9999px !important;
 }
 
 /* Allow our own plugin notices to show if needed */
@@ -1349,14 +1358,20 @@ body.toplevel_page_ai-content-agent #wpcontent {
   margin: 0 !important;
 }
 
-/* Ensure our root element takes full space */
+/* Ensure our root element takes full space and overrides everything */
 
 body.toplevel_page_ai-content-agent #root {
   margin: 0 !important;
   padding: 0 !important;
   width: 100% !important;
   height: 100vh !important;
-  position: relative !important;
+  position: fixed !important;
+  top: 32px !important; /* Account for WordPress admin bar */
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  z-index: 999999 !important;
+  background: #f0f0f1 !important;
 }
 
 /* Make our container take full space and override WordPress */

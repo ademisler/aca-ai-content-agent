@@ -2,22 +2,36 @@
 
 ## 📦 Current Release
 
-### v2.0.3 - Asset Deployment & Cache Invalidation (Latest)
-- **File**: `ai-content-agent-v2.0.3-asset-deployment-and-cache-invalidation.zip`
-- **Release Date**: January 30, 2025
+### v2.1.0 - AI-Powered Content Freshness System (Latest)
+- **File**: `ai-content-agent-v2.1.0-content-freshness-system.zip`
+- **Release Date**: January 31, 2025
 - **Status**: ✅ Production Ready
-- **Size**: ~350KB
+- **Size**: ~420KB
 
-#### 🔄 Key Features:
-- **Dual-Asset System**: Properly implemented WordPress asset loading system
-- **Cache Invalidation**: Fixed WordPress cache issues with updated timestamps
-- **Icon Contrast**: Enhanced View button icons with better visibility and accessibility
-- **Build Process**: Corrected deployment following DEVELOPER_GUIDE.md exactly
-- **WordPress Integration**: Proper file selection by modification time
+#### 🚀 Major Features:
+- **AI Content Freshness**: Revolutionary content maintenance system with AI analysis
+- **Comprehensive Scoring**: Multi-factor freshness scoring (0-100 scale)
+- **Automated Monitoring**: Configurable periodic analysis with cron integration
+- **Pro Feature**: Premium feature with proper license gating
+- **Beautiful UI**: Full-featured React management interface
+- **Google Search Console**: Performance-based scoring integration
+- **Zero-Error Implementation**: Follows PLUGIN_IMPROVEMENT_IDEAS.md exactly
 
 ---
 
 ## 📋 Previous Releases
+
+### v2.0.5 - Essential Gemini API Warning System
+- **File**: `ai-content-agent-v2.0.5-gemini-api-warning.zip` (Archived)
+- **Release Date**: January 30, 2025
+- **Status**: 🗄️ Archived - Superseded by v2.1.0
+- **Features**: Persistent API warning system and improved first-run experience
+
+### v2.0.3 - Asset Deployment & Cache Invalidation
+- **File**: `ai-content-agent-v2.0.3-asset-deployment-and-cache-invalidation.zip` (Archived)
+- **Release Date**: January 30, 2025
+- **Status**: 🗄️ Archived - Superseded by v2.1.0
+- **Features**: Dual-asset system and cache invalidation fixes
 
 ### v2.0.2 - Build Fix & Proper Deployment
 - **File**: `ai-content-agent-v2.0.2-build-fix-and-proper-deployment.zip` (Archived)

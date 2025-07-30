@@ -138,10 +138,10 @@ export default defineConfig({
 ## 📦 Release Management
 
 ### Current Release Information
-- **Latest Version**: v2.0.5
-- **Release File**: `ai-content-agent-aca-v2.0.5-gemini-api-warning.zip`
-- **Status**: Production ready with essential Gemini API warning system
-- **Key Features**: Persistent API warning, smart navigation, real-time validation, improved first-run experience, user-friendly guidance
+- **Latest Version**: v2.1.0
+- **Release File**: `ai-content-agent-v2.1.0-content-freshness-system.zip`
+- **Status**: Production ready with revolutionary AI-powered content freshness system
+- **Key Features**: AI content analysis, automated monitoring, priority-based updates, Google Search Console integration, Pro feature gating, comprehensive UI
 
 ### Release Process
 

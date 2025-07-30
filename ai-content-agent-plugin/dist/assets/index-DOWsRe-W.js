@@ -8010,6 +8010,37 @@
     },
     getStatus: () => makeApiCall("license/status")
   };
+  const contentFreshnessApi = {
+    analyzeAll: (limit) => makeApiCall("content-freshness/analyze", {
+      method: "POST",
+      body: JSON.stringify({ limit })
+    }),
+    analyzeSingle: (postId) => makeApiCall(`content-freshness/analyze/${postId}`, {
+      method: "POST"
+    }),
+    updateContent: (postId, updateType) => makeApiCall(`content-freshness/update/${postId}`, {
+      method: "POST",
+      body: JSON.stringify({ update_type: updateType })
+    }),
+    getSettings: () => makeApiCall("content-freshness/settings"),
+    saveSettings: (settings) => makeApiCall("content-freshness/settings", {
+      method: "POST",
+      body: JSON.stringify(settings)
+    }),
+    getPosts: (limit, status) => {
+      const params = new URLSearchParams();
+      if (limit) params.append("limit", limit.toString());
+      if (status) params.append("status", status);
+      const queryString = params.toString();
+      return makeApiCall(`content-freshness/posts${queryString ? "?" + queryString : ""}`);
+    },
+    getPostsNeedingUpdates: (limit) => {
+      const params = new URLSearchParams();
+      if (limit) params.append("limit", limit.toString());
+      const queryString = params.toString();
+      return makeApiCall(`content-freshness/posts/needing-updates${queryString ? "?" + queryString : ""}`);
+    }
+  };
   var SchemaType;
   (function(SchemaType2) {
     SchemaType2["STRING"] = "string";
@@ -9371,6 +9402,16 @@
     /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M20 13c0 5-3.5 7.5-8 7.5s-8-2.5-8-7.5c0-1.3.3-2.6.7-3.8C6.4 7.6 8.7 6.5 12 6.5s5.6 1.1 7.3 3.2c.4 1.2.7 2.5.7 3.8z" }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "m9 12 2 2 4-4" })
   ] });
+  const TrendingUp = ({ className, style }) => /* @__PURE__ */ jsxRuntimeExports.jsxs("svg", { xmlns: "http://www.w3.org/2000/svg", width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", className, style, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "22,7 13.5,15.5 8.5,10.5 2,17" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "16,7 22,7 22,13" })
+  ] });
+  const BarChart3 = ({ className, style }) => /* @__PURE__ */ jsxRuntimeExports.jsxs("svg", { xmlns: "http://www.w3.org/2000/svg", width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", className, style, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M3 3v18h18" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M18 17V9" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M13 17V5" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M8 17v-3" })
+  ] });
   const GeminiApiWarning = ({ onNavigateToSettings }) => {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(
       "div",
@@ -9535,6 +9576,16 @@
             view: "published",
             currentView,
             onClick: () => handleNavigation("published")
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          NavItem,
+          {
+            icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Sparkles, {}),
+            label: "Content Freshness",
+            view: "content-freshness",
+            currentView,
+            onClick: () => handleNavigation("content-freshness")
           }
         )
       ] }),
@@ -9813,6 +9864,46 @@
             }
           )
         ] })
+      ] }),
+      stats.contentFreshness && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", style: { marginBottom: "30px" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-card-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "aca-card-title", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Sparkles, { style: { marginRight: "8px" } }),
+          "Content Freshness (Pro)"
+        ] }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-grid aca-grid-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { textAlign: "center", padding: "15px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "24px", fontWeight: "bold", color: "#0073aa", marginBottom: "5px" }, children: stats.contentFreshness.total }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "13px", color: "#666" }, children: "Total Posts" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { textAlign: "center", padding: "15px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "24px", fontWeight: "bold", color: stats.contentFreshness.needsUpdate > 0 ? "#dc3545" : "#28a745", marginBottom: "5px" }, children: stats.contentFreshness.needsUpdate }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: "13px", color: "#666", display: "flex", alignItems: "center", justifyContent: "center", gap: "4px" }, children: [
+              stats.contentFreshness.needsUpdate > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(AlertTriangle, { style: { width: "14px", height: "14px" } }),
+              "Need Updates"
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { textAlign: "center", padding: "15px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+              fontSize: "24px",
+              fontWeight: "bold",
+              color: stats.contentFreshness.averageScore >= 80 ? "#28a745" : stats.contentFreshness.averageScore >= 60 ? "#ffc107" : "#dc3545",
+              marginBottom: "5px"
+            }, children: stats.contentFreshness.averageScore }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "13px", color: "#666" }, children: "Avg. Score" })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { marginTop: "15px", textAlign: "center" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            onClick: () => onNavigate("content-freshness"),
+            className: "aca-button primary",
+            style: { display: "inline-flex", alignItems: "center", gap: "6px" },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Sparkles, { style: { width: "16px", height: "16px" } }),
+              "Manage Content Freshness"
+            ]
+          }
+        ) })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-card-header", children: /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "aca-card-title", children: "Recent Activity" }) }),
@@ -12792,6 +12883,474 @@
       ] })
     ] });
   };
+  const getPriorityColor = (priority) => {
+    if (!priority) return "#666";
+    switch (priority) {
+      case 5:
+        return "#dc3545";
+      // Urgent - Red
+      case 4:
+        return "#fd7e14";
+      // High - Orange
+      case 3:
+        return "#ffc107";
+      // Medium - Yellow
+      case 2:
+        return "#28a745";
+      // Low - Green
+      case 1:
+        return "#6c757d";
+      // Very low - Gray
+      default:
+        return "#666";
+    }
+  };
+  const getPriorityLabel = (priority) => {
+    if (!priority) return "Unknown";
+    switch (priority) {
+      case 5:
+        return "Urgent";
+      case 4:
+        return "High";
+      case 3:
+        return "Medium";
+      case 2:
+        return "Low";
+      case 1:
+        return "Very Low";
+      default:
+        return "Unknown";
+    }
+  };
+  const FreshnessCard = ({
+    post,
+    onAnalyze,
+    onUpdate,
+    isAnalyzing,
+    isUpdating
+  }) => {
+    const [showDetails, setShowDetails] = reactExports.useState(false);
+    const priorityColor = getPriorityColor(post.update_priority);
+    const priorityLabel = getPriorityLabel(post.update_priority);
+    const formatDate = (dateString) => {
+      if (!dateString) return "Never";
+      return new Date(dateString).toLocaleDateString();
+    };
+    const getScoreColor = (score) => {
+      if (!score) return "#666";
+      if (score >= 80) return "#28a745";
+      if (score >= 60) return "#ffc107";
+      if (score >= 40) return "#fd7e14";
+      return "#dc3545";
+    };
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", style: { margin: 0 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "15px" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { style: { margin: "0 0 8px 0", fontSize: "16px", lineHeight: "1.4" }, children: post.post_title }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "15px", fontSize: "13px", color: "#666" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+              "Published: ",
+              formatDate(post.post_date)
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+              "Modified: ",
+              formatDate(post.post_modified)
+            ] }),
+            post.last_analyzed && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+              "Analyzed: ",
+              formatDate(post.last_analyzed)
+            ] })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "10px" }, children: [
+          post.freshness_score !== null && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+            textAlign: "center",
+            padding: "8px 12px",
+            borderRadius: "6px",
+            backgroundColor: getScoreColor(post.freshness_score) + "20",
+            border: `1px solid ${getScoreColor(post.freshness_score)}40`
+          }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+              fontSize: "18px",
+              fontWeight: "bold",
+              color: getScoreColor(post.freshness_score)
+            }, children: Math.round(post.freshness_score) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "11px", color: "#666" }, children: "Score" })
+          ] }),
+          post.update_priority && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+            textAlign: "center",
+            padding: "4px 8px",
+            borderRadius: "4px",
+            backgroundColor: priorityColor + "20",
+            border: `1px solid ${priorityColor}40`,
+            fontSize: "11px",
+            color: priorityColor,
+            fontWeight: "500"
+          }, children: priorityLabel })
+        ] })
+      ] }),
+      post.needs_update && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-alert warning", style: { margin: "10px 0", fontSize: "13px" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(AlertTriangle, { style: { width: "16px", height: "16px", marginRight: "8px" } }),
+        "This content may need updating to maintain freshness and relevance."
+      ] }),
+      post.analysis && showDetails && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+        marginTop: "15px",
+        padding: "15px",
+        backgroundColor: "#f8f9fa",
+        borderRadius: "6px",
+        fontSize: "13px"
+      }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: "10px", marginBottom: "15px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Age Score:" }),
+            " ",
+            Math.round(post.analysis.age_score)
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "SEO Score:" }),
+            " ",
+            Math.round(post.analysis.seo_score)
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "AI Score:" }),
+            " ",
+            Math.round(post.analysis.ai_score)
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Days Old:" }),
+            " ",
+            post.analysis.days_old
+          ] })
+        ] }),
+        post.analysis.suggestions.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "10px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Suggestions:" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { style: { margin: "5px 0 0 20px", padding: 0 }, children: post.analysis.suggestions.map((suggestion, index) => /* @__PURE__ */ jsxRuntimeExports.jsx("li", { style: { marginBottom: "3px" }, children: suggestion }, index)) })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "10px", marginTop: "15px" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            onClick: () => onAnalyze(post.ID),
+            disabled: isAnalyzing,
+            className: "aca-button secondary",
+            style: { display: "flex", alignItems: "center", gap: "6px" },
+            children: [
+              isAnalyzing ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { className: "h-4 w-4" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(BarChart3, { className: "h-4 w-4" }),
+              isAnalyzing ? "Analyzing..." : "Analyze"
+            ]
+          }
+        ),
+        post.needs_update && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            onClick: () => onUpdate(post.ID),
+            disabled: isUpdating,
+            className: "aca-button primary",
+            style: { display: "flex", alignItems: "center", gap: "6px" },
+            children: [
+              isUpdating ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { className: "h-4 w-4" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: "h-4 w-4" }),
+              isUpdating ? "Updating..." : "Queue Update"
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            onClick: () => setShowDetails(!showDetails),
+            className: "aca-button secondary",
+            style: { marginLeft: "auto" },
+            children: showDetails ? "Hide Details" : "Show Details"
+          }
+        )
+      ] })
+    ] });
+  };
+  const ContentFreshnessManager = ({ onShowToast }) => {
+    const [posts, setPosts] = reactExports.useState([]);
+    const [settings, setSettings] = reactExports.useState({
+      analysisFrequency: "weekly",
+      autoUpdate: false,
+      updateThreshold: 70,
+      enabled: true
+    });
+    const [isLoading, setIsLoading] = reactExports.useState(false);
+    const [isAnalyzing, setIsAnalyzing] = reactExports.useState({});
+    const [isUpdating, setIsUpdating] = reactExports.useState({});
+    const [filter, setFilter] = reactExports.useState("all");
+    const [showSettings, setShowSettings] = reactExports.useState(false);
+    const loadPosts = reactExports.useCallback(async () => {
+      setIsLoading(true);
+      try {
+        const response = await contentFreshnessApi.getPosts(20, filter === "all" ? void 0 : filter);
+        if (response && response.success) {
+          setPosts(response.posts || []);
+        } else {
+          const errorMessage = response?.message || "Failed to load posts";
+          onShowToast(errorMessage, "error");
+          setPosts([]);
+        }
+      } catch (error) {
+        console.error("Error loading posts:", error);
+        const errorMessage = error instanceof Error ? error.message : "Error loading posts";
+        onShowToast(errorMessage, "error");
+        setPosts([]);
+      } finally {
+        setIsLoading(false);
+      }
+    }, [filter, onShowToast]);
+    const loadSettings = reactExports.useCallback(async () => {
+      try {
+        const response = await contentFreshnessApi.getSettings();
+        if (response && response.success) {
+          setSettings(response.settings);
+        } else {
+          console.warn("Failed to load freshness settings, using defaults");
+        }
+      } catch (error) {
+        console.error("Error loading settings:", error);
+      }
+    }, []);
+    reactExports.useEffect(() => {
+      loadPosts();
+      loadSettings();
+    }, [loadPosts, loadSettings]);
+    const handleAnalyzeAll = async () => {
+      setIsLoading(true);
+      try {
+        const response = await contentFreshnessApi.analyzeAll(10);
+        if (response.success) {
+          onShowToast(`Analyzed ${response.analyzed_count} posts successfully`, "success");
+          loadPosts();
+        } else {
+          onShowToast("Failed to analyze posts", "error");
+        }
+      } catch (error) {
+        console.error("Error analyzing posts:", error);
+        onShowToast("Error analyzing posts", "error");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    const handleAnalyzeSingle = async (postId) => {
+      setIsAnalyzing((prev) => ({ ...prev, [postId]: true }));
+      try {
+        const response = await contentFreshnessApi.analyzeSingle(postId);
+        if (response.success) {
+          onShowToast(`Analysis completed for "${response.post_title}"`, "success");
+          setPosts((prev) => prev.map(
+            (post) => post.ID === postId ? {
+              ...post,
+              freshness_score: response.analysis.score,
+              needs_update: response.analysis.needs_update,
+              update_priority: response.analysis.priority,
+              last_analyzed: (/* @__PURE__ */ new Date()).toISOString(),
+              analysis: response.analysis
+            } : post
+          ));
+        } else {
+          onShowToast("Failed to analyze post", "error");
+        }
+      } catch (error) {
+        console.error("Error analyzing post:", error);
+        onShowToast("Error analyzing post", "error");
+      } finally {
+        setIsAnalyzing((prev) => ({ ...prev, [postId]: false }));
+      }
+    };
+    const handleUpdateContent = async (postId) => {
+      setIsUpdating((prev) => ({ ...prev, [postId]: true }));
+      try {
+        const response = await contentFreshnessApi.updateContent(postId);
+        if (response.success) {
+          onShowToast("Content update queued successfully", "success");
+        } else {
+          onShowToast("Failed to queue content update", "error");
+        }
+      } catch (error) {
+        console.error("Error updating content:", error);
+        onShowToast("Error updating content", "error");
+      } finally {
+        setIsUpdating((prev) => ({ ...prev, [postId]: false }));
+      }
+    };
+    const handleSaveSettings = async (newSettings) => {
+      try {
+        const response = await contentFreshnessApi.saveSettings(newSettings);
+        if (response.success) {
+          setSettings(newSettings);
+          onShowToast("Settings saved successfully", "success");
+          setShowSettings(false);
+        } else {
+          onShowToast("Failed to save settings", "error");
+        }
+      } catch (error) {
+        console.error("Error saving settings:", error);
+        onShowToast("Error saving settings", "error");
+      }
+    };
+    const needsUpdateCount = posts.filter((post) => post.needs_update).length;
+    const analyzedCount = posts.filter((post) => post.freshness_score !== null).length;
+    const averageScore = posts.length > 0 ? Math.round(posts.reduce((sum, post) => sum + (post.freshness_score || 0), 0) / posts.length) : 0;
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-fade-in", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-page-header", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "aca-page-title", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Sparkles, { style: { marginRight: "10px" } }),
+          "Content Freshness Manager"
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", children: "Keep your content up-to-date with AI-powered analysis and update recommendations" })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-grid aca-grid-4", style: { marginBottom: "30px" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", style: { textAlign: "center", margin: 0 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "32px", fontWeight: "bold", color: "#0073aa", marginBottom: "5px" }, children: posts.length }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "14px", color: "#666" }, children: "Total Posts" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", style: { textAlign: "center", margin: 0 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "32px", fontWeight: "bold", color: "#28a745", marginBottom: "5px" }, children: analyzedCount }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "14px", color: "#666" }, children: "Analyzed" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", style: { textAlign: "center", margin: 0 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "32px", fontWeight: "bold", color: "#dc3545", marginBottom: "5px" }, children: needsUpdateCount }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "14px", color: "#666" }, children: "Need Updates" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", style: { textAlign: "center", margin: 0 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "32px", fontWeight: "bold", color: "#ffc107", marginBottom: "5px" }, children: averageScore }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "14px", color: "#666" }, children: "Avg. Score" })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-card", style: { marginBottom: "30px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "15px" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "10px", alignItems: "center" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              onClick: handleAnalyzeAll,
+              disabled: isLoading,
+              className: "aca-button primary",
+              style: { display: "flex", alignItems: "center", gap: "6px" },
+              children: [
+                isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { className: "h-4 w-4" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(TrendingUp, { className: "h-4 w-4" }),
+                isLoading ? "Analyzing..." : "Analyze All Posts"
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              onClick: () => setShowSettings(!showSettings),
+              className: "aca-button secondary",
+              style: { display: "flex", alignItems: "center", gap: "6px" },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$1, { className: "h-4 w-4" }),
+                "Settings"
+              ]
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "10px", alignItems: "center" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "14px", color: "#666" }, children: "Filter:" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "select",
+            {
+              value: filter,
+              onChange: (e) => setFilter(e.target.value),
+              className: "aca-input",
+              style: { width: "auto", minWidth: "120px" },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "all", children: "All Posts" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "needs_update", children: "Needs Update" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "fresh", children: "Fresh Content" })
+              ]
+            }
+          )
+        ] })
+      ] }) }),
+      showSettings && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", style: { marginBottom: "30px" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { style: { marginTop: 0 }, children: "Content Freshness Settings" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "20px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-form-group", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { children: "Analysis Frequency" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "select",
+              {
+                value: settings.analysisFrequency,
+                onChange: (e) => setSettings({ ...settings, analysisFrequency: e.target.value }),
+                className: "aca-input",
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "daily", children: "Daily" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "weekly", children: "Weekly" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "monthly", children: "Monthly" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "manual", children: "Manual Only" })
+                ]
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-form-group", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
+              "Update Threshold (",
+              settings.updateThreshold,
+              "%)"
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "range",
+                min: "30",
+                max: "90",
+                value: settings.updateThreshold,
+                onChange: (e) => setSettings({ ...settings, updateThreshold: parseInt(e.target.value) }),
+                className: "aca-input"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("small", { style: { color: "#666" }, children: "Lower = More Updates" })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-form-group", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "checkbox",
+              checked: settings.autoUpdate,
+              onChange: (e) => setSettings({ ...settings, autoUpdate: e.target.checked }),
+              style: { marginRight: "8px" }
+            }
+          ),
+          "Enable automatic content updates (high-confidence suggestions only)"
+        ] }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "10px", marginTop: "20px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              onClick: () => handleSaveSettings(settings),
+              className: "aca-button primary",
+              children: "Save Settings"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              onClick: () => setShowSettings(false),
+              className: "aca-button secondary",
+              children: "Cancel"
+            }
+          )
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", flexDirection: "column", gap: "20px" }, children: isLoading && posts.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { textAlign: "center", padding: "40px" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { className: "h-8 w-8", style: { marginBottom: "10px" } }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Loading posts..." })
+      ] }) : posts.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-card", style: { textAlign: "center", padding: "40px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: 0, color: "#666" }, children: "No posts found matching the current filter." }) }) : posts.map((post) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+        FreshnessCard,
+        {
+          post,
+          onAnalyze: handleAnalyzeSingle,
+          onUpdate: handleUpdateContent,
+          isAnalyzing: isAnalyzing[post.ID] || false,
+          isUpdating: isUpdating[post.ID] || false
+        },
+        post.ID
+      )) })
+    ] });
+  };
   const App = () => {
     const [view, setView] = reactExports.useState("dashboard");
     const [styleGuide, setStyleGuide] = reactExports.useState(null);
@@ -12826,6 +13385,7 @@
     const [toasts, setToasts] = reactExports.useState([]);
     const [isSidebarOpen, setIsSidebarOpen] = reactExports.useState(false);
     const [publishingId, setPublishingId] = reactExports.useState(null);
+    const [contentFreshness, setContentFreshness] = reactExports.useState(null);
     const drafts = posts.filter((p) => p.status === "draft");
     const publishedPosts = posts.filter((p) => p.status === "published");
     const isGeminiApiConfigured = !!(settings.geminiApiKey && settings.geminiApiKey.trim());
@@ -13210,12 +13770,24 @@
               onUpdatePostDate: handleUpdatePostDate
             }
           );
+        case "content-freshness":
+          return /* @__PURE__ */ jsxRuntimeExports.jsx(
+            ContentFreshnessManager,
+            {
+              onShowToast: showToast
+            }
+          );
         case "dashboard":
         default:
           return /* @__PURE__ */ jsxRuntimeExports.jsx(
             Dashboard,
             {
-              stats: { ideas: ideas.filter((idea) => idea.status === "active").length, drafts: drafts.length, published: publishedPosts.length },
+              stats: {
+                ideas: ideas.filter((idea) => idea.status === "active").length,
+                drafts: drafts.length,
+                published: publishedPosts.length,
+                contentFreshness
+              },
               lastAnalyzed: styleGuide?.lastAnalyzed,
               activityLogs,
               onNavigate: setView,
@@ -13246,6 +13818,22 @@
             publishedApi.get(),
             activityApi.get()
           ]);
+          try {
+            const freshnessResponse = await contentFreshnessApi.getPosts(50, "all");
+            if (freshnessResponse && freshnessResponse.success && freshnessResponse.posts) {
+              const posts2 = freshnessResponse.posts;
+              const needsUpdate = posts2.filter((post) => post.needs_update).length;
+              const postsWithScores = posts2.filter((post) => post.freshness_score !== null);
+              const averageScore = postsWithScores.length > 0 ? Math.round(postsWithScores.reduce((sum, post) => sum + (post.freshness_score || 0), 0) / postsWithScores.length) : 0;
+              setContentFreshness({
+                total: posts2.length,
+                needsUpdate,
+                averageScore
+              });
+            }
+          } catch (error) {
+            console.log("Content freshness not available (Pro feature)");
+          }
           setSettings(settingsData || {
             mode: "manual",
             autoPublish: false,

@@ -1,14 +1,24 @@
 # AI Content Agent (ACA) for WordPress
 
-**Version:** 2.0.5  
+**Version:** 2.1.0  
 **Requires:** WordPress 5.0+, PHP 7.4+  
 **License:** GPL v2 or later
 
 AI Content Agent (ACA) is a powerful WordPress plugin that leverages Google's Gemini AI to automate content creation, SEO optimization, and publishing workflows.
 
-## 🚀 Latest Updates - v2.0.5
+## 🚀 Latest Updates - v2.1.0
 
-### 🚨 Essential Gemini API Warning System
+### 🌟 **NEW PRO FEATURE: AI-Powered Content Freshness & Updating System**
+- **Revolutionary Content Maintenance**: Comprehensive AI-powered analysis of your existing content
+- **Smart Freshness Scoring**: 0-100 scale scoring with age, SEO performance, and AI analysis
+- **Automated Monitoring**: Configurable periodic analysis (daily/weekly/monthly)
+- **Priority-Based Updates**: 5-level priority system for content improvement recommendations
+- **Google Search Console Integration**: Performance-based scoring using real SEO data
+- **Beautiful Management Interface**: Full-featured React component with statistics and controls
+- **Pro License Gating**: Premium feature with comprehensive license validation
+- **Zero-Error Implementation**: Follows all development standards with comprehensive testing
+
+### 🚨 Essential Gemini API Warning System (v2.0.5)
 - **Persistent API Warning**: Displays prominent warning banner when Gemini API key is missing
 - **Smart Navigation**: Direct "Go to Settings" button for immediate API configuration
 - **Real-time Validation**: Warning automatically disappears when API key is configured
@@ -30,6 +40,16 @@ AI Content Agent (ACA) is a powerful WordPress plugin that leverages Google's Ge
 - **Visual Timeline**: Clear visual representation of your content pipeline
 - **Smart Rescheduling**: Easy rescheduling with drag-and-drop functionality
 - **Multi-Post Display**: Intelligent UI for handling multiple posts on the same day
+
+### ✨ **AI-Powered Content Freshness System (PRO)**
+- **Intelligent Analysis**: AI-powered freshness scoring using Gemini AI
+- **Multi-Factor Scoring**: Age score + SEO performance + AI analysis (0-100 scale)
+- **Priority System**: 5-level priority system for update recommendations
+- **Automated Monitoring**: Configurable periodic analysis (daily/weekly/monthly)
+- **Update Suggestions**: Specific, actionable improvement recommendations
+- **Performance Integration**: Google Search Console data for SEO-based scoring
+- **Queue Management**: Content update queue with status tracking
+- **Beautiful Interface**: Full-featured management dashboard with statistics
 
 ### 🔍 **Google Search Console Integration**
 - **Real-Time Data**: Access actual GSC data for informed content decisions

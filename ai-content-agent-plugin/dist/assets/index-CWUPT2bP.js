@@ -9396,7 +9396,7 @@
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "a",
           {
-            href: "https://ademisler.com",
+            href: "https://ademisler.com/en",
             target: "_blank",
             rel: "noopener noreferrer",
             className: "aca-sidebar-subtitle",

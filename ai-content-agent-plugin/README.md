@@ -71,7 +71,7 @@ AI Content Agent (ACA) is a powerful WordPress plugin that leverages Google's Ge
 
 ### Current Release
 - **Latest Version**: v2.0.4 (Located in `/releases/`)
-- **File**: `ai-content-agent-v2.0.4-console-errors-fixed.zip`
+- **File**: `ai-content-agent-aca-v2.0.4-branding-update.zip`
 - **Status**: Stable, ready for production with complete license management and enhanced UX
 
 ### Archive
@@ -82,7 +82,7 @@ AI Content Agent (ACA) is a powerful WordPress plugin that leverages Google's Ge
 ### For Developers
 ```bash
 # Latest release
-releases/ai-content-agent-v2.0.4-console-errors-fixed.zip
+releases/ai-content-agent-aca-v2.0.4-branding-update.zip
 
 # Development build (after making changes)
 npm run build:wp  # Builds and copies to both admin/assets/ and admin/js/

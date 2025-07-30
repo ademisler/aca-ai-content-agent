@@ -41,7 +41,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, isOpen, 
             <div className="aca-sidebar-header">
                 <h1 className="aca-sidebar-title">AI Content Agent</h1>
                 <a 
-                    href="https://ademisler.com" 
+                    href="https://ademisler.com/en" 
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="aca-sidebar-subtitle"

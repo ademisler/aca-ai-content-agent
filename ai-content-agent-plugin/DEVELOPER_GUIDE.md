@@ -139,7 +139,7 @@ export default defineConfig({
 
 ### Current Release Information
 - **Latest Version**: v2.0.4
-- **Release File**: `ai-content-agent-v2.0.4-console-errors-fixed.zip`
+- **Release File**: `ai-content-agent-aca-v2.0.4-branding-update.zip`
 - **Status**: Production ready with complete license management and enhanced UX
 - **Key Features**: Smart license validation, toast notifications, backend exception handling, UX improvements, console error fixes
 

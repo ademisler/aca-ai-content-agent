@@ -3320,14 +3320,26 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         
         if ($response_code !== 200) {
             error_log('ACA: Gumroad API error - Code: ' . $response_code . ', Body: ' . $body);
-            throw new Exception('Gumroad API returned error code: ' . $response_code . '. Response: ' . $body);
+            return array(
+                'success' => false,
+                'message' => 'Gumroad API returned error code: ' . $response_code,
+                'purchase_data' => null,
+                'verified_at' => current_time('mysql'),
+                'error_code' => 'api_error'
+            );
         }
         
         $data = json_decode($body, true);
         
         if (json_last_error() !== JSON_ERROR_NONE) {
             error_log('ACA: JSON decode error - Body: ' . $body);
-            throw new Exception('Invalid JSON response from Gumroad API');
+            return array(
+                'success' => false,
+                'message' => 'Invalid JSON response from Gumroad API',
+                'purchase_data' => null,
+                'verified_at' => current_time('mysql'),
+                'error_code' => 'json_error'
+            );
         }
         
         // Log the full response for debugging

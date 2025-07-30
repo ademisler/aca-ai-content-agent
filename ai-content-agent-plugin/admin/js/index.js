@@ -263,7 +263,7 @@
   }
   
   .aca-main {
-    margin-left: 365px; /* Sidebar ends at 360px (160px + 200px) + 5px gap */
+    margin-left: 361px; /* Sidebar ends at 360px + 1px gap */
     padding: 20px;
   }
 }

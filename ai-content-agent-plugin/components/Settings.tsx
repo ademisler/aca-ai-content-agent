@@ -417,7 +417,7 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                             </button>
                         </div>
                         <p className="aca-page-description" style={{ marginTop: '10px' }}>
-                            Don't have a Pro license? <a href="https://gumroad.com/l/your-product-link" target="_blank" rel="noopener noreferrer" style={{ color: '#0073aa' }}>Purchase here</a>
+                            Don't have a Pro license? <a href="https://ademisler.gumroad.com/l/ai-content-agent-pro" target="_blank" rel="noopener noreferrer" style={{ color: '#0073aa' }}>Purchase here</a>
                         </p>
                     </div>
                 )}

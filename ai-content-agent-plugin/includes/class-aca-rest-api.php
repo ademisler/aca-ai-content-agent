@@ -3153,7 +3153,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         // Gumroad product ID - to be replaced with actual product ID
         // Get this from your Gumroad product's content page by expanding the license key module
         // NOTE: For products created after Jan 9, 2023, use product_id instead of product_permalink
-        $product_id = 'YOUR_GUMROAD_PRODUCT_ID_HERE';
+        $product_id = 'Q2Mhx923crYSQP19FBbYsg==';
         
         try {
             $verification_result = $this->call_gumroad_api($product_id, $license_key);

@@ -12,7 +12,7 @@ export const UpgradePrompt: React.FC<UpgradePromptProps> = ({
     title, 
     description, 
     features, 
-    gumroadUrl = "https://gumroad.com/l/your-product-link" 
+    gumroadUrl = "https://ademisler.gumroad.com/l/ai-content-agent-pro" 
 }) => {
     return (
         <div className="aca-card" style={{ 
@@ -117,7 +117,7 @@ export const UpgradePrompt: React.FC<UpgradePromptProps> = ({
                 fontSize: '12px',
                 color: '#a67c00'
             }}>
-                💡 One-time purchase • Lifetime updates • 30-day money-back guarantee
+                💡 One-time purchase • Lifetime updates
             </div>
         </div>
     );

@@ -3159,7 +3159,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         error_log('ACA: Using product_permalink: ' . $product_permalink . ' for license verification');
         
         try {
-            $verification_result = $this->call_gumroad_api($product_id, $license_key);
+            $verification_result = $this->call_gumroad_api($product_permalink, $license_key);
             
             if ($verification_result['success']) {
                 // Store license status
@@ -3204,7 +3204,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
     /**
      * Call Gumroad License Verification API
      */
-    private function call_gumroad_api($product_id, $license_key) {
+    private function call_gumroad_api($product_permalink, $license_key) {
         $url = 'https://api.gumroad.com/v2/licenses/verify';
         
         // Log API call details

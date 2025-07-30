@@ -138,10 +138,10 @@ export default defineConfig({
 ## 📦 Release Management
 
 ### Current Release Information
-- **Latest Version**: v2.0.3
-- **Release File**: `ai-content-agent-v2.0.3-asset-deployment-and-cache-invalidation.zip`
-- **Status**: Production ready with proper asset deployment and cache invalidation
-- **Key Features**: Dual-asset system implementation, WordPress cache invalidation, enhanced icon contrast, proper build deployment
+- **Latest Version**: v2.0.4
+- **Release File**: `ai-content-agent-v2.0.4-comprehensive-pro-license-system.zip`
+- **Status**: Production ready with comprehensive Pro license system and Gumroad integration
+- **Key Features**: Unified Pro controls, fixed Gumroad API, frontend-backend sync, enhanced UX, debug logging
 
 ### Release Process
 

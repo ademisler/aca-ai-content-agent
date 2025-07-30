@@ -1223,21 +1223,43 @@ body.toplevel_page_ai-content-agent #screen-meta {
   padding-bottom: 0 !important;
 }
 
-/* Remove any potential spacing from WordPress admin elements */
+/* COMPREHENSIVE WORDPRESS ADMIN OVERRIDE - Remove ALL spacing */
 
 body.toplevel_page_ai-content-agent #wpbody-content {
-  padding-top: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+body.toplevel_page_ai-content-agent #wpbody {
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
 body.toplevel_page_ai-content-agent #wpcontent {
-  padding-left: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
-/* Ensure our root element has no top margin/padding */
+/* Ensure our root element takes full space */
 
 body.toplevel_page_ai-content-agent #root {
-  margin-top: 0 !important;
-  padding-top: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  height: 100vh !important;
+  position: relative !important;
+}
+
+/* Make our container take full space and override WordPress */
+
+body.toplevel_page_ai-content-agent .aca-container {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  height: 100vh !important;
+  position: relative !important;
+  display: flex !important;
+  background: #f0f0f1 !important;
 }/*$vite$:1*/`;
   document.head.appendChild(__vite_style__);
   function getDefaultExportFromCjs(x) {

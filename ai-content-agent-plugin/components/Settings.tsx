@@ -182,14 +182,20 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                     verified_at: new Date().toISOString()
                 });
                 setLicenseKey(''); // Clear the input
-                alert('License verified successfully! Pro features are now active.');
                 
                 // Update settings to reflect pro status
                 const updatedSettings = { ...settings, is_pro: true };
-                onSaveSettings(updatedSettings);
+                setCurrentSettings(updatedSettings);
                 
-                // Reload settings to get updated pro status
-                window.location.reload();
+                // Save settings asynchronously without blocking
+                try {
+                    await onSaveSettings(updatedSettings);
+                } catch (saveError) {
+                    console.error('Settings save error:', saveError);
+                    // Continue anyway, the license is still valid
+                }
+                
+                alert('License verified successfully! Pro features are now active.');
             } else {
                 alert('Invalid license key. Please check and try again.');
             }

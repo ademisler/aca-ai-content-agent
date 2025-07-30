@@ -10696,10 +10696,14 @@
             verified_at: (/* @__PURE__ */ new Date()).toISOString()
           });
           setLicenseKey("");
-          alert("License verified successfully! Pro features are now active.");
           const updatedSettings = { ...settings, is_pro: true };
-          onSaveSettings(updatedSettings);
-          window.location.reload();
+          setCurrentSettings(updatedSettings);
+          try {
+            await onSaveSettings(updatedSettings);
+          } catch (saveError) {
+            console.error("Settings save error:", saveError);
+          }
+          alert("License verified successfully! Pro features are now active.");
         } else {
           alert("Invalid license key. Please check and try again.");
         }

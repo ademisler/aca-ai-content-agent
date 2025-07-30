@@ -40,7 +40,7 @@
 /* Sidebar styles */
 
 .aca-sidebar {
-  width: 240px;
+  width: 220px;
   background: #23282d;
   border-right: 1px solid #ccd0d4;
   position: fixed;
@@ -263,7 +263,7 @@
   }
   
   .aca-main {
-    margin-left: 400px; /* WordPress admin menu (160px) + Plugin sidebar (240px) */
+    margin-left: 390px; /* WordPress admin menu (160px) + Plugin sidebar (220px) + small gap (10px) */
     padding: 20px;
   }
 }

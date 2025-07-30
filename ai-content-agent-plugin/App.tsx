@@ -9,7 +9,7 @@ import { Dashboard } from './components/Dashboard';
 import { StyleGuideManager } from './components/StyleGuideManager';
 import { IdeaBoard } from './components/IdeaBoard';
 import { DraftsList } from './components/DraftsList';
-import { Settings } from './components/Settings';
+import { SettingsTabbed } from './components/SettingsTabbed';
 import { DraftModal } from './components/DraftModal';
 import { Toast, ToastData } from './components/Toast';
 import { PublishedList } from './components/PublishedList';
@@ -529,7 +529,7 @@ const App: React.FC = () => {
                     onNavigateToDrafts={() => setView('drafts')}
                 />;
             case 'settings':
-                return <Settings 
+                return <SettingsTabbed 
             settings={settings} 
             onSaveSettings={handleSaveSettings} 
             onRefreshApp={handleRefreshApp} 

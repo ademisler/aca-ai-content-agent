@@ -138,10 +138,10 @@ export default defineConfig({
 ## 📦 Release Management
 
 ### Current Release Information
-- **Latest Version**: v2.3.0
-- **Release File**: `ai-content-agent-v2.3.0-multilingual-and-smart-categorization.zip`
-- **Status**: Production ready with multilingual support and intelligent categorization
-- **Key Features**: Automatic language detection (50+ languages), intelligent category hierarchy system, AI-powered subcategory selection, WordPress locale integration, smart content categorization
+- **Latest Version**: v2.3.1
+- **Release File**: `ai-content-agent-v2.3.1-modern-tabbed-settings.zip`
+- **Status**: Production ready with modern tabbed Settings interface
+- **Key Features**: Modern tab navigation, eliminated dropdown issues, auto-save functionality, color-coded sections, GeminiApiWarning integration, responsive design
 
 ### Release Process
 

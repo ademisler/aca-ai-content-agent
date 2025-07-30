@@ -46,9 +46,10 @@
   position: fixed;
   top: 32px; /* Account for WordPress admin bar */
   left: 0;
-  height: calc(100vh - 32px); /* Adjust height for admin bar */
+  height: auto; /* Let sidebar height be natural */
+  min-height: calc(100vh - 32px); /* Minimum height for full coverage */
   z-index: 9999;
-  overflow-y: auto;
+  overflow-y: visible; /* No internal scrolling */
   transform: translateX(-100%);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 2px 0 20px rgba(0, 0, 0, 0.15);
@@ -259,13 +260,12 @@
 
 @media (min-width: 783px) {
   .aca-sidebar {
-    position: relative;
-    transform: translateX(0);
+    transform: translateX(0); /* Show sidebar on desktop */
   }
   
   .aca-main {
-    margin-left: 260px; /* Match sidebar width */
-    padding: 30px;
+    margin-left: 0; /* No margin - full width */
+    padding: 20px;
   }
 }
 
@@ -828,7 +828,8 @@
     width: 100% !important;
     max-width: 320px;
     top: 46px !important; /* Mobile admin bar height */
-    height: calc(100vh - 46px) !important;
+    height: auto !important; /* Natural height */
+    min-height: calc(100vh - 46px) !important; /* Minimum coverage */
   }
   
   .aca-sidebar-header {
@@ -1184,14 +1185,16 @@
 @media screen and (max-width: 782px) {
   .wp-admin .aca-sidebar {
     top: 46px !important; /* Mobile admin bar height */
-    height: calc(100vh - 46px) !important;
+    height: auto !important; /* Natural height */
+    min-height: calc(100vh - 46px) !important;
   }
 }
 
 @media screen and (min-width: 783px) {
   .wp-admin .aca-sidebar {
     top: 32px !important; /* Desktop admin bar height */
-    height: calc(100vh - 32px) !important;
+    height: auto !important; /* Natural height */
+    min-height: calc(100vh - 32px) !important;
   }
 }
 
@@ -1199,7 +1202,8 @@
 
 .no-admin-bar .aca-sidebar {
   top: 0 !important;
-  height: 100vh !important;
+  height: auto !important; /* Natural height */
+  min-height: 100vh !important;
 }/*$vite$:1*/`;
   document.head.appendChild(__vite_style__);
   function getDefaultExportFromCjs(x) {

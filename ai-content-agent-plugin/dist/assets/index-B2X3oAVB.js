@@ -40,7 +40,7 @@
 /* Sidebar styles */
 
 .aca-sidebar {
-  width: 200px;
+  width: 240px;
   background: #23282d;
   border-right: 1px solid #ccd0d4;
   position: fixed;
@@ -263,7 +263,7 @@
   }
   
   .aca-main {
-    margin-left: 361px; /* Sidebar ends at 360px + 1px gap */
+    margin-left: 400px; /* Sidebar ends at 400px (160px + 240px) */
     padding: 20px;
   }
 }

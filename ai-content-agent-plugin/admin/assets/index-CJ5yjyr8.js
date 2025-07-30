@@ -1363,15 +1363,31 @@ body.toplevel_page_ai-content-agent #wpcontent {
 body.toplevel_page_ai-content-agent #root {
   margin: 0 !important;
   padding: 0 !important;
-  width: 100% !important;
+  width: calc(100% - 160px) !important; /* Account for WordPress admin menu */
   height: 100vh !important;
   position: fixed !important;
   top: 32px !important; /* Account for WordPress admin bar */
-  left: 0 !important;
+  left: 160px !important; /* Right next to WordPress admin menu */
   right: 0 !important;
   bottom: 0 !important;
   z-index: 999999 !important;
   background: #f0f0f1 !important;
+}
+
+/* Responsive WordPress admin menu adjustments */
+
+@media screen and (max-width: 960px) {
+  body.toplevel_page_ai-content-agent #root {
+    width: calc(100% - 36px) !important; /* Collapsed menu width */
+    left: 36px !important; /* Collapsed menu width */
+  }
+}
+
+@media screen and (max-width: 782px) {
+  body.toplevel_page_ai-content-agent #root {
+    width: 100% !important; /* Mobile: no side menu */
+    left: 0 !important;
+  }
 }
 
 /* Make our container take full space and override WordPress */

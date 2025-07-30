@@ -33,7 +33,7 @@ class ErrorBoundary extends React.Component<
           margin: '20px'
         }}>
           <h2 style={{ color: '#d32f2f', margin: '0 0 10px 0' }}>
-            AI Content Agent - Loading Error
+                                AI Content Agent (ACA) - Loading Error
           </h2>
           <p style={{ margin: '0 0 10px 0' }}>
             The plugin interface failed to load. This might be a browser cache issue.

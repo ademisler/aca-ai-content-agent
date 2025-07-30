@@ -31,7 +31,7 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
     private function init_google_client() {
         try {
             $this->client = new Google_Client();
-            $this->client->setApplicationName('AI Content Agent');
+            $this->client->setApplicationName('AI Content Agent (ACA)');
             $this->client->setScopes([
                 'https://www.googleapis.com/auth/webmasters.readonly'
             ]);

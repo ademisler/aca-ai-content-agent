@@ -39,7 +39,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, isOpen, 
     return (
         <aside className={`aca-sidebar ${isOpen ? 'open' : ''}`}>
             <div className="aca-sidebar-header">
-                <h1 className="aca-sidebar-title">AI Content Agent</h1>
+                                  <h1 className="aca-sidebar-title">AI Content Agent (ACA)</h1>
                 <a 
                     href="https://ademisler.com/en" 
                     target="_blank" 

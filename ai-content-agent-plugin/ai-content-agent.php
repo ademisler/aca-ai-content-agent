@@ -102,8 +102,8 @@ class AI_Content_Agent {
      */
     public function add_admin_menu() {
         add_menu_page(
-            'AI Content Agent',
-            'AI Content Agent',
+            'AI Content Agent (ACA)',
+            'AI Content Agent (ACA)',
             'manage_options',
             'ai-content-agent',
             array($this, 'admin_page'),

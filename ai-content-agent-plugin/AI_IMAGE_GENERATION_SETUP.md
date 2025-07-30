@@ -16,7 +16,7 @@ This guide explains how to set up AI image generation using Google's Imagen 3.0 
 
 ## 📋 Overview
 
-The AI Content Agent plugin v1.8.0 supports **real AI image generation** using Google's Imagen 3.0 API through Google Cloud Vertex AI with enhanced error handling and retry capabilities. This replaces the previous placeholder implementation with actual image generation capabilities and robust error management.
+The AI Content Agent (ACA) plugin v2.0.4 supports **real AI image generation** using Google's Imagen 3.0 API through Google Cloud Vertex AI with enhanced error handling and retry capabilities. This replaces the previous placeholder implementation with actual image generation capabilities and robust error management.
 
 ### **Supported Image Sources:**
 - ✅ **AI Generated** - Google Imagen 3.0 API (Enhanced with retry logic)
@@ -48,7 +48,7 @@ The AI Content Agent plugin v1.8.0 supports **real AI image generation** using G
 
 1. **Access Plugin Settings**:
    - Go to your WordPress admin panel
-   - Navigate to the AI Content Agent plugin
+   - Navigate to the AI Content Agent (ACA) plugin
    - Click on "Settings"
 
 2. **Configure Image Source**:

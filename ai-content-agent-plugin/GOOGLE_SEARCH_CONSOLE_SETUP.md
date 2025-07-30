@@ -15,7 +15,7 @@ This guide will walk you through setting up Google Search Console integration wi
 
 ## 🎯 Overview
 
-The Google Search Console integration allows the AI Content Agent to:
+The Google Search Console integration allows the AI Content Agent (ACA) to:
 - Access real search query data from your website
 - Identify top-performing keywords
 - Find underperforming pages that need optimization
@@ -62,7 +62,7 @@ The Google Search Console integration allows the AI Content Agent to:
 
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
 2. Create a new project or select existing one
-3. Name it something like "AI Content Agent GSC"
+3. Name it something like "AI Content Agent (ACA) GSC"
 
 ### Step 3: Enable Google Search Console API
 
@@ -76,12 +76,12 @@ The Google Search Console integration allows the AI Content Agent to:
 2. Click **Create Credentials > OAuth 2.0 Client IDs**
 3. Configure the OAuth consent screen if prompted:
    - User Type: External (for most cases)
-   - App name: "AI Content Agent"
+   - App name: "AI Content Agent (ACA)"
    - User support email: Your email
    - Developer contact: Your email
 4. Create OAuth 2.0 Client ID:
    - Application type: **Web application**
-   - Name: "AI Content Agent GSC"
+   - Name: "AI Content Agent (ACA) GSC"
    - Authorized redirect URIs: Add your WordPress admin URL:
      ```
      https://yourdomain.com/wp-admin/admin.php?page=ai-content-agent&gsc_auth=callback
@@ -90,7 +90,7 @@ The Google Search Console integration allows the AI Content Agent to:
 
 ### Step 5: Configure Plugin Settings
 
-1. In WordPress admin, go to **AI Content Agent > Settings**
+1. In WordPress admin, go to **AI Content Agent (ACA) > Settings**
 2. Scroll to the **Google Search Console** section
 3. Enter your OAuth2 credentials:
    - **Client ID**: Copy from Google Cloud Console

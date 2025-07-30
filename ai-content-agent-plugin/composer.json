@@ -1,6 +1,6 @@
 {
     "name": "ai-content-agent/wordpress-plugin",
-    "description": "AI Content Agent WordPress Plugin",
+    "description": "AI Content Agent (ACA) WordPress Plugin",
     "type": "wordpress-plugin",
     "require": {
         "php": ">=7.4",

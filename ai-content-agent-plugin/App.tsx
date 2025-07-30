@@ -615,7 +615,7 @@ const App: React.FC = () => {
                         >
                             <Menu className="h-6 w-6" />
                         </button>
-                        <span className="font-semibold text-white">AI Content Agent</span>
+                        <span className="font-semibold text-white">AI Content Agent (ACA)</span>
                     </div>
                     
                     {/* Page content */}

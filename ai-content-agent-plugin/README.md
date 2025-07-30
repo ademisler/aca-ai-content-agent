@@ -59,7 +59,7 @@ AI Content Agent (ACA) is a powerful WordPress plugin that leverages Google's Ge
 2. Go to WordPress Admin → Plugins → Add New → Upload Plugin
 3. Choose the downloaded zip file and click "Install Now"
 4. Activate the plugin
-5. Configure your settings in AI Content Agent → Settings
+5. Configure your settings in AI Content Agent (ACA) → Settings
 
 ### Manual Installation
 1. Download and extract the plugin files
@@ -71,7 +71,7 @@ AI Content Agent (ACA) is a powerful WordPress plugin that leverages Google's Ge
 
 ### Current Release
 - **Latest Version**: v2.0.4 (Located in `/releases/`)
-- **File**: `ai-content-agent-aca-v2.0.4-branding-update.zip`
+- **File**: `ai-content-agent-aca-v2.0.4-complete-branding.zip`
 - **Status**: Stable, ready for production with complete license management and enhanced UX
 
 ### Archive
@@ -82,7 +82,7 @@ AI Content Agent (ACA) is a powerful WordPress plugin that leverages Google's Ge
 ### For Developers
 ```bash
 # Latest release
-releases/ai-content-agent-aca-v2.0.4-branding-update.zip
+releases/ai-content-agent-aca-v2.0.4-complete-branding.zip
 
 # Development build (after making changes)
 npm run build:wp  # Builds and copies to both admin/assets/ and admin/js/

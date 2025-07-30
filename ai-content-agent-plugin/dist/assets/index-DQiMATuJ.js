@@ -1,7 +1,7 @@
 (function() {
   "use strict";
   var __vite_style__ = document.createElement("style");
-  __vite_style__.textContent = `/* WordPress Admin Compatible Styles for AI Content Agent */
+  __vite_style__.textContent = `/* WordPress Admin Compatible Styles for AI Content Agent (ACA) */
 
 /* Remove Tailwind CDN import and create custom WordPress-compatible styles */
 
@@ -9392,7 +9392,7 @@
     };
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("aside", { className: `aca-sidebar ${isOpen ? "open" : ""}`, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-sidebar-header", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "aca-sidebar-title", children: "AI Content Agent" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "aca-sidebar-title", children: "AI Content Agent (ACA)" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "a",
           {
@@ -9629,7 +9629,7 @@
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Lightbulb, { style: { width: "24px", height: "24px", marginRight: "12px", flexShrink: 0 } }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { margin: "0 0 5px 0", fontWeight: "600", color: "#0073aa" }, children: "Get Started with AI Content Agent" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { margin: "0 0 5px 0", fontWeight: "600", color: "#0073aa" }, children: "Get Started with AI Content Agent (ACA)" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: 0, fontSize: "13px" }, children: "Create your Style Guide first to enable all features and generate on-brand content." })
           ] })
         ] }),
@@ -10971,7 +10971,7 @@
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-fade-in", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-page-header", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "aca-page-title", children: "Settings" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", children: "Configure automation modes, integrations, and content generation preferences to customize your AI Content Agent experience." })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", children: "Configure automation modes, integrations, and content generation preferences to customize your AI Content Agent (ACA) experience." })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-card-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "aca-card-title", children: [
@@ -11068,7 +11068,7 @@
             fontWeight: "bold"
           }, children: "PRO" })
         ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", children: "Choose how you want the AI Content Agent to operate. You can change this at any time." }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", children: "Choose how you want the AI Content Agent (ACA) to operate. You can change this at any time." }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "15px" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             RadioCard,
@@ -13235,7 +13235,7 @@
                 children: /* @__PURE__ */ jsxRuntimeExports.jsx(Menu, { className: "h-6 w-6" })
               }
             ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold text-white", children: "AI Content Agent" })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold text-white", children: "AI Content Agent (ACA)" })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-fade-in", children: renderView() })
         ] })
@@ -13272,7 +13272,7 @@
           borderRadius: "4px",
           margin: "20px"
         }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { style: { color: "#d32f2f", margin: "0 0 10px 0" }, children: "AI Content Agent - Loading Error" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { style: { color: "#d32f2f", margin: "0 0 10px 0" }, children: "AI Content Agent (ACA) - Loading Error" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: "0 0 10px 0" }, children: "The plugin interface failed to load. This might be a browser cache issue." }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { style: { margin: "0 0 10px 0", fontSize: "12px", color: "#666" }, children: [
             "Error: ",

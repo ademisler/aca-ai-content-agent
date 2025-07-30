@@ -504,7 +504,7 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
             <div className="aca-page-header">
                 <h1 className="aca-page-title">Settings</h1>
                 <p className="aca-page-description">
-                    Configure automation modes, integrations, and content generation preferences to customize your AI Content Agent experience.
+                                            Configure automation modes, integrations, and content generation preferences to customize your AI Content Agent (ACA) experience.
                 </p>
             </div>
 
@@ -644,7 +644,7 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
                         </h2>
                     </div>
                     <p className="aca-page-description">
-                        Choose how you want the AI Content Agent to operate. You can change this at any time.
+                                                    Choose how you want the AI Content Agent (ACA) to operate. You can change this at any time.
                     </p>
                 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>

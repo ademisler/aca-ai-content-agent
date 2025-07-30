@@ -98,7 +98,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                         <div style={{ display: 'flex', alignItems: 'center' }}>
                             <Lightbulb style={{ width: '24px', height: '24px', marginRight: '12px', flexShrink: 0 }} />
                             <div>
-                                <h4 style={{ margin: '0 0 5px 0', fontWeight: '600', color: '#0073aa' }}>Get Started with AI Content Agent</h4>
+                                <h4 style={{ margin: '0 0 5px 0', fontWeight: '600', color: '#0073aa' }}>Get Started with AI Content Agent (ACA)</h4>
                                 <p style={{ margin: 0, fontSize: '13px' }}>Create your Style Guide first to enable all features and generate on-brand content.</p>
                             </div>
                         </div>

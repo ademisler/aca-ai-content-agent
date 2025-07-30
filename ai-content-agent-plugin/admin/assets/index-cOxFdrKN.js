@@ -10130,7 +10130,7 @@ body.toplevel_page_ai-content-agent #wpfooter {
           }, children: icon }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { flex: 1 }, children: label }),
           badge && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: {
-            background: "linear-gradient(135deg, #f59e0b, #d97706)",
+            background: badge === "NEW" ? "linear-gradient(135deg, #10b981, #059669)" : "linear-gradient(135deg, #f59e0b, #d97706)",
             color: "white",
             fontSize: "10px",
             fontWeight: "700",
@@ -10314,7 +10314,7 @@ body.toplevel_page_ai-content-agent #wpfooter {
             {
               icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Sparkles, {}),
               label: "Content Freshness",
-              badge: "PRO",
+              badge: "NEW",
               view: "content-freshness",
               currentView,
               onClick: () => handleNavigation("content-freshness")
@@ -14622,7 +14622,7 @@ body.toplevel_page_ai-content-agent #wpfooter {
       ] })
     ] });
   };
-  const ContentFreshnessManager = ({ onShowToast }) => {
+  const ContentFreshnessManager = ({ onShowToast, settings: appSettings }) => {
     const [posts, setPosts] = reactExports.useState([]);
     const [settings, setSettings] = reactExports.useState({
       analysisFrequency: "weekly",
@@ -14635,6 +14635,9 @@ body.toplevel_page_ai-content-agent #wpfooter {
     const [isUpdating, setIsUpdating] = reactExports.useState({});
     const [filter, setFilter] = reactExports.useState("all");
     const [showSettings, setShowSettings] = reactExports.useState(false);
+    const isProActive = () => {
+      return appSettings?.is_pro === true;
+    };
     const loadPosts = reactExports.useCallback(async () => {
       setIsLoading(true);
       try {
@@ -14824,161 +14827,177 @@ body.toplevel_page_ai-content-agent #wpfooter {
           zIndex: 1
         } })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-grid aca-grid-4", style: { marginBottom: "30px" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", style: { textAlign: "center", margin: 0 }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "32px", fontWeight: "bold", color: "#0073aa", marginBottom: "5px" }, children: posts.length }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "14px", color: "#666" }, children: "Total Posts" })
+      !isProActive() ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+        UpgradePrompt,
+        {
+          title: "Content Freshness Manager - Pro Feature",
+          description: "Unlock AI-powered content analysis and automatic freshness management to keep your content up-to-date and engaging",
+          features: [
+            "AI-powered content freshness analysis",
+            "Automatic content update recommendations",
+            "Freshness scoring and priority ranking",
+            "Bulk content analysis and updates",
+            "Advanced content performance tracking",
+            "Automated content refresh scheduling"
+          ]
+        }
+      ) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-grid aca-grid-4", style: { marginBottom: "30px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", style: { textAlign: "center", margin: 0 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "32px", fontWeight: "bold", color: "#0073aa", marginBottom: "5px" }, children: posts.length }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "14px", color: "#666" }, children: "Total Posts" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", style: { textAlign: "center", margin: 0 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "32px", fontWeight: "bold", color: "#28a745", marginBottom: "5px" }, children: analyzedCount }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "14px", color: "#666" }, children: "Analyzed" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", style: { textAlign: "center", margin: 0 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "32px", fontWeight: "bold", color: "#dc3545", marginBottom: "5px" }, children: needsUpdateCount }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "14px", color: "#666" }, children: "Need Updates" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", style: { textAlign: "center", margin: 0 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "32px", fontWeight: "bold", color: "#ffc107", marginBottom: "5px" }, children: averageScore }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "14px", color: "#666" }, children: "Avg. Score" })
+          ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", style: { textAlign: "center", margin: 0 }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "32px", fontWeight: "bold", color: "#28a745", marginBottom: "5px" }, children: analyzedCount }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "14px", color: "#666" }, children: "Analyzed" })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", style: { textAlign: "center", margin: 0 }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "32px", fontWeight: "bold", color: "#dc3545", marginBottom: "5px" }, children: needsUpdateCount }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "14px", color: "#666" }, children: "Need Updates" })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", style: { textAlign: "center", margin: 0 }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "32px", fontWeight: "bold", color: "#ffc107", marginBottom: "5px" }, children: averageScore }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "14px", color: "#666" }, children: "Avg. Score" })
-        ] })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-card", style: { marginBottom: "30px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "15px" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "10px", alignItems: "center" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "button",
-            {
-              onClick: handleAnalyzeAll,
-              disabled: isLoading,
-              className: "aca-button primary",
-              style: { display: "flex", alignItems: "center", gap: "6px" },
-              children: [
-                isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { className: "h-4 w-4" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(TrendingUp, { className: "h-4 w-4" }),
-                isLoading ? "Analyzing..." : "Analyze All Posts"
-              ]
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "button",
-            {
-              onClick: () => setShowSettings(!showSettings),
-              className: "aca-button secondary",
-              style: { display: "flex", alignItems: "center", gap: "6px" },
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$1, { className: "h-4 w-4" }),
-                "Settings"
-              ]
-            }
-          )
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "10px", alignItems: "center" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "14px", color: "#666" }, children: "Filter:" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "select",
-            {
-              value: filter,
-              onChange: (e) => setFilter(e.target.value),
-              className: "aca-input",
-              style: { width: "auto", minWidth: "120px" },
-              "aria-label": "Filter posts by status",
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "all", children: "All Posts" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "needs_update", children: "Needs Update" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "fresh", children: "Fresh Content" })
-              ]
-            }
-          )
-        ] })
-      ] }) }),
-      showSettings && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", style: { marginBottom: "30px" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { style: { marginTop: 0 }, children: "Content Freshness Settings" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "20px" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-form-group", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { children: "Analysis Frequency" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-card", style: { marginBottom: "30px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "15px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "10px", alignItems: "center" }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "select",
+              "button",
               {
-                value: settings.analysisFrequency,
-                onChange: (e) => setSettings({ ...settings, analysisFrequency: e.target.value }),
-                className: "aca-input",
+                onClick: handleAnalyzeAll,
+                disabled: isLoading,
+                className: "aca-button primary",
+                style: { display: "flex", alignItems: "center", gap: "6px" },
                 children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "daily", children: "Daily" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "weekly", children: "Weekly" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "monthly", children: "Monthly" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "manual", children: "Manual Only" })
+                  isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { className: "h-4 w-4" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(TrendingUp, { className: "h-4 w-4" }),
+                  isLoading ? "Analyzing..." : "Analyze All Posts"
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                onClick: () => setShowSettings(!showSettings),
+                className: "aca-button secondary",
+                style: { display: "flex", alignItems: "center", gap: "6px" },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$1, { className: "h-4 w-4" }),
+                  "Settings"
                 ]
               }
             )
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-form-group", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
-              "Update Threshold (",
-              settings.updateThreshold,
-              "%)"
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "10px", alignItems: "center" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "14px", color: "#666" }, children: "Filter:" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "select",
+              {
+                value: filter,
+                onChange: (e) => setFilter(e.target.value),
+                className: "aca-input",
+                style: { width: "auto", minWidth: "120px" },
+                "aria-label": "Filter posts by status",
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "all", children: "All Posts" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "needs_update", children: "Needs Update" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "fresh", children: "Fresh Content" })
+                ]
+              }
+            )
+          ] })
+        ] }) }),
+        showSettings && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", style: { marginBottom: "30px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { style: { marginTop: 0 }, children: "Content Freshness Settings" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "20px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-form-group", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { children: "Analysis Frequency" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "select",
+                {
+                  value: settings.analysisFrequency,
+                  onChange: (e) => setSettings({ ...settings, analysisFrequency: e.target.value }),
+                  className: "aca-input",
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "daily", children: "Daily" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "weekly", children: "Weekly" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "monthly", children: "Monthly" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "manual", children: "Manual Only" })
+                  ]
+                }
+              )
             ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-form-group", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
+                "Update Threshold (",
+                settings.updateThreshold,
+                "%)"
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "range",
+                  min: "30",
+                  max: "90",
+                  value: settings.updateThreshold,
+                  onChange: (e) => setSettings({ ...settings, updateThreshold: parseInt(e.target.value) }),
+                  className: "aca-input",
+                  style: { width: "100%" },
+                  "aria-label": `Update threshold: ${settings.updateThreshold} percent`
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", fontSize: "12px", color: "#666", marginTop: "5px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "More Updates (30%)" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Fewer Updates (90%)" })
+              ] })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-form-group", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "input",
               {
-                type: "range",
-                min: "30",
-                max: "90",
-                value: settings.updateThreshold,
-                onChange: (e) => setSettings({ ...settings, updateThreshold: parseInt(e.target.value) }),
-                className: "aca-input",
-                style: { width: "100%" },
-                "aria-label": `Update threshold: ${settings.updateThreshold} percent`
+                type: "checkbox",
+                checked: settings.autoUpdate,
+                onChange: (e) => setSettings({ ...settings, autoUpdate: e.target.checked }),
+                style: { marginRight: "8px" }
               }
             ),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", fontSize: "12px", color: "#666", marginTop: "5px" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "More Updates (30%)" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Fewer Updates (90%)" })
-            ] })
+            "Enable automatic content updates (high-confidence suggestions only)"
+          ] }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "10px", marginTop: "20px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                onClick: () => handleSaveSettings(settings),
+                className: "aca-button primary",
+                children: "Save Settings"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                onClick: () => setShowSettings(false),
+                className: "aca-button secondary",
+                children: "Cancel"
+              }
+            )
           ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-form-group", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "input",
-            {
-              type: "checkbox",
-              checked: settings.autoUpdate,
-              onChange: (e) => setSettings({ ...settings, autoUpdate: e.target.checked }),
-              style: { marginRight: "8px" }
-            }
-          ),
-          "Enable automatic content updates (high-confidence suggestions only)"
-        ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "10px", marginTop: "20px" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "button",
-            {
-              onClick: () => handleSaveSettings(settings),
-              className: "aca-button primary",
-              children: "Save Settings"
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "button",
-            {
-              onClick: () => setShowSettings(false),
-              className: "aca-button secondary",
-              children: "Cancel"
-            }
-          )
-        ] })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", flexDirection: "column", gap: "20px" }, children: isLoading && posts.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { textAlign: "center", padding: "40px" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { className: "h-8 w-8", style: { marginBottom: "10px" } }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Loading posts..." })
-      ] }) : posts.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-card", style: { textAlign: "center", padding: "40px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: 0, color: "#666" }, children: "No posts found matching the current filter." }) }) : posts.map((post) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-        FreshnessCard,
-        {
-          post,
-          onAnalyze: handleAnalyzeSingle,
-          onUpdate: handleUpdateContent,
-          isAnalyzing: isAnalyzing[post.ID] || false,
-          isUpdating: isUpdating[post.ID] || false
-        },
-        post.ID
-      )) })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", flexDirection: "column", gap: "20px" }, children: isLoading && posts.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { textAlign: "center", padding: "40px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { className: "h-8 w-8", style: { marginBottom: "10px" } }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Loading posts..." })
+        ] }) : posts.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-card", style: { textAlign: "center", padding: "40px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: 0, color: "#666" }, children: "No posts found matching the current filter." }) }) : posts.map((post) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+          FreshnessCard,
+          {
+            post,
+            onAnalyze: handleAnalyzeSingle,
+            onUpdate: handleUpdateContent,
+            isAnalyzing: isAnalyzing[post.ID] || false,
+            isUpdating: isUpdating[post.ID] || false
+          },
+          post.ID
+        )) })
+      ] })
     ] });
   };
   const App = () => {
@@ -15404,7 +15423,8 @@ body.toplevel_page_ai-content-agent #wpfooter {
           return /* @__PURE__ */ jsxRuntimeExports.jsx(
             ContentFreshnessManager,
             {
-              onShowToast: showToast
+              onShowToast: showToast,
+              settings
             }
           );
         case "dashboard":

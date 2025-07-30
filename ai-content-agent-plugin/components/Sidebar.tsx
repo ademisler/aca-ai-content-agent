@@ -69,7 +69,9 @@ const NavItem: React.FC<{
             <span style={{ flex: 1 }}>{label}</span>
             {badge && (
                 <span style={{
-                    background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                    background: badge === 'NEW' 
+                        ? 'linear-gradient(135deg, #10b981, #059669)' 
+                        : 'linear-gradient(135deg, #f59e0b, #d97706)',
                     color: 'white',
                     fontSize: '10px',
                     fontWeight: '700',
@@ -256,7 +258,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, isOpen, 
                     <NavItem 
                         icon={<Sparkles />} 
                         label="Content Freshness" 
-                        badge="PRO"
+                        badge="NEW"
                         view="content-freshness" 
                         currentView={currentView} 
                         onClick={() => handleNavigation('content-freshness')} 

@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import type { PostWithFreshness, FreshnessSettings, FreshnessAnalysis, ContentUpdate } from '../types';
+import type { PostWithFreshness, FreshnessSettings, FreshnessAnalysis, ContentUpdate, AppSettings } from '../types';
 import { contentFreshnessApi } from '../services/wordpressApi';
 import { Spinner, Sparkles, RefreshCw, TrendingUp, AlertTriangle, CheckCircle, Settings, BarChart3 } from './Icons';
+import { UpgradePrompt } from './UpgradePrompt';
 
 interface ContentFreshnessManagerProps {
     onShowToast: (message: string, type: 'success' | 'error' | 'warning' | 'info') => void;
+    settings?: AppSettings;
 }
 
 interface FreshnessCardProps {
@@ -207,7 +209,7 @@ const FreshnessCard: React.FC<FreshnessCardProps> = ({
     );
 };
 
-export const ContentFreshnessManager: React.FC<ContentFreshnessManagerProps> = ({ onShowToast }) => {
+export const ContentFreshnessManager: React.FC<ContentFreshnessManagerProps> = ({ onShowToast, settings: appSettings }) => {
     const [posts, setPosts] = useState<PostWithFreshness[]>([]);
     const [settings, setSettings] = useState<FreshnessSettings>({
         analysisFrequency: 'weekly',
@@ -220,6 +222,11 @@ export const ContentFreshnessManager: React.FC<ContentFreshnessManagerProps> = (
     const [isUpdating, setIsUpdating] = useState<{ [key: number]: boolean }>({});
     const [filter, setFilter] = useState<'all' | 'needs_update' | 'fresh'>('all');
     const [showSettings, setShowSettings] = useState(false);
+
+    // Check if Pro features are available
+    const isProActive = () => {
+        return appSettings?.is_pro === true;
+    };
 
     const loadPosts = useCallback(async () => {
         setIsLoading(true);
@@ -438,6 +445,23 @@ export const ContentFreshnessManager: React.FC<ContentFreshnessManagerProps> = (
                 }}></div>
             </div>
 
+            {/* Pro License Check */}
+            {!isProActive() ? (
+                <UpgradePrompt 
+                    title="Content Freshness Manager - Pro Feature"
+                    description="Unlock AI-powered content analysis and automatic freshness management to keep your content up-to-date and engaging"
+                    features={[
+                        "AI-powered content freshness analysis",
+                        "Automatic content update recommendations", 
+                        "Freshness scoring and priority ranking",
+                        "Bulk content analysis and updates",
+                        "Advanced content performance tracking",
+                        "Automated content refresh scheduling"
+                    ]}
+                />
+            ) : (
+                <>
+
             {/* Statistics Cards */}
             <div className="aca-grid aca-grid-4" style={{ marginBottom: '30px' }}>
                 <div className="aca-card" style={{ textAlign: 'center', margin: 0 }}>
@@ -606,6 +630,9 @@ export const ContentFreshnessManager: React.FC<ContentFreshnessManagerProps> = (
                     ))
                 )}
             </div>
+            
+            </>
+            )}
         </div>
     );
 };

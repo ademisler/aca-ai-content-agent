@@ -524,6 +524,7 @@ const App: React.FC = () => {
             case 'content-freshness':
                 return <ContentFreshnessManager 
                     onShowToast={showToast}
+                    settings={settings}
                 />;
             case 'dashboard':
             default:

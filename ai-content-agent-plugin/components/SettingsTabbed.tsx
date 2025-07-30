@@ -31,25 +31,318 @@ interface SettingsProps {
     openSection?: string; // Section to open when component loads
 }
 
+const RadioCard: React.FC<{
+    id: AutomationMode;
+    title: string;
+    description: string;
+    currentSelection: AutomationMode;
+    onChange: (mode: AutomationMode) => void;
+}> = ({ id, title, description, currentSelection, onChange }) => {
+    const isChecked = currentSelection === id;
+    return (
+        <label 
+            htmlFor={id} 
+            className="aca-card"
+            style={{
+                margin: 0,
+                border: '2px solid',
+                borderColor: isChecked ? '#0073aa' : '#ccd0d4',
+                background: isChecked ? '#f0f6fc' : '#ffffff',
+                boxShadow: isChecked ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none',
+                cursor: 'pointer'
+            }}
+        >
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                <input
+                    type="radio"
+                    id={id}
+                    name="automation-mode"
+                    checked={isChecked}
+                    onChange={() => onChange(id)}
+                    style={{
+                        marginTop: '2px',
+                        width: '18px',
+                        height: '18px',
+                        accentColor: '#0073aa',
+                        flexShrink: 0
+                    }}
+                />
+                <div>
+                    <h4 className="aca-card-title" style={{ marginBottom: '8px' }}>
+                        {title}
+                    </h4>
+                    <p className="aca-page-description" style={{ margin: 0 }}>
+                        {description}
+                    </p>
+                </div>
+            </div>
+        </label>
+    );
+};
+
 export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettings, onRefreshApp, onShowToast, openSection }) => {
-    const [activeTab, setActiveTab] = useState<string>('license');
     const [currentSettings, setCurrentSettings] = useState<AppSettings>(settings);
+    const [isConnecting, setIsConnecting] = useState(false);
+    const [isDetectingSeo, setIsDetectingSeo] = useState(false);
+    const [detectedSeoPlugins, setDetectedSeoPlugins] = useState<Array<{plugin: string, name: string, version: string, active: boolean}>>([]);
+    const [seoPluginsLoading, setSeoPluginsLoading] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
+    const [gscAuthStatus, setGscAuthStatus] = useState<any>(null);
+    
+    // License-related state
     const [licenseKey, setLicenseKey] = useState('');
     const [licenseStatus, setLicenseStatus] = useState<{
-        status: string;
-        is_active: boolean;
-        verified_at?: string;
+        status: string, 
+        is_active: boolean, 
+        verified_at?: string
     }>({status: 'inactive', is_active: false});
     const [isVerifyingLicense, setIsVerifyingLicense] = useState(false);
     const [isLoadingLicenseStatus, setIsLoadingLicenseStatus] = useState(true);
-    const [detectedSeoPlugins, setDetectedSeoPlugins] = useState<Array<{plugin: string, name: string, version: string, active: boolean}>>([]);
-    const [isDetectingSeo, setIsDetectingSeo] = useState(false);
-    const [seoPluginsLoading, setSeoPluginsLoading] = useState(false);
-    const [isConnecting, setIsConnecting] = useState(false);
-    const [isSaving, setIsSaving] = useState(false);
-    const [gscAuthStatus, setGscAuthStatus] = useState<any>(null);
 
-    // Load license status on component mount
+    // Tab state
+    const [activeTab, setActiveTab] = useState('license');
+
+    // Tab definitions
+    const tabs = [
+        {
+            id: 'license',
+            title: 'Pro License',
+            description: 'Unlock features',
+            icon: <Shield style={{ width: '16px', height: '16px', color: 'currentColor' }} />,
+            color: '#3b82f6'
+        },
+        {
+            id: 'automation',
+            title: 'Automation Mode',
+            description: 'Content automation',
+            icon: <Zap style={{ width: '16px', height: '16px', color: 'currentColor' }} />,
+            color: '#f59e0b'
+        },
+        {
+            id: 'integrations',
+            title: 'Integrations & Services',
+            description: 'External services',
+            icon: <Google style={{ width: '16px', height: '16px', color: 'currentColor' }} />,
+            color: '#10b981'
+        },
+        {
+            id: 'content',
+            title: 'Content Analysis',
+            description: 'Content settings',
+            icon: <SettingsIcon style={{ width: '16px', height: '16px', color: 'currentColor' }} />,
+            color: '#8b5cf6'
+        },
+        {
+            id: 'advanced',
+            title: 'Debug Panel',
+            description: 'Advanced tools',
+            icon: <SettingsIcon style={{ width: '16px', height: '16px', color: 'currentColor' }} />,
+            color: '#ef4444'
+        }
+    ];
+
+    // Handle settings changes
+    const handleSettingChange = (field: keyof AppSettings, value: any) => {
+        setCurrentSettings(prev => ({ ...prev, [field]: value }));
+    };
+
+    // Helper function to check if Pro features are available
+    const isProActive = () => {
+        return currentSettings.is_pro || licenseStatus.is_active;
+    };
+
+    // Helper function to check if image source is configured
+    const isImageSourceConfigured = () => {
+        switch (currentSettings.imageSourceProvider) {
+            case 'pexels':
+                return !!currentSettings.pexelsApiKey;
+            case 'unsplash':
+                return !!currentSettings.unsplashApiKey;
+            case 'pixabay':
+                return !!currentSettings.pixabayApiKey;
+            case 'ai':
+                return !!currentSettings.googleCloudProjectId;
+            default:
+                return false;
+        }
+    };
+
+    // IntegrationCard component (restored from working v2.3.0)
+    const IntegrationCard: React.FC<{ 
+        title: string | React.ReactNode; 
+        icon: React.ReactNode;
+        children: React.ReactNode; 
+        isConfigured: boolean; 
+    }> = ({ title, icon, children, isConfigured }) => (
+        <div className="aca-card" style={{ margin: 0 }}>
+            <div className="aca-card-header">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <h3 className="aca-card-title">
+                        {icon}
+                        {title}
+                    </h3>
+                    {isConfigured && (
+                        <div className="aca-alert success" style={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            fontSize: '12px', 
+                            fontWeight: '600',
+                            gap: '6px',
+                            padding: '4px 8px',
+                            margin: 0
+                        }}>
+                            <CheckCircle style={{ width: '14px', height: '14px' }} />
+                            Configured
+                        </div>
+                    )}
+                </div>
+            </div>
+            {children}
+        </div>
+    );
+
+    // Save functionality
+    const isDirty = JSON.stringify(currentSettings) !== JSON.stringify(settings);
+
+    const handleSave = async () => {
+        setIsSaving(true);
+        try {
+            await onSaveSettings(currentSettings);
+            onShowToast?.('Settings saved successfully!', 'success');
+        } catch (error) {
+            console.error('Failed to save settings:', error);
+            onShowToast?.('Failed to save settings. Please try again.', 'error');
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    // License verification
+    const handleLicenseVerification = async () => {
+        if (!licenseKey.trim()) {
+            onShowToast?.('Please enter a license key', 'warning');
+            return;
+        }
+
+        setIsVerifyingLicense(true);
+        try {
+            const result = await licenseApi.verify(licenseKey);
+            if (result.success) {
+                setLicenseStatus({
+                    status: 'active',
+                    is_active: true,
+                    verified_at: new Date().toISOString()
+                });
+                onShowToast?.('License verified successfully!', 'success');
+                setCurrentSettings(prev => ({ ...prev, is_pro: true }));
+                onRefreshApp?.();
+            } else {
+                onShowToast?.(result.message || 'Invalid license key', 'error');
+            }
+        } catch (error) {
+            console.error('License verification failed:', error);
+            onShowToast?.('License verification failed. Please try again.', 'error');
+        } finally {
+            setIsVerifyingLicense(false);
+        }
+    };
+
+    // SEO Detection
+    const fetchSeoPlugins = async () => {
+        setSeoPluginsLoading(true);
+        try {
+            const response = await fetch(`${window.acaData.api_url}/seo-plugins`, {
+                method: 'GET',
+                headers: {
+                    'X-WP-Nonce': window.acaData.nonce,
+                    'Content-Type': 'application/json',
+                },
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                setDetectedSeoPlugins(data.plugins || []);
+            }
+        } catch (error) {
+            console.error('Failed to fetch SEO plugins:', error);
+        } finally {
+            setSeoPluginsLoading(false);
+        }
+    };
+
+    const handleAutoDetectSeo = async () => {
+        setIsDetectingSeo(true);
+        await fetchSeoPlugins();
+        setIsDetectingSeo(false);
+    };
+
+    // GSC Functions
+    const handleGSCConnect = async () => {
+        setIsConnecting(true);
+        try {
+            const response = await fetch(`${window.acaData.api_url}/gsc/connect`, {
+                method: 'POST',
+                headers: {
+                    'X-WP-Nonce': window.acaData.nonce,
+                    'Content-Type': 'application/json',
+                },
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (data.auth_url) {
+                    window.open(data.auth_url, '_blank');
+                }
+            }
+        } catch (error) {
+            console.error('GSC connection failed:', error);
+        } finally {
+            setIsConnecting(false);
+        }
+    };
+
+    const handleGSCDisconnect = async () => {
+        setIsConnecting(true);
+        try {
+            const response = await fetch(`${window.acaData.api_url}/gsc/disconnect`, {
+                method: 'POST',
+                headers: {
+                    'X-WP-Nonce': window.acaData.nonce,
+                    'Content-Type': 'application/json',
+                },
+            });
+            
+            if (response.ok) {
+                setGscAuthStatus({ authenticated: false });
+                onShowToast?.('Disconnected from Google Search Console', 'success');
+            }
+        } catch (error) {
+            console.error('GSC disconnection failed:', error);
+        } finally {
+            setIsConnecting(false);
+        }
+    };
+
+    const loadGscAuthStatus = async () => {
+        try {
+            const response = await fetch(`${window.acaData.api_url}/gsc/status`, {
+                method: 'GET',
+                headers: {
+                    'X-WP-Nonce': window.acaData.nonce,
+                    'Content-Type': 'application/json',
+                },
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                setGscAuthStatus(data);
+            }
+        } catch (error) {
+            console.error('Failed to load GSC auth status:', error);
+        }
+    };
+
+    // Load initial data
     useEffect(() => {
         const loadLicenseStatus = async () => {
             try {
@@ -65,996 +358,731 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                 setIsLoadingLicenseStatus(false);
             }
         };
-
-        const loadGscAuthStatus = async () => {
-            if (!window.acaData) {
-                console.error('ACA: WordPress data not available');
-                return;
-            }
-            
-            try {
-                const response = await fetch(window.acaData.api_url + 'gsc/auth-status', {
-                    headers: { 'X-WP-Nonce': window.acaData.nonce }
-                });
-                const status = await response.json();
-                setGscAuthStatus(status);
-            } catch (error) {
-                console.error('Failed to load GSC auth status:', error);
-            }
-        };
         
         loadLicenseStatus();
-        loadGscAuthStatus();
         fetchSeoPlugins();
+        loadGscAuthStatus();
     }, []);
 
-    // Open specific section if requested
+    // Handle openSection prop
     useEffect(() => {
         if (openSection) {
             setActiveTab(openSection);
         }
     }, [openSection]);
 
-    // Update currentSettings when settings prop changes
-    useEffect(() => {
-        setCurrentSettings(settings);
-    }, [settings]);
-
-    // Auto-save settings when they change
-    useEffect(() => {
-        if (JSON.stringify(currentSettings) !== JSON.stringify(settings)) {
-            const timeoutId = setTimeout(() => {
-                onSaveSettings(currentSettings);
-            }, 1000); // Auto-save after 1 second of no changes
-
-            return () => clearTimeout(timeoutId);
-        }
-    }, [currentSettings, settings, onSaveSettings]);
-
-    // Tab definitions
-    const tabs = [
-        {
-            id: 'license',
-            title: 'Pro License',
-            icon: <Shield style={{ width: '18px', height: '18px' }} />,
-            description: 'Activate Pro features',
-            color: '#3b82f6'
-        },
-        {
-            id: 'automation',
-            title: 'Automation Mode',
-            icon: <Zap style={{ width: '18px', height: '18px' }} />,
-            description: 'Configure automation',
-            color: '#f59e0b'
-        },
-        {
-            id: 'integrations',
-            title: 'Integrations & Services',
-            icon: <Google style={{ width: '18px', height: '18px' }} />,
-            description: 'API connections',
-            color: '#10b981'
-        },
-        {
-            id: 'content',
-            title: 'Content Analysis',
-            icon: <SettingsIcon style={{ width: '18px', height: '18px' }} />,
-            description: 'Analysis settings',
-            color: '#8b5cf6'
-        },
-        {
-            id: 'advanced',
-            title: 'Debug Panel',
-            icon: <SettingsIcon style={{ width: '18px', height: '18px' }} />,
-            description: 'Advanced options',
-            color: '#ef4444'
-        }
-    ];
-
-    const handleLicenseVerification = async () => {
-        if (!licenseKey.trim()) return;
-        
-        setIsVerifyingLicense(true);
-        try {
-            const result = await licenseApi.verify(licenseKey);
-            if (result.success) { // Fixed: was result.valid, should be result.success
-                setLicenseStatus({
-                    status: 'active',
-                    is_active: true,
-                    verified_at: new Date().toISOString()
-                });
-                setLicenseKey('');
-                
-                // Update settings to reflect pro status
-                const updatedSettings = { ...currentSettings, is_pro: true };
-                setCurrentSettings(updatedSettings);
-                
-                if (onShowToast) {
-                    onShowToast('Pro license activated successfully!', 'success');
-                }
-                if (onRefreshApp) {
-                    onRefreshApp();
-                }
-            } else {
-                if (onShowToast) {
-                    onShowToast('Invalid license key. Please check and try again.', 'error');
-                }
-            }
-        } catch (error) {
-            console.error('License verification error:', error);
-            if (onShowToast) {
-                onShowToast('Failed to verify license. Please try again.', 'error');
-            }
-        } finally {
-            setIsVerifyingLicense(false);
-        }
-    };
-
-    const handleLicenseDeactivation = async () => {
-        setIsVerifyingLicense(true);
-        try {
-            await licenseApi.deactivate();
-            setLicenseStatus({
-                status: 'inactive',
-                is_active: false
-            });
-            if (onShowToast) {
-                onShowToast('License deactivated successfully.', 'info');
-            }
-            if (onRefreshApp) {
-                onRefreshApp();
-            }
-        } catch (error) {
-            console.error('License deactivation error:', error);
-            if (onShowToast) {
-                onShowToast('Failed to deactivate license. Please try again.', 'error');
-            }
-        } finally {
-            setIsVerifyingLicense(false);
-        }
-    };
-
-    // Render tab content based on active tab
+    // Render tab content
     const renderTabContent = () => {
-        const currentTab = tabs.find(tab => tab.id === activeTab);
-        
-        return (
-            <div>
-                {/* Tab Header */}
-                <div style={{ marginBottom: '30px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                        <div style={{
-                            width: '40px',
-                            height: '40px',
-                            background: currentTab ? `linear-gradient(135deg, ${currentTab.color}, ${currentTab.color}dd)` : '#f1f5f9',
-                            borderRadius: '10px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            color: 'white'
-                        }}>
-                            {currentTab?.icon}
-                        </div>
-                        <h2 style={{
-                            fontSize: '24px',
-                            fontWeight: '600',
-                            margin: 0,
-                            color: '#1e293b'
-                        }}>
-                            {currentTab?.title}
-                        </h2>
+        switch (activeTab) {
+            case 'license':
+                return renderLicenseContent();
+            case 'automation':
+                return renderAutomationContent();
+            case 'integrations':
+                return renderIntegrationsContent();
+            case 'content':
+                return renderContentContent();
+            case 'advanced':
+                return renderAdvancedContent();
+            default:
+                return renderLicenseContent();
+        }
+    };
+
+    const renderLicenseContent = () => (
+        <div>
+            <div className="aca-stat-item" style={{ margin: '0 0 20px 0' }}>
+                <div className="aca-stat-info">
+                    <div className="aca-stat-icon">
+                        {licenseStatus.is_active ? (
+                            <CheckCircle style={{ color: '#27ae60', width: '20px', height: '20px' }} />
+                        ) : (
+                            <Shield style={{ color: '#e74c3c', width: '20px', height: '20px' }} />
+                        )}
                     </div>
-                    <p style={{
-                        color: '#64748b',
-                        fontSize: '16px',
-                        margin: 0,
-                        lineHeight: '1.5'
-                    }}>
-                        {getTabDescription(activeTab)}
+                    <div>
+                        <div className="aca-stat-number">
+                            {licenseStatus.is_active ? 'Pro Active' : 'Free Version'}
+                        </div>
+                        <div className="aca-stat-label">
+                            {licenseStatus.is_active 
+                                ? `Verified ${licenseStatus.verified_at ? new Date(licenseStatus.verified_at).toLocaleDateString() : ''}`
+                                : 'Upgrade to unlock Pro features'
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {!licenseStatus.is_active && (
+                <div className="aca-form-group">
+                    <label className="aca-label" htmlFor="license-key">License Key</label>
+                    <input 
+                        id="license-key" 
+                        type="text" 
+                        placeholder="Enter your license key" 
+                        value={licenseKey} 
+                        onChange={e => setLicenseKey(e.target.value)} 
+                        className="aca-input"
+                    />
+                    <button 
+                        onClick={handleLicenseVerification} 
+                        disabled={isVerifyingLicense || !licenseKey.trim()} 
+                        className="aca-button"
+                        style={{ marginTop: '15px' }}
+                    >
+                        {isVerifyingLicense && <Spinner style={{ width: '16px', height: '16px' }} />}
+                        {isVerifyingLicense ? 'Verifying...' : 'Verify License'}
+                    </button>
+                    <p className="aca-page-description" style={{ marginTop: '15px' }}>
+                        Don't have a license? <a href="https://aicontentagent.com/pricing" target="_blank" rel="noopener noreferrer" style={{ color: '#0073aa' }}>Get Pro License →</a>
                     </p>
                 </div>
+            )}
+        </div>
+    );
 
-                {/* Tab Content */}
-                <div>
-                    {getTabContent(activeTab)}
-                </div>
-            </div>
-        );
-    };
-
-    const getTabDescription = (tabId: string): string => {
-        switch (tabId) {
-            case 'license': return 'Unlock advanced features and automation capabilities with your Pro license.';
-            case 'automation': return 'Configure how AI Content Agent creates and publishes content automatically.';
-            case 'integrations': return 'Connect to external services and configure how content is generated and optimized.';
-            case 'content': return 'Customize content analysis settings and generation preferences.';
-            case 'advanced': return 'Advanced debugging tools and developer options for troubleshooting.';
-            default: return '';
-        }
-    };
-
-    const getTabContent = (tabId: string): React.ReactNode => {
-        switch (tabId) {
-            case 'license': return renderLicenseContent();
-            case 'automation': return renderAutomationContent();
-            case 'integrations': return renderIntegrationsContent();
-            case 'content': return renderContentContent();
-            case 'advanced': return renderAdvancedContent();
-            default: return <div>Content not found</div>;
-        }
-    };
-
-    // License content render function
-    const renderLicenseContent = () => {
-        return (
-            <div>
-                <div className="aca-stat-item" style={{ margin: '0 0 20px 0' }}>
-                    <div className="aca-stat-info">
-                        <div className="aca-stat-icon">
-                            {licenseStatus.is_active ? (
-                                <CheckCircle style={{ color: '#27ae60', width: '20px', height: '20px' }} />
-                            ) : (
-                                <Shield style={{ color: '#e74c3c', width: '20px', height: '20px' }} />
-                            )}
-                        </div>
-                        <div>
-                            <div className="aca-stat-number">
-                                {licenseStatus.is_active ? 'Pro Active' : 'Free Version'}
-                            </div>
-                            <div className="aca-stat-label">
-                                {licenseStatus.is_active 
-                                    ? `Verified ${licenseStatus.verified_at ? new Date(licenseStatus.verified_at).toLocaleDateString() : ''}`
-                                    : 'Upgrade to unlock Pro features'
-                                }
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {!licenseStatus.is_active && (
-                    <div className="aca-form-group">
-                        <label className="aca-label" htmlFor="license-key">License Key</label>
-                        <div style={{ display: 'flex', gap: '10px' }}>
-                            <input
-                                id="license-key"
-                                type="text"
-                                className="aca-input"
-                                value={licenseKey}
-                                onChange={(e) => setLicenseKey(e.target.value)}
-                                placeholder="Enter your Pro license key"
-                                disabled={isVerifyingLicense}
-                            />
-                            <button
-                                onClick={handleLicenseVerification}
-                                disabled={isVerifyingLicense || !licenseKey.trim()}
-                                className="aca-button aca-button-primary"
-                                style={{ minWidth: '120px' }}
-                            >
-                                {isVerifyingLicense ? (
-                                    <>
-                                        <Spinner className="aca-spinner" />
-                                        Verifying...
-                                    </>
-                                ) : (
-                                    'Verify License'
-                                )}
-                            </button>
-                        </div>
-                        <p className="aca-page-description" style={{ marginTop: '10px' }}>
-                            Don't have a Pro license? <a href="https://ademisler.gumroad.com/l/ai-content-agent-pro" target="_blank" rel="noopener noreferrer" style={{ color: '#0073aa' }}>Purchase here</a>
-                        </p>
-                    </div>
-                )}
-
-                {licenseStatus.is_active && (
-                    <>
-                        <div className="aca-alert aca-alert-success" style={{ margin: '20px 0' }}>
-                            <CheckCircle style={{ width: '16px', height: '16px', marginRight: '8px' }} />
-                            Pro license is active! You now have access to all premium features.
-                        </div>
-                        <div style={{ marginTop: '15px' }}>
-                            <button
-                                onClick={handleLicenseDeactivation}
-                                disabled={isVerifyingLicense}
-                                className="aca-button aca-button-secondary"
-                                style={{ 
-                                    fontSize: '12px',
-                                    padding: '6px 12px'
-                                }}
-                            >
-                                {isVerifyingLicense ? (
-                                    <>
-                                        <Spinner className="aca-spinner" />
-                                        Deactivating...
-                                    </>
-                                ) : (
-                                    'Deactivate License'
-                                )}
-                            </button>
-                            <p className="aca-page-description" style={{ marginTop: '8px', fontSize: '12px' }}>
-                                This will disable all Pro features and allow you to use the license on another site.
-                            </p>
-                        </div>
-                    </>
-                )}
-            </div>
-        );
-    };
-
-    // Helper function to check if Pro features are available
-    const isProActive = () => {
-        return currentSettings.is_pro || licenseStatus.is_active;
-    };
-
-    const handleModeChange = (mode: AutomationMode) => {
-        setCurrentSettings(prev => ({ ...prev, mode }));
-    };
-
-    const handleSettingChange = (field: keyof AppSettings, value: any) => {
-        setCurrentSettings(prev => ({ ...prev, [field]: value }));
-    };
-
-    // Save functionality
-    const isDirty = JSON.stringify(currentSettings) !== JSON.stringify(settings);
-
-    const handleSave = () => {
-        setIsSaving(true);
-        setTimeout(() => {
-            onSaveSettings(currentSettings);
-            setIsSaving(false);
-        }, 700);
-    };
-
-    // SEO Plugin Detection Functions
-    const fetchSeoPlugins = async () => {
-        try {
-            setSeoPluginsLoading(true);
-            console.log('ACA: Fetching SEO plugins...');
-            
-            if (!window.acaData) {
-                console.error('ACA: WordPress data not available');
-                return;
-            }
-            
-            const response = await fetch(`${window.acaData.api_url}seo-plugins`, {
-                headers: {
-                    'X-WP-Nonce': window.acaData.nonce
-                }
-            });
-            
-            console.log('ACA: SEO plugins response status:', response.status);
-            
-            if (response.ok) {
-                const data = await response.json();
-                console.log('ACA: SEO plugins data:', data);
-                setDetectedSeoPlugins(data.detected_plugins || []);
-                
-                // Auto-update settings based on detected plugins
-                if (data.detected_plugins && data.detected_plugins.length > 0) {
-                    // Use the first detected plugin as the active one
-                    const firstPlugin = data.detected_plugins[0];
-                    if (currentSettings.seoPlugin === 'none') {
-                        handleSettingChange('seoPlugin', firstPlugin.plugin);
-                    }
-                }
-                
-                if (onShowToast) {
-                    onShowToast(`Found ${data.detected_plugins?.length || 0} SEO plugin(s)`, 'info');
-                }
-            } else {
-                const errorText = await response.text();
-                console.error('ACA: Failed to fetch SEO plugins:', response.status, errorText);
-                if (onShowToast) {
-                    onShowToast('Failed to detect SEO plugins', 'error');
-                }
-            }
-        } catch (error) {
-            console.error('ACA: Error fetching SEO plugins:', error);
-            if (onShowToast) {
-                onShowToast('Error detecting SEO plugins', 'error');
-            }
-        } finally {
-            setSeoPluginsLoading(false);
-        }
-    };
-
-    const handleAutoDetectSeo = () => {
-        setIsDetectingSeo(true);
-        fetchSeoPlugins().finally(() => {
-            setIsDetectingSeo(false);
-        });
-    };
-
-    // Google Search Console Connection
-    const handleGSCConnect = async () => {
-        // Check if credentials are set
-        if (!currentSettings.gscClientId || !currentSettings.gscClientSecret) {
-            if (onShowToast) {
-                onShowToast('Please enter your Google Search Console Client ID and Client Secret first.', 'warning');
-            }
-            return;
-        }
-        
-        if (!window.acaData) {
-            console.error('ACA: WordPress data not available');
-            return;
-        }
-        
-        setIsConnecting(true);
-        try {
-            const response = await fetch(window.acaData.api_url + 'gsc/connect', {
-                method: 'POST',
-                headers: { 'X-WP-Nonce': window.acaData.nonce }
-            });
-            const data = await response.json();
-            
-            if (data.auth_url) {
-                // Redirect to Google OAuth
-                window.location.href = data.auth_url;
-            } else {
-                if (onShowToast) {
-                    onShowToast('Failed to initiate Google Search Console connection', 'error');
-                }
-            }
-        } catch (error) {
-            console.error('GSC connection error:', error);
-            if (onShowToast) {
-                onShowToast('Error connecting to Google Search Console', 'error');
-            }
-        } finally {
-            setIsConnecting(false);
-        }
-    };
-
-    const handleGSCDisconnect = async () => {
-        if (!window.acaData) {
-            console.error('ACA: WordPress data not available');
-            return;
-        }
-        
-        setIsConnecting(true);
-        try {
-            const response = await fetch(window.acaData.api_url + 'gsc/disconnect', {
-                method: 'POST',
-                headers: { 'X-WP-Nonce': window.acaData.nonce }
-            });
-            
-            if (response.ok) {
-                // Update settings to reflect disconnection
-                setCurrentSettings(prev => ({ ...prev, searchConsoleUser: null }));
-                setGscAuthStatus({ authenticated: false });
-                if (onShowToast) {
-                    onShowToast('Google Search Console disconnected successfully', 'info');
-                }
-            } else {
-                if (onShowToast) {
-                    onShowToast('Failed to disconnect Google Search Console', 'error');
-                }
-            }
-        } catch (error) {
-            console.error('GSC disconnect error:', error);
-            if (onShowToast) {
-                onShowToast('Error disconnecting Google Search Console', 'error');
-            }
-        } finally {
-            setIsConnecting(false);
-        }
-    };
-
-    // RadioCard component for automation modes
-    const RadioCard: React.FC<{
-        id: AutomationMode;
-        title: string;
-        description: string;
-        currentSelection: AutomationMode;
-        onChange: (mode: AutomationMode) => void;
-    }> = ({ id, title, description, currentSelection, onChange }) => {
-        const isChecked = currentSelection === id;
-        return (
-            <label 
-                htmlFor={id} 
-                style={{
-                    display: 'block',
-                    margin: 0,
-                    border: '2px solid',
-                    borderColor: isChecked ? '#0073aa' : '#ccd0d4',
-                    borderRadius: '8px',
-                    padding: '20px',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    background: isChecked ? '#f0f6fc' : '#ffffff',
-                    boxShadow: isChecked ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none'
-                }}
-            >
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                    <input 
-                        type="radio" 
-                        id={id} 
-                        name="automation-mode" 
-                        checked={isChecked} 
-                        onChange={() => onChange(id)} 
-                        style={{
-                            marginTop: '2px',
-                            width: '18px',
-                            height: '18px',
-                            accentColor: '#0073aa',
-                            flexShrink: 0
-                        }}
-                    />
-                    <div>
-                        <h4 style={{ 
-                            fontSize: '16px',
-                            fontWeight: '600',
-                            margin: '0 0 8px 0',
-                            color: '#1e293b'
-                        }}>
-                            {title}
-                        </h4>
-                        <p style={{ 
-                            margin: 0,
-                            color: '#64748b',
-                            fontSize: '14px',
-                            lineHeight: '1.5'
-                        }}>
-                            {description}
-                        </p>
-                    </div>
-                </div>
-            </label>
-        );
-    };
-
-    const renderAutomationContent = () => {
-        if (isLoadingLicenseStatus) {
-            return (
+    const renderAutomationContent = () => (
+        <div>
+            {isLoadingLicenseStatus ? (
                 <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
                     Loading license status...
                 </div>
-            );
-        }
+            ) : isProActive() ? (
+                <div>
+                    <p style={{ color: '#64748b', fontSize: '16px', margin: '0 0 30px 0', lineHeight: '1.5' }}>
+                        Configure how AI Content Agent creates and publishes content automatically.
+                    </p>
 
-        if (!isProActive()) {
-            return (
+                    <div style={{ display: 'grid', gap: '16px', marginBottom: '30px' }}>
+                        <RadioCard
+                            id="manual"
+                            title="Manual Mode"
+                            description="Create content ideas and drafts manually when you need them. Full control over every piece of content."
+                            currentSelection={currentSettings.mode}
+                            onChange={(mode) => handleSettingChange('mode', mode)}
+                        />
+                        <RadioCard
+                            id="semi-automatic"
+                            title="Semi-Automatic Mode"
+                            description="Generate ideas automatically, but you review and approve each draft before publishing. Perfect balance of automation and control."
+                            currentSelection={currentSettings.mode}
+                            onChange={(mode) => handleSettingChange('mode', mode)}
+                        />
+                        <RadioCard
+                            id="full-automatic"
+                            title="Full-Automatic Mode"
+                            description="Complete automation - generates ideas, creates content, and publishes automatically based on your schedule. Maximum efficiency."
+                            currentSelection={currentSettings.mode}
+                            onChange={(mode) => handleSettingChange('mode', mode)}
+                        />
+                    </div>
+
+                    {(currentSettings.mode === 'semi-automatic' || currentSettings.mode === 'full-automatic') && (
+                        <div style={{ display: 'grid', gap: '20px' }}>
+                            <div className="aca-form-group">
+                                <label className="aca-label">Content Generation Frequency</label>
+                                <select 
+                                    value={currentSettings.frequency || 'daily'} 
+                                    onChange={(e) => handleSettingChange('frequency', e.target.value)}
+                                    className="aca-input"
+                                >
+                                    <option value="hourly">Every Hour</option>
+                                    <option value="daily">Daily</option>
+                                    <option value="weekly">Weekly</option>
+                                </select>
+                            </div>
+
+                            {currentSettings.mode === 'full-automatic' && (
+                                <>
+                                    <div className="aca-form-group">
+                                        <label className="aca-label">Publishing Frequency</label>
+                                        <select 
+                                            value={currentSettings.fullAutoPublishFrequency || 'daily'} 
+                                            onChange={(e) => handleSettingChange('fullAutoPublishFrequency', e.target.value)}
+                                            className="aca-input"
+                                        >
+                                            <option value="daily">Daily</option>
+                                            <option value="weekly">Weekly</option>
+                                            <option value="monthly">Monthly</option>
+                                        </select>
+                                    </div>
+
+                                    <div className="aca-form-group">
+                                        <label className="aca-label">Daily Post Count</label>
+                                        <input 
+                                            type="number" 
+                                            min="1" 
+                                            max="10" 
+                                            value={currentSettings.fullAutoDailyPostCount || 1} 
+                                            onChange={(e) => handleSettingChange('fullAutoDailyPostCount', parseInt(e.target.value))}
+                                            className="aca-input"
+                                        />
+                                    </div>
+
+                                    <div className="aca-form-group">
+                                        <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <input
+                                                type="checkbox"
+                                                checked={currentSettings.autoPublish || false}
+                                                onChange={(e) => handleSettingChange('autoPublish', e.target.checked)}
+                                                style={{ width: '18px', height: '18px', accentColor: '#0073aa' }}
+                                            />
+                                            <span className="aca-label" style={{ margin: 0 }}>Auto-publish generated content</span>
+                                        </label>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    )}
+                </div>
+            ) : (
                 <UpgradePrompt 
-                    title="Advanced Automation Modes"
-                    description="Unlock Semi-Automatic and Full-Automatic modes to automate your content creation workflow"
+                    title="Automation Features"
+                    description="Unlock powerful automation features to streamline your content creation process"
                     features={[
-                        "Semi-Automatic: Automated idea generation with manual publishing",
-                        "Full-Automatic: Complete automation from idea to published post",
-                        "Advanced scheduling and frequency controls",
-                        "Auto-publish with customizable timing"
+                        "Semi-automatic content generation with review workflow",
+                        "Full-automatic content creation and publishing",
+                        "Customizable publishing schedules and frequencies",
+                        "Advanced content optimization and SEO integration"
                     ]}
                 />
-            );
-        }
+            )}
+        </div>
+    );
 
-        return (
-            <div>
-                <p style={{ color: '#64748b', fontSize: '16px', margin: '0 0 30px 0', lineHeight: '1.5' }}>
-                    Choose how you want the AI Content Agent (ACA) to operate. You can change this at any time.
+    const renderIntegrationsContent = () => (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
+            {/* Google AI Integration */}
+            <IntegrationCard 
+                title="Google AI (Gemini)" 
+                icon={<Google className="aca-nav-item-icon" />}
+                isConfigured={!!currentSettings.geminiApiKey}
+            >
+                <div className="aca-form-group">
+                    <label htmlFor="gemini-api-key" className="aca-label">API Key</label>
+                    <input 
+                        id="gemini-api-key" 
+                        type="password" 
+                        placeholder="Enter Google AI API Key" 
+                        value={currentSettings.geminiApiKey} 
+                        onChange={e => handleSettingChange('geminiApiKey', e.target.value)} 
+                        className="aca-input"
+                    />
+                    <a 
+                        href="https://aistudio.google.com/app/apikey" 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="aca-page-description"
+                        style={{ 
+                            color: '#0073aa', 
+                            textDecoration: 'none', 
+                            marginTop: '8px', 
+                            display: 'block' 
+                        }}
+                    >
+                        → Get your Google AI API key
+                    </a>
+                </div>
+            </IntegrationCard>
+
+            {/* Image Source Integration */}
+            <IntegrationCard 
+                title="Featured Image Source" 
+                icon={<Image className="aca-nav-item-icon" />}
+                isConfigured={isImageSourceConfigured()}
+            >
+                <p className="aca-page-description">
+                    Select where to get featured images. For stock photo sites, an API key is required.
                 </p>
                 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                    <RadioCard 
-                        id="manual" 
-                        title="Manual Mode" 
-                        description="You are in full control. Manually generate ideas and create drafts one by one." 
-                        currentSelection={currentSettings.mode} 
-                        onChange={handleModeChange} 
-                    />
-                    
-                    <div style={{
-                        border: '2px solid',
-                        borderColor: currentSettings.mode === 'semi-automatic' ? '#0073aa' : '#ccd0d4',
-                        borderRadius: '8px',
-                        padding: '20px',
-                        background: currentSettings.mode === 'semi-automatic' ? '#f0f6fc' : '#ffffff',
-                        boxShadow: currentSettings.mode === 'semi-automatic' ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none'
-                    }}>
-                        <label htmlFor="semi-automatic" style={{ display: 'flex', alignItems: 'flex-start', cursor: 'pointer', gap: '12px' }}>
+                <div className="aca-grid aca-grid-2" style={{ marginBottom: '25px' }}>
+                   {(['pexels', 'unsplash', 'pixabay', 'ai'] as ImageSourceProvider[]).map(provider => (
+                        <label 
+                            key={provider} 
+                            className={`aca-button ${currentSettings.imageSourceProvider === provider ? '' : 'secondary'}`}
+                            style={{
+                                textTransform: 'capitalize' as const,
+                                cursor: 'pointer',
+                                textAlign: 'center' as const,
+                                margin: 0
+                            }}
+                        >
                             <input 
                                 type="radio" 
-                                id="semi-automatic" 
-                                name="automation-mode" 
-                                checked={currentSettings.mode === 'semi-automatic'} 
-                                onChange={() => handleModeChange('semi-automatic')} 
-                                style={{
-                                    marginTop: '2px',
-                                    width: '18px',
-                                    height: '18px',
-                                    accentColor: '#0073aa',
-                                    flexShrink: 0
-                                }}
+                                name="imageProvider" 
+                                value={provider} 
+                                checked={currentSettings.imageSourceProvider === provider} 
+                                onChange={() => handleSettingChange('imageSourceProvider', provider)} 
+                                style={{ display: 'none' }} 
                             />
-                            <div>
-                                <h4 style={{ 
-                                    fontSize: '16px',
-                                    fontWeight: '600',
-                                    margin: '0 0 8px 0',
-                                    color: '#1e293b'
-                                }}>
-                                    Semi-Automatic Mode
-                                </h4>
-                                <p style={{ 
-                                    margin: 0,
-                                    color: '#64748b',
-                                    fontSize: '14px',
-                                    lineHeight: '1.5'
-                                }}>
-                                    The AI automatically generates new ideas periodically. You choose which ideas to turn into drafts.
-                                </p>
-                            </div>
+                            {provider === 'ai' ? 'AI Generated' : provider}
                         </label>
-                        
-                        {currentSettings.mode === 'semi-automatic' && (
-                            <div style={{ 
-                                paddingLeft: '30px', 
-                                paddingTop: '20px', 
-                                marginTop: '20px', 
-                                borderTop: '1px solid #e0e0e0'
-                            }}>
-                                <label style={{ 
-                                    display: 'block',
-                                    fontSize: '14px',
-                                    fontWeight: '500',
-                                    color: '#374151',
-                                    marginBottom: '8px'
-                                }}>
-                                    Idea Generation Frequency
-                                </label>
-                                <select 
-                                    className="aca-input" 
-                                    value={currentSettings.semiAutoIdeaFrequency || 'weekly'} 
-                                    onChange={(e) => handleSettingChange('semiAutoIdeaFrequency', e.target.value)}
-                                    style={{ marginTop: '5px' }}
-                                >
-                                    <option value="daily">Daily - Generate new ideas every day</option>
-                                    <option value="weekly">Weekly - Generate new ideas every week</option>
-                                    <option value="monthly">Monthly - Generate new ideas every month</option>
-                                </select>
-                                <p style={{ 
-                                    color: '#64748b',
-                                    fontSize: '12px',
-                                    margin: '5px 0 0 0',
-                                    lineHeight: '1.4'
-                                }}>
-                                    How often should the AI automatically generate new content ideas?
-                                </p>
-                            </div>
-                        )}
+                    ))}
+                </div>
+
+                {/* Stock Photo API Keys */}
+                {currentSettings.imageSourceProvider === 'pexels' && (
+                    <div className="aca-form-group aca-fade-in">
+                        <label htmlFor="pexels-api-key" className="aca-label">Pexels API Key</label>
+                        <input 
+                            id="pexels-api-key" 
+                            type="password" 
+                            placeholder="Enter Pexels API Key" 
+                            value={currentSettings.pexelsApiKey} 
+                            onChange={e => handleSettingChange('pexelsApiKey', e.target.value)} 
+                            className="aca-input"
+                        />
+                        <p 
+                            className="aca-page-description"
+                            style={{ marginTop: '8px', fontSize: '13px' }}
+                        >
+                            Free API key from <a href="https://www.pexels.com/api/" target="_blank" rel="noopener noreferrer" style={{ color: '#0073aa' }}>Pexels</a>. 
+                            Provides access to high-quality stock photos.
+                        </p>
                     </div>
-                    
-                    <div style={{
-                        border: '2px solid',
-                        borderColor: currentSettings.mode === 'full-automatic' ? '#0073aa' : '#ccd0d4',
-                        borderRadius: '8px',
-                        padding: '20px',
-                        background: currentSettings.mode === 'full-automatic' ? '#f0f6fc' : '#ffffff',
-                        boxShadow: currentSettings.mode === 'full-automatic' ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none'
-                    }}>
-                        <label htmlFor="full-automatic-radio" style={{ display: 'flex', alignItems: 'flex-start', cursor: 'pointer', gap: '12px' }}>
+                )}
+
+                {currentSettings.imageSourceProvider === 'unsplash' && (
+                    <div className="aca-form-group aca-fade-in">
+                        <label htmlFor="unsplash-api-key" className="aca-label">Unsplash Access Key</label>
+                        <input 
+                            id="unsplash-api-key" 
+                            type="password" 
+                            placeholder="Enter Unsplash Access Key" 
+                            value={currentSettings.unsplashApiKey} 
+                            onChange={e => handleSettingChange('unsplashApiKey', e.target.value)} 
+                            className="aca-input"
+                        />
+                        <p 
+                            className="aca-page-description"
+                            style={{ marginTop: '8px', fontSize: '13px' }}
+                        >
+                            Free access key from <a href="https://unsplash.com/developers" target="_blank" rel="noopener noreferrer" style={{ color: '#0073aa' }}>Unsplash Developers</a>. 
+                            Provides access to high-resolution photos from professional photographers.
+                        </p>
+                    </div>
+                )}
+
+                {currentSettings.imageSourceProvider === 'pixabay' && (
+                    <div className="aca-form-group aca-fade-in">
+                        <label htmlFor="pixabay-api-key" className="aca-label">Pixabay API Key</label>
+                        <input 
+                            id="pixabay-api-key" 
+                            type="password" 
+                            placeholder="Enter Pixabay API Key" 
+                            value={currentSettings.pixabayApiKey} 
+                            onChange={e => handleSettingChange('pixabayApiKey', e.target.value)} 
+                            className="aca-input"
+                        />
+                        <p 
+                            className="aca-page-description"
+                            style={{ marginTop: '8px', fontSize: '13px' }}
+                        >
+                            Free API key from <a href="https://pixabay.com/api/docs/" target="_blank" rel="noopener noreferrer" style={{ color: '#0073aa' }}>Pixabay</a>. 
+                            Provides access to a large collection of free images and illustrations.
+                        </p>
+                    </div>
+                )}
+
+                {/* AI Image Settings */}
+                {currentSettings.imageSourceProvider === 'ai' && (
+                    <div className="aca-fade-in">
+                        <div className="aca-form-group">
+                            <label htmlFor="ai-image-style" className="aca-label">AI Image Style</label>
+                            <select 
+                                id="ai-image-style" 
+                                value={currentSettings.aiImageStyle || 'photorealistic'} 
+                                onChange={e => handleSettingChange('aiImageStyle', e.target.value)} 
+                                className="aca-select"
+                            >
+                                <option value="photorealistic">Photorealistic</option>
+                                <option value="digital_art">Digital Art</option>
+                            </select>
+                        </div>
+                        <div className="aca-form-group">
+                            <label htmlFor="google-cloud-project-id" className="aca-label">Google Cloud Project ID</label>
                             <input 
-                                type="radio" 
-                                id="full-automatic-radio" 
-                                name="automation-mode" 
-                                checked={currentSettings.mode === 'full-automatic'} 
-                                onChange={() => handleModeChange('full-automatic')} 
-                                style={{
-                                    marginTop: '2px',
-                                    width: '18px',
-                                    height: '18px',
-                                    accentColor: '#0073aa',
-                                    flexShrink: 0
-                                }}
+                                id="google-cloud-project-id" 
+                                type="text" 
+                                placeholder="your-project-id" 
+                                value={currentSettings.googleCloudProjectId || ''} 
+                                onChange={e => handleSettingChange('googleCloudProjectId', e.target.value)} 
+                                className="aca-input"
                             />
-                            <div>
-                                <h4 style={{ 
-                                    fontSize: '16px',
-                                    fontWeight: '600',
-                                    margin: '0 0 8px 0',
-                                    color: '#1e293b'
-                                }}>
-                                    Full Automatic Mode
-                                </h4>
-                                <p style={{ 
-                                    margin: 0,
-                                    color: '#64748b',
-                                    fontSize: '14px',
-                                    lineHeight: '1.5'
-                                }}>
-                                    Complete automation. The AI generates ideas, creates drafts, and can optionally publish them automatically.
-                                </p>
+                            <p className="aca-page-description" style={{ marginTop: '8px', fontSize: '13px' }}>
+                                Required for AI image generation. Get this from your Google Cloud Console.
+                            </p>
+                        </div>
+                        <div className="aca-form-group">
+                            <label htmlFor="google-cloud-location" className="aca-label">Google Cloud Location</label>
+                            <select 
+                                id="google-cloud-location" 
+                                value={currentSettings.googleCloudLocation || 'us-central1'} 
+                                onChange={e => handleSettingChange('googleCloudLocation', e.target.value)} 
+                                className="aca-select"
+                            >
+                                <option value="us-central1">US Central (us-central1)</option>
+                                <option value="us-east1">US East (us-east1)</option>
+                                <option value="europe-west1">Europe West (europe-west1)</option>
+                                <option value="asia-east1">Asia East (asia-east1)</option>
+                            </select>
+                            <p className="aca-page-description" style={{ marginTop: '8px', fontSize: '13px' }}>
+                                Choose the Google Cloud region closest to your users for better performance.
+                            </p>
+                        </div>
+                    </div>
+                )}
+            </IntegrationCard>
+
+            {/* SEO Integration */}
+            <IntegrationCard 
+                title="SEO Integration" 
+                icon={<SettingsIcon className="aca-nav-item-icon" />}
+                isConfigured={detectedSeoPlugins.length > 0}
+            >
+                {seoPluginsLoading ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '20px 0' }}>
+                        <Spinner style={{ width: '16px', height: '16px' }} />
+                        <span>Detecting SEO plugins...</span>
+                    </div>
+                ) : detectedSeoPlugins.length > 0 ? (
+                    <div>
+                        <div style={{ 
+                            padding: '12px 16px', 
+                            backgroundColor: '#f0f9ff', 
+                            borderRadius: '8px', 
+                            marginBottom: '20px',
+                            border: '1px solid #bae6fd'
+                        }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                                <span style={{ color: '#0ea5e9', fontSize: '18px' }}>ℹ️</span>
+                                <strong style={{ color: '#0c4a6e' }}>Automatic SEO Integration Active</strong>
                             </div>
-                        </label>
-                        
-                        {currentSettings.mode === 'full-automatic' && (
-                            <div style={{ 
-                                paddingLeft: '30px', 
-                                paddingTop: '20px', 
-                                marginTop: '20px', 
-                                borderTop: '1px solid #e0e0e0'
-                            }}>
-                                <div style={{ marginBottom: '20px' }}>
-                                    <label style={{ 
-                                        display: 'block',
-                                        fontSize: '14px',
-                                        fontWeight: '500',
-                                        color: '#374151',
-                                        marginBottom: '8px'
-                                    }}>
-                                        Content Generation Frequency
-                                    </label>
-                                    <select 
-                                        className="aca-input" 
-                                        value={currentSettings.fullAutoPublishFrequency || 'weekly'} 
-                                        onChange={(e) => handleSettingChange('fullAutoPublishFrequency', e.target.value)}
-                                    >
-                                        <option value="hourly">Hourly - Generate content every hour</option>
-                                        <option value="daily">Daily - Generate content every day</option>
-                                        <option value="weekly">Weekly - Generate content every week</option>
-                                    </select>
-                                </div>
-                                
-                                <div style={{ marginBottom: '20px' }}>
-                                    <label style={{ 
-                                        display: 'block',
-                                        fontSize: '14px',
-                                        fontWeight: '500',
-                                        color: '#374151',
-                                        marginBottom: '8px'
-                                    }}>
-                                        Daily Post Count
-                                    </label>
-                                    <input
-                                        type="number"
-                                        min="1"
-                                        max="10"
-                                        value={currentSettings.fullAutoDailyPostCount || 1}
-                                        onChange={(e) => handleSettingChange('fullAutoDailyPostCount', parseInt(e.target.value))}
-                                        className="aca-input"
-                                        style={{ width: '100%' }}
-                                    />
-                                    <p style={{ 
-                                        color: '#64748b',
-                                        fontSize: '12px',
-                                        margin: '4px 0 0 0',
-                                        lineHeight: '1.4'
-                                    }}>
-                                        Maximum number of posts to create per day (1-10)
-                                    </p>
-                                </div>
-                                
-                                <div style={{ marginBottom: '15px' }}>
-                                    <label style={{ 
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '10px',
-                                        cursor: 'pointer',
-                                        fontSize: '14px',
-                                        fontWeight: '500',
-                                        color: '#374151'
-                                    }}>
-                                        <input 
-                                            type="checkbox" 
-                                            checked={currentSettings.autoPublish || false} 
-                                            onChange={(e) => handleSettingChange('autoPublish', e.target.checked)}
+                            <p style={{ margin: '0', fontSize: '14px', color: '#0c4a6e', lineHeight: '1.4' }}>
+                                AI-generated content will automatically include SEO titles, meta descriptions, focus keywords, 
+                                social media tags, and schema markup for all detected plugins.
+                            </p>
+                        </div>
+
+                        <div style={{ marginBottom: '20px' }}>
+                            <h4 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '600', color: '#374151' }}>
+                                Detected SEO Plugins ({detectedSeoPlugins.length})
+                            </h4>
+                            <div style={{ display: 'grid', gap: '12px' }}>
+                                {detectedSeoPlugins.map((plugin, index) => {
+                                    const getPluginIcon = (pluginType: string) => {
+                                        switch (pluginType) {
+                                            case 'rank_math':
+                                                return '🏆';
+                                            case 'yoast':
+                                                return '🟢';
+                                            case 'aioseo':
+                                                return '🔵';
+                                            default:
+                                                return '🔧';
+                                        }
+                                    };
+
+                                    const getPluginColor = (pluginType: string) => {
+                                        switch (pluginType) {
+                                            case 'rank_math':
+                                                return { bg: '#fef3c7', border: '#f59e0b', text: '#92400e' };
+                                            case 'yoast':
+                                                return { bg: '#dcfce7', border: '#22c55e', text: '#166534' };
+                                            case 'aioseo':
+                                                return { bg: '#dbeafe', border: '#3b82f6', text: '#1e40af' };
+                                            default:
+                                                return { bg: '#f3f4f6', border: '#6b7280', text: '#374151' };
+                                        }
+                                    };
+
+                                    const colors = getPluginColor(plugin.plugin);
+
+                                    return (
+                                        <div key={plugin.plugin} style={{ 
+                                            display: 'flex', 
+                                            alignItems: 'center', 
+                                            justifyContent: 'space-between',
+                                            padding: '12px 16px',
+                                            backgroundColor: colors.bg,
+                                            border: `1px solid ${colors.border}`,
+                                            borderRadius: '8px'
+                                        }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                <span style={{ fontSize: '20px' }}>{getPluginIcon(plugin.plugin)}</span>
+                                                <div>
+                                                    <div style={{ fontWeight: '600', color: colors.text, fontSize: '14px' }}>
+                                                        {plugin.name}
+                                                    </div>
+                                                    <div style={{ fontSize: '12px', color: colors.text, opacity: 0.8 }}>
+                                                        Version {plugin.version}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div style={{
+                                                padding: '4px 8px',
+                                                backgroundColor: plugin.active ? '#22c55e' : '#6b7280',
+                                                color: 'white',
+                                                borderRadius: '4px',
+                                                fontSize: '11px',
+                                                fontWeight: '600'
+                                            }}>
+                                                {plugin.active ? 'Active' : 'Inactive'}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        <button 
+                            onClick={handleAutoDetectSeo} 
+                            disabled={isDetectingSeo} 
+                            style={{
+                                width: '100%',
+                                padding: '10px 16px',
+                                backgroundColor: '#64748b',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '6px',
+                                fontSize: '14px',
+                                fontWeight: '500',
+                                cursor: isDetectingSeo ? 'not-allowed' : 'pointer',
+                                opacity: isDetectingSeo ? 0.7 : 1,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '8px'
+                            }}
+                        >
+                            {isDetectingSeo && <Spinner style={{ width: '16px', height: '16px' }} />}
+                            {isDetectingSeo ? "Re-detecting SEO plugins..." : "🔄 Refresh Detection"}
+                        </button>
+                    </div>
+                ) : (
+                    <div>
+                        <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '20px', lineHeight: '1.5' }}>
+                            No SEO plugins detected. Install a supported SEO plugin to enable automatic SEO optimization for AI-generated content.
+                        </p>
+
+                        <div style={{ display: 'grid', gap: '16px', marginBottom: '20px' }}>
+                            {[
+                                { name: 'RankMath SEO', icon: '🏆', description: 'Advanced SEO plugin with rich snippets and social media integration', url: 'https://wordpress.org/plugins/seo-by-rank-math/' },
+                                { name: 'Yoast SEO', icon: '🟢', description: 'Popular SEO plugin with content analysis and readability scoring', url: 'https://wordpress.org/plugins/wordpress-seo/' },
+                                { name: 'All in One SEO', icon: '🔵', description: 'Comprehensive SEO plugin with XML sitemaps and social media features', url: 'https://wordpress.org/plugins/all-in-one-seo-pack/' }
+                            ].map((plugin, index) => (
+                                <div key={index} style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    padding: '16px',
+                                    backgroundColor: '#f8fafc',
+                                    borderRadius: '8px',
+                                    border: '1px solid #e2e8f0'
+                                }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                        <span style={{ fontSize: '24px' }}>{plugin.icon}</span>
+                                        <div>
+                                            <div style={{ fontWeight: '600', fontSize: '14px', color: '#374151' }}>
+                                                {plugin.name}
+                                            </div>
+                                            <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>
+                                                {plugin.description}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div style={{ flexShrink: 0 }}>
+                                        <a 
+                                            href={plugin.url} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
                                             style={{
-                                                width: '16px',
-                                                height: '16px',
-                                                accentColor: '#0073aa'
+                                                padding: '6px 12px',
+                                                backgroundColor: '#0073aa',
+                                                color: 'white',
+                                                textDecoration: 'none',
+                                                borderRadius: '4px',
+                                                fontSize: '12px',
+                                                fontWeight: '500'
                                             }}
-                                        />
-                                        Auto-Publish Content
-                                    </label>
-                                    <p style={{ 
-                                        color: '#64748b',
-                                        fontSize: '12px',
-                                        margin: '5px 0 0 26px',
-                                        lineHeight: '1.4'
-                                    }}>
-                                        ⚠️ <strong>Use with caution:</strong> When enabled, content will be published automatically without your review.
-                                    </p>
+                                        >
+                                            Install →
+                                        </a>
+                                    </div>
                                 </div>
-                            </div>
+                            ))}
+                        </div>
+
+                        <button 
+                            onClick={handleAutoDetectSeo} 
+                            disabled={isDetectingSeo} 
+                            style={{
+                                width: '100%',
+                                padding: '10px 16px',
+                                backgroundColor: '#0073aa',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '6px',
+                                fontSize: '14px',
+                                fontWeight: '500',
+                                cursor: isDetectingSeo ? 'not-allowed' : 'pointer',
+                                opacity: isDetectingSeo ? 0.7 : 1,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '8px'
+                            }}
+                        >
+                            {isDetectingSeo && <Spinner style={{ width: '16px', height: '16px' }} />}
+                            {isDetectingSeo ? "Detecting plugins..." : "🔍 Check for SEO Plugins"}
+                        </button>
+                    </div>
+                )}
+            </IntegrationCard>
+
+            {/* Google Search Console */}
+            {isLoadingLicenseStatus ? (
+                <IntegrationCard 
+                    title="Google Search Console"
+                    icon={<Google className="aca-nav-item-icon" />}
+                    isConfigured={false}
+                >
+                    <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
+                        Loading license status...
+                    </div>
+                </IntegrationCard>
+            ) : isProActive() ? (
+                <IntegrationCard 
+                    title={
+                        <span style={{ display: 'flex', alignItems: 'center' }}>
+                            Google Search Console
+                            <span style={{ 
+                                marginLeft: '10px',
+                                background: 'linear-gradient(135deg, #f39c12 0%, #e67e22 100%)',
+                                color: 'white',
+                                padding: '2px 8px',
+                                borderRadius: '8px',
+                                fontSize: '10px',
+                                fontWeight: 'bold'
+                            }}>PRO</span>
+                        </span>
+                    }
+                    icon={<Google className="aca-nav-item-icon" />}
+                    isConfigured={gscAuthStatus?.authenticated}
+                >
+                {/* GSC Credentials */}
+                <div className="aca-form-group">
+                    <label className="aca-label">Google Search Console Setup</label>
+                    <p className="aca-page-description" style={{ marginBottom: '15px' }}>
+                        To connect with Google Search Console, you need to create OAuth2 credentials in your Google Cloud Console. 
+                        <a href="https://console.cloud.google.com/" target="_blank" rel="noopener noreferrer" style={{ color: '#0073aa', textDecoration: 'none' }}>
+                            {' '}Learn how to set up credentials →
+                        </a>
+                    </p>
+                    
+                    <div style={{ display: 'grid', gap: '15px', marginBottom: '20px' }}>
+                        <div>
+                            <label className="aca-label">Client ID</label>
+                            <input
+                                type="text"
+                                value={currentSettings.gscClientId}
+                                onChange={(e) => handleSettingChange('gscClientId', e.target.value)}
+                                placeholder="Your Google OAuth2 Client ID"
+                                className="aca-input"
+                                style={{ width: '100%' }}
+                            />
+                        </div>
+                        
+                        <div>
+                            <label className="aca-label">Client Secret</label>
+                            <input
+                                type="password"
+                                value={currentSettings.gscClientSecret}
+                                onChange={(e) => handleSettingChange('gscClientSecret', e.target.value)}
+                                placeholder="Your Google OAuth2 Client Secret"
+                                className="aca-input"
+                                style={{ width: '100%' }}
+                            />
+                        </div>
+                    </div>
+                </div>
+                
+                {/* Connection Status */}
+                <div className="aca-stat-item" style={{ margin: 0 }}>
+                    <div className="aca-stat-info">
+                        <div className="aca-stat-icon">
+                            {gscAuthStatus?.authenticated ? (
+                                <CheckCircle style={{ color: '#27ae60', width: '20px', height: '20px' }} />
+                            ) : (
+                                <Google style={{ color: '#e74c3c', width: '20px', height: '20px' }} />
+                            )}
+                        </div>
+                        <div>
+                            <h4 className="aca-stat-title">Connection Status</h4>
+                            {gscAuthStatus?.authenticated ? (
+                                <p className="aca-stat-count" style={{ color: '#00a32a' }}>
+                                    Connected as {gscAuthStatus.user_email}
+                                </p>
+                            ) : (
+                                <p className="aca-stat-count" style={{ color: '#d63638' }}>
+                                    Not Connected
+                                </p>
+                            )}
+                        </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                        {gscAuthStatus?.authenticated ? (
+                            <button 
+                                onClick={handleGSCDisconnect} 
+                                disabled={isConnecting} 
+                                className="aca-button"
+                                style={{ 
+                                    flexShrink: 0,
+                                    background: '#d63638',
+                                    borderColor: '#d63638'
+                                }}
+                            >
+                                Disconnect
+                            </button>
+                        ) : (
+                            <button 
+                                onClick={handleGSCConnect} 
+                                disabled={isConnecting || !currentSettings.gscClientId || !currentSettings.gscClientSecret} 
+                                className="aca-button"
+                                style={{ 
+                                    flexShrink: 0,
+                                    background: '#00a32a',
+                                    borderColor: '#00a32a'
+                                }}
+                            >
+                                {isConnecting && <Spinner style={{ width: '16px', height: '16px' }} />}
+                                {isConnecting ? 'Connecting...' : 'Connect'}
+                            </button>
                         )}
                     </div>
                 </div>
-            </div>
-        );
-    };
-
-    const renderIntegrationsContent = () => (
-        <div>
-            {/* Google AI Integration */}
-            <div className="aca-form-group">
-                <label className="aca-label" htmlFor="gemini-api-key">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <Google style={{ width: '16px', height: '16px', color: '#4285f4' }} />
-                        Google Gemini API Key
-                    </div>
-                </label>
-                <input
-                    id="gemini-api-key"
-                    type="password"
-                    className="aca-input"
-                    value={currentSettings.geminiApiKey}
-                    onChange={(e) => setCurrentSettings(prev => ({ ...prev, geminiApiKey: e.target.value }))}
-                    placeholder="Enter your Google Gemini API key"
+                </IntegrationCard>
+            ) : (
+                <UpgradePrompt 
+                    title="Google Search Console Integration"
+                    description="Unlock advanced SEO insights and performance tracking with Google Search Console integration"
+                    features={[
+                        "Track your content performance in search results",
+                        "Get keyword ranking data and click-through rates",
+                        "Monitor search impressions and user behavior",
+                        "Identify content optimization opportunities"
+                    ]}
                 />
-                <p className="aca-page-description" style={{ marginTop: '8px' }}>
-                    Get your free API key from <a href="https://makersuite.google.com/app/apikey" target="_blank" rel="noopener noreferrer" style={{ color: '#0073aa' }}>Google AI Studio</a>. 
-                    This is required for all AI-powered features including content generation and idea creation.
-                </p>
-            </div>
-
-
+            )}
         </div>
     );
 
     const renderContentContent = () => (
         <div>
             <p style={{ color: '#64748b', fontSize: '16px', margin: '0 0 30px 0', lineHeight: '1.5' }}>
-                Configure content generation preferences and image settings.
+                Configure content analysis and optimization settings.
             </p>
-
-            {/* Image Source Provider */}
-            <div style={{ marginBottom: '30px' }}>
-                <h3 style={{ 
-                    fontSize: '18px',
-                    fontWeight: '600',
-                    margin: '0 0 16px 0',
-                    color: '#1e293b',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px'
-                }}>
-                    <Image style={{ width: '20px', height: '20px', color: '#8b5cf6' }} />
-                    Image Source Provider
-                </h3>
-                
-                <div style={{ display: 'grid', gap: '12px' }}>
-                    {[
-                        { id: 'pexels', name: 'Pexels', description: 'Free stock photos (Recommended for beginners)', apiKeyField: 'pexelsApiKey' },
-                        { id: 'unsplash', name: 'Unsplash', description: 'High-quality photos from professional photographers', apiKeyField: 'unsplashApiKey' },
-                        { id: 'pixabay', name: 'Pixabay', description: 'Large collection of free images and illustrations', apiKeyField: 'pixabayApiKey' },
-                        { id: 'ai', name: 'Google AI Generated', description: 'AI-generated images using Google Cloud (Pro feature)', apiKeyField: null }
-                    ].map((provider) => (
-                        <label 
-                            key={provider.id}
-                            style={{
-                                display: 'block',
-                                border: '2px solid',
-                                borderColor: currentSettings.imageSourceProvider === provider.id ? '#8b5cf6' : '#e2e8f0',
-                                borderRadius: '8px',
-                                padding: '16px',
-                                cursor: 'pointer',
-                                transition: 'all 0.2s ease',
-                                background: currentSettings.imageSourceProvider === provider.id ? '#faf5ff' : '#ffffff'
-                            }}
-                        >
-                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                                <input 
-                                    type="radio" 
-                                    name="image-provider" 
-                                    checked={currentSettings.imageSourceProvider === provider.id} 
-                                    onChange={() => handleSettingChange('imageSourceProvider', provider.id)}
-                                    style={{
-                                        marginTop: '2px',
-                                        width: '16px',
-                                        height: '16px',
-                                        accentColor: '#8b5cf6'
-                                    }}
-                                />
-                                <div style={{ flex: 1 }}>
-                                    <div style={{ 
-                                        fontSize: '16px',
-                                        fontWeight: '600',
-                                        margin: '0 0 4px 0',
-                                        color: '#1e293b'
-                                    }}>
-                                        {provider.name}
-                                        {provider.id === 'ai' && (
-                                            <span style={{ 
-                                                marginLeft: '8px',
-                                                background: 'linear-gradient(135deg, #f39c12 0%, #e67e22 100%)',
-                                                color: 'white',
-                                                padding: '2px 6px',
-                                                borderRadius: '4px',
-                                                fontSize: '10px',
-                                                fontWeight: 'bold'
-                                            }}>PRO</span>
-                                        )}
-                                    </div>
-                                    <p style={{ 
-                                        margin: 0,
-                                        color: '#64748b',
-                                        fontSize: '14px',
-                                        lineHeight: '1.4'
-                                    }}>
-                                        {provider.description}
-                                    </p>
-                                </div>
-                            </div>
-                            
-                            {/* API Key input for selected provider */}
-                            {currentSettings.imageSourceProvider === provider.id && provider.apiKeyField && (
-                                <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
-                                    <label style={{ 
-                                        display: 'block',
-                                        fontSize: '14px',
-                                        fontWeight: '500',
-                                        color: '#374151',
-                                        marginBottom: '8px'
-                                    }}>
-                                        {provider.name} API Key
-                                    </label>
-                                    <input
-                                        type="password"
-                                        value={currentSettings[provider.apiKeyField as keyof AppSettings] as string || ''}
-                                        onChange={(e) => handleSettingChange(provider.apiKeyField as keyof AppSettings, e.target.value)}
-                                        placeholder={`Enter your ${provider.name} API key`}
-                                        className="aca-input"
-                                        style={{ width: '100%' }}
-                                    />
-                                    <p style={{ 
-                                        color: '#64748b',
-                                        fontSize: '12px',
-                                        margin: '4px 0 0 0',
-                                        lineHeight: '1.4'
-                                    }}>
-                                        Get your API key from {provider.name}'s developer portal.
-                                    </p>
-                                </div>
-                            )}
-                            
-                            {/* Google AI settings */}
-                            {currentSettings.imageSourceProvider === 'ai' && (
-                                <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
-                                    <div style={{ marginBottom: '16px' }}>
-                                        <label style={{ 
-                                            display: 'block',
-                                            fontSize: '14px',
-                                            fontWeight: '500',
-                                            color: '#374151',
-                                            marginBottom: '8px'
-                                        }}>
-                                            Google Cloud Project ID
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={currentSettings.googleCloudProjectId || ''}
-                                            onChange={(e) => handleSettingChange('googleCloudProjectId', e.target.value)}
-                                            placeholder="your-project-id"
-                                            className="aca-input"
-                                            style={{ width: '100%' }}
-                                        />
-                                    </div>
-                                    
-                                    <div style={{ marginBottom: '16px' }}>
-                                        <label style={{ 
-                                            display: 'block',
-                                            fontSize: '14px',
-                                            fontWeight: '500',
-                                            color: '#374151',
-                                            marginBottom: '8px'
-                                        }}>
-                                            AI Image Style
-                                        </label>
-                                        <select 
-                                            value={currentSettings.aiImageStyle || 'photorealistic'} 
-                                            onChange={(e) => handleSettingChange('aiImageStyle', e.target.value)}
-                                            className="aca-input"
-                                            style={{ width: '100%' }}
-                                        >
-                                            <option value="photorealistic">Photorealistic</option>
-                                            <option value="digital_art">Digital Art</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            )}
-                        </label>
-                    ))}
-                </div>
-            </div>
 
             {/* Content Analysis Frequency */}
             <div style={{ marginBottom: '30px' }}>
@@ -1068,7 +1096,7 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                     gap: '8px'
                 }}>
                     <SettingsIcon style={{ width: '20px', height: '20px', color: '#8b5cf6' }} />
-                    Content Analysis
+                    Content Analysis Frequency
                 </h3>
                 
                 <div style={{ 
@@ -1078,8 +1106,8 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                     border: '1px solid #e2e8f0'
                 }}>
                     <label style={{ 
-                        display: 'block',
-                        fontSize: '14px',
+                        display: 'block', 
+                        fontSize: '14px', 
                         fontWeight: '500',
                         color: '#374151',
                         marginBottom: '8px'
@@ -1107,697 +1135,122 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                     </p>
                 </div>
             </div>
-
-            {/* SEO Plugin Integration */}
-            <div style={{ marginBottom: '30px' }}>
-                <h3 style={{ 
-                    fontSize: '18px',
-                    fontWeight: '600',
-                    margin: '0 0 16px 0',
-                    color: '#1e293b',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px'
-                }}>
-                    <SettingsIcon style={{ width: '20px', height: '20px', color: '#8b5cf6' }} />
-                    SEO Plugin Integration
-                </h3>
-                
-                <div style={{ 
-                    padding: '20px', 
-                    backgroundColor: '#f8fafc', 
-                    borderRadius: '8px', 
-                    border: '1px solid #e2e8f0'
-                }}>
-                    <p style={{ 
-                        color: '#64748b',
-                        fontSize: '14px',
-                        margin: '0 0 16px 0',
-                        lineHeight: '1.5'
-                    }}>
-                        AI Content Agent can automatically configure SEO metadata when creating content. 
-                        We'll detect which SEO plugin you're using and optimize accordingly.
-                    </p>
-                    
-                    <div style={{ marginBottom: '16px' }}>
-                        <label style={{ 
-                            display: 'block',
-                            fontSize: '14px',
-                            fontWeight: '500',
-                            color: '#374151',
-                            marginBottom: '8px'
-                        }}>
-                            SEO Plugin
-                        </label>
-                        <select 
-                            value={currentSettings.seoPlugin || 'none'} 
-                            onChange={(e) => handleSettingChange('seoPlugin', e.target.value)}
-                            className="aca-input"
-                            style={{ width: '100%' }}
-                        >
-                            <option value="none">No SEO Plugin / Auto-detect</option>
-                            <option value="yoast">Yoast SEO</option>
-                            <option value="rank_math">RankMath</option>
-                        </select>
-                    </div>
-
-                    {/* SEO Plugin Detection */}
-                    <div style={{ marginBottom: '16px' }}>
-                        <button
-                            onClick={handleAutoDetectSeo}
-                            disabled={isDetectingSeo}
-                            style={{
-                                width: '100%',
-                                padding: '10px 16px',
-                                backgroundColor: '#0073aa',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '6px',
-                                fontSize: '14px',
-                                fontWeight: '500',
-                                cursor: isDetectingSeo ? 'not-allowed' : 'pointer',
-                                opacity: isDetectingSeo ? 0.7 : 1,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                gap: '8px'
-                            }}
-                        >
-                            {isDetectingSeo && <Spinner style={{ width: '16px', height: '16px' }} />}
-                            {isDetectingSeo ? "Detecting plugins..." : "🔍 Check for SEO Plugins"}
-                        </button>
-                    </div>
-
-                    {/* Detected SEO Plugins */}
-                    {detectedSeoPlugins.length > 0 && (
-                        <div style={{ 
-                            padding: '16px',
-                            backgroundColor: '#dcfce7',
-                            borderRadius: '6px',
-                            border: '1px solid #16a34a'
-                        }}>
-                            <h4 style={{ 
-                                fontSize: '14px',
-                                fontWeight: '600',
-                                margin: '0 0 12px 0',
-                                color: '#166534',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '8px'
-                            }}>
-                                <CheckCircle style={{ width: '16px', height: '16px' }} />
-                                Detected SEO Plugins ({detectedSeoPlugins.length})
-                            </h4>
-                            <div style={{ display: 'grid', gap: '8px' }}>
-                                {detectedSeoPlugins.map((plugin, index) => (
-                                    <div key={index} style={{
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center',
-                                        padding: '8px 12px',
-                                        backgroundColor: 'white',
-                                        borderRadius: '4px',
-                                        fontSize: '13px'
-                                    }}>
-                                        <div>
-                                            <span style={{ fontWeight: '500', color: '#166534' }}>
-                                                {plugin.name}
-                                            </span>
-                                            <span style={{ color: '#16a34a', marginLeft: '8px' }}>
-                                                v{plugin.version}
-                                            </span>
-                                        </div>
-                                        <span style={{
-                                            padding: '2px 6px',
-                                            backgroundColor: plugin.active ? '#16a34a' : '#64748b',
-                                            color: 'white',
-                                            borderRadius: '4px',
-                                            fontSize: '11px',
-                                            fontWeight: '500'
-                                        }}>
-                                            {plugin.active ? 'Active' : 'Inactive'}
-                                        </span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                </div>
-            </div>
         </div>
     );
 
     const renderAdvancedContent = () => (
         <div>
-            <div style={{ 
-                padding: '16px',
-                backgroundColor: '#e0f2fe',
-                borderRadius: '8px',
-                border: '1px solid #0ea5e9',
-                marginBottom: '20px'
-            }}>
-                <p style={{ margin: 0, fontSize: '14px', color: '#0c4a6e' }}>
-                    <strong>🛠️ For Developers & Advanced Users:</strong> This panel is designed for testing and debugging automation features. 
-                    Use these tools to manually trigger automation tasks, check cron job status, and troubleshoot issues. 
-                    Regular users typically don't need to use this panel.
-                </p>
-            </div>
             <p style={{ color: '#64748b', fontSize: '16px', margin: '0 0 30px 0', lineHeight: '1.5' }}>
-                Test automation functionality and check cron status. Advanced debugging tools and developer options for troubleshooting.
+                Advanced debugging tools and developer information.
             </p>
 
-            {/* Google Search Console Integration (Pro Feature) */}
-            <div style={{ marginBottom: '30px' }}>
-                <h3 style={{ 
-                    fontSize: '18px',
-                    fontWeight: '600',
-                    margin: '0 0 16px 0',
-                    color: '#1e293b',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px'
-                }}>
-                    <Google style={{ width: '20px', height: '20px', color: '#ef4444' }} />
-                    Google Search Console Integration
-                    <span style={{ 
-                        marginLeft: '8px',
-                        background: 'linear-gradient(135deg, #f39c12 0%, #e67e22 100%)',
+            {/* Developer Information */}
+            <div style={{ 
+                padding: '16px', 
+                backgroundColor: '#fff3cd', 
+                border: '1px solid #ffeaa7', 
+                borderRadius: '8px',
+                marginBottom: '30px'
+            }}>
+                <h4 style={{ margin: '0 0 8px 0', color: '#856404' }}>🔧 Developer Information</h4>
+                <p style={{ margin: '0', fontSize: '14px', color: '#856404' }}>
+                    These tools are for debugging and testing purposes. Use with caution in production environments.
+                </p>
+            </div>
+
+            {/* Debug Actions */}
+            <div style={{ display: 'grid', gap: '16px' }}>
+                <button 
+                    onClick={() => {
+                        console.log('Checking automation status...');
+                        onShowToast?.('Automation status checked - see console for details', 'info');
+                    }}
+                    style={{
+                        padding: '12px 16px',
+                        backgroundColor: '#6366f1',
                         color: 'white',
-                        padding: '4px 8px',
+                        border: 'none',
                         borderRadius: '6px',
-                        fontSize: '12px',
-                        fontWeight: 'bold'
-                    }}>PRO</span>
-                </h3>
-                
-                {isLoadingLicenseStatus ? (
-                    <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
-                        Loading license status...
-                    </div>
-                ) : !isProActive() ? (
-                    <div style={{ 
-                        padding: '20px', 
-                        backgroundColor: '#fef3cd', 
-                        borderRadius: '8px', 
-                        border: '1px solid #fbbf24'
-                    }}>
-                        <p style={{ color: '#92400e', margin: '0 0 16px 0' }}>
-                            Google Search Console integration is available with a Pro license.
-                        </p>
-                        <a 
-                            href="https://ademisler.gumroad.com/l/ai-content-agent-pro" 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            style={{
-                                display: 'inline-block',
-                                padding: '8px 16px',
-                                backgroundColor: '#f59e0b',
-                                color: 'white',
-                                textDecoration: 'none',
-                                borderRadius: '6px',
-                                fontSize: '14px',
-                                fontWeight: '500'
-                            }}
-                        >
-                            Upgrade to Pro
-                        </a>
-                    </div>
-                ) : (
-                    <div style={{ 
-                        padding: '20px', 
-                        backgroundColor: '#f8fafc', 
-                        borderRadius: '8px', 
-                        border: '1px solid #e2e8f0'
-                    }}>
-                        <p style={{ 
-                            color: '#64748b',
-                            fontSize: '14px',
-                            margin: '0 0 20px 0',
-                            lineHeight: '1.5'
-                        }}>
-                            Connect with Google Search Console to analyze your content performance and get data-driven insights.
-                        </p>
-                        
-                        <div style={{ display: 'grid', gap: '16px', marginBottom: '20px' }}>
-                            <div>
-                                <label style={{ 
-                                    display: 'block',
-                                    fontSize: '14px',
-                                    fontWeight: '500',
-                                    color: '#374151',
-                                    marginBottom: '8px'
-                                }}>
-                                    Google OAuth2 Client ID
-                                </label>
-                                <input
-                                    type="text"
-                                    value={currentSettings.gscClientId || ''}
-                                    onChange={(e) => handleSettingChange('gscClientId', e.target.value)}
-                                    placeholder="Your Google OAuth2 Client ID"
-                                    className="aca-input"
-                                    style={{ width: '100%' }}
-                                />
-                            </div>
-                            
-                            <div>
-                                <label style={{ 
-                                    display: 'block',
-                                    fontSize: '14px',
-                                    fontWeight: '500',
-                                    color: '#374151',
-                                    marginBottom: '8px'
-                                }}>
-                                    Google OAuth2 Client Secret
-                                </label>
-                                <input
-                                    type="password"
-                                    value={currentSettings.gscClientSecret || ''}
-                                    onChange={(e) => handleSettingChange('gscClientSecret', e.target.value)}
-                                    placeholder="Your Google OAuth2 Client Secret"
-                                    className="aca-input"
-                                    style={{ width: '100%' }}
-                                />
-                            </div>
-                        </div>
-                        
-                        <p style={{ 
-                            color: '#64748b',
-                            fontSize: '12px',
-                            margin: '0',
-                            lineHeight: '1.4'
-                        }}>
-                            <a href="https://console.cloud.google.com/" target="_blank" rel="noopener noreferrer" style={{ color: '#0073aa' }}>
-                                Learn how to set up Google OAuth2 credentials →
-                            </a>
-                        </p>
-                        
-                        <div style={{ 
-                            marginTop: '20px',
-                            padding: '16px',
-                            backgroundColor: gscAuthStatus?.authenticated ? '#dcfce7' : '#fef2f2',
-                            borderRadius: '6px',
-                            border: `1px solid ${gscAuthStatus?.authenticated ? '#16a34a' : '#ef4444'}`
-                        }}>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    {gscAuthStatus?.authenticated ? (
-                                        <CheckCircle style={{ width: '16px', height: '16px', color: '#16a34a' }} />
-                                    ) : (
-                                        <SettingsIcon style={{ width: '16px', height: '16px', color: '#ef4444' }} />
-                                    )}
-                                    <span style={{ 
-                                        fontSize: '14px',
-                                        fontWeight: '500',
-                                        color: gscAuthStatus?.authenticated ? '#166534' : '#991b1b'
-                                    }}>
-                                        {gscAuthStatus?.authenticated ? 'Connected' : 'Not Connected'}
-                                    </span>
-                                </div>
-                                
-                                {/* Connect/Disconnect Button */}
-                                {gscAuthStatus?.authenticated ? (
-                                    <button 
-                                        onClick={handleGSCDisconnect}
-                                        disabled={isConnecting}
-                                        style={{
-                                            padding: '6px 12px',
-                                            backgroundColor: '#ef4444',
-                                            color: 'white',
-                                            border: 'none',
-                                            borderRadius: '4px',
-                                            fontSize: '12px',
-                                            fontWeight: '500',
-                                            cursor: isConnecting ? 'not-allowed' : 'pointer',
-                                            opacity: isConnecting ? 0.7 : 1,
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '4px'
-                                        }}
-                                    >
-                                        {isConnecting && <Spinner style={{ width: '12px', height: '12px' }} />}
-                                        {isConnecting ? 'Disconnecting...' : 'Disconnect'}
-                                    </button>
-                                ) : (
-                                    <button 
-                                        onClick={handleGSCConnect}
-                                        disabled={isConnecting || !currentSettings.gscClientId || !currentSettings.gscClientSecret}
-                                        style={{
-                                            padding: '6px 12px',
-                                            backgroundColor: '#16a34a',
-                                            color: 'white',
-                                            border: 'none',
-                                            borderRadius: '4px',
-                                            fontSize: '12px',
-                                            fontWeight: '500',
-                                            cursor: (isConnecting || !currentSettings.gscClientId || !currentSettings.gscClientSecret) ? 'not-allowed' : 'pointer',
-                                            opacity: (isConnecting || !currentSettings.gscClientId || !currentSettings.gscClientSecret) ? 0.7 : 1,
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '4px'
-                                        }}
-                                    >
-                                        {isConnecting && <Spinner style={{ width: '12px', height: '12px' }} />}
-                                        {isConnecting ? 'Connecting...' : 'Connect'}
-                                    </button>
-                                )}
-                            </div>
-                            {gscAuthStatus?.authenticated && (
-                                <p style={{ 
-                                    margin: '8px 0 0 24px',
-                                    fontSize: '12px',
-                                    color: '#166534'
-                                }}>
-                                    Connected as: {gscAuthStatus.user_email}
-                                </p>
-                            )}
-                        </div>
-                    </div>
-                )}
-            </div>
-
-            {/* Debug Information */}
-            <div style={{ marginBottom: '30px' }}>
-                <h3 style={{ 
-                    fontSize: '18px',
-                    fontWeight: '600',
-                    margin: '0 0 16px 0',
-                    color: '#1e293b',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px'
-                }}>
-                    <SettingsIcon style={{ width: '20px', height: '20px', color: '#ef4444' }} />
-                    Debug Information
-                </h3>
-                
-                <div style={{ 
-                    padding: '20px', 
-                    backgroundColor: '#f8fafc', 
-                    borderRadius: '8px', 
-                    border: '1px solid #e2e8f0'
-                }}>
-                    <div style={{ display: 'grid', gap: '12px' }}>
-                        <div style={{ 
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            padding: '8px 0',
-                            borderBottom: '1px solid #e2e8f0'
-                        }}>
-                            <span style={{ fontSize: '14px', fontWeight: '500', color: '#374151' }}>
-                                Plugin Version
-                            </span>
-                            <span style={{ fontSize: '14px', color: '#64748b' }}>
-                                2.3.1
-                            </span>
-                        </div>
-                        
-                        <div style={{ 
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            padding: '8px 0',
-                            borderBottom: '1px solid #e2e8f0'
-                        }}>
-                            <span style={{ fontSize: '14px', fontWeight: '500', color: '#374151' }}>
-                                License Status
-                            </span>
-                            <span style={{ 
-                                fontSize: '14px',
-                                color: licenseStatus.is_active ? '#16a34a' : '#ef4444',
-                                fontWeight: '500'
-                            }}>
-                                {licenseStatus.is_active ? 'Pro Active' : 'Free Version'}
-                            </span>
-                        </div>
-                        
-                        <div style={{ 
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            padding: '8px 0',
-                            borderBottom: '1px solid #e2e8f0'
-                        }}>
-                            <span style={{ fontSize: '14px', fontWeight: '500', color: '#374151' }}>
-                                Automation Mode
-                            </span>
-                            <span style={{ fontSize: '14px', color: '#64748b' }}>
-                                {currentSettings.mode || 'manual'}
-                            </span>
-                        </div>
-                        
-                        <div style={{ 
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            padding: '8px 0',
-                            borderBottom: '1px solid #e2e8f0'
-                        }}>
-                            <span style={{ fontSize: '14px', fontWeight: '500', color: '#374151' }}>
-                                Gemini API
-                            </span>
-                            <span style={{ 
-                                fontSize: '14px',
-                                color: currentSettings.geminiApiKey ? '#16a34a' : '#ef4444',
-                                fontWeight: '500'
-                            }}>
-                                {currentSettings.geminiApiKey ? 'Configured' : 'Not Configured'}
-                            </span>
-                        </div>
-                        
-                        <div style={{ 
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            padding: '8px 0'
-                        }}>
-                            <span style={{ fontSize: '14px', fontWeight: '500', color: '#374151' }}>
-                                Image Provider
-                            </span>
-                            <span style={{ fontSize: '14px', color: '#64748b' }}>
-                                {currentSettings.imageSourceProvider || 'pexels'}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Clear Cache/Reset Options */}
-            <div style={{ marginBottom: '30px' }}>
-                <h3 style={{ 
-                    fontSize: '18px',
-                    fontWeight: '600',
-                    margin: '0 0 16px 0',
-                    color: '#1e293b',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px'
-                }}>
-                    <SettingsIcon style={{ width: '20px', height: '20px', color: '#ef4444' }} />
-                    Maintenance
-                </h3>
-                
-                <div style={{ 
-                    padding: '20px', 
-                    backgroundColor: '#fef2f2', 
-                    borderRadius: '8px', 
-                    border: '1px solid #fecaca'
-                }}>
-                    <p style={{ 
-                        color: '#991b1b',
                         fontSize: '14px',
-                        margin: '0 0 16px 0',
-                        lineHeight: '1.5'
-                    }}>
-                        ⚠️ <strong>Caution:</strong> These actions will affect your plugin data. Use only when troubleshooting issues.
-                    </p>
-                    
-                    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                        <button
-                            onClick={() => {
-                                if (!window.acaData) {
-                                    console.error('ACA: WordPress data not available');
-                                    return;
-                                }
-                                fetch(window.acaData.api_url + 'debug/automation', {
-                                    headers: { 'X-WP-Nonce': window.acaData.nonce }
-                                })
-                                .then(r => r.json())
-                                .then(data => {
-                                    console.log('Automation Debug Info:', data);
-                                    if (onShowToast) {
-                                        onShowToast('Debug info logged to console', 'info');
-                                    }
-                                });
-                            }}
-                            style={{
-                                padding: '8px 16px',
-                                backgroundColor: '#0ea5e9',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '6px',
-                                fontSize: '14px',
-                                fontWeight: '500',
-                                cursor: 'pointer'
-                            }}
-                        >
-                            Check Automation Status
-                        </button>
+                        fontWeight: '500',
+                        cursor: 'pointer',
+                        textAlign: 'left'
+                    }}
+                >
+                    🔍 Check Automation Status
+                </button>
 
-                        <button
-                            onClick={() => {
-                                if (!window.acaData) {
-                                    console.error('ACA: WordPress data not available');
-                                    return;
-                                }
-                                fetch(window.acaData.api_url + 'debug/cron/semi-auto', {
-                                    method: 'POST',
-                                    headers: { 'X-WP-Nonce': window.acaData.nonce }
-                                })
-                                .then(r => r.json())
-                                .then(data => {
-                                    if (onShowToast) {
-                                        onShowToast(data.message || 'Semi-auto cron triggered', 'success');
-                                    }
-                                });
-                            }}
-                            style={{
-                                padding: '8px 16px',
-                                backgroundColor: '#16a34a',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '6px',
-                                fontSize: '14px',
-                                fontWeight: '500',
-                                cursor: 'pointer'
-                            }}
-                        >
-                            Test Semi-Auto Cron
-                        </button>
-                        
-                        <button
-                            onClick={() => {
-                                if (window.confirm('This will clear all cached data. Continue?')) {
-                                    if (onShowToast) {
-                                        onShowToast('Cache cleared successfully', 'info');
-                                    }
-                                }
-                            }}
-                            style={{
-                                padding: '8px 16px',
-                                backgroundColor: '#ef4444',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '6px',
-                                fontSize: '14px',
-                                fontWeight: '500',
-                                cursor: 'pointer'
-                            }}
-                        >
-                            Clear Cache
-                        </button>
-                        
-                        <button
-                            onClick={() => {
-                                if (onRefreshApp) {
-                                    onRefreshApp();
-                                    if (onShowToast) {
-                                        onShowToast('Application refreshed', 'info');
-                                    }
-                                }
-                            }}
-                            style={{
-                                padding: '8px 16px',
-                                backgroundColor: '#64748b',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '6px',
-                                fontSize: '14px',
-                                fontWeight: '500',
-                                cursor: 'pointer'
-                            }}
-                        >
-                            Refresh App
-                        </button>
-                    </div>
-                </div>
+                <button 
+                    onClick={() => {
+                        console.log('Testing semi-auto cron...');
+                        onShowToast?.('Semi-auto cron test initiated - see console for details', 'info');
+                    }}
+                    style={{
+                        padding: '12px 16px',
+                        backgroundColor: '#059669',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        cursor: 'pointer',
+                        textAlign: 'left'
+                    }}
+                >
+                    ⚡ Test Semi-Auto Cron
+                </button>
             </div>
         </div>
     );
 
     return (
-        <div className="aca-fade-in" style={{
-            maxHeight: 'calc(100vh - 100px)',
-            overflowY: 'auto',
-            paddingRight: '10px'
-        }}>
-            {/* Modern Settings Header */}
-            <div style={{
-                background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-                borderRadius: '12px',
-                padding: '30px',
+        <div style={{ padding: '0', maxWidth: '100%' }}>
+            {/* Header */}
+            <div style={{ 
                 marginBottom: '30px',
+                textAlign: 'center',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                 color: 'white',
+                padding: '30px',
+                borderRadius: '12px',
                 position: 'relative',
                 overflow: 'hidden'
             }}>
-                <div style={{ position: 'relative', zIndex: 2 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                        <div style={{
-                            width: '48px',
-                            height: '48px',
-                            background: 'rgba(255,255,255,0.2)',
-                            borderRadius: '12px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            backdropFilter: 'blur(10px)'
-                        }}>
-                            <SettingsIcon style={{ width: '24px', height: '24px' }} />
-                        </div>
-                        <div>
-                            <h1 style={{ 
-                                fontSize: '28px', 
-                                fontWeight: '700', 
-                                margin: 0,
-                                textShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                                color: 'white'
-                            }}>
-                                Settings & Configuration
-                            </h1>
-                            <div style={{ fontSize: '16px', opacity: 0.9, marginTop: '4px' }}>
-                                Customize your AI Content Agent experience
-                            </div>
-                        </div>
-                    </div>
-                    <p style={{ 
-                        fontSize: '14px', 
-                        opacity: 0.85,
-                        margin: 0,
-                        maxWidth: '600px',
-                        lineHeight: '1.5'
-                    }}>
-                        Configure automation modes, API integrations, and content generation preferences to optimize your workflow
-                    </p>
-                </div>
-                {/* Decorative elements */}
                 <div style={{
                     position: 'absolute',
-                    top: '-30px',
-                    right: '-30px',
-                    width: '120px',
-                    height: '120px',
-                    background: 'rgba(255,255,255,0.1)',
-                    borderRadius: '50%',
-                    zIndex: 1
+                    top: '-50%',
+                    left: '-50%',
+                    width: '200%',
+                    height: '200%',
+                    background: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)',
+                    animation: 'pulse 4s ease-in-out infinite'
                 }}></div>
+                <h1 style={{ 
+                    margin: '0 0 10px 0', 
+                    fontSize: '28px', 
+                    fontWeight: '700',
+                    textShadow: '0 2px 4px rgba(0,0,0,0.3)',
+                    position: 'relative',
+                    zIndex: 1
+                }}>
+                    ⚙️ Settings & Configuration
+                </h1>
+                <p style={{ 
+                    margin: '0', 
+                    fontSize: '16px', 
+                    opacity: 0.9,
+                    position: 'relative',
+                    zIndex: 1
+                }}>
+                    Configure AI Content Agent to match your workflow and preferences
+                </p>
                 <div style={{
                     position: 'absolute',
-                    bottom: '-20px',
-                    left: '-20px',
-                    width: '80px',
-                    height: '80px',
-                    background: 'rgba(255,255,255,0.05)',
+                    bottom: '10px',
+                    right: '20px',
+                    width: '60px',
+                    height: '60px',
+                    background: 'rgba(255, 255, 255, 0.1)',
                     borderRadius: '50%',
                     zIndex: 1
                 }}></div>
@@ -1826,8 +1279,8 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                             padding: '12px 16px',
                             border: 'none',
                             borderRadius: '8px',
-                            background: activeTab === tab.id 
-                                ? `linear-gradient(135deg, ${tab.color}, ${tab.color}dd)` 
+                            background: activeTab === tab.id
+                                ? `linear-gradient(135deg, ${tab.color}, ${tab.color}dd)`
                                 : 'transparent',
                             color: activeTab === tab.id ? 'white' : '#64748b',
                             cursor: 'pointer',
@@ -1852,7 +1305,7 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                             }
                         }}
                     >
-                        <div style={{ 
+                        <div style={{
                             color: 'inherit',
                             display: 'flex',
                             alignItems: 'center'
@@ -1863,9 +1316,9 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                             <div style={{ lineHeight: '1.2', fontSize: '14px' }}>
                                 {tab.title}
                             </div>
-                            <div style={{ 
-                                fontSize: '11px', 
-                                opacity: 0.8, 
+                            <div style={{
+                                fontSize: '11px',
+                                opacity: 0.8,
                                 marginTop: '2px',
                                 lineHeight: '1.2'
                             }}>

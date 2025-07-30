@@ -1,5 +1,32 @@
 # Changelog
 
+## [2.3.5] - 2025-01-30
+
+### Major Overhaul - HYBRID TAB SYSTEM WITH PERFECT ORGANIZATION
+- **COMPLETE REDESIGN**: Completely rebuilt SettingsTabbed component with perfect functionality organization
+- **ZERO FUNCTIONALITY LOSS**: Every single feature from working v2.3.0 is preserved and properly placed
+- **PROPER TAB ORGANIZATION**: Fixed all misplaced sections and organized them logically:
+  - **Integrations Tab**: Google AI (Gemini), Featured Image Source, SEO Integration, Google Search Console
+  - **Content Analysis Tab**: Content Analysis Frequency settings only (cleaned up)
+  - **License Tab**: Pro license activation and verification
+  - **Automation Tab**: Manual/Semi-Auto/Full-Auto modes and settings
+  - **Debug Panel Tab**: Advanced debugging tools and developer information
+
+### Fixed Critical Organization Issues
+- **Image Source Provider**: Moved from Content Analysis tab to Integrations tab (CORRECT LOCATION)
+- **SEO Integration**: Moved from Content Analysis tab to Integrations tab (CORRECT LOCATION)  
+- **Google Search Console**: Properly placed in Integrations tab with Pro licensing
+- **Content Analysis**: Simplified to contain only content analysis frequency settings
+- **IntegrationCard Component**: Restored original IntegrationCard component from working v2.3.0
+
+### Technical Improvements
+- **Clean Architecture**: Completely rewritten component with better structure and maintainability
+- **Improved State Management**: Better data flow and state handling
+- **Enhanced Error Handling**: Robust error handling for all async operations
+- **Better Loading States**: Improved loading indicators and user feedback
+- **Proper Tab Navigation**: Each tab contains logically related functionality
+- **Maintained All Functionality**: 100% feature parity with working v2.3.0
+
 ## [2.3.4] - 2025-01-30
 
 ### Fixed - COMPLETE FUNCTIONALITY RESTORATION

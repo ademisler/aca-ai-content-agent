@@ -33,16 +33,15 @@
 
 /* Sidebar styles */
 .aca-sidebar {
-  width: 260px;
+  width: 240px;
   background: #23282d;
   border-right: 1px solid #ccd0d4;
   position: fixed;
   top: 32px; /* Account for WordPress admin bar */
-  left: 0;
-  height: auto; /* Let sidebar height be natural */
-  min-height: calc(100vh - 32px); /* Minimum height for full coverage */
+  left: 160px; /* Account for WordPress admin menu */
+  height: calc(100vh - 32px); /* Fixed height */
   z-index: 9999;
-  overflow-y: visible; /* No internal scrolling */
+  overflow-y: auto; /* Allow internal scrolling */
   transform: translateX(-100%);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 2px 0 20px rgba(0, 0, 0, 0.15);
@@ -231,7 +230,7 @@
 /* Main content area */
 .aca-main {
   flex: 1;
-  margin-left: 0;
+  margin-left: 160px; /* Account for WordPress admin menu */
   padding: 20px;
   background: #f0f0f1;
   min-height: 100vh;
@@ -243,7 +242,7 @@
   }
   
   .aca-main {
-    margin-left: 0; /* No margin - full width */
+    margin-left: 400px; /* WordPress admin menu (160px) + Plugin sidebar (240px) */
     padding: 20px;
   }
 }
@@ -790,9 +789,9 @@
   .aca-sidebar {
     width: 100% !important;
     max-width: 320px;
+    left: 0 !important; /* Full left on mobile */
     top: 46px !important; /* Mobile admin bar height */
-    height: auto !important; /* Natural height */
-    min-height: calc(100vh - 46px) !important; /* Minimum coverage */
+    height: calc(100vh - 46px) !important; /* Fixed height on mobile */
   }
   
   .aca-sidebar-header {
@@ -1132,23 +1131,23 @@
 /* WordPress Admin Bar Compatibility */
 @media screen and (max-width: 782px) {
   .wp-admin .aca-sidebar {
+    left: 0 !important; /* Full left on mobile */
     top: 46px !important; /* Mobile admin bar height */
-    height: auto !important; /* Natural height */
-    min-height: calc(100vh - 46px) !important;
+    height: calc(100vh - 46px) !important;
   }
 }
 
 @media screen and (min-width: 783px) {
   .wp-admin .aca-sidebar {
+    left: 160px !important; /* Account for WordPress admin menu */
     top: 32px !important; /* Desktop admin bar height */
-    height: auto !important; /* Natural height */
-    min-height: calc(100vh - 32px) !important;
+    height: calc(100vh - 32px) !important;
   }
 }
 
 /* No admin bar fallback */
 .no-admin-bar .aca-sidebar {
+  left: 160px !important; /* Account for WordPress admin menu */
   top: 0 !important;
-  height: auto !important; /* Natural height */
-  min-height: 100vh !important;
+  height: 100vh !important;
 }

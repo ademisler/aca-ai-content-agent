@@ -5,7 +5,7 @@ Tags: ai, content, automation, gemini, seo, pro, license
 Requires at least: 5.0
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 2.2.6
+Stable tag: 2.3.0
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -28,6 +28,18 @@ AI Content Agent (ACA) transforms your WordPress site into an intelligent conten
 * Clear guidance for essential plugin setup requirements
 
 == Changelog ==
+
+= 2.3.0 - 2025-01-30 =
+* MAJOR: Automatic language detection - AI generates content in website's language
+* MAJOR: Intelligent category hierarchy system - AI selects appropriate subcategories
+* NEW: 50+ language support with WordPress locale integration
+* NEW: Smart category parent-child relationship detection
+* Enhanced: AI considers category hierarchy when selecting categories
+* Enhanced: Language-aware content generation for global websites
+* Enhanced: Better categorization for complex category structures
+* Example: AI can distinguish "France > Minimum Wage" vs "Germany > Minimum Wage"
+* Improved: Zero-configuration automatic language detection
+* Improved: Cultural context consideration in content generation
 
 = 2.2.6 - 2025-01-30 =
 * FIXED: Critical Settings page scroll jumping issue completely resolved

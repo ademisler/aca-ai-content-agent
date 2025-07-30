@@ -90,9 +90,9 @@ AI Content Agent (ACA) is a powerful WordPress plugin that leverages Google's Ge
 ## 📁 Release Management
 
 ### Current Release
-- **Latest Version**: v2.2.6 (Located in `/releases/`)
-- **File**: `ai-content-agent-v2.2.6-settings-scroll-jumping-fix.zip`
-- **Status**: Stable, ready for production with critical Settings page scroll jumping fix
+- **Latest Version**: v2.3.0 (Located in `/releases/`)
+- **File**: `ai-content-agent-v2.3.0-multilingual-and-smart-categorization.zip`
+- **Status**: Stable, ready for production with multilingual support and intelligent categorization
 
 ### Archive
 - **Previous Versions**: All older versions are stored in `/releases/archive/`
@@ -102,7 +102,7 @@ AI Content Agent (ACA) is a powerful WordPress plugin that leverages Google's Ge
 ### For Developers
 ```bash
 # Latest release
-releases/ai-content-agent-v2.2.6-settings-scroll-jumping-fix.zip
+releases/ai-content-agent-v2.3.0-multilingual-and-smart-categorization.zip
 
 # Development build (after making changes)
 npm run build:wp  # Builds and copies to both admin/assets/ and admin/js/
@@ -192,7 +192,7 @@ This plugin is licensed under the GPL v2 or later.
 
 ## 🔄 Version History
 
-- **v2.2.6**: Critical Settings page scroll jumping fix (Latest)
+- **v2.3.0**: Multilingual support & intelligent categorization (Latest)
 - **v2.0.4**: Complete license management & UX overhaul
 - **v2.0.3**: Asset deployment & cache invalidation
 - **v1.7.0**: Comprehensive feature enhancements & improvements

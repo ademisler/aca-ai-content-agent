@@ -138,10 +138,10 @@ export default defineConfig({
 ## 📦 Release Management
 
 ### Current Release Information
-- **Latest Version**: v2.2.6
-- **Release File**: `ai-content-agent-v2.2.6-settings-scroll-jumping-fix.zip`
-- **Status**: Production ready with critical Settings page scroll jumping fix
-- **Key Features**: Complete resolution of Settings dropdown page jumping, fixed height containers, scroll position preservation, internal dropdown scrolling, professional Settings page behavior
+- **Latest Version**: v2.3.0
+- **Release File**: `ai-content-agent-v2.3.0-multilingual-and-smart-categorization.zip`
+- **Status**: Production ready with multilingual support and intelligent categorization
+- **Key Features**: Automatic language detection (50+ languages), intelligent category hierarchy system, AI-powered subcategory selection, WordPress locale integration, smart content categorization
 
 ### Release Process
 

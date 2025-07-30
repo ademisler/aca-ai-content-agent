@@ -2,6 +2,78 @@
 
 All notable changes to AI Content Agent (ACA) will be documented in this file.
 
+## [2.3.0] - 2025-01-30
+
+### 🌍 MAJOR FEATURE: AUTOMATIC LANGUAGE DETECTION & MULTILINGUAL SUPPORT
+
+#### ✅ Intelligent Language Detection
+- **WordPress Locale Integration**: Automatically detects website language from WordPress locale settings
+- **50+ Language Support**: Comprehensive language mapping for global websites
+- **Smart Fallback System**: Graceful degradation to English if language not detected
+- **Real-time Language Detection**: Dynamic language detection during content generation
+
+#### 🎯 Language-Aware Content Generation
+- **Multilingual Ideas**: AI generates blog post ideas in the detected website language
+- **Native Content Creation**: All blog posts written in the website's primary language
+- **Language-Specific SEO**: Tags and metadata generated in appropriate language
+- **Cultural Context**: AI considers cultural nuances and language-specific writing styles
+
+#### 📝 Supported Languages Include
+- **European**: English, German, French, Spanish, Italian, Portuguese, Dutch, Swedish, Danish, Norwegian, Finnish, Polish, Czech, Hungarian, Romanian, Bulgarian, Croatian, Slovak, Slovenian, Estonian, Latvian, Lithuanian, Greek
+- **Asian**: Turkish, Japanese, Korean, Chinese, Thai, Vietnamese, Hindi, Bengali
+- **Middle Eastern**: Arabic, Hebrew, Persian, Urdu
+- **Slavic**: Russian, Ukrainian, Belarusian
+- **Caucasian**: Georgian, Armenian
+- **Central Asian**: Azerbaijani, Kazakh, Kyrgyz, Uzbek, Tajik, Mongolian
+
+### 🏗️ MAJOR FEATURE: INTELLIGENT CATEGORY HIERARCHY SYSTEM
+
+#### ✅ Smart Category Management
+- **Hierarchical Category Detection**: Automatically detects parent-child category relationships
+- **AI-Powered Category Selection**: Intelligent selection between parent and subcategory based on content
+- **Category Context Analysis**: AI considers category hierarchy when making selections
+- **Improved Category Display**: Visual hierarchy representation in AI prompts
+
+#### 🎯 Advanced Categorization Logic
+- **Subcategory Preference**: AI chooses specific subcategories over broad parent categories when appropriate
+- **Content-Category Matching**: Sophisticated matching between content topic and category hierarchy
+- **Example Scenario**: For "Asgari Ücret" content, AI can distinguish between "Fransa > Asgari Ücret" vs "Almanya > Asgari Ücret" subcategories
+- **Hierarchy Path Display**: Full category path shown for better AI decision making
+
+#### 📊 Enhanced Category Context
+- **Parent-Child Relationships**: Complete category family tree provided to AI
+- **Category Post Counts**: AI considers category popularity in selection
+- **Hierarchy Level Tracking**: Deep category nesting support
+- **Visual Category Tree**: Indented display showing category relationships
+
+### 🔧 Technical Improvements
+
+#### 🌐 Language Processing
+- **Locale Mapping**: Comprehensive WordPress locale to language mapping
+- **Language Code Extraction**: Smart parsing of language codes from locales
+- **Fallback Mechanisms**: Multiple fallback strategies for language detection
+- **Performance Optimized**: Efficient language detection with minimal overhead
+
+#### 🏷️ Category Processing
+- **WordPress Category API**: Full integration with WordPress category system
+- **Recursive Hierarchy**: Support for unlimited category nesting levels
+- **Category Validation**: Ensures selected categories exist and are valid
+- **Error Handling**: Graceful handling of category-related errors
+
+### 🚀 User Experience Enhancements
+
+#### 🎨 Improved AI Intelligence
+- **Context-Aware Generation**: AI considers both language and category context
+- **Better Content Relevance**: More accurate content generation based on site structure
+- **Smarter Categorization**: Reduced manual category adjustment needed
+- **Enhanced SEO**: Language and category-appropriate content optimization
+
+#### 📱 Seamless Integration
+- **Zero Configuration**: Automatic detection requires no user setup
+- **Backward Compatibility**: Existing content and settings remain unaffected
+- **Progressive Enhancement**: New features enhance existing functionality
+- **Error Resilience**: Robust error handling maintains plugin stability
+
 ## [2.2.6] - 2025-01-30
 
 ### 🔧 CRITICAL SETTINGS PAGE SCROLL JUMPING FIX

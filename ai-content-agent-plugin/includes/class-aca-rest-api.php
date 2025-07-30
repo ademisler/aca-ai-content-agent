@@ -1136,20 +1136,38 @@ class ACA_Rest_Api {
                 );
             }
             
-            // Get existing categories for AI to choose from
-            error_log('ACA DEBUG: Getting existing categories');
+            // Get site language for content generation
+            $site_locale = get_locale();
+            $site_language = $this->get_language_from_locale($site_locale);
+            error_log('ACA DEBUG: Site locale: ' . $site_locale . ', Language: ' . $site_language);
+            
+            // Get existing categories with hierarchy for AI to choose from
+            error_log('ACA DEBUG: Getting existing categories with hierarchy');
             $existing_categories = get_categories(array(
                 'hide_empty' => false,
-                'number' => 20
+                'number' => 50, // Increased to get more categories
+                'hierarchical' => true,
+                'orderby' => 'parent'
             ));
             
             $categories_context = array();
             foreach ($existing_categories as $category) {
+                $parent_info = '';
+                if ($category->parent > 0) {
+                    $parent_category = get_category($category->parent);
+                    if ($parent_category && !is_wp_error($parent_category)) {
+                        $parent_info = $parent_category->name;
+                    }
+                }
+                
                 $categories_context[] = array(
                     'id' => $category->term_id,
                     'name' => $category->name,
                     'slug' => $category->slug,
-                    'count' => $category->count
+                    'count' => $category->count,
+                    'parent_id' => $category->parent,
+                    'parent_name' => $parent_info,
+                    'hierarchy_level' => $this->get_category_level($category->term_id)
                 );
             }
             
@@ -1936,14 +1954,20 @@ class ACA_Rest_Api {
     // AI Service calls - Real Gemini API integration
     
     private function call_gemini_generate_ideas($api_key, $style_guide, $existing_titles, $count, $search_console_data) {
+        // Get site language for content generation
+        $site_locale = get_locale();
+        $site_language = $this->get_language_from_locale($site_locale);
+        
         $prompt = "
             Based on this style guide: {$style_guide}
+            
+            IMPORTANT: Generate ALL titles in {$site_language} language. This is the primary language of the website based on the WordPress locale: {$site_locale}.
             
             Generate {$count} unique, engaging blog post titles that match the style and tone described in the guide.
             
             Avoid these existing titles: " . json_encode($existing_titles) . "
             
-            Return ONLY a JSON array of strings (the titles), nothing else.
+            Return ONLY a JSON array of strings (the titles in {$site_language}), nothing else.
             Example format: [\"Title 1\", \"Title 2\", \"Title 3\"]
         ";
 
@@ -1962,15 +1986,22 @@ class ACA_Rest_Api {
     }
     
     private function call_gemini_generate_similar_ideas($api_key, $base_title, $existing_titles) {
+        // Get site language for content generation
+        $site_locale = get_locale();
+        $site_language = $this->get_language_from_locale($site_locale);
+        
         $prompt = "
             Generate 3-5 blog post titles that are similar to this idea: \"{$base_title}\"
+            
+            IMPORTANT: Generate ALL titles in {$site_language} language. This is the primary language of the website based on the WordPress locale: {$site_locale}.
             
             The similar titles should:
             - Cover the same general topic but from different angles
             - Be unique and engaging
+            - Be written in {$site_language}
             - Not duplicate any of these existing titles: " . json_encode($existing_titles) . "
             
-            Return ONLY a JSON array of strings (the titles), nothing else.
+            Return ONLY a JSON array of strings (the titles in {$site_language}), nothing else.
             Example format: [\"Similar Title 1\", \"Similar Title 2\", \"Similar Title 3\"]
         ";
         
@@ -1978,6 +2009,10 @@ class ACA_Rest_Api {
     }
     
     private function call_gemini_create_draft($api_key, $title, $style_guide, $existing_posts, $existing_categories = array()) {
+        // Get site language for content generation
+        $site_locale = get_locale();
+        $site_language = $this->get_language_from_locale($site_locale);
+        
         // Safely build context string
         $context_string = '';
         if (!empty($existing_posts) && is_array($existing_posts)) {
@@ -1992,16 +2027,39 @@ class ACA_Rest_Api {
             }
         }
 
-        // Build categories context string
+        // Build hierarchical categories context string
         $categories_string = '';
         if (!empty($existing_categories) && is_array($existing_categories)) {
-            $categories_string = "Available categories to choose from (select the most appropriate ones):\n";
+            $categories_string = "Available categories with hierarchy (select the most appropriate ones):\n";
+            
+            // Group categories by hierarchy level
+            $root_categories = array();
+            $child_categories = array();
+            
             foreach ($existing_categories as $category) {
                 if (isset($category['id'], $category['name'])) {
-                    $categories_string .= "- ID: {$category['id']}, Name: \"{$category['name']}\", Posts: {$category['count']}\n";
+                    if ($category['parent_id'] == 0) {
+                        $root_categories[] = $category;
+                    } else {
+                        $child_categories[] = $category;
+                    }
                 }
             }
-            $categories_string .= "\n";
+            
+            // Display root categories first
+            foreach ($root_categories as $category) {
+                $categories_string .= "- ID: {$category['id']}, Name: \"{$category['name']}\", Posts: {$category['count']} (ROOT CATEGORY)\n";
+                
+                // Display child categories under their parent
+                foreach ($child_categories as $child) {
+                    if ($child['parent_id'] == $category['id']) {
+                        $indent = str_repeat('  ', $child['hierarchy_level']);
+                        $categories_string .= "{$indent}└─ ID: {$child['id']}, Name: \"{$child['name']}\", Posts: {$child['count']} (SUBCATEGORY of \"{$child['parent_name']}\")\n";
+                    }
+                }
+            }
+            
+            $categories_string .= "\nIMPORTANT: When selecting categories, consider the hierarchy. If content is about a specific subcategory topic, choose the subcategory rather than the parent category.\n\n";
         }
 
         // Clean inputs safely
@@ -2023,6 +2081,8 @@ class ACA_Rest_Api {
 
         $prompt = "Create a comprehensive blog post based on this idea: \"{$safe_title}\"
 
+IMPORTANT: Write the entire content in {$site_language}. This is the primary language of the website based on the WordPress locale: {$site_locale}.
+
 Use this style guide: {$safe_style_guide}
 
 {$context_string}
@@ -2030,13 +2090,15 @@ Use this style guide: {$safe_style_guide}
 {$categories_string}
 
 Requirements:
+- Write EVERYTHING in {$site_language} language (title, content, headings, etc.)
 - Write a well-structured blog post with clear H2 and H3 headings
 - 800-1500 words in length
 - Engaging introduction and compelling conclusion
 - SEO-optimized content matching the style guide
 - Include 2-3 internal links to the provided existing posts where contextually relevant
-- For categories: ONLY use category IDs from the provided list above. Select 1-2 most relevant ones.
-- For tags: Create new relevant tags as strings
+- For categories: ONLY use category IDs from the provided list above. Select 1-2 most relevant ones based on content topic and hierarchy
+- Consider category hierarchy: if content is specific to a subcategory, choose the subcategory rather than parent category
+- For tags: Create new relevant tags as strings in {$site_language}
 
 CONTENT FORMAT REQUIREMENTS:
 - Use ONLY HTML formatting, NOT Markdown
@@ -3732,5 +3794,113 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             'count' => count($posts),
             'message' => 'Retrieved posts needing content updates'
         );
+    }
+
+    /**
+     * Get language from WordPress locale
+     */
+    private function get_language_from_locale($locale) {
+        $language_map = array(
+            'en_US' => 'English',
+            'en_GB' => 'English',
+            'tr_TR' => 'Turkish',
+            'de_DE' => 'German',
+            'fr_FR' => 'French',
+            'es_ES' => 'Spanish',
+            'it_IT' => 'Italian',
+            'pt_PT' => 'Portuguese',
+            'pt_BR' => 'Portuguese',
+            'ru_RU' => 'Russian',
+            'ja' => 'Japanese',
+            'ko_KR' => 'Korean',
+            'zh_CN' => 'Chinese',
+            'zh_TW' => 'Chinese',
+            'ar' => 'Arabic',
+            'nl_NL' => 'Dutch',
+            'sv_SE' => 'Swedish',
+            'da_DK' => 'Danish',
+            'no' => 'Norwegian',
+            'fi' => 'Finnish',
+            'pl_PL' => 'Polish',
+            'cs_CZ' => 'Czech',
+            'hu_HU' => 'Hungarian',
+            'ro_RO' => 'Romanian',
+            'bg_BG' => 'Bulgarian',
+            'hr' => 'Croatian',
+            'sk_SK' => 'Slovak',
+            'sl_SI' => 'Slovenian',
+            'et' => 'Estonian',
+            'lv' => 'Latvian',
+            'lt_LT' => 'Lithuanian',
+            'el' => 'Greek',
+            'he_IL' => 'Hebrew',
+            'th' => 'Thai',
+            'vi' => 'Vietnamese',
+            'hi_IN' => 'Hindi',
+            'bn_BD' => 'Bengali',
+            'ur' => 'Urdu',
+            'fa_IR' => 'Persian',
+            'uk' => 'Ukrainian',
+            'be_BY' => 'Belarusian',
+            'ka_GE' => 'Georgian',
+            'hy' => 'Armenian',
+            'az' => 'Azerbaijani',
+            'kk' => 'Kazakh',
+            'ky_KY' => 'Kyrgyz',
+            'uz_UZ' => 'Uzbek',
+            'tg' => 'Tajik',
+            'mn' => 'Mongolian'
+        );
+
+        // Check direct match first
+        if (isset($language_map[$locale])) {
+            return $language_map[$locale];
+        }
+
+        // Try language code only (e.g., 'en' from 'en_US')
+        $lang_code = substr($locale, 0, 2);
+        foreach ($language_map as $loc => $lang) {
+            if (substr($loc, 0, 2) === $lang_code) {
+                return $lang;
+            }
+        }
+
+        // Default to English if not found
+        return 'English';
+    }
+
+    /**
+     * Get category hierarchy level (depth)
+     */
+    private function get_category_level($category_id, $level = 0) {
+        $category = get_category($category_id);
+        if (!$category || is_wp_error($category)) {
+            return $level;
+        }
+
+        if ($category->parent == 0) {
+            return $level;
+        }
+
+        return $this->get_category_level($category->parent, $level + 1);
+    }
+
+    /**
+     * Get full category hierarchy path
+     */
+    private function get_category_hierarchy_path($category_id) {
+        $path = array();
+        $category = get_category($category_id);
+        
+        while ($category && !is_wp_error($category) && $category->parent != 0) {
+            array_unshift($path, $category->name);
+            $category = get_category($category->parent);
+        }
+        
+        if ($category && !is_wp_error($category)) {
+            array_unshift($path, $category->name);
+        }
+        
+        return implode(' > ', $path);
     }
 }

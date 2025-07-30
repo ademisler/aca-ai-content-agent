@@ -9631,6 +9631,17 @@
     /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "7", height: "9", x: "14", y: "12", rx: "1" }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "7", height: "5", x: "3", y: "16", rx: "1" })
   ] });
+  const Brain = ({ className, style }) => /* @__PURE__ */ jsxRuntimeExports.jsxs("svg", { xmlns: "http://www.w3.org/2000/svg", width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", className, style, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M17.599 6.5a3 3 0 0 0 .399-1.375" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M6.003 5.125A3 3 0 0 0 6.401 6.5" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M3.477 10.896a4 4 0 0 1 .585-.396" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M19.938 10.5a4 4 0 0 1 .585.396" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M6 18a4 4 0 0 1-1.967-.516" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M19.967 17.484A4 4 0 0 1 18 18" })
+  ] });
   const FileText = ({ className, style }) => /* @__PURE__ */ jsxRuntimeExports.jsxs("svg", { xmlns: "http://www.w3.org/2000/svg", width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", className, style, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M14 2v4a2 2 0 0 0 2 2h4" }),
@@ -9879,32 +9890,36 @@
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-sidebar-header", style: {
         background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
         color: "white",
-        padding: "20px",
-        borderRadius: "0 0 12px 12px",
-        marginBottom: "20px",
+        padding: "24px 20px",
+        borderRadius: "0 0 16px 16px",
+        marginBottom: "24px",
         position: "relative",
-        overflow: "hidden"
+        overflow: "hidden",
+        boxShadow: "0 4px 20px rgba(102, 126, 234, 0.3)"
       }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { position: "relative", zIndex: 2 }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "12px", marginBottom: "8px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "14px", marginBottom: "10px" }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
-              width: "40px",
-              height: "40px",
-              background: "rgba(255,255,255,0.2)",
-              borderRadius: "10px",
+              width: "44px",
+              height: "44px",
+              background: "rgba(255,255,255,0.25)",
+              borderRadius: "12px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              backdropFilter: "blur(10px)"
-            }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "20px" }, children: "🤖" }) }),
+              backdropFilter: "blur(15px)",
+              border: "1px solid rgba(255,255,255,0.2)",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+            }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Brain, { style: { width: "22px", height: "22px", color: "white" } }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { style: {
                 fontSize: "18px",
                 fontWeight: "700",
                 margin: 0,
-                textShadow: "0 2px 4px rgba(0,0,0,0.1)"
+                textShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                color: "white"
               }, children: "AI Content Agent" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "11px", opacity: 0.8, fontWeight: "500" }, children: "Powered by Gemini AI" })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "11px", opacity: 0.8, fontWeight: "500" }, children: "AI-Powered Content Creation" })
             ] })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -10219,7 +10234,8 @@
             fontSize: "28px",
             fontWeight: "700",
             marginBottom: "8px",
-            textShadow: "0 2px 4px rgba(0,0,0,0.1)"
+            textShadow: "0 2px 4px rgba(0,0,0,0.1)",
+            color: "white"
           }, children: "Welcome to AI Content Agent" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: {
             fontSize: "16px",
@@ -10548,9 +10564,80 @@
       }
     };
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-fade-in", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-page-header", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "aca-page-title", children: "Style Guide" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", children: "Define your brand's unique voice and writing style. The AI analyzes your content to keep this guide current and relevant." })
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+        background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
+        borderRadius: "12px",
+        padding: "30px",
+        marginBottom: "30px",
+        color: "white",
+        position: "relative",
+        overflow: "hidden"
+      }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { position: "relative", zIndex: 2 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+              width: "48px",
+              height: "48px",
+              background: "rgba(255,255,255,0.2)",
+              borderRadius: "12px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backdropFilter: "blur(10px)"
+            }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(BookOpen, { style: { width: "24px", height: "24px" } }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { style: {
+                fontSize: "28px",
+                fontWeight: "700",
+                margin: 0,
+                textShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                color: "white"
+              }, children: "Style Guide" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "16px", opacity: 0.9, marginTop: "4px" }, children: "Define your brand's unique voice" })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: {
+            fontSize: "14px",
+            opacity: 0.85,
+            margin: 0,
+            maxWidth: "600px",
+            lineHeight: "1.5"
+          }, children: "Define your brand's unique voice and writing style. The AI analyzes your content to keep this guide current and relevant." }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "20px", marginTop: "20px", flexWrap: "wrap" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "6px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: "8px", height: "8px", backgroundColor: "#fbbf24", borderRadius: "50%" } }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "14px", opacity: 0.9 }, children: "AI-Powered Analysis" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "6px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: "8px", height: "8px", backgroundColor: "#4ade80", borderRadius: "50%" } }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "14px", opacity: 0.9 }, children: "Brand Voice Definition" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "6px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: "8px", height: "8px", backgroundColor: "#60a5fa", borderRadius: "50%" } }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "14px", opacity: 0.9 }, children: "Auto-Updated" })
+            ] })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+          position: "absolute",
+          top: "-30px",
+          right: "-30px",
+          width: "120px",
+          height: "120px",
+          background: "rgba(255,255,255,0.1)",
+          borderRadius: "50%",
+          zIndex: 1
+        } }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+          position: "absolute",
+          bottom: "-20px",
+          left: "-20px",
+          width: "80px",
+          height: "80px",
+          background: "rgba(255,255,255,0.05)",
+          borderRadius: "50%",
+          zIndex: 1
+        } })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-card-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "aca-card-title", children: [
@@ -10928,7 +11015,8 @@
                   fontSize: "28px",
                   fontWeight: "700",
                   margin: 0,
-                  textShadow: "0 2px 4px rgba(0,0,0,0.1)"
+                  textShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                  color: "white"
                 }, children: "Idea Board" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "16px", opacity: 0.9, marginTop: "4px" }, children: "AI-powered content inspiration" })
               ] })
@@ -11275,7 +11363,8 @@
                 fontSize: "28px",
                 fontWeight: "700",
                 margin: 0,
-                textShadow: "0 2px 4px rgba(0,0,0,0.1)"
+                textShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                color: "white"
               }, children: "Content Drafts" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "16px", opacity: 0.9, marginTop: "4px" }, children: "Review and publish your AI-generated content" })
             ] })
@@ -11557,6 +11646,14 @@
     const [licenseStatus, setLicenseStatus] = reactExports.useState({ status: "inactive", is_active: false });
     const [isVerifyingLicense, setIsVerifyingLicense] = reactExports.useState(false);
     const [isLoadingLicenseStatus, setIsLoadingLicenseStatus] = reactExports.useState(true);
+    const [collapsedSections, setCollapsedSections] = reactExports.useState({
+      license: false,
+      // License section always open by default
+      automation: true,
+      integrations: true,
+      content: true,
+      advanced: true
+    });
     reactExports.useEffect(() => {
       const loadLicenseStatus2 = async () => {
         try {
@@ -11858,6 +11955,65 @@
         setIsSaving(false);
       }, 700);
     };
+    const toggleSection = (sectionKey) => {
+      setCollapsedSections((prev) => ({
+        ...prev,
+        [sectionKey]: !prev[sectionKey]
+      }));
+    };
+    const CollapsibleSection = ({ id, title, description, icon, children, defaultOpen = false }) => {
+      const isCollapsed = collapsedSections[id] ?? !defaultOpen;
+      return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", style: {
+        background: "linear-gradient(145deg, #fefefe 0%, #f8f9fa 100%)",
+        border: "1px solid #e2e8f0",
+        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+        marginBottom: "20px"
+      }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "div",
+          {
+            className: "aca-card-header",
+            style: {
+              borderBottom: isCollapsed ? "none" : "1px solid #e2e8f0",
+              paddingBottom: "15px",
+              cursor: "pointer",
+              userSelect: "none"
+            },
+            onClick: () => toggleSection(id),
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "aca-card-title", style: {
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  color: "#1e293b",
+                  margin: 0
+                }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+                    width: "32px",
+                    height: "32px",
+                    background: "linear-gradient(135deg, #10b981, #059669)",
+                    borderRadius: "8px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center"
+                  }, children: icon }),
+                  title
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+                  transform: isCollapsed ? "rotate(0deg)" : "rotate(180deg)",
+                  transition: "transform 0.2s ease",
+                  fontSize: "20px",
+                  color: "#64748b"
+                }, children: "▼" })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: "8px 0 0 0", color: "#64748b", fontSize: "14px" }, children: description })
+            ]
+          }
+        ),
+        !isCollapsed && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "20px 0 0 0" }, children })
+      ] });
+    };
     const isImageSourceConfigured = currentSettings.imageSourceProvider === "ai" || currentSettings.imageSourceProvider === "pexels" && !!currentSettings.pexelsApiKey || currentSettings.imageSourceProvider === "unsplash" && !!currentSettings.unsplashApiKey || currentSettings.imageSourceProvider === "pixabay" && !!currentSettings.pixabayApiKey;
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-fade-in", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
@@ -11886,7 +12042,8 @@
                 fontSize: "28px",
                 fontWeight: "700",
                 margin: 0,
-                textShadow: "0 2px 4px rgba(0,0,0,0.1)"
+                textShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                color: "white"
               }, children: "Settings & Configuration" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "16px", opacity: 0.9, marginTop: "4px" }, children: "Customize your AI Content Agent experience" })
             ] })
@@ -11920,100 +12077,86 @@
           zIndex: 1
         } })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", style: {
-        background: "linear-gradient(145deg, #fefefe 0%, #f8f9fa 100%)",
-        border: "1px solid #e2e8f0",
-        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
-      }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card-header", style: { borderBottom: "1px solid #e2e8f0", paddingBottom: "15px" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "aca-card-title", style: {
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            color: "#1e293b"
-          }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
-              width: "32px",
-              height: "32px",
-              background: "linear-gradient(135deg, #10b981, #059669)",
-              borderRadius: "8px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center"
-            }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Shield, { style: { width: "18px", height: "18px", color: "white" } }) }),
-            "Pro License Activation"
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: "8px 0 0 0", color: "#64748b", fontSize: "14px" }, children: "Unlock advanced features and automation capabilities" })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-stat-item", style: { margin: "0 0 20px 0" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-stat-info", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-stat-icon", children: licenseStatus.is_active ? /* @__PURE__ */ jsxRuntimeExports.jsx(CheckCircle, { style: { color: "#27ae60", width: "20px", height: "20px" } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Shield, { style: { color: "#e74c3c", width: "20px", height: "20px" } }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-stat-number", children: licenseStatus.is_active ? "Pro Active" : "Free Version" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-stat-label", children: licenseStatus.is_active ? `Verified ${licenseStatus.verified_at ? new Date(licenseStatus.verified_at).toLocaleDateString() : ""}` : "Upgrade to unlock Pro features" })
-          ] })
-        ] }) }),
-        !licenseStatus.is_active && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-form-group", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "aca-label", htmlFor: "license-key", children: "License Key" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "10px" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                id: "license-key",
-                type: "text",
-                className: "aca-input",
-                value: licenseKey,
-                onChange: (e) => setLicenseKey(e.target.value),
-                placeholder: "Enter your Pro license key",
-                disabled: isVerifyingLicense
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "button",
-              {
-                onClick: handleLicenseVerification,
-                disabled: isVerifyingLicense || !licenseKey.trim(),
-                className: "aca-button aca-button-primary",
-                style: { minWidth: "120px" },
-                children: isVerifyingLicense ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { className: "aca-spinner" }),
-                  "Verifying..."
-                ] }) : "Verify License"
-              }
-            )
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "aca-page-description", style: { marginTop: "10px" }, children: [
-            "Don't have a Pro license? ",
-            /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: "https://ademisler.gumroad.com/l/ai-content-agent-pro", target: "_blank", rel: "noopener noreferrer", style: { color: "#0073aa" }, children: "Purchase here" })
-          ] })
-        ] }),
-        licenseStatus.is_active && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-alert aca-alert-success", style: { margin: "20px 0" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(CheckCircle, { style: { width: "16px", height: "16px", marginRight: "8px" } }),
-            "Pro license is active! You now have access to all premium features."
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: "15px" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "button",
-              {
-                onClick: handleLicenseDeactivation,
-                disabled: isVerifyingLicense,
-                className: "aca-button aca-button-secondary",
-                style: {
-                  minWidth: "140px",
-                  backgroundColor: "#dc3545",
-                  borderColor: "#dc3545",
-                  color: "#ffffff"
-                },
-                children: isVerifyingLicense ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { className: "aca-spinner" }),
-                  "Deactivating..."
-                ] }) : "Deactivate License"
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", style: { marginTop: "8px", fontSize: "12px" }, children: "This will disable all Pro features and allow you to use the license on another site." })
-          ] })
-        ] })
-      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        CollapsibleSection,
+        {
+          id: "license",
+          title: "Pro License Activation",
+          description: "Unlock advanced features and automation capabilities",
+          icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Shield, { style: { width: "18px", height: "18px", color: "white" } }),
+          defaultOpen: true,
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-stat-item", style: { margin: "0 0 20px 0" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-stat-info", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-stat-icon", children: licenseStatus.is_active ? /* @__PURE__ */ jsxRuntimeExports.jsx(CheckCircle, { style: { color: "#27ae60", width: "20px", height: "20px" } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Shield, { style: { color: "#e74c3c", width: "20px", height: "20px" } }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-stat-number", children: licenseStatus.is_active ? "Pro Active" : "Free Version" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-stat-label", children: licenseStatus.is_active ? `Verified ${licenseStatus.verified_at ? new Date(licenseStatus.verified_at).toLocaleDateString() : ""}` : "Upgrade to unlock Pro features" })
+              ] })
+            ] }) }),
+            !licenseStatus.is_active && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-form-group", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "aca-label", htmlFor: "license-key", children: "License Key" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "10px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    id: "license-key",
+                    type: "text",
+                    className: "aca-input",
+                    value: licenseKey,
+                    onChange: (e) => setLicenseKey(e.target.value),
+                    placeholder: "Enter your Pro license key",
+                    disabled: isVerifyingLicense
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    onClick: handleLicenseVerification,
+                    disabled: isVerifyingLicense || !licenseKey.trim(),
+                    className: "aca-button aca-button-primary",
+                    style: { minWidth: "120px" },
+                    children: isVerifyingLicense ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { className: "aca-spinner" }),
+                      "Verifying..."
+                    ] }) : "Verify License"
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "aca-page-description", style: { marginTop: "10px" }, children: [
+                "Don't have a Pro license? ",
+                /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: "https://ademisler.gumroad.com/l/ai-content-agent-pro", target: "_blank", rel: "noopener noreferrer", style: { color: "#0073aa" }, children: "Purchase here" })
+              ] })
+            ] }),
+            licenseStatus.is_active && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-alert aca-alert-success", style: { margin: "20px 0" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(CheckCircle, { style: { width: "16px", height: "16px", marginRight: "8px" } }),
+                "Pro license is active! You now have access to all premium features."
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: "15px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    onClick: handleLicenseDeactivation,
+                    disabled: isVerifyingLicense,
+                    className: "aca-button aca-button-secondary",
+                    style: {
+                      minWidth: "140px",
+                      backgroundColor: "#dc3545",
+                      borderColor: "#dc3545",
+                      color: "#ffffff"
+                    },
+                    children: isVerifyingLicense ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { className: "aca-spinner" }),
+                      "Deactivating..."
+                    ] }) : "Deactivate License"
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", style: { marginTop: "8px", fontSize: "12px" }, children: "This will disable all Pro features and allow you to use the license on another site." })
+              ] })
+            ] })
+          ]
+        }
+      ),
       isLoadingLicenseStatus ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-card-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "aca-card-title", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { className: "aca-nav-item-icon" }),
@@ -13338,8 +13481,8 @@
     );
   };
   const PublishedPostCard = ({ post, onSelectPost }) => {
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", style: { margin: 0 }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "15px" }, children: [
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", style: { margin: 0, position: "relative" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "15px", paddingRight: "100px" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "aca-card-title", style: {
           color: "#00a32a",
           marginBottom: "8px"
@@ -13358,19 +13501,18 @@
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
           position: "absolute",
-          top: "20px",
-          right: "20px",
+          top: "16px",
+          right: "16px",
           fontSize: "11px",
           fontWeight: "600",
-          padding: "6px 12px",
-          borderRadius: "4px",
-          border: "1px solid",
-          background: "#e6f7e6",
-          color: "#0a5d0a",
-          borderColor: "#28a745",
+          padding: "4px 8px",
+          borderRadius: "6px",
+          background: "linear-gradient(135deg, #10b981, #059669)",
+          color: "white",
           display: "flex",
           alignItems: "center",
-          gap: "6px"
+          gap: "4px",
+          boxShadow: "0 2px 4px rgba(16, 185, 129, 0.2)"
         }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(CheckCircle, { style: { width: "12px", height: "12px" } }),
           "Published"
@@ -13428,7 +13570,8 @@
                 fontSize: "28px",
                 fontWeight: "700",
                 margin: 0,
-                textShadow: "0 2px 4px rgba(0,0,0,0.1)"
+                textShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                color: "white"
               }, children: "Published Posts" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "16px", opacity: 0.9, marginTop: "4px" }, children: "Your successful content publications" })
             ] })
@@ -13695,7 +13838,8 @@
                 fontSize: "28px",
                 fontWeight: "700",
                 margin: 0,
-                textShadow: "0 2px 4px rgba(0,0,0,0.1)"
+                textShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                color: "white"
               }, children: "Content Calendar" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "16px", opacity: 0.9, marginTop: "4px" }, children: "Schedule and organize your content timeline" })
             ] })
@@ -14262,12 +14406,80 @@
     const analyzedCount = posts.filter((post) => post.freshness_score !== null).length;
     const averageScore = posts.length > 0 ? Math.round(posts.reduce((sum, post) => sum + (post.freshness_score || 0), 0) / posts.length) : 0;
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-fade-in", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-page-header", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { className: "aca-page-title", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Sparkles, { style: { marginRight: "10px" } }),
-          "Content Freshness Manager"
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+        background: "linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)",
+        borderRadius: "12px",
+        padding: "30px",
+        marginBottom: "30px",
+        color: "white",
+        position: "relative",
+        overflow: "hidden"
+      }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { position: "relative", zIndex: 2 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+              width: "48px",
+              height: "48px",
+              background: "rgba(255,255,255,0.2)",
+              borderRadius: "12px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backdropFilter: "blur(10px)"
+            }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Sparkles, { style: { width: "24px", height: "24px" } }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { style: {
+                fontSize: "28px",
+                fontWeight: "700",
+                margin: 0,
+                textShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                color: "white"
+              }, children: "Content Freshness Manager" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "16px", opacity: 0.9, marginTop: "4px" }, children: "AI-powered content analysis and updates" })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: {
+            fontSize: "14px",
+            opacity: 0.85,
+            margin: 0,
+            maxWidth: "600px",
+            lineHeight: "1.5"
+          }, children: "Keep your content up-to-date with AI-powered analysis and update recommendations" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "20px", marginTop: "20px", flexWrap: "wrap" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "6px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: "8px", height: "8px", backgroundColor: "#4ade80", borderRadius: "50%" } }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "14px", opacity: 0.9 }, children: "Pro Feature" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "6px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: "8px", height: "8px", backgroundColor: "#fbbf24", borderRadius: "50%" } }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "14px", opacity: 0.9 }, children: "Content Analysis" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "6px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: "8px", height: "8px", backgroundColor: "#60a5fa", borderRadius: "50%" } }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "14px", opacity: 0.9 }, children: "Update Recommendations" })
+            ] })
+          ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", children: "Keep your content up-to-date with AI-powered analysis and update recommendations" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+          position: "absolute",
+          top: "-30px",
+          right: "-30px",
+          width: "120px",
+          height: "120px",
+          background: "rgba(255,255,255,0.1)",
+          borderRadius: "50%",
+          zIndex: 1
+        } }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+          position: "absolute",
+          bottom: "-20px",
+          left: "-20px",
+          width: "80px",
+          height: "80px",
+          background: "rgba(255,255,255,0.05)",
+          borderRadius: "50%",
+          zIndex: 1
+        } })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-grid aca-grid-4", style: { marginBottom: "30px" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", style: { textAlign: "center", margin: 0 }, children: [

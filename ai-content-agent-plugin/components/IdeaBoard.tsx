@@ -266,7 +266,8 @@ export const IdeaBoard: React.FC<IdeaBoardProps> = ({
                                         fontSize: '28px', 
                                         fontWeight: '700', 
                                         margin: 0,
-                                        textShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                                        textShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                                        color: 'white'
                                     }}>
                                         Idea Board
                                     </h1>

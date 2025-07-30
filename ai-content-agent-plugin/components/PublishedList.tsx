@@ -13,9 +13,9 @@ const PublishedPostCard: React.FC<{
     onSelectPost: (post: Draft) => void;
 }> = ({ post, onSelectPost }) => {
     return (
-        <div className="aca-card" style={{ margin: 0 }}>
+        <div className="aca-card" style={{ margin: 0, position: 'relative' }}>
             {/* Post Header */}
-            <div style={{ marginBottom: '15px' }}>
+            <div style={{ marginBottom: '15px', paddingRight: '100px' }}>
                 <h3 className="aca-card-title" style={{ 
                     color: '#00a32a', 
                     marginBottom: '8px'
@@ -41,19 +41,18 @@ const PublishedPostCard: React.FC<{
                 {/* Status Badge */}
                 <div style={{ 
                     position: 'absolute',
-                    top: '20px',
-                    right: '20px',
+                    top: '16px',
+                    right: '16px',
                     fontSize: '11px', 
                     fontWeight: '600', 
-                    padding: '6px 12px', 
-                    borderRadius: '4px', 
-                    border: '1px solid',
-                    background: '#e6f7e6',
-                    color: '#0a5d0a',
-                    borderColor: '#28a745',
+                    padding: '4px 8px', 
+                    borderRadius: '6px', 
+                    background: 'linear-gradient(135deg, #10b981, #059669)',
+                    color: 'white',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '6px'
+                    gap: '4px',
+                    boxShadow: '0 2px 4px rgba(16, 185, 129, 0.2)'
                 }}>
                     <CheckCircle style={{ width: '12px', height: '12px' }} />
                     Published
@@ -127,11 +126,12 @@ export const PublishedList: React.FC<PublishedListProps> = ({ posts, onSelectPos
                             <Send style={{ width: '24px', height: '24px' }} />
                         </div>
                         <div>
-                            <h1 style={{ 
+                                                         <h1 style={{ 
                                 fontSize: '28px', 
                                 fontWeight: '700', 
                                 margin: 0,
-                                textShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                                textShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                                color: 'white'
                             }}>
                                 Published Posts
                             </h1>

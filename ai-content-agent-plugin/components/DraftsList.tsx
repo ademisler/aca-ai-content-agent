@@ -154,11 +154,12 @@ export const DraftsList: React.FC<DraftsListProps> = ({ drafts, onSelectDraft, o
                             <FileText style={{ width: '24px', height: '24px' }} />
                         </div>
                         <div>
-                            <h1 style={{ 
+                                                         <h1 style={{ 
                                 fontSize: '28px', 
                                 fontWeight: '700', 
                                 margin: 0,
-                                textShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                                textShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                                color: 'white'
                             }}>
                                 Content Drafts
                             </h1>

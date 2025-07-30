@@ -131,6 +131,13 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
     }>({status: 'inactive', is_active: false});
     const [isVerifyingLicense, setIsVerifyingLicense] = useState(false);
     const [isLoadingLicenseStatus, setIsLoadingLicenseStatus] = useState(true);
+    const [collapsedSections, setCollapsedSections] = useState<{[key: string]: boolean}>({
+        license: false, // License section always open by default
+        automation: true,
+        integrations: true,
+        content: true,
+        advanced: true
+    });
 
     // Load license status on component mount
     useEffect(() => {
@@ -493,6 +500,83 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
             setIsSaving(false);
         }, 700);
     };
+
+    const toggleSection = (sectionKey: string) => {
+        setCollapsedSections(prev => ({
+            ...prev,
+            [sectionKey]: !prev[sectionKey]
+        }));
+    };
+
+    const CollapsibleSection: React.FC<{
+        id: string;
+        title: string;
+        description: string;
+        icon: React.ReactNode;
+        children: React.ReactNode;
+        defaultOpen?: boolean;
+    }> = ({ id, title, description, icon, children, defaultOpen = false }) => {
+        const isCollapsed = collapsedSections[id] ?? !defaultOpen;
+        
+        return (
+            <div className="aca-card" style={{ 
+                background: 'linear-gradient(145deg, #fefefe 0%, #f8f9fa 100%)',
+                border: '1px solid #e2e8f0',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                marginBottom: '20px'
+            }}>
+                <div 
+                    className="aca-card-header" 
+                    style={{ 
+                        borderBottom: isCollapsed ? 'none' : '1px solid #e2e8f0', 
+                        paddingBottom: '15px',
+                        cursor: 'pointer',
+                        userSelect: 'none'
+                    }}
+                    onClick={() => toggleSection(id)}
+                >
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <h2 className="aca-card-title" style={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: '8px',
+                            color: '#1e293b',
+                            margin: 0
+                        }}>
+                            <div style={{ 
+                                width: '32px', 
+                                height: '32px', 
+                                background: 'linear-gradient(135deg, #10b981, #059669)',
+                                borderRadius: '8px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                            }}>
+                                {icon}
+                            </div>
+                            {title}
+                        </h2>
+                        <div style={{
+                            transform: isCollapsed ? 'rotate(0deg)' : 'rotate(180deg)',
+                            transition: 'transform 0.2s ease',
+                            fontSize: '20px',
+                            color: '#64748b'
+                        }}>
+                            ▼
+                        </div>
+                    </div>
+                    <p style={{ margin: '8px 0 0 0', color: '#64748b', fontSize: '14px' }}>
+                        {description}
+                    </p>
+                </div>
+                {!isCollapsed && (
+                    <div style={{ padding: '20px 0 0 0' }}>
+                        {children}
+                    </div>
+                )}
+            </div>
+        );
+    };
     
     const isImageSourceConfigured = currentSettings.imageSourceProvider === 'ai' ||
         (currentSettings.imageSourceProvider === 'pexels' && !!currentSettings.pexelsApiKey) ||
@@ -526,11 +610,12 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
                             <SettingsIcon style={{ width: '24px', height: '24px' }} />
                         </div>
                         <div>
-                            <h1 style={{ 
+                                                         <h1 style={{ 
                                 fontSize: '28px', 
                                 fontWeight: '700', 
                                 margin: 0,
-                                textShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                                textShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                                color: 'white'
                             }}>
                                 Settings & Configuration
                             </h1>
@@ -573,35 +658,13 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
             </div>
 
             {/* 1. License Activation - First Priority */}
-            <div className="aca-card" style={{ 
-                background: 'linear-gradient(145deg, #fefefe 0%, #f8f9fa 100%)',
-                border: '1px solid #e2e8f0',
-                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-            }}>
-                <div className="aca-card-header" style={{ borderBottom: '1px solid #e2e8f0', paddingBottom: '15px' }}>
-                    <h2 className="aca-card-title" style={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        gap: '8px',
-                        color: '#1e293b'
-                    }}>
-                        <div style={{ 
-                            width: '32px', 
-                            height: '32px', 
-                            background: 'linear-gradient(135deg, #10b981, #059669)',
-                            borderRadius: '8px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center'
-                        }}>
-                            <Shield style={{ width: '18px', height: '18px', color: 'white' }} />
-                        </div>
-                        Pro License Activation
-                    </h2>
-                    <p style={{ margin: '8px 0 0 0', color: '#64748b', fontSize: '14px' }}>
-                        Unlock advanced features and automation capabilities
-                    </p>
-                </div>
+            <CollapsibleSection
+                id="license"
+                title="Pro License Activation"
+                description="Unlock advanced features and automation capabilities"
+                icon={<Shield style={{ width: '18px', height: '18px', color: 'white' }} />}
+                defaultOpen={true}
+            >
 
                 
                 <div className="aca-stat-item" style={{ margin: '0 0 20px 0' }}>
@@ -695,7 +758,7 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
                         </div>
                     </>
                 )}
-            </div>
+            </CollapsibleSection>
 
             {/* 2. Automation Mode - Core Functionality */}
             {isLoadingLicenseStatus ? (

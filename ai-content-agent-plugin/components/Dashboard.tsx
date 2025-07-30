@@ -108,7 +108,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
                         fontSize: '28px', 
                         fontWeight: '700', 
                         marginBottom: '8px',
-                        textShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                        textShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                        color: 'white'
                     }}>
                         Welcome to AI Content Agent
                     </h1>

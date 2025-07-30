@@ -242,11 +242,12 @@ export const ContentCalendar: React.FC<ContentCalendarProps> = ({ drafts, publis
                             <CalendarIcon style={{ width: '24px', height: '24px' }} />
                         </div>
                         <div>
-                            <h1 style={{ 
+                                                         <h1 style={{ 
                                 fontSize: '28px', 
                                 fontWeight: '700', 
                                 margin: 0,
-                                textShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                                textShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                                color: 'white'
                             }}>
                                 Content Calendar
                             </h1>

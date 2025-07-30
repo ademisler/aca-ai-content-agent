@@ -1,7 +1,7 @@
 
 import React from 'react';
 import type { View } from '../types';
-import { Lightbulb, BookOpen, Settings, LayoutDashboard, FileText, Send, Calendar, Sparkles } from './Icons';
+import { Lightbulb, BookOpen, Settings, LayoutDashboard, FileText, Send, Calendar, Sparkles, Brain } from './Icons';
 
 interface SidebarProps {
     currentView: View;
@@ -97,37 +97,41 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, isOpen, 
             <div className="aca-sidebar-header" style={{
                 background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                 color: 'white',
-                padding: '20px',
-                borderRadius: '0 0 12px 12px',
-                marginBottom: '20px',
+                padding: '24px 20px',
+                borderRadius: '0 0 16px 16px',
+                marginBottom: '24px',
                 position: 'relative',
-                overflow: 'hidden'
+                overflow: 'hidden',
+                boxShadow: '0 4px 20px rgba(102, 126, 234, 0.3)'
             }}>
                 <div style={{ position: 'relative', zIndex: 2 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '10px' }}>
                         <div style={{
-                            width: '40px',
-                            height: '40px',
-                            background: 'rgba(255,255,255,0.2)',
-                            borderRadius: '10px',
+                            width: '44px',
+                            height: '44px',
+                            background: 'rgba(255,255,255,0.25)',
+                            borderRadius: '12px',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            backdropFilter: 'blur(10px)'
+                            backdropFilter: 'blur(15px)',
+                            border: '1px solid rgba(255,255,255,0.2)',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
                         }}>
-                            <span style={{ fontSize: '20px' }}>🤖</span>
+                            <Brain style={{ width: '22px', height: '22px', color: 'white' }} />
                         </div>
                         <div>
                             <h1 style={{ 
                                 fontSize: '18px', 
                                 fontWeight: '700', 
                                 margin: 0,
-                                textShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                                textShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                                color: 'white'
                             }}>
                                 AI Content Agent
                             </h1>
                             <div style={{ fontSize: '11px', opacity: 0.8, fontWeight: '500' }}>
-                                Powered by Gemini AI
+                                AI-Powered Content Creation
                             </div>
                         </div>
                     </div>

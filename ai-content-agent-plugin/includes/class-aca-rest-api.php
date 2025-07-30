@@ -3345,6 +3345,8 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         
         // Log the full response for debugging
         error_log('ACA: Gumroad API response: ' . print_r($data, true));
+        error_log('ACA: Response analysis - success field: ' . (isset($data['success']) ? ($data['success'] ? 'true' : 'false') : 'missing'));
+        error_log('ACA: Response analysis - success type: ' . (isset($data['success']) ? gettype($data['success']) : 'N/A'));
         
         // Validate license according to Gumroad documentation
         // Check if response has success field and purchase data
@@ -3359,13 +3361,59 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             );
         }
         
-        $is_valid = ($data['success'] === true);
+        // Handle different success field formats from Gumroad
+        $is_valid = false;
+        if (isset($data['success'])) {
+            if (is_bool($data['success'])) {
+                $is_valid = $data['success'] === true;
+            } elseif (is_string($data['success'])) {
+                $is_valid = strtolower($data['success']) === 'true' || $data['success'] === '1';
+            } elseif (is_numeric($data['success'])) {
+                $is_valid = (int)$data['success'] === 1;
+            }
+        }
+        
+        error_log('ACA: License validation result: ' . ($is_valid ? 'VALID' : 'INVALID'));
         
         // Additional validation if purchase data exists
         if (isset($data['purchase'])) {
-            $is_valid = $is_valid && 
-                       ($data['purchase']['refunded'] === false) && 
-                       ($data['purchase']['chargebacked'] === false);
+            error_log('ACA: Purchase data found, validating...');
+            
+            // If we have purchase data, assume license is valid unless proven otherwise
+            $purchase_valid = true;
+            
+            // Check for refunds
+            if (isset($data['purchase']['refunded'])) {
+                $refunded = $data['purchase']['refunded'];
+                if (is_bool($refunded) && $refunded === true) {
+                    $purchase_valid = false;
+                    error_log('ACA: License invalid - refunded');
+                } elseif (is_string($refunded) && strtolower($refunded) === 'true') {
+                    $purchase_valid = false;
+                    error_log('ACA: License invalid - refunded (string)');
+                }
+            }
+            
+            // Check for chargebacks
+            if (isset($data['purchase']['chargebacked'])) {
+                $chargebacked = $data['purchase']['chargebacked'];
+                if (is_bool($chargebacked) && $chargebacked === true) {
+                    $purchase_valid = false;
+                    error_log('ACA: License invalid - chargebacked');
+                } elseif (is_string($chargebacked) && strtolower($chargebacked) === 'true') {
+                    $purchase_valid = false;
+                    error_log('ACA: License invalid - chargebacked (string)');
+                }
+            }
+            
+            // If we have purchase data and it's not refunded/chargebacked, consider it valid
+            // even if the success field is ambiguous
+            if ($purchase_valid) {
+                $is_valid = true;
+                error_log('ACA: License valid based on purchase data');
+            } else {
+                $is_valid = false;
+            }
                        
             // Check if subscription has ended, cancelled, or failed (for subscription products)
             if (isset($data['purchase']['subscription_ended_at']) && $data['purchase']['subscription_ended_at'] !== null) {

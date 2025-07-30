@@ -46,6 +46,8 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
     const [isDetectingSeo, setIsDetectingSeo] = useState(false);
     const [seoPluginsLoading, setSeoPluginsLoading] = useState(false);
     const [isConnecting, setIsConnecting] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const [gscAuthStatus, setGscAuthStatus] = useState<any>(null);
 
     // Load license status on component mount
     useEffect(() => {
@@ -63,8 +65,27 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                 setIsLoadingLicenseStatus(false);
             }
         };
+
+        const loadGscAuthStatus = async () => {
+            if (!window.acaData) {
+                console.error('ACA: WordPress data not available');
+                return;
+            }
+            
+            try {
+                const response = await fetch(window.acaData.api_url + 'gsc/auth-status', {
+                    headers: { 'X-WP-Nonce': window.acaData.nonce }
+                });
+                const status = await response.json();
+                setGscAuthStatus(status);
+            } catch (error) {
+                console.error('Failed to load GSC auth status:', error);
+            }
+        };
         
         loadLicenseStatus();
+        loadGscAuthStatus();
+        fetchSeoPlugins();
     }, []);
 
     // Open specific section if requested
@@ -372,6 +393,17 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
         setCurrentSettings(prev => ({ ...prev, [field]: value }));
     };
 
+    // Save functionality
+    const isDirty = JSON.stringify(currentSettings) !== JSON.stringify(settings);
+
+    const handleSave = () => {
+        setIsSaving(true);
+        setTimeout(() => {
+            onSaveSettings(currentSettings);
+            setIsSaving(false);
+        }, 700);
+    };
+
     // SEO Plugin Detection Functions
     const fetchSeoPlugins = async () => {
         try {
@@ -489,6 +521,7 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
             if (response.ok) {
                 // Update settings to reflect disconnection
                 setCurrentSettings(prev => ({ ...prev, searchConsoleUser: null }));
+                setGscAuthStatus({ authenticated: false });
                 if (onShowToast) {
                     onShowToast('Google Search Console disconnected successfully', 'info');
                 }
@@ -853,24 +886,7 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                 </p>
             </div>
 
-            {/* Save Button */}
-            <div style={{ marginTop: '30px', paddingTop: '20px', borderTop: '1px solid #e2e8f0' }}>
-                <button
-                    onClick={() => onSaveSettings(currentSettings)}
-                    className="aca-button aca-button-primary"
-                    style={{ marginRight: '10px' }}
-                >
-                    Save Settings
-                </button>
-                <p style={{ 
-                    color: '#64748b', 
-                    fontSize: '14px', 
-                    margin: '10px 0 0 0',
-                    fontStyle: 'italic'
-                }}>
-                    Settings are automatically saved when you make changes.
-                </p>
-            </div>
+
         </div>
     );
 
@@ -1233,8 +1249,21 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
 
     const renderAdvancedContent = () => (
         <div>
+            <div style={{ 
+                padding: '16px',
+                backgroundColor: '#e0f2fe',
+                borderRadius: '8px',
+                border: '1px solid #0ea5e9',
+                marginBottom: '20px'
+            }}>
+                <p style={{ margin: 0, fontSize: '14px', color: '#0c4a6e' }}>
+                    <strong>🛠️ For Developers & Advanced Users:</strong> This panel is designed for testing and debugging automation features. 
+                    Use these tools to manually trigger automation tasks, check cron job status, and troubleshoot issues. 
+                    Regular users typically don't need to use this panel.
+                </p>
+            </div>
             <p style={{ color: '#64748b', fontSize: '16px', margin: '0 0 30px 0', lineHeight: '1.5' }}>
-                Advanced debugging tools and developer options for troubleshooting.
+                Test automation functionality and check cron status. Advanced debugging tools and developer options for troubleshooting.
             </p>
 
             {/* Google Search Console Integration (Pro Feature) */}
@@ -1365,13 +1394,13 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                         <div style={{ 
                             marginTop: '20px',
                             padding: '16px',
-                            backgroundColor: currentSettings.searchConsoleUser ? '#dcfce7' : '#fef2f2',
+                            backgroundColor: gscAuthStatus?.authenticated ? '#dcfce7' : '#fef2f2',
                             borderRadius: '6px',
-                            border: `1px solid ${currentSettings.searchConsoleUser ? '#16a34a' : '#ef4444'}`
+                            border: `1px solid ${gscAuthStatus?.authenticated ? '#16a34a' : '#ef4444'}`
                         }}>
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    {currentSettings.searchConsoleUser ? (
+                                    {gscAuthStatus?.authenticated ? (
                                         <CheckCircle style={{ width: '16px', height: '16px', color: '#16a34a' }} />
                                     ) : (
                                         <SettingsIcon style={{ width: '16px', height: '16px', color: '#ef4444' }} />
@@ -1379,14 +1408,14 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                                     <span style={{ 
                                         fontSize: '14px',
                                         fontWeight: '500',
-                                        color: currentSettings.searchConsoleUser ? '#166534' : '#991b1b'
+                                        color: gscAuthStatus?.authenticated ? '#166534' : '#991b1b'
                                     }}>
-                                        {currentSettings.searchConsoleUser ? 'Connected' : 'Not Connected'}
+                                        {gscAuthStatus?.authenticated ? 'Connected' : 'Not Connected'}
                                     </span>
                                 </div>
                                 
                                 {/* Connect/Disconnect Button */}
-                                {currentSettings.searchConsoleUser ? (
+                                {gscAuthStatus?.authenticated ? (
                                     <button 
                                         onClick={handleGSCDisconnect}
                                         disabled={isConnecting}
@@ -1432,13 +1461,13 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                                     </button>
                                 )}
                             </div>
-                            {currentSettings.searchConsoleUser && (
+                            {gscAuthStatus?.authenticated && (
                                 <p style={{ 
                                     margin: '8px 0 0 24px',
                                     fontSize: '12px',
                                     color: '#166534'
                                 }}>
-                                    Connected as: {currentSettings.searchConsoleUser.email || currentSettings.searchConsoleUser}
+                                    Connected as: {gscAuthStatus.user_email}
                                 </p>
                             )}
                         </div>
@@ -1584,6 +1613,68 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                     </p>
                     
                     <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                        <button
+                            onClick={() => {
+                                if (!window.acaData) {
+                                    console.error('ACA: WordPress data not available');
+                                    return;
+                                }
+                                fetch(window.acaData.api_url + 'debug/automation', {
+                                    headers: { 'X-WP-Nonce': window.acaData.nonce }
+                                })
+                                .then(r => r.json())
+                                .then(data => {
+                                    console.log('Automation Debug Info:', data);
+                                    if (onShowToast) {
+                                        onShowToast('Debug info logged to console', 'info');
+                                    }
+                                });
+                            }}
+                            style={{
+                                padding: '8px 16px',
+                                backgroundColor: '#0ea5e9',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '6px',
+                                fontSize: '14px',
+                                fontWeight: '500',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            Check Automation Status
+                        </button>
+
+                        <button
+                            onClick={() => {
+                                if (!window.acaData) {
+                                    console.error('ACA: WordPress data not available');
+                                    return;
+                                }
+                                fetch(window.acaData.api_url + 'debug/cron/semi-auto', {
+                                    method: 'POST',
+                                    headers: { 'X-WP-Nonce': window.acaData.nonce }
+                                })
+                                .then(r => r.json())
+                                .then(data => {
+                                    if (onShowToast) {
+                                        onShowToast(data.message || 'Semi-auto cron triggered', 'success');
+                                    }
+                                });
+                            }}
+                            style={{
+                                padding: '8px 16px',
+                                backgroundColor: '#16a34a',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '6px',
+                                fontSize: '14px',
+                                fontWeight: '500',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            Test Semi-Auto Cron
+                        </button>
+                        
                         <button
                             onClick={() => {
                                 if (window.confirm('This will clear all cached data. Continue?')) {
@@ -1795,6 +1886,61 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                 minHeight: '500px'
             }}>
                 {renderTabContent()}
+            </div>
+
+            {/* Save Settings Bar */}
+            <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '20px 30px',
+                backgroundColor: '#ffffff',
+                borderRadius: '12px',
+                border: '1px solid #e2e8f0',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                marginTop: '20px'
+            }}>
+                {isDirty && (
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        color: '#f59e0b',
+                        fontSize: '14px',
+                        fontWeight: '500'
+                    }}>
+                        <div style={{
+                            width: '8px',
+                            height: '8px',
+                            backgroundColor: '#f59e0b',
+                            borderRadius: '50%'
+                        }}></div>
+                        You have unsaved changes
+                    </div>
+                )}
+                <div style={{ marginLeft: 'auto' }}>
+                    <button
+                        onClick={handleSave}
+                        disabled={!isDirty || isSaving}
+                        style={{
+                            padding: '12px 24px',
+                            backgroundColor: (!isDirty || isSaving) ? '#e5e7eb' : '#0073aa',
+                            color: (!isDirty || isSaving) ? '#9ca3af' : 'white',
+                            border: 'none',
+                            borderRadius: '8px',
+                            fontSize: '14px',
+                            fontWeight: '600',
+                            cursor: (!isDirty || isSaving) ? 'not-allowed' : 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            transition: 'all 0.2s ease'
+                        }}
+                    >
+                        {isSaving && <Spinner style={{ width: '16px', height: '16px' }} />}
+                        {isSaving ? 'Saving...' : 'Save Settings'}
+                    </button>
+                </div>
             </div>
         </div>
     );

@@ -11853,6 +11853,8 @@ body.toplevel_page_ai-content-agent #wpfooter {
     const [isDetectingSeo, setIsDetectingSeo] = reactExports.useState(false);
     const [seoPluginsLoading, setSeoPluginsLoading] = reactExports.useState(false);
     const [isConnecting, setIsConnecting] = reactExports.useState(false);
+    const [isSaving, setIsSaving] = reactExports.useState(false);
+    const [gscAuthStatus, setGscAuthStatus] = reactExports.useState(null);
     reactExports.useEffect(() => {
       const loadLicenseStatus = async () => {
         try {
@@ -11868,7 +11870,24 @@ body.toplevel_page_ai-content-agent #wpfooter {
           setIsLoadingLicenseStatus(false);
         }
       };
+      const loadGscAuthStatus = async () => {
+        if (!window.acaData) {
+          console.error("ACA: WordPress data not available");
+          return;
+        }
+        try {
+          const response = await fetch(window.acaData.api_url + "gsc/auth-status", {
+            headers: { "X-WP-Nonce": window.acaData.nonce }
+          });
+          const status = await response.json();
+          setGscAuthStatus(status);
+        } catch (error) {
+          console.error("Failed to load GSC auth status:", error);
+        }
+      };
       loadLicenseStatus();
+      loadGscAuthStatus();
+      fetchSeoPlugins();
     }, []);
     reactExports.useEffect(() => {
       if (openSection) {
@@ -12123,6 +12142,14 @@ body.toplevel_page_ai-content-agent #wpfooter {
     const handleSettingChange = (field, value) => {
       setCurrentSettings((prev) => ({ ...prev, [field]: value }));
     };
+    const isDirty = JSON.stringify(currentSettings) !== JSON.stringify(settings);
+    const handleSave = () => {
+      setIsSaving(true);
+      setTimeout(() => {
+        onSaveSettings(currentSettings);
+        setIsSaving(false);
+      }, 700);
+    };
     const fetchSeoPlugins = async () => {
       try {
         setSeoPluginsLoading(true);
@@ -12219,6 +12246,7 @@ body.toplevel_page_ai-content-agent #wpfooter {
         });
         if (response.ok) {
           setCurrentSettings((prev) => ({ ...prev, searchConsoleUser: null }));
+          setGscAuthStatus({ authenticated: false });
           if (onShowToast) {
             onShowToast("Google Search Console disconnected successfully", "info");
           }
@@ -12535,47 +12563,28 @@ body.toplevel_page_ai-content-agent #wpfooter {
         ] })
       ] });
     };
-    const renderIntegrationsContent = () => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-form-group", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "aca-label", htmlFor: "gemini-api-key", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Google, { style: { width: "16px", height: "16px", color: "#4285f4" } }),
-          "Google Gemini API Key"
-        ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "input",
-          {
-            id: "gemini-api-key",
-            type: "password",
-            className: "aca-input",
-            value: currentSettings.geminiApiKey,
-            onChange: (e) => setCurrentSettings((prev) => ({ ...prev, geminiApiKey: e.target.value })),
-            placeholder: "Enter your Google Gemini API key"
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "aca-page-description", style: { marginTop: "8px" }, children: [
-          "Get your free API key from ",
-          /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: "https://makersuite.google.com/app/apikey", target: "_blank", rel: "noopener noreferrer", style: { color: "#0073aa" }, children: "Google AI Studio" }),
-          ". This is required for all AI-powered features including content generation and idea creation."
-        ] })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: "30px", paddingTop: "20px", borderTop: "1px solid #e2e8f0" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "button",
-          {
-            onClick: () => onSaveSettings(currentSettings),
-            className: "aca-button aca-button-primary",
-            style: { marginRight: "10px" },
-            children: "Save Settings"
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: {
-          color: "#64748b",
-          fontSize: "14px",
-          margin: "10px 0 0 0",
-          fontStyle: "italic"
-        }, children: "Settings are automatically saved when you make changes." })
+    const renderIntegrationsContent = () => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-form-group", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "aca-label", htmlFor: "gemini-api-key", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Google, { style: { width: "16px", height: "16px", color: "#4285f4" } }),
+        "Google Gemini API Key"
+      ] }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "input",
+        {
+          id: "gemini-api-key",
+          type: "password",
+          className: "aca-input",
+          value: currentSettings.geminiApiKey,
+          onChange: (e) => setCurrentSettings((prev) => ({ ...prev, geminiApiKey: e.target.value })),
+          placeholder: "Enter your Google Gemini API key"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "aca-page-description", style: { marginTop: "8px" }, children: [
+        "Get your free API key from ",
+        /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: "https://makersuite.google.com/app/apikey", target: "_blank", rel: "noopener noreferrer", style: { color: "#0073aa" }, children: "Google AI Studio" }),
+        ". This is required for all AI-powered features including content generation and idea creation."
       ] })
-    ] });
+    ] }) });
     const renderContentContent = () => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "#64748b", fontSize: "16px", margin: "0 0 30px 0", lineHeight: "1.5" }, children: "Configure content generation preferences and image settings." }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "30px" }, children: [
@@ -12908,7 +12917,17 @@ body.toplevel_page_ai-content-agent #wpfooter {
       ] })
     ] });
     const renderAdvancedContent = () => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "#64748b", fontSize: "16px", margin: "0 0 30px 0", lineHeight: "1.5" }, children: "Advanced debugging tools and developer options for troubleshooting." }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+        padding: "16px",
+        backgroundColor: "#e0f2fe",
+        borderRadius: "8px",
+        border: "1px solid #0ea5e9",
+        marginBottom: "20px"
+      }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { style: { margin: 0, fontSize: "14px", color: "#0c4a6e" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "🛠️ For Developers & Advanced Users:" }),
+        " This panel is designed for testing and debugging automation features. Use these tools to manually trigger automation tasks, check cron job status, and troubleshoot issues. Regular users typically don't need to use this panel."
+      ] }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "#64748b", fontSize: "16px", margin: "0 0 30px 0", lineHeight: "1.5" }, children: "Test automation functionality and check cron status. Advanced debugging tools and developer options for troubleshooting." }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "30px" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { style: {
           fontSize: "18px",
@@ -13020,20 +13039,20 @@ body.toplevel_page_ai-content-agent #wpfooter {
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
             marginTop: "20px",
             padding: "16px",
-            backgroundColor: currentSettings.searchConsoleUser ? "#dcfce7" : "#fef2f2",
+            backgroundColor: gscAuthStatus?.authenticated ? "#dcfce7" : "#fef2f2",
             borderRadius: "6px",
-            border: `1px solid ${currentSettings.searchConsoleUser ? "#16a34a" : "#ef4444"}`
+            border: `1px solid ${gscAuthStatus?.authenticated ? "#16a34a" : "#ef4444"}`
           }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between" }, children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
-                currentSettings.searchConsoleUser ? /* @__PURE__ */ jsxRuntimeExports.jsx(CheckCircle, { style: { width: "16px", height: "16px", color: "#16a34a" } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Settings, { style: { width: "16px", height: "16px", color: "#ef4444" } }),
+                gscAuthStatus?.authenticated ? /* @__PURE__ */ jsxRuntimeExports.jsx(CheckCircle, { style: { width: "16px", height: "16px", color: "#16a34a" } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Settings, { style: { width: "16px", height: "16px", color: "#ef4444" } }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: {
                   fontSize: "14px",
                   fontWeight: "500",
-                  color: currentSettings.searchConsoleUser ? "#166534" : "#991b1b"
-                }, children: currentSettings.searchConsoleUser ? "Connected" : "Not Connected" })
+                  color: gscAuthStatus?.authenticated ? "#166534" : "#991b1b"
+                }, children: gscAuthStatus?.authenticated ? "Connected" : "Not Connected" })
               ] }),
-              currentSettings.searchConsoleUser ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              gscAuthStatus?.authenticated ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "button",
                 {
                   onClick: handleGSCDisconnect,
@@ -13083,13 +13102,13 @@ body.toplevel_page_ai-content-agent #wpfooter {
                 }
               )
             ] }),
-            currentSettings.searchConsoleUser && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { style: {
+            gscAuthStatus?.authenticated && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { style: {
               margin: "8px 0 0 24px",
               fontSize: "12px",
               color: "#166534"
             }, children: [
               "Connected as: ",
-              currentSettings.searchConsoleUser.email || currentSettings.searchConsoleUser
+              gscAuthStatus.user_email
             ] })
           ] })
         ] })
@@ -13202,6 +13221,66 @@ body.toplevel_page_ai-content-agent #wpfooter {
             " These actions will affect your plugin data. Use only when troubleshooting issues."
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "12px", flexWrap: "wrap" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                onClick: () => {
+                  if (!window.acaData) {
+                    console.error("ACA: WordPress data not available");
+                    return;
+                  }
+                  fetch(window.acaData.api_url + "debug/automation", {
+                    headers: { "X-WP-Nonce": window.acaData.nonce }
+                  }).then((r) => r.json()).then((data) => {
+                    console.log("Automation Debug Info:", data);
+                    if (onShowToast) {
+                      onShowToast("Debug info logged to console", "info");
+                    }
+                  });
+                },
+                style: {
+                  padding: "8px 16px",
+                  backgroundColor: "#0ea5e9",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "6px",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                  cursor: "pointer"
+                },
+                children: "Check Automation Status"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                onClick: () => {
+                  if (!window.acaData) {
+                    console.error("ACA: WordPress data not available");
+                    return;
+                  }
+                  fetch(window.acaData.api_url + "debug/cron/semi-auto", {
+                    method: "POST",
+                    headers: { "X-WP-Nonce": window.acaData.nonce }
+                  }).then((r) => r.json()).then((data) => {
+                    if (onShowToast) {
+                      onShowToast(data.message || "Semi-auto cron triggered", "success");
+                    }
+                  });
+                },
+                style: {
+                  padding: "8px 16px",
+                  backgroundColor: "#16a34a",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "6px",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                  cursor: "pointer"
+                },
+                children: "Test Semi-Auto Cron"
+              }
+            ),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "button",
               {
@@ -13389,7 +13468,60 @@ body.toplevel_page_ai-content-agent #wpfooter {
         boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
         padding: "30px",
         minHeight: "500px"
-      }, children: renderTabContent() })
+      }, children: renderTabContent() }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: "20px 30px",
+        backgroundColor: "#ffffff",
+        borderRadius: "12px",
+        border: "1px solid #e2e8f0",
+        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+        marginTop: "20px"
+      }, children: [
+        isDirty && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          color: "#f59e0b",
+          fontSize: "14px",
+          fontWeight: "500"
+        }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+            width: "8px",
+            height: "8px",
+            backgroundColor: "#f59e0b",
+            borderRadius: "50%"
+          } }),
+          "You have unsaved changes"
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { marginLeft: "auto" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            onClick: handleSave,
+            disabled: !isDirty || isSaving,
+            style: {
+              padding: "12px 24px",
+              backgroundColor: !isDirty || isSaving ? "#e5e7eb" : "#0073aa",
+              color: !isDirty || isSaving ? "#9ca3af" : "white",
+              border: "none",
+              borderRadius: "8px",
+              fontSize: "14px",
+              fontWeight: "600",
+              cursor: !isDirty || isSaving ? "not-allowed" : "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              transition: "all 0.2s ease"
+            },
+            children: [
+              isSaving && /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { style: { width: "16px", height: "16px" } }),
+              isSaving ? "Saving..." : "Save Settings"
+            ]
+          }
+        ) })
+      ] })
     ] });
   };
   const DraftModal = ({ draft, onClose, onSave, settings }) => {

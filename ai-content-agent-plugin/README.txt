@@ -16,22 +16,22 @@ AI-powered WordPress plugin with Pro licensing for automated content creation, S
 AI Content Agent (ACA) transforms your WordPress site into an intelligent content creation powerhouse using Google's Gemini AI technology.
 
 **🚀 Latest v2.0.4 Features:**
-* Comprehensive Pro license system with unified controls
-* Fixed Gumroad API integration with proper product_id usage
-* Resolved frontend-backend license status synchronization
-* Enhanced error messages and automatic pro status updates
-* Added comprehensive debug logging for troubleshooting
-* Improved user experience with consistent Pro feature access
+* Complete license management system with smart validation
+* Professional toast notification system replacing browser alerts
+* Enhanced UX with eliminated notification spam and flickering
+* Robust backend exception handling preventing WordPress critical errors
+* Fixed console errors and improved state management
+* Seamless license activation/deactivation workflow
 
 == Changelog ==
 
 = 2.0.4 - 2025-01-30 =
-* Major: Comprehensive Pro license system with unified controls
-* Fixed: Gumroad API integration with proper product_id usage (post-Jan 2023)
-* Resolved: Frontend-backend license status synchronization issues
-* Enhanced: Error messages and automatic pro status updates
-* Added: Comprehensive debug logging for API troubleshooting
-* Improved: User experience with consistent Pro feature access
+* Major: Complete license management system with smart Gumroad API validation
+* Fixed: WordPress critical errors through robust backend exception handling
+* Enhanced: Professional toast notification system replacing browser alerts
+* Improved: UX by eliminating notification spam and Pro license flickering
+* Resolved: Console errors in app refresh functionality and state management
+* Added: Loading states and seamless license activation/deactivation workflow
 
 = 1.9.1 - 2024-12-19 =
 * Enhanced Settings page reorganization with user-focused layout

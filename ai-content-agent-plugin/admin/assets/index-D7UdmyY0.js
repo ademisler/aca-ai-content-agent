@@ -13052,20 +13052,21 @@
         console.error("Failed to refresh ideas:", error);
         refreshErrors.push("ideas");
       }
+      let draftsData = [];
+      let publishedData = [];
       try {
-        const draftsData = await draftsApi.get();
-        setDrafts(draftsData || []);
+        draftsData = await draftsApi.get();
       } catch (error) {
         console.error("Failed to refresh drafts:", error);
         refreshErrors.push("drafts");
       }
       try {
-        const publishedData = await publishedApi.get();
-        setPublishedPosts(publishedData || []);
+        publishedData = await publishedApi.get();
       } catch (error) {
         console.error("Failed to refresh published posts:", error);
         refreshErrors.push("published");
       }
+      setPosts([...draftsData || [], ...publishedData || []]);
       try {
         const activityData = await activityApi.get();
         setActivityLogs(activityData || []);

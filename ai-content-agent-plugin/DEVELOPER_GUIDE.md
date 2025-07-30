@@ -139,9 +139,9 @@ export default defineConfig({
 
 ### Current Release Information
 - **Latest Version**: v2.0.4
-- **Release File**: `ai-content-agent-v2.0.4-comprehensive-pro-license-system.zip`
-- **Status**: Production ready with comprehensive Pro license system and Gumroad integration
-- **Key Features**: Unified Pro controls, fixed Gumroad API, frontend-backend sync, enhanced UX, debug logging
+- **Release File**: `ai-content-agent-v2.0.4-console-errors-fixed.zip`
+- **Status**: Production ready with complete license management and enhanced UX
+- **Key Features**: Smart license validation, toast notifications, backend exception handling, UX improvements, console error fixes
 
 ### Release Process
 

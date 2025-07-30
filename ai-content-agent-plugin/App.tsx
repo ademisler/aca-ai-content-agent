@@ -464,7 +464,7 @@ const App: React.FC = () => {
             case 'published':
                 return <PublishedList posts={publishedPosts} onSelectPost={setSelectedDraft} />;
             case 'settings':
-                return <Settings settings={settings} onSaveSettings={handleSaveSettings} onRefreshApp={handleRefreshApp} />;
+                return <Settings settings={settings} onSaveSettings={handleSaveSettings} onRefreshApp={handleRefreshApp} onShowToast={showToast} />;
             case 'calendar':
                 return <ContentCalendar 
                     drafts={drafts} 

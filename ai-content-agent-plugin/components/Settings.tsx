@@ -28,6 +28,7 @@ interface SettingsProps {
     settings: AppSettings;
     onSaveSettings: (settings: AppSettings) => void;
     onRefreshApp?: () => void;
+    onShowToast?: (message: string, type: 'success' | 'error' | 'warning' | 'info') => void;
 }
 
 const RadioCard: React.FC<{
@@ -112,7 +113,7 @@ const IntegrationCard: React.FC<{
     </div>
 );
 
-export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, onRefreshApp }) => {
+export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, onRefreshApp, onShowToast }) => {
     const [currentSettings, setCurrentSettings] = useState<AppSettings>(settings);
     const [isConnecting, setIsConnecting] = useState(false);
     const [isDetectingSeo, setIsDetectingSeo] = useState(false);
@@ -190,17 +191,29 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
                     console.error('Settings save error:', saveError);
                 }
                 
-                alert('License deactivated successfully. Pro features are now disabled.');
+                if (onShowToast) {
+                    onShowToast('License deactivated successfully. Pro features are now disabled.', 'success');
+                } else {
+                    alert('License deactivated successfully. Pro features are now disabled.');
+                }
                 // Refresh app state instead of reloading page
                 if (onRefreshApp) {
                     setTimeout(onRefreshApp, 100);
                 }
             } else {
-                alert('Failed to deactivate license. Please try again.');
+                if (onShowToast) {
+                    onShowToast('Failed to deactivate license. Please try again.', 'error');
+                } else {
+                    alert('Failed to deactivate license. Please try again.');
+                }
             }
         } catch (error) {
             console.error('License deactivation failed:', error);
-            alert('License deactivation failed. Please try again.');
+            if (onShowToast) {
+                onShowToast('License deactivation failed. Please try again.', 'error');
+            } else {
+                alert('License deactivation failed. Please try again.');
+            }
         } finally {
             setIsVerifyingLicense(false);
         }
@@ -208,7 +221,11 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
 
     const handleLicenseVerification = async () => {
         if (!licenseKey.trim()) {
-            alert('Please enter a license key');
+            if (onShowToast) {
+                onShowToast('Please enter a license key', 'warning');
+            } else {
+                alert('Please enter a license key');
+            }
             return;
         }
         
@@ -237,13 +254,21 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
                     // Continue anyway, the license is still valid
                 }
                 
-                alert('License verified successfully! Pro features are now active.');
+                if (onShowToast) {
+                    onShowToast('License verified successfully! Pro features are now active.', 'success');
+                } else {
+                    alert('License verified successfully! Pro features are now active.');
+                }
                 // Refresh app state instead of reloading page
                 if (onRefreshApp) {
                     setTimeout(onRefreshApp, 100);
                 }
             } else {
-                alert('Invalid license key. Please check and try again.');
+                if (onShowToast) {
+                    onShowToast('Invalid license key. Please check and try again.', 'error');
+                } else {
+                    alert('Invalid license key. Please check and try again.');
+                }
             }
         } catch (error) {
             console.error('License verification failed:', error);
@@ -258,7 +283,11 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
                 }
             }
             
-            alert(errorMessage);
+            if (onShowToast) {
+                onShowToast(errorMessage, 'error');
+            } else {
+                alert(errorMessage);
+            }
         } finally {
             setIsVerifyingLicense(false);
         }
@@ -291,7 +320,11 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
     const handleModeChange = (mode: AutomationMode) => {
         // Prevent selection of pro modes without active license
         if ((mode === 'semi-automatic' || mode === 'full-automatic') && !isProActive()) {
-            alert('This automation mode requires a Pro license. Please upgrade or activate your license to use this feature.');
+            if (onShowToast) {
+                onShowToast('This automation mode requires a Pro license. Please upgrade or activate your license to use this feature.', 'warning');
+            } else {
+                alert('This automation mode requires a Pro license. Please upgrade or activate your license to use this feature.');
+            }
             return;
         }
         
@@ -353,7 +386,11 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
     const handleGSCConnect = async () => {
         // Check if credentials are set
         if (!currentSettings.gscClientId || !currentSettings.gscClientSecret) {
-            alert('Please enter your Google Search Console Client ID and Client Secret first.');
+            if (onShowToast) {
+                onShowToast('Please enter your Google Search Console Client ID and Client Secret first.', 'warning');
+            } else {
+                alert('Please enter your Google Search Console Client ID and Client Secret first.');
+            }
             return;
         }
         
@@ -374,11 +411,19 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
                 // Redirect to Google OAuth
                 window.location.href = data.auth_url;
             } else {
-                alert('Failed to initiate Google Search Console connection');
+                if (onShowToast) {
+                    onShowToast('Failed to initiate Google Search Console connection', 'error');
+                } else {
+                    alert('Failed to initiate Google Search Console connection');
+                }
             }
         } catch (error) {
             console.error('GSC connection error:', error);
-            alert('Failed to connect to Google Search Console');
+            if (onShowToast) {
+                onShowToast('Failed to connect to Google Search Console', 'error');
+            } else {
+                alert('Failed to connect to Google Search Console');
+            }
         } finally {
             setIsConnecting(false);
         }
@@ -403,11 +448,19 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
             if (data.success) {
                 handleSettingChange('searchConsoleUser', null);
                 setGscAuthStatus({ authenticated: false });
-                alert('Successfully disconnected from Google Search Console');
+                if (onShowToast) {
+                    onShowToast('Successfully disconnected from Google Search Console', 'success');
+                } else {
+                    alert('Successfully disconnected from Google Search Console');
+                }
             }
         } catch (error) {
             console.error('GSC disconnect error:', error);
-            alert('Failed to disconnect from Google Search Console');
+            if (onShowToast) {
+                onShowToast('Failed to disconnect from Google Search Console', 'error');
+            } else {
+                alert('Failed to disconnect from Google Search Console');
+            }
         }
     };
 
@@ -1458,7 +1511,11 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
                             .then(r => r.json())
                             .then(data => {
                                 console.log('Automation Debug Info:', data);
-                                alert('Debug info logged to console');
+                                if (onShowToast) {
+                                    onShowToast('Debug info logged to console', 'info');
+                                } else {
+                                    alert('Debug info logged to console');
+                                }
                             });
                         }}
                     >
@@ -1478,7 +1535,11 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
                             })
                             .then(r => r.json())
                             .then(data => {
-                                alert(data.message || 'Semi-auto cron triggered');
+                                if (onShowToast) {
+                                    onShowToast(data.message || 'Semi-auto cron triggered', 'success');
+                                } else {
+                                    alert(data.message || 'Semi-auto cron triggered');
+                                }
                             });
                         }}
                     >
@@ -1498,7 +1559,11 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
                             })
                             .then(r => r.json())
                             .then(data => {
-                                alert(data.message || 'Full-auto cron triggered');
+                                if (onShowToast) {
+                                    onShowToast(data.message || 'Full-auto cron triggered', 'success');
+                                } else {
+                                    alert(data.message || 'Full-auto cron triggered');
+                                }
                             });
                         }}
                     >

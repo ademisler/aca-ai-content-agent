@@ -10654,7 +10654,7 @@
     ] }) }),
     children
   ] });
-  const Settings = ({ settings, onSaveSettings, onRefreshApp }) => {
+  const Settings = ({ settings, onSaveSettings, onRefreshApp, onShowToast }) => {
     const [currentSettings, setCurrentSettings] = reactExports.useState(settings);
     const [isConnecting, setIsConnecting] = reactExports.useState(false);
     const [isDetectingSeo, setIsDetectingSeo] = reactExports.useState(false);
@@ -10713,23 +10713,39 @@
           } catch (saveError) {
             console.error("Settings save error:", saveError);
           }
-          alert("License deactivated successfully. Pro features are now disabled.");
+          if (onShowToast) {
+            onShowToast("License deactivated successfully. Pro features are now disabled.", "success");
+          } else {
+            alert("License deactivated successfully. Pro features are now disabled.");
+          }
           if (onRefreshApp) {
             setTimeout(onRefreshApp, 100);
           }
         } else {
-          alert("Failed to deactivate license. Please try again.");
+          if (onShowToast) {
+            onShowToast("Failed to deactivate license. Please try again.", "error");
+          } else {
+            alert("Failed to deactivate license. Please try again.");
+          }
         }
       } catch (error) {
         console.error("License deactivation failed:", error);
-        alert("License deactivation failed. Please try again.");
+        if (onShowToast) {
+          onShowToast("License deactivation failed. Please try again.", "error");
+        } else {
+          alert("License deactivation failed. Please try again.");
+        }
       } finally {
         setIsVerifyingLicense(false);
       }
     };
     const handleLicenseVerification = async () => {
       if (!licenseKey.trim()) {
-        alert("Please enter a license key");
+        if (onShowToast) {
+          onShowToast("Please enter a license key", "warning");
+        } else {
+          alert("Please enter a license key");
+        }
         return;
       }
       setIsVerifyingLicense(true);
@@ -10749,12 +10765,20 @@
           } catch (saveError) {
             console.error("Settings save error:", saveError);
           }
-          alert("License verified successfully! Pro features are now active.");
+          if (onShowToast) {
+            onShowToast("License verified successfully! Pro features are now active.", "success");
+          } else {
+            alert("License verified successfully! Pro features are now active.");
+          }
           if (onRefreshApp) {
             setTimeout(onRefreshApp, 100);
           }
         } else {
-          alert("Invalid license key. Please check and try again.");
+          if (onShowToast) {
+            onShowToast("Invalid license key. Please check and try again.", "error");
+          } else {
+            alert("Invalid license key. Please check and try again.");
+          }
         }
       } catch (error) {
         console.error("License verification failed:", error);
@@ -10766,7 +10790,11 @@
             errorMessage = `License verification failed: ${error.data.message}`;
           }
         }
-        alert(errorMessage);
+        if (onShowToast) {
+          onShowToast(errorMessage, "error");
+        } else {
+          alert(errorMessage);
+        }
       } finally {
         setIsVerifyingLicense(false);
       }
@@ -10790,7 +10818,11 @@
     };
     const handleModeChange = (mode) => {
       if ((mode === "semi-automatic" || mode === "full-automatic") && !isProActive()) {
-        alert("This automation mode requires a Pro license. Please upgrade or activate your license to use this feature.");
+        if (onShowToast) {
+          onShowToast("This automation mode requires a Pro license. Please upgrade or activate your license to use this feature.", "warning");
+        } else {
+          alert("This automation mode requires a Pro license. Please upgrade or activate your license to use this feature.");
+        }
         return;
       }
       handleSettingChange("mode", mode);
@@ -10840,7 +10872,11 @@
     };
     const handleGSCConnect = async () => {
       if (!currentSettings.gscClientId || !currentSettings.gscClientSecret) {
-        alert("Please enter your Google Search Console Client ID and Client Secret first.");
+        if (onShowToast) {
+          onShowToast("Please enter your Google Search Console Client ID and Client Secret first.", "warning");
+        } else {
+          alert("Please enter your Google Search Console Client ID and Client Secret first.");
+        }
         return;
       }
       if (!window.acaData) {
@@ -10857,11 +10893,19 @@
         if (data.auth_url) {
           window.location.href = data.auth_url;
         } else {
-          alert("Failed to initiate Google Search Console connection");
+          if (onShowToast) {
+            onShowToast("Failed to initiate Google Search Console connection", "error");
+          } else {
+            alert("Failed to initiate Google Search Console connection");
+          }
         }
       } catch (error) {
         console.error("GSC connection error:", error);
-        alert("Failed to connect to Google Search Console");
+        if (onShowToast) {
+          onShowToast("Failed to connect to Google Search Console", "error");
+        } else {
+          alert("Failed to connect to Google Search Console");
+        }
       } finally {
         setIsConnecting(false);
       }
@@ -10883,11 +10927,19 @@
         if (data.success) {
           handleSettingChange("searchConsoleUser", null);
           setGscAuthStatus({ authenticated: false });
-          alert("Successfully disconnected from Google Search Console");
+          if (onShowToast) {
+            onShowToast("Successfully disconnected from Google Search Console", "success");
+          } else {
+            alert("Successfully disconnected from Google Search Console");
+          }
         }
       } catch (error) {
         console.error("GSC disconnect error:", error);
-        alert("Failed to disconnect from Google Search Console");
+        if (onShowToast) {
+          onShowToast("Failed to disconnect from Google Search Console", "error");
+        } else {
+          alert("Failed to disconnect from Google Search Console");
+        }
       }
     };
     const handleSave = () => {
@@ -11834,7 +11886,11 @@
                   headers: { "X-WP-Nonce": window.acaData.nonce }
                 }).then((r) => r.json()).then((data) => {
                   console.log("Automation Debug Info:", data);
-                  alert("Debug info logged to console");
+                  if (onShowToast) {
+                    onShowToast("Debug info logged to console", "info");
+                  } else {
+                    alert("Debug info logged to console");
+                  }
                 });
               },
               children: "Check Automation Status"
@@ -11853,7 +11909,11 @@
                   method: "POST",
                   headers: { "X-WP-Nonce": window.acaData.nonce }
                 }).then((r) => r.json()).then((data) => {
-                  alert(data.message || "Semi-auto cron triggered");
+                  if (onShowToast) {
+                    onShowToast(data.message || "Semi-auto cron triggered", "success");
+                  } else {
+                    alert(data.message || "Semi-auto cron triggered");
+                  }
                 });
               },
               children: "Test Semi-Auto Cron"
@@ -11872,7 +11932,11 @@
                   method: "POST",
                   headers: { "X-WP-Nonce": window.acaData.nonce }
                 }).then((r) => r.json()).then((data) => {
-                  alert(data.message || "Full-auto cron triggered");
+                  if (onShowToast) {
+                    onShowToast(data.message || "Full-auto cron triggered", "success");
+                  } else {
+                    alert(data.message || "Full-auto cron triggered");
+                  }
                 });
               },
               children: "Test Full-Auto Cron"
@@ -13004,7 +13068,7 @@
         case "published":
           return /* @__PURE__ */ jsxRuntimeExports.jsx(PublishedList, { posts: publishedPosts, onSelectPost: setSelectedDraft });
         case "settings":
-          return /* @__PURE__ */ jsxRuntimeExports.jsx(Settings, { settings, onSaveSettings: handleSaveSettings, onRefreshApp: handleRefreshApp });
+          return /* @__PURE__ */ jsxRuntimeExports.jsx(Settings, { settings, onSaveSettings: handleSaveSettings, onRefreshApp: handleRefreshApp, onShowToast: showToast });
         case "calendar":
           return /* @__PURE__ */ jsxRuntimeExports.jsx(
             ContentCalendar,

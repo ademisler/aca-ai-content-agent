@@ -10654,7 +10654,7 @@
     ] }) }),
     children
   ] });
-  const Settings = ({ settings, onSaveSettings }) => {
+  const Settings = ({ settings, onSaveSettings, onRefreshApp }) => {
     const [currentSettings, setCurrentSettings] = reactExports.useState(settings);
     const [isConnecting, setIsConnecting] = reactExports.useState(false);
     const [isDetectingSeo, setIsDetectingSeo] = reactExports.useState(false);
@@ -10714,7 +10714,9 @@
             console.error("Settings save error:", saveError);
           }
           alert("License deactivated successfully. Pro features are now disabled.");
-          window.location.reload();
+          if (onRefreshApp) {
+            setTimeout(onRefreshApp, 100);
+          }
         } else {
           alert("Failed to deactivate license. Please try again.");
         }
@@ -10748,7 +10750,9 @@
             console.error("Settings save error:", saveError);
           }
           alert("License verified successfully! Pro features are now active.");
-          window.location.reload();
+          if (onRefreshApp) {
+            setTimeout(onRefreshApp, 100);
+          }
         } else {
           alert("Invalid license key. Please check and try again.");
         }
@@ -12924,6 +12928,21 @@
         addToast({ message: errorMessage, type: "error" });
       }
     }, [addToast, addLogEntry]);
+    const handleRefreshApp = reactExports.useCallback(async () => {
+      try {
+        await Promise.all([
+          loadSettings(),
+          loadIdeas(),
+          loadDrafts(),
+          loadPublishedPosts(),
+          loadActivityLogs()
+        ]);
+        addToast({ message: "App data refreshed successfully!", type: "success" });
+      } catch (error) {
+        console.error("Failed to refresh app data:", error);
+        addToast({ message: "Failed to refresh app data", type: "error" });
+      }
+    }, [loadSettings, loadIdeas, loadDrafts, loadPublishedPosts, loadActivityLogs, addToast]);
     const handleAddIdea = reactExports.useCallback(async (title, description) => {
       try {
         const newIdea = {
@@ -12968,7 +12987,7 @@
         case "published":
           return /* @__PURE__ */ jsxRuntimeExports.jsx(PublishedList, { posts: publishedPosts, onSelectPost: setSelectedDraft });
         case "settings":
-          return /* @__PURE__ */ jsxRuntimeExports.jsx(Settings, { settings, onSaveSettings: handleSaveSettings });
+          return /* @__PURE__ */ jsxRuntimeExports.jsx(Settings, { settings, onSaveSettings: handleSaveSettings, onRefreshApp: handleRefreshApp });
         case "calendar":
           return /* @__PURE__ */ jsxRuntimeExports.jsx(
             ContentCalendar,

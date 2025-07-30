@@ -383,6 +383,23 @@ const App: React.FC = () => {
         }
     }, [addToast, addLogEntry]);
 
+    const handleRefreshApp = useCallback(async () => {
+        try {
+            // Reload all app data to reflect license changes
+            await Promise.all([
+                loadSettings(),
+                loadIdeas(),
+                loadDrafts(),
+                loadPublishedPosts(),
+                loadActivityLogs()
+            ]);
+            addToast({ message: 'App data refreshed successfully!', type: 'success' });
+        } catch (error) {
+            console.error('Failed to refresh app data:', error);
+            addToast({ message: 'Failed to refresh app data', type: 'error' });
+        }
+    }, [loadSettings, loadIdeas, loadDrafts, loadPublishedPosts, loadActivityLogs, addToast]);
+
     const handleAddIdea = useCallback(async (title: string, description?: string) => {
         try {
             const newIdea: Omit<ContentIdea, 'id'> = {
@@ -427,7 +444,7 @@ const App: React.FC = () => {
             case 'published':
                 return <PublishedList posts={publishedPosts} onSelectPost={setSelectedDraft} />;
             case 'settings':
-                return <Settings settings={settings} onSaveSettings={handleSaveSettings} />;
+                return <Settings settings={settings} onSaveSettings={handleSaveSettings} onRefreshApp={handleRefreshApp} />;
             case 'calendar':
                 return <ContentCalendar 
                     drafts={drafts} 

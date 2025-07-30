@@ -27,6 +27,7 @@ declare global {
 interface SettingsProps {
     settings: AppSettings;
     onSaveSettings: (settings: AppSettings) => void;
+    onRefreshApp?: () => void;
 }
 
 const RadioCard: React.FC<{
@@ -111,7 +112,7 @@ const IntegrationCard: React.FC<{
     </div>
 );
 
-export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) => {
+export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, onRefreshApp }) => {
     const [currentSettings, setCurrentSettings] = useState<AppSettings>(settings);
     const [isConnecting, setIsConnecting] = useState(false);
     const [isDetectingSeo, setIsDetectingSeo] = useState(false);
@@ -190,7 +191,10 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                 }
                 
                 alert('License deactivated successfully. Pro features are now disabled.');
-                window.location.reload();
+                // Refresh app state instead of reloading page
+                if (onRefreshApp) {
+                    setTimeout(onRefreshApp, 100);
+                }
             } else {
                 alert('Failed to deactivate license. Please try again.');
             }
@@ -234,8 +238,10 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                 }
                 
                 alert('License verified successfully! Pro features are now active.');
-                // Reload page to ensure all components reflect the new license status
-                window.location.reload();
+                // Refresh app state instead of reloading page
+                if (onRefreshApp) {
+                    setTimeout(onRefreshApp, 100);
+                }
             } else {
                 alert('Invalid license key. Please check and try again.');
             }

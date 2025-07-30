@@ -3205,11 +3205,18 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             
         } catch (Exception $e) {
             error_log('ACA: License verification error: ' . $e->getMessage());
-            return new WP_Error(
-                'license_verification_failed', 
-                'License verification failed: ' . $e->getMessage(), 
-                array('status' => 500)
-            );
+            
+            // Clean up any partial data
+            delete_option('aca_license_status');
+            delete_option('aca_license_data');
+            delete_option('aca_license_site_hash');
+            
+            // Return JSON error response instead of WP_Error to prevent WordPress critical error
+            return rest_ensure_response(array(
+                'success' => false,
+                'message' => 'License verification failed: ' . $e->getMessage(),
+                'error_code' => 'license_verification_failed'
+            ));
         }
     }
     
@@ -3255,11 +3262,13 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             
         } catch (Exception $e) {
             error_log('ACA: License deactivation error: ' . $e->getMessage());
-            return new WP_Error(
-                'license_deactivation_failed', 
-                'License deactivation failed: ' . $e->getMessage(), 
-                array('status' => 500)
-            );
+            
+            // Return JSON error response instead of WP_Error
+            return rest_ensure_response(array(
+                'success' => false,
+                'message' => 'License deactivation failed: ' . $e->getMessage(),
+                'error_code' => 'license_deactivation_failed'
+            ));
         }
     }
     
@@ -3280,12 +3289,12 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         $body_data = array(
             'product_id' => $product_id,           // Required for products after Jan 9, 2023
             'license_key' => $license_key,
-            'increment_uses_count' => 'true',      // Track usage for analytics
-            'metadata' => array(
-                'site_url' => $site_url,
-                'site_hash' => $site_hash
-            )
+            'increment_uses_count' => 'true'       // Track usage for analytics
         );
+        
+        // Store site info locally instead of sending to Gumroad
+        // (Gumroad API doesn't support custom metadata in license verification)
+        error_log('ACA: Site binding info - URL: ' . $site_url . ', Hash: ' . substr($site_hash, 0, 16) . '...');
         
         // Log request body (without showing full license key for security)
         $log_body = $body_data;

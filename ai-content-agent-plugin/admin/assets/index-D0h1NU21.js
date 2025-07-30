@@ -356,6 +356,10 @@
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
 }
 
+.aca-grid-4 {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
 /* Buttons */
 
 .aca-button {
@@ -717,6 +721,10 @@
   .aca-grid-2 {
     grid-template-columns: 1fr;
   }
+  
+  .aca-grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 782px) {
@@ -725,7 +733,8 @@
   }
   
   .aca-grid-2,
-  .aca-grid-3 {
+  .aca-grid-3,
+  .aca-grid-4 {
     grid-template-columns: 1fr;
   }
   
@@ -9583,6 +9592,7 @@
           {
             icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Sparkles, {}),
             label: "Content Freshness",
+            badge: "PRO",
             view: "content-freshness",
             currentView,
             onClick: () => handleNavigation("content-freshness")
@@ -9870,10 +9880,14 @@
           /* @__PURE__ */ jsxRuntimeExports.jsx(Sparkles, { style: { marginRight: "8px" } }),
           "Content Freshness (Pro)"
         ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-grid aca-grid-3", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-grid aca-grid-4", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { textAlign: "center", padding: "15px" }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "24px", fontWeight: "bold", color: "#0073aa", marginBottom: "5px" }, children: stats.contentFreshness.total }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "13px", color: "#666" }, children: "Total Posts" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { textAlign: "center", padding: "15px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "24px", fontWeight: "bold", color: "#28a745", marginBottom: "5px" }, children: stats.contentFreshness.analyzed }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "13px", color: "#666" }, children: "Analyzed" })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { textAlign: "center", padding: "15px" }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "24px", fontWeight: "bold", color: stats.contentFreshness.needsUpdate > 0 ? "#dc3545" : "#28a745", marginBottom: "5px" }, children: stats.contentFreshness.needsUpdate }),
@@ -12993,40 +13007,47 @@
         /* @__PURE__ */ jsxRuntimeExports.jsx(AlertTriangle, { style: { width: "16px", height: "16px", marginRight: "8px" } }),
         "This content may need updating to maintain freshness and relevance."
       ] }),
-      post.analysis && showDetails && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
-        marginTop: "15px",
-        padding: "15px",
-        backgroundColor: "#f8f9fa",
-        borderRadius: "6px",
-        fontSize: "13px"
-      }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: "10px", marginBottom: "15px" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Age Score:" }),
-            " ",
-            Math.round(post.analysis.age_score)
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "SEO Score:" }),
-            " ",
-            Math.round(post.analysis.seo_score)
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "AI Score:" }),
-            " ",
-            Math.round(post.analysis.ai_score)
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Days Old:" }),
-            " ",
-            post.analysis.days_old
-          ] })
-        ] }),
-        post.analysis.suggestions.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "10px" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Suggestions:" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { style: { margin: "5px 0 0 20px", padding: 0 }, children: post.analysis.suggestions.map((suggestion, index) => /* @__PURE__ */ jsxRuntimeExports.jsx("li", { style: { marginBottom: "3px" }, children: suggestion }, index)) })
-        ] })
-      ] }),
+      post.analysis && showDetails && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "div",
+        {
+          id: `details-${post.ID}`,
+          style: {
+            marginTop: "15px",
+            padding: "15px",
+            backgroundColor: "#f8f9fa",
+            borderRadius: "6px",
+            fontSize: "13px"
+          },
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: "10px", marginBottom: "15px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Age Score:" }),
+                " ",
+                Math.round(post.analysis.age_score)
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "SEO Score:" }),
+                " ",
+                Math.round(post.analysis.seo_score)
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "AI Score:" }),
+                " ",
+                Math.round(post.analysis.ai_score)
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Days Old:" }),
+                " ",
+                post.analysis.days_old
+              ] })
+            ] }),
+            post.analysis.suggestions.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "10px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Suggestions:" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { style: { margin: "5px 0 0 20px", padding: 0 }, children: post.analysis.suggestions.map((suggestion, index) => /* @__PURE__ */ jsxRuntimeExports.jsx("li", { style: { marginBottom: "3px" }, children: suggestion }, index)) })
+            ] })
+          ]
+        }
+      ),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "10px", marginTop: "15px" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",
@@ -13060,6 +13081,8 @@
             onClick: () => setShowDetails(!showDetails),
             className: "aca-button secondary",
             style: { marginLeft: "auto" },
+            "aria-expanded": showDetails,
+            "aria-controls": `details-${post.ID}`,
             children: showDetails ? "Hide Details" : "Show Details"
           }
         )
@@ -13123,11 +13146,11 @@
           onShowToast(`Analyzed ${response.analyzed_count} posts successfully`, "success");
           loadPosts();
         } else {
-          onShowToast("Failed to analyze posts", "error");
+          onShowToast("Unable to analyze posts. Please check your Pro license and try again.", "error");
         }
       } catch (error) {
         console.error("Error analyzing posts:", error);
-        onShowToast("Error analyzing posts", "error");
+        onShowToast("Analysis failed due to a connection error. Please try again.", "error");
       } finally {
         setIsLoading(false);
       }
@@ -13149,11 +13172,11 @@
             } : post
           ));
         } else {
-          onShowToast("Failed to analyze post", "error");
+          onShowToast("Unable to analyze this post. Please check your Pro license.", "error");
         }
       } catch (error) {
         console.error("Error analyzing post:", error);
-        onShowToast("Error analyzing post", "error");
+        onShowToast("Post analysis failed. Please check your connection and try again.", "error");
       } finally {
         setIsAnalyzing((prev) => ({ ...prev, [postId]: false }));
       }
@@ -13165,11 +13188,11 @@
         if (response.success) {
           onShowToast("Content update queued successfully", "success");
         } else {
-          onShowToast("Failed to queue content update", "error");
+          onShowToast("Unable to queue content update. Please try again.", "error");
         }
       } catch (error) {
         console.error("Error updating content:", error);
-        onShowToast("Error updating content", "error");
+        onShowToast("Content update failed. Please check your connection and try again.", "error");
       } finally {
         setIsUpdating((prev) => ({ ...prev, [postId]: false }));
       }
@@ -13182,11 +13205,11 @@
           onShowToast("Settings saved successfully", "success");
           setShowSettings(false);
         } else {
-          onShowToast("Failed to save settings", "error");
+          onShowToast("Unable to save settings. Please try again.", "error");
         }
       } catch (error) {
         console.error("Error saving settings:", error);
-        onShowToast("Error saving settings", "error");
+        onShowToast("Settings save failed. Please check your connection and try again.", "error");
       }
     };
     const needsUpdateCount = posts.filter((post) => post.needs_update).length;
@@ -13255,6 +13278,7 @@
               onChange: (e) => setFilter(e.target.value),
               className: "aca-input",
               style: { width: "auto", minWidth: "120px" },
+              "aria-label": "Filter posts by status",
               children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "all", children: "All Posts" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "needs_update", children: "Needs Update" }),
@@ -13298,10 +13322,15 @@
                 max: "90",
                 value: settings.updateThreshold,
                 onChange: (e) => setSettings({ ...settings, updateThreshold: parseInt(e.target.value) }),
-                className: "aca-input"
+                className: "aca-input",
+                style: { width: "100%" },
+                "aria-label": `Update threshold: ${settings.updateThreshold} percent`
               }
             ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("small", { style: { color: "#666" }, children: "Lower = More Updates" })
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", fontSize: "12px", color: "#666", marginTop: "5px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "More Updates (30%)" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Fewer Updates (90%)" })
+            ] })
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-form-group", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
@@ -13825,8 +13854,10 @@
               const needsUpdate = posts2.filter((post) => post.needs_update).length;
               const postsWithScores = posts2.filter((post) => post.freshness_score !== null);
               const averageScore = postsWithScores.length > 0 ? Math.round(postsWithScores.reduce((sum, post) => sum + (post.freshness_score || 0), 0) / postsWithScores.length) : 0;
+              const analyzed = postsWithScores.filter((post) => post.freshness_score !== null).length;
               setContentFreshness({
                 total: posts2.length,
+                analyzed,
                 needsUpdate,
                 averageScore
               });

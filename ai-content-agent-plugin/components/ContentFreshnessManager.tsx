@@ -125,9 +125,11 @@ const FreshnessCard: React.FC<FreshnessCardProps> = ({
             )}
             
             {post.analysis && showDetails && (
-                <div style={{ 
-                    marginTop: '15px', 
-                    padding: '15px', 
+                <div 
+                    id={`details-${post.ID}`}
+                    style={{ 
+                        marginTop: '15px', 
+                        padding: '15px', 
                     backgroundColor: '#f8f9fa', 
                     borderRadius: '6px',
                     fontSize: '13px'
@@ -195,6 +197,8 @@ const FreshnessCard: React.FC<FreshnessCardProps> = ({
                     onClick={() => setShowDetails(!showDetails)}
                     className="aca-button secondary"
                     style={{ marginLeft: 'auto' }}
+                    aria-expanded={showDetails}
+                    aria-controls={`details-${post.ID}`}
                 >
                     {showDetails ? 'Hide Details' : 'Show Details'}
                 </button>
@@ -265,11 +269,11 @@ export const ContentFreshnessManager: React.FC<ContentFreshnessManagerProps> = (
                 onShowToast(`Analyzed ${response.analyzed_count} posts successfully`, 'success');
                 loadPosts(); // Reload posts to get updated data
             } else {
-                onShowToast('Failed to analyze posts', 'error');
+                onShowToast('Unable to analyze posts. Please check your Pro license and try again.', 'error');
             }
         } catch (error) {
             console.error('Error analyzing posts:', error);
-            onShowToast('Error analyzing posts', 'error');
+            onShowToast('Analysis failed due to a connection error. Please try again.', 'error');
         } finally {
             setIsLoading(false);
         }
@@ -295,11 +299,11 @@ export const ContentFreshnessManager: React.FC<ContentFreshnessManagerProps> = (
                         : post
                 ));
             } else {
-                onShowToast('Failed to analyze post', 'error');
+                onShowToast('Unable to analyze this post. Please check your Pro license.', 'error');
             }
         } catch (error) {
             console.error('Error analyzing post:', error);
-            onShowToast('Error analyzing post', 'error');
+            onShowToast('Post analysis failed. Please check your connection and try again.', 'error');
         } finally {
             setIsAnalyzing(prev => ({ ...prev, [postId]: false }));
         }
@@ -312,11 +316,11 @@ export const ContentFreshnessManager: React.FC<ContentFreshnessManagerProps> = (
             if (response.success) {
                 onShowToast('Content update queued successfully', 'success');
             } else {
-                onShowToast('Failed to queue content update', 'error');
+                onShowToast('Unable to queue content update. Please try again.', 'error');
             }
         } catch (error) {
             console.error('Error updating content:', error);
-            onShowToast('Error updating content', 'error');
+            onShowToast('Content update failed. Please check your connection and try again.', 'error');
         } finally {
             setIsUpdating(prev => ({ ...prev, [postId]: false }));
         }
@@ -330,11 +334,11 @@ export const ContentFreshnessManager: React.FC<ContentFreshnessManagerProps> = (
                 onShowToast('Settings saved successfully', 'success');
                 setShowSettings(false);
             } else {
-                onShowToast('Failed to save settings', 'error');
+                onShowToast('Unable to save settings. Please try again.', 'error');
             }
         } catch (error) {
             console.error('Error saving settings:', error);
-            onShowToast('Error saving settings', 'error');
+            onShowToast('Settings save failed. Please check your connection and try again.', 'error');
         }
     };
 
@@ -422,6 +426,7 @@ export const ContentFreshnessManager: React.FC<ContentFreshnessManagerProps> = (
                             onChange={(e) => setFilter(e.target.value as 'all' | 'needs_update' | 'fresh')}
                             className="aca-input"
                             style={{ width: 'auto', minWidth: '120px' }}
+                            aria-label="Filter posts by status"
                         >
                             <option value="all">All Posts</option>
                             <option value="needs_update">Needs Update</option>
@@ -460,8 +465,13 @@ export const ContentFreshnessManager: React.FC<ContentFreshnessManagerProps> = (
                                 value={settings.updateThreshold}
                                 onChange={(e) => setSettings({...settings, updateThreshold: parseInt(e.target.value)})}
                                 className="aca-input"
+                                style={{ width: '100%' }}
+                                aria-label={`Update threshold: ${settings.updateThreshold} percent`}
                             />
-                            <small style={{ color: '#666' }}>Lower = More Updates</small>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#666', marginTop: '5px' }}>
+                                <span>More Updates (30%)</span>
+                                <span>Fewer Updates (90%)</span>
+                            </div>
                         </div>
                     </div>
                     

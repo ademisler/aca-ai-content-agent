@@ -11,6 +11,7 @@ interface DashboardProps {
         published: number;
         contentFreshness?: {
             total: number;
+            analyzed: number;
             needsUpdate: number;
             averageScore: number;
         };
@@ -215,12 +216,18 @@ export const Dashboard: React.FC<DashboardProps> = ({
                             Content Freshness (Pro)
                         </h2>
                     </div>
-                    <div className="aca-grid aca-grid-3">
+                    <div className="aca-grid aca-grid-4">
                         <div style={{ textAlign: 'center', padding: '15px' }}>
                             <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#0073aa', marginBottom: '5px' }}>
                                 {stats.contentFreshness.total}
                             </div>
                             <div style={{ fontSize: '13px', color: '#666' }}>Total Posts</div>
+                        </div>
+                        <div style={{ textAlign: 'center', padding: '15px' }}>
+                            <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#28a745', marginBottom: '5px' }}>
+                                {stats.contentFreshness.analyzed}
+                            </div>
+                            <div style={{ fontSize: '13px', color: '#666' }}>Analyzed</div>
                         </div>
                         <div style={{ textAlign: 'center', padding: '15px' }}>
                             <div style={{ fontSize: '24px', fontWeight: 'bold', color: stats.contentFreshness.needsUpdate > 0 ? '#dc3545' : '#28a745', marginBottom: '5px' }}>

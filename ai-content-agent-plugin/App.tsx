@@ -580,8 +580,11 @@ const App: React.FC = () => {
                             ? Math.round(postsWithScores.reduce((sum, post) => sum + (post.freshness_score || 0), 0) / postsWithScores.length)
                             : 0;
                         
+                        const analyzed = postsWithScores.filter(post => post.freshness_score !== null).length;
+                        
                         setContentFreshness({
                             total: posts.length,
+                            analyzed,
                             needsUpdate,
                             averageScore
                         });

@@ -331,6 +331,10 @@
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
 }
 
+.aca-grid-4 {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
 /* Buttons */
 .aca-button {
   display: inline-flex;
@@ -680,6 +684,10 @@
   .aca-grid-2 {
     grid-template-columns: 1fr;
   }
+  
+  .aca-grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 782px) {
@@ -688,7 +696,8 @@
   }
   
   .aca-grid-2,
-  .aca-grid-3 {
+  .aca-grid-3,
+  .aca-grid-4 {
     grid-template-columns: 1fr;
   }
   

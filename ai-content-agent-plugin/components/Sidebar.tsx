@@ -96,6 +96,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, isOpen, 
                 <NavItem 
                     icon={<Sparkles />} 
                     label="Content Freshness" 
+                    badge="PRO"
                     view="content-freshness" 
                     currentView={currentView} 
                     onClick={() => handleNavigation('content-freshness')} 

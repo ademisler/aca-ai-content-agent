@@ -10479,7 +10479,7 @@
     title,
     description,
     features,
-    gumroadUrl = "https://gumroad.com/l/your-product-link"
+    gumroadUrl = "https://ademisler.gumroad.com/l/ai-content-agent-pro"
   }) => {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", style: {
       margin: 0,
@@ -10568,7 +10568,7 @@
         marginTop: "15px",
         fontSize: "12px",
         color: "#a67c00"
-      }, children: "💡 One-time purchase • Lifetime updates • 30-day money-back guarantee" })
+      }, children: "💡 One-time purchase • Lifetime updates" })
     ] });
   };
   const RadioCard = ({ id, title, description, currentSelection, onChange }) => {
@@ -10865,7 +10865,7 @@
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "aca-page-description", style: { marginTop: "10px" }, children: [
             "Don't have a Pro license? ",
-            /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: "https://gumroad.com/l/your-product-link", target: "_blank", rel: "noopener noreferrer", style: { color: "#0073aa" }, children: "Purchase here" })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: "https://ademisler.gumroad.com/l/ai-content-agent-pro", target: "_blank", rel: "noopener noreferrer", style: { color: "#0073aa" }, children: "Purchase here" })
           ] })
         ] }),
         licenseStatus.is_active && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-alert aca-alert-success", style: { margin: "20px 0" }, children: [

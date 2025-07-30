@@ -180,3 +180,39 @@ export const licenseApi = {
   },
   getStatus: () => makeApiCall('license/status'),
 };
+
+// Content Freshness API
+export const contentFreshnessApi = {
+  analyzeAll: (limit?: number) => makeApiCall('content-freshness/analyze', {
+    method: 'POST',
+    body: JSON.stringify({ limit }),
+  }),
+  analyzeSingle: (postId: number) => makeApiCall(`content-freshness/analyze/${postId}`, {
+    method: 'POST',
+  }),
+  updateContent: (postId: number, updateType?: string) => makeApiCall(`content-freshness/update/${postId}`, {
+    method: 'POST',
+    body: JSON.stringify({ update_type: updateType }),
+  }),
+  getSettings: () => makeApiCall('content-freshness/settings'),
+  saveSettings: (settings: any) => makeApiCall('content-freshness/settings', {
+    method: 'POST',
+    body: JSON.stringify(settings),
+  }),
+  getPosts: (limit?: number, status?: string) => makeApiCall('content-freshness/posts', {
+    method: 'GET',
+    ...(limit || status ? { 
+      headers: {
+        'X-Query-Params': JSON.stringify({ limit, status })
+      }
+    } : {})
+  }),
+  getPostsNeedingUpdates: (limit?: number) => makeApiCall('content-freshness/posts/needing-updates', {
+    method: 'GET',
+    ...(limit ? { 
+      headers: {
+        'X-Query-Params': JSON.stringify({ limit })
+      }
+    } : {})
+  }),
+};

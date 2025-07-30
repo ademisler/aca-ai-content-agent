@@ -1,5 +1,5 @@
 
-export type View = 'dashboard' | 'style-guide' | 'ideas' | 'drafts' | 'published' | 'settings' | 'calendar';
+export type View = 'dashboard' | 'style-guide' | 'ideas' | 'drafts' | 'published' | 'settings' | 'calendar' | 'content-freshness';
 
 export interface StyleGuide {
     tone: string;
@@ -89,4 +89,58 @@ export interface ActivityLog {
     type: ActivityLogType;
     details: string;
     icon: IconName;
+}
+
+// Content Freshness Types
+export interface FreshnessSettings {
+    analysisFrequency: 'daily' | 'weekly' | 'monthly' | 'manual';
+    autoUpdate: boolean;
+    updateThreshold: number;
+    enabled: boolean;
+}
+
+export interface FreshnessData {
+    postId: number;
+    freshnessScore: number;
+    lastAnalyzed: string;
+    needsUpdate: boolean;
+    updatePriority: number;
+}
+
+export interface FreshnessAnalysis {
+    score: number;
+    needs_update: boolean;
+    priority: number;
+    suggestions: string[];
+    age_score: number;
+    seo_score: number;
+    ai_score: number;
+    days_old: number;
+    outdated_information?: string[];
+    seo_improvements?: string[];
+    readability_improvements?: string[];
+    content_gaps?: string[];
+    technical_updates?: string[];
+}
+
+export interface PostWithFreshness {
+    ID: number;
+    post_title: string;
+    post_date: string;
+    post_modified: string;
+    freshness_score: number | null;
+    last_analyzed: string | null;
+    needs_update: boolean | null;
+    update_priority: number | null;
+    analysis?: FreshnessAnalysis;
+}
+
+export interface ContentUpdate {
+    postId: number;
+    updates: {
+        title?: string;
+        content?: string;
+        metaDescription?: string;
+        focusKeywords?: string[];
+    };
 }

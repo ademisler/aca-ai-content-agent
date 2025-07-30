@@ -1,7 +1,7 @@
 
 import React from 'react';
 import type { View } from '../types';
-import { Lightbulb, BookOpen, Settings, LayoutDashboard, FileText, Send, Calendar } from './Icons';
+import { Lightbulb, BookOpen, Settings, LayoutDashboard, FileText, Send, Calendar, Sparkles } from './Icons';
 
 interface SidebarProps {
     currentView: View;
@@ -92,6 +92,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, isOpen, 
                     view="published" 
                     currentView={currentView} 
                     onClick={() => handleNavigation('published')} 
+                />
+                <NavItem 
+                    icon={<Sparkles />} 
+                    label="Content Freshness" 
+                    view="content-freshness" 
+                    currentView={currentView} 
+                    onClick={() => handleNavigation('content-freshness')} 
                 />
             </nav>
             

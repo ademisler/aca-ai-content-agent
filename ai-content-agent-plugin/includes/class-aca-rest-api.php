@@ -242,6 +242,50 @@ class ACA_Rest_Api {
             'permission_callback' => array($this, 'check_admin_permissions')
         ));
         
+        // Content Freshness endpoints (Pro feature)
+        register_rest_route('aca/v1', '/content-freshness/analyze', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'analyze_content_freshness'),
+            'permission_callback' => array($this, 'check_pro_permissions')
+        ));
+        
+        register_rest_route('aca/v1', '/content-freshness/analyze/(?P<id>\d+)', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'analyze_single_post_freshness'),
+            'permission_callback' => array($this, 'check_pro_permissions')
+        ));
+        
+        register_rest_route('aca/v1', '/content-freshness/update/(?P<id>\d+)', array(
+            'methods' => 'POST', 
+            'callback' => array($this, 'update_content_with_ai'),
+            'permission_callback' => array($this, 'check_pro_permissions')
+        ));
+        
+        register_rest_route('aca/v1', '/content-freshness/settings', array(
+            array(
+                'methods' => 'GET',
+                'callback' => array($this, 'get_freshness_settings'),
+                'permission_callback' => array($this, 'check_pro_permissions')
+            ),
+            array(
+                'methods' => 'POST',
+                'callback' => array($this, 'save_freshness_settings'),
+                'permission_callback' => array($this, 'check_pro_permissions')
+            )
+        ));
+        
+        register_rest_route('aca/v1', '/content-freshness/posts', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_posts_freshness_data'),
+            'permission_callback' => array($this, 'check_pro_permissions')
+        ));
+        
+        register_rest_route('aca/v1', '/content-freshness/posts/needing-updates', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_posts_needing_updates'),
+            'permission_callback' => array($this, 'check_pro_permissions')
+        ));
+
         // License verification endpoint
         register_rest_route('aca/v1', '/license/verify', array(
             'methods' => 'POST',
@@ -284,6 +328,23 @@ class ACA_Rest_Api {
     public function check_seo_permissions() {
         // Allow access for users who can edit posts or manage options
         return current_user_can('edit_posts') || current_user_can('manage_options');
+    }
+    
+    /**
+     * Check Pro permissions - requires Pro license and admin permissions
+     */
+    public function check_pro_permissions() {
+        // Check admin permissions first
+        if (!current_user_can('manage_options')) {
+            return false;
+        }
+        
+        // Check if Pro license is active
+        if (!is_aca_pro_active()) {
+            return new WP_Error('pro_required', 'This feature requires an active Pro license', array('status' => 403));
+        }
+        
+        return true;
     }
     
     /**
@@ -3435,6 +3496,219 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             'message' => $is_valid ? 'License verified successfully' : 'License verification failed',
             'purchase_data' => $data['purchase'] ?? null,
             'verified_at' => current_time('mysql')
+        );
+    }
+    
+    // ============================================================================
+    // CONTENT FRESHNESS API METHODS (PRO FEATURE)
+    // ============================================================================
+    
+    /**
+     * Analyze content freshness for multiple posts
+     */
+    public function analyze_content_freshness($request) {
+        require_once ACA_PLUGIN_PATH . 'includes/class-aca-content-freshness.php';
+        
+        $freshness_manager = new ACA_Content_Freshness();
+        $limit = $request->get_param('limit') ?: 10;
+        
+        // Get posts that need analysis
+        $posts_to_analyze = $freshness_manager->get_posts_needing_analysis($limit);
+        
+        $results = array();
+        $analyzed_count = 0;
+        
+        foreach ($posts_to_analyze as $post_id) {
+            $analysis = $freshness_manager->analyze_post_freshness($post_id);
+            
+            if (!is_wp_error($analysis)) {
+                $post = get_post($post_id);
+                $results[] = array(
+                    'post_id' => $post_id,
+                    'post_title' => $post->post_title,
+                    'analysis' => $analysis
+                );
+                $analyzed_count++;
+            }
+        }
+        
+        // Add activity log entry
+        $this->add_activity_log('content_freshness_analysis', "Analyzed $analyzed_count posts for content freshness", 'Sparkles');
+        
+        return array(
+            'success' => true,
+            'analyzed_count' => $analyzed_count,
+            'results' => $results,
+            'message' => "Successfully analyzed $analyzed_count posts for content freshness"
+        );
+    }
+    
+    /**
+     * Analyze content freshness for a single post
+     */
+    public function analyze_single_post_freshness($request) {
+        require_once ACA_PLUGIN_PATH . 'includes/class-aca-content-freshness.php';
+        
+        $post_id = $request->get_param('id');
+        $freshness_manager = new ACA_Content_Freshness();
+        
+        $analysis = $freshness_manager->analyze_post_freshness($post_id);
+        
+        if (is_wp_error($analysis)) {
+            return $analysis;
+        }
+        
+        $post = get_post($post_id);
+        
+        return array(
+            'success' => true,
+            'post_id' => $post_id,
+            'post_title' => $post->post_title,
+            'analysis' => $analysis,
+            'message' => 'Content freshness analysis completed'
+        );
+    }
+    
+    /**
+     * Update content with AI suggestions
+     */
+    public function update_content_with_ai($request) {
+        $post_id = $request->get_param('id');
+        $update_type = $request->get_param('update_type') ?: 'suggestions';
+        
+        // This would implement AI-powered content updates
+        // For now, return a placeholder response
+        
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'aca_content_updates';
+        
+        $result = $wpdb->insert(
+            $table_name,
+            array(
+                'post_id' => $post_id,
+                'last_updated' => current_time('mysql'),
+                'update_type' => $update_type,
+                'ai_suggestions' => json_encode(array('AI update suggestions will be implemented here')),
+                'status' => 'pending'
+            ),
+            array('%d', '%s', '%s', '%s', '%s')
+        );
+        
+        if ($result === false) {
+            return new WP_Error('update_failed', 'Failed to queue content update', array('status' => 500));
+        }
+        
+        return array(
+            'success' => true,
+            'post_id' => $post_id,
+            'message' => 'Content update queued successfully'
+        );
+    }
+    
+    /**
+     * Get freshness settings
+     */
+    public function get_freshness_settings($request) {
+        $settings = get_option('aca_freshness_settings', array(
+            'analysisFrequency' => 'weekly',
+            'autoUpdate' => false,
+            'updateThreshold' => 70,
+            'enabled' => true
+        ));
+        
+        return array(
+            'success' => true,
+            'settings' => $settings
+        );
+    }
+    
+    /**
+     * Save freshness settings
+     */
+    public function save_freshness_settings($request) {
+        $settings = $request->get_json_params();
+        
+        if (empty($settings)) {
+            return new WP_Error('invalid_data', 'No settings data provided', array('status' => 400));
+        }
+        
+        // Validate settings
+        $valid_frequencies = array('daily', 'weekly', 'monthly', 'manual');
+        if (isset($settings['analysisFrequency']) && !in_array($settings['analysisFrequency'], $valid_frequencies)) {
+            return new WP_Error('invalid_frequency', 'Invalid analysis frequency', array('status' => 400));
+        }
+        
+        if (isset($settings['updateThreshold']) && ($settings['updateThreshold'] < 0 || $settings['updateThreshold'] > 100)) {
+            return new WP_Error('invalid_threshold', 'Update threshold must be between 0 and 100', array('status' => 400));
+        }
+        
+        // Save settings
+        update_option('aca_freshness_settings', $settings);
+        
+        // Add activity log entry
+        $this->add_activity_log('settings_updated', 'Content freshness settings updated', 'Settings');
+        
+        return array(
+            'success' => true,
+            'settings' => $settings,
+            'message' => 'Freshness settings saved successfully'
+        );
+    }
+    
+    /**
+     * Get posts with freshness data
+     */
+    public function get_posts_freshness_data($request) {
+        require_once ACA_PLUGIN_PATH . 'includes/class-aca-content-freshness.php';
+        
+        $freshness_manager = new ACA_Content_Freshness();
+        $limit = $request->get_param('limit') ?: 20;
+        $status = $request->get_param('status'); // 'needs_update', 'fresh', 'all'
+        
+        global $wpdb;
+        $freshness_table = $wpdb->prefix . 'aca_content_freshness';
+        
+        $where_clause = "WHERE p.post_status = 'publish' AND p.post_type = 'post'";
+        
+        if ($status === 'needs_update') {
+            $where_clause .= " AND f.needs_update = 1";
+        } elseif ($status === 'fresh') {
+            $where_clause .= " AND f.needs_update = 0";
+        }
+        
+        $results = $wpdb->get_results($wpdb->prepare("
+            SELECT p.ID, p.post_title, p.post_date, p.post_modified,
+                   f.freshness_score, f.last_analyzed, f.needs_update, f.update_priority
+            FROM {$wpdb->posts} p
+            LEFT JOIN $freshness_table f ON p.ID = f.post_id
+            $where_clause
+            ORDER BY f.update_priority DESC, f.freshness_score ASC, p.post_date DESC
+            LIMIT %d
+        ", $limit), ARRAY_A);
+        
+        return array(
+            'success' => true,
+            'posts' => $results,
+            'total_count' => count($results)
+        );
+    }
+    
+    /**
+     * Get posts needing updates
+     */
+    public function get_posts_needing_updates($request) {
+        require_once ACA_PLUGIN_PATH . 'includes/class-aca-content-freshness.php';
+        
+        $freshness_manager = new ACA_Content_Freshness();
+        $limit = $request->get_param('limit') ?: 20;
+        
+        $posts = $freshness_manager->get_posts_needing_updates($limit);
+        
+        return array(
+            'success' => true,
+            'posts' => $posts,
+            'count' => count($posts),
+            'message' => 'Retrieved posts needing content updates'
         );
     }
 }

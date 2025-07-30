@@ -62,4 +62,15 @@ export interface AiService {
         prompt: string, 
         style: AiImageStyle
     ): Promise<string>;
+
+    /**
+     * Analyzes content for freshness and provides update recommendations.
+     * @param content - The content to analyze for freshness.
+     * @param title - The title of the content.
+     * @returns A JSON string with freshness analysis and recommendations.
+     */
+    analyzeContentFreshness(
+        content: string,
+        title: string
+    ): Promise<string>;
 }

@@ -15,6 +15,7 @@ import { Toast, ToastData } from './components/Toast';
 import { PublishedList } from './components/PublishedList';
 import { Menu } from './components/Icons';
 import { ContentCalendar } from './components/ContentCalendar';
+import { ContentFreshnessManager } from './components/ContentFreshnessManager';
 
 declare global {
   interface Window {
@@ -515,6 +516,10 @@ const App: React.FC = () => {
                     onSelectPost={setSelectedDraft}
                     onPublishDraft={handlePublishPost}
                     onUpdatePostDate={handleUpdatePostDate}
+                />;
+            case 'content-freshness':
+                return <ContentFreshnessManager 
+                    onShowToast={showToast}
                 />;
             case 'dashboard':
             default:

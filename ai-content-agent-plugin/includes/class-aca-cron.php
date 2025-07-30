@@ -56,6 +56,9 @@ class ACA_Cron {
         // Auto-analyze style guide
         $this->auto_analyze_style_guide();
         
+        // Run content freshness analysis
+        $this->run_content_freshness_analysis();
+        
         // Run full content cycle if in full-automatic mode
         if (isset($settings['mode']) && $settings['mode'] === 'full-automatic') {
             // Check if pro license is active for full-automatic mode
@@ -185,6 +188,80 @@ class ACA_Cron {
             
         } catch (Exception $e) {
             error_log('ACA Full Auto Cycle Error: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Run content freshness analysis
+     */
+    private function run_content_freshness_analysis() {
+        // Check if Pro license is active (content freshness is a Pro feature)
+        if (!is_aca_pro_active()) {
+            return;
+        }
+        
+        // Get freshness settings
+        $freshness_settings = get_option('aca_freshness_settings', array());
+        
+        // Check if automatic analysis is enabled
+        if (!isset($freshness_settings['enabled']) || !$freshness_settings['enabled']) {
+            return;
+        }
+        
+        // Check frequency
+        $frequency = isset($freshness_settings['analysisFrequency']) ? $freshness_settings['analysisFrequency'] : 'weekly';
+        if ($frequency === 'manual') {
+            return;
+        }
+        
+        // Check if it's time to run analysis based on frequency
+        $last_run = get_option('aca_last_freshness_analysis', 0);
+        $current_time = time();
+        $should_run = false;
+        
+        switch ($frequency) {
+            case 'daily':
+                $should_run = ($current_time - $last_run) > (24 * 60 * 60); // 24 hours
+                break;
+            case 'weekly':
+                $should_run = ($current_time - $last_run) > (7 * 24 * 60 * 60); // 7 days
+                break;
+            case 'monthly':
+                $should_run = ($current_time - $last_run) > (30 * 24 * 60 * 60); // 30 days
+                break;
+        }
+        
+        if (!$should_run) {
+            return;
+        }
+        
+        // Load content freshness class
+        require_once ACA_PLUGIN_PATH . 'includes/class-aca-content-freshness.php';
+        $freshness_manager = new ACA_Content_Freshness();
+        
+        // Get posts that need analysis (limit to prevent timeout)
+        $posts_to_analyze = $freshness_manager->get_posts_needing_analysis(5);
+        
+        $analyzed_count = 0;
+        foreach ($posts_to_analyze as $post_id) {
+            $analysis = $freshness_manager->analyze_post_freshness($post_id);
+            
+            if (!is_wp_error($analysis)) {
+                $analyzed_count++;
+                
+                // If post needs update and auto-update is enabled, queue it
+                if ($analysis['needs_update'] && isset($freshness_settings['autoUpdate']) && $freshness_settings['autoUpdate']) {
+                    $freshness_manager->queue_content_update($post_id, $analysis);
+                }
+            }
+        }
+        
+        // Update last run time
+        update_option('aca_last_freshness_analysis', $current_time);
+        
+        // Log the activity
+        if ($analyzed_count > 0) {
+            $this->add_activity_log('content_freshness_analysis', "Automatically analyzed $analyzed_count posts for content freshness", 'Sparkles');
         }
     }
     

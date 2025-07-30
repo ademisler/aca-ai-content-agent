@@ -40,6 +40,7 @@ require_once ACA_PLUGIN_PATH . 'includes/class-aca-activator.php';
 require_once ACA_PLUGIN_PATH . 'includes/class-aca-deactivator.php';
 require_once ACA_PLUGIN_PATH . 'includes/class-aca-rest-api.php';
 require_once ACA_PLUGIN_PATH . 'includes/class-aca-cron.php';
+require_once ACA_PLUGIN_PATH . 'includes/class-aca-content-freshness.php';
 
 // Activation and deactivation hooks
 register_activation_hook(__FILE__, array('ACA_Activator', 'activate'));

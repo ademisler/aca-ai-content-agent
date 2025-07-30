@@ -278,10 +278,86 @@ const generateImage = async (prompt: string, style: AiImageStyle = 'digital_art'
     throw new Error("Image generation is not available with Gemini API. Please use a different AI service for image generation.");
 };
 
+/**
+ * Analyzes content for freshness and provides update recommendations
+ * @param content - The content to analyze
+ * @param title - The title of the content
+ * @returns A JSON string with freshness analysis and recommendations
+ */
+const analyzeContentFreshness = async (content: string, title: string): Promise<string> => {
+    const ai = checkAi();
+    
+    const prompt = `
+        Analyze this published content for freshness and provide comprehensive update recommendations:
+        
+        Title: ${title}
+        Content: ${content.substring(0, 2000)}...
+        
+        Provide a detailed JSON response with:
+        1. freshness_score (0-100) - Overall content freshness score
+        2. update_priority (1-5, 5 being urgent) - Priority level for updates
+        3. specific_suggestions (array of actionable improvements)
+        4. outdated_information (array of potentially outdated facts/statistics)
+        5. seo_improvements (array of SEO enhancement suggestions)
+        6. readability_improvements (array of readability enhancements)
+        7. content_gaps (array of missing topics that should be added)
+        8. technical_updates (array of technical aspects that need updating)
+        
+        Consider factors like:
+        - Date references and time-sensitive information
+        - Industry trends and developments
+        - Technology changes and updates
+        - Statistical data and research findings
+        - Link relevance and availability
+        - Content comprehensiveness
+        - Search intent alignment
+        - User engagement potential
+    `;
+    
+    const config = {
+        responseMimeType: "application/json",
+        responseSchema: {
+            type: SchemaType.OBJECT,
+            properties: {
+                freshness_score: { type: SchemaType.NUMBER },
+                update_priority: { type: SchemaType.NUMBER },
+                specific_suggestions: { 
+                    type: SchemaType.ARRAY,
+                    items: { type: SchemaType.STRING }
+                },
+                outdated_information: {
+                    type: SchemaType.ARRAY,
+                    items: { type: SchemaType.STRING }
+                },
+                seo_improvements: {
+                    type: SchemaType.ARRAY,
+                    items: { type: SchemaType.STRING }
+                },
+                readability_improvements: {
+                    type: SchemaType.ARRAY,
+                    items: { type: SchemaType.STRING }
+                },
+                content_gaps: {
+                    type: SchemaType.ARRAY,
+                    items: { type: SchemaType.STRING }
+                },
+                technical_updates: {
+                    type: SchemaType.ARRAY,
+                    items: { type: SchemaType.STRING }
+                }
+            },
+            required: ["freshness_score", "update_priority", "specific_suggestions"]
+        }
+    };
+    
+    return makeApiCallWithRetry(ai, modelConfig.primary, prompt, config);
+};
+
 export const geminiService: AiService = {
   analyzeStyle,
   generateIdeas,
   generateSimilarIdeas,
   createDraft,
   generateImage,
+  analyzeContentFreshness,
 };

@@ -30,7 +30,7 @@ class ACA_Content_Freshness {
         $age_score = max(0, 100 - ($days_old / 30 * 10)); // Decrease by 10 points per month
         
         // Get current SEO performance from GSC if available
-        $seo_performance = $this->get_seo_performance($post_id);
+        $seo_performance = $this->get_gsc_performance($post_id);
         
         // AI analysis for content relevance
         $ai_analysis = $this->analyze_with_ai($content, $title);
@@ -50,7 +50,7 @@ class ACA_Content_Freshness {
             'score' => round($freshness_score, 2),
             'needs_update' => $freshness_score < 70,
             'priority' => $this->calculate_priority($freshness_score, $seo_performance),
-            'suggestions' => $suggestions,
+            'suggestions' => $this->get_update_suggestions($ai_analysis),
             'age_score' => round($age_score, 2),
             'seo_score' => $seo_performance,
             'ai_score' => $ai_score,
@@ -64,12 +64,12 @@ class ACA_Content_Freshness {
     }
     
     /**
-     * Get SEO performance score for a post
+     * Get GSC performance score for a post
      * 
      * @param int $post_id
-     * @return float SEO performance score (0-100)
+     * @return float GSC performance score (0-100)
      */
-    private function get_seo_performance($post_id) {
+    private function get_gsc_performance($post_id) {
         // Try to get GSC data if available
         if (class_exists('ACA_Google_Search_Console')) {
             $gsc = new ACA_Google_Search_Console();
@@ -320,6 +320,30 @@ class ACA_Content_Freshness {
         );
         
         return json_encode($analysis_result);
+    }
+    
+    /**
+     * Get update suggestions from AI analysis
+     * 
+     * @param string $ai_analysis JSON string from AI analysis
+     * @return array Array of suggestions
+     */
+    private function get_update_suggestions($ai_analysis) {
+        if (is_wp_error($ai_analysis)) {
+            return array('AI analysis not available, using default suggestions');
+        }
+        
+        $ai_data = json_decode($ai_analysis, true);
+        if (!$ai_data || !isset($ai_data['specific_suggestions'])) {
+            return array(
+                'Update statistics and data with current information',
+                'Add recent examples and case studies', 
+                'Review and update external links',
+                'Enhance content with new insights and trends'
+            );
+        }
+        
+        return $ai_data['specific_suggestions'];
     }
     
     /**

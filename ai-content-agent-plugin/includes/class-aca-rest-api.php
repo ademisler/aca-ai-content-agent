@@ -262,16 +262,9 @@ class ACA_Rest_Api {
         ));
         
         register_rest_route('aca/v1', '/content-freshness/settings', array(
-            array(
-                'methods' => 'GET',
-                'callback' => array($this, 'get_freshness_settings'),
-                'permission_callback' => array($this, 'check_pro_permissions')
-            ),
-            array(
-                'methods' => 'POST',
-                'callback' => array($this, 'save_freshness_settings'),
-                'permission_callback' => array($this, 'check_pro_permissions')
-            )
+            'methods' => 'GET,POST',
+            'callback' => array($this, 'manage_freshness_settings'),
+            'permission_callback' => array($this, 'check_pro_permissions')
         ));
         
         register_rest_route('aca/v1', '/content-freshness/posts', array(
@@ -3606,53 +3599,56 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
     }
     
     /**
-     * Get freshness settings
+     * Manage freshness settings (GET and POST)
      */
-    public function get_freshness_settings($request) {
-        $settings = get_option('aca_freshness_settings', array(
-            'analysisFrequency' => 'weekly',
-            'autoUpdate' => false,
-            'updateThreshold' => 70,
-            'enabled' => true
-        ));
+    public function manage_freshness_settings($request) {
+        $method = $request->get_method();
         
-        return array(
-            'success' => true,
-            'settings' => $settings
-        );
-    }
-    
-    /**
-     * Save freshness settings
-     */
-    public function save_freshness_settings($request) {
-        $settings = $request->get_json_params();
+        if ($method === 'GET') {
+            $settings = get_option('aca_freshness_settings', array(
+                'analysisFrequency' => 'weekly',
+                'autoUpdate' => false,
+                'updateThreshold' => 70,
+                'enabled' => true
+            ));
+            
+            return array(
+                'success' => true,
+                'settings' => $settings
+            );
+        } 
         
-        if (empty($settings)) {
-            return new WP_Error('invalid_data', 'No settings data provided', array('status' => 400));
+        if ($method === 'POST') {
+            $settings = $request->get_json_params();
+            
+            if (empty($settings)) {
+                return new WP_Error('invalid_data', 'No settings data provided', array('status' => 400));
+            }
+            
+            // Validate settings
+            $valid_frequencies = array('daily', 'weekly', 'monthly', 'manual');
+            if (isset($settings['analysisFrequency']) && !in_array($settings['analysisFrequency'], $valid_frequencies)) {
+                return new WP_Error('invalid_frequency', 'Invalid analysis frequency', array('status' => 400));
+            }
+            
+            if (isset($settings['updateThreshold']) && ($settings['updateThreshold'] < 0 || $settings['updateThreshold'] > 100)) {
+                return new WP_Error('invalid_threshold', 'Update threshold must be between 0 and 100', array('status' => 400));
+            }
+            
+            // Save settings
+            update_option('aca_freshness_settings', $settings);
+            
+            // Add activity log entry
+            $this->add_activity_log('settings_updated', 'Content freshness settings updated', 'Settings');
+            
+            return array(
+                'success' => true,
+                'settings' => $settings,
+                'message' => 'Freshness settings saved successfully'
+            );
         }
         
-        // Validate settings
-        $valid_frequencies = array('daily', 'weekly', 'monthly', 'manual');
-        if (isset($settings['analysisFrequency']) && !in_array($settings['analysisFrequency'], $valid_frequencies)) {
-            return new WP_Error('invalid_frequency', 'Invalid analysis frequency', array('status' => 400));
-        }
-        
-        if (isset($settings['updateThreshold']) && ($settings['updateThreshold'] < 0 || $settings['updateThreshold'] > 100)) {
-            return new WP_Error('invalid_threshold', 'Update threshold must be between 0 and 100', array('status' => 400));
-        }
-        
-        // Save settings
-        update_option('aca_freshness_settings', $settings);
-        
-        // Add activity log entry
-        $this->add_activity_log('settings_updated', 'Content freshness settings updated', 'Settings');
-        
-        return array(
-            'success' => true,
-            'settings' => $settings,
-            'message' => 'Freshness settings saved successfully'
-        );
+        return new WP_Error('invalid_method', 'Method not allowed', array('status' => 405));
     }
     
     /**

@@ -55,7 +55,7 @@ class ACA_Cron {
         self::auto_analyze_style_guide();
         
         // Run content freshness analysis
-        self::run_content_freshness_analysis();
+        self::content_freshness_task();
         
         // Run full content cycle if in full-automatic mode
         if (isset($settings['mode']) && $settings['mode'] === 'full-automatic') {
@@ -190,7 +190,110 @@ class ACA_Cron {
     }
     
     /**
-     * Run content freshness analysis
+     * Content freshness task
+     */
+    public static function content_freshness_task() {
+        if (!is_aca_pro_active()) {
+            return; // Pro feature only
+        }
+        
+        $settings = get_option('aca_freshness_settings', array());
+        $frequency = $settings['analysisFrequency'] ?? 'weekly';
+        
+        if (self::should_run_freshness_analysis($frequency)) {
+            self::analyze_content_freshness();
+        }
+    }
+    
+    /**
+     * Check if freshness analysis should run based on frequency
+     */
+    private static function should_run_freshness_analysis($frequency) {
+        if ($frequency === 'manual') {
+            return false;
+        }
+        
+        $last_run = get_option('aca_last_freshness_analysis', 0);
+        $current_time = time();
+        
+        // If this is the first run, set last_run to allow immediate execution
+        if ($last_run == 0) {
+            $last_run = $current_time - (7 * 24 * 60 * 60);
+        }
+        
+        switch ($frequency) {
+            case 'daily':
+                return ($current_time - $last_run) > (24 * 60 * 60); // 24 hours
+            case 'weekly':
+                return ($current_time - $last_run) > (7 * 24 * 60 * 60); // 7 days
+            case 'monthly':
+                return ($current_time - $last_run) > (30 * 24 * 60 * 60); // 30 days
+            default:
+                return false;
+        }
+    }
+    
+    /**
+     * Analyze content freshness
+     */
+    private static function analyze_content_freshness() {
+        $freshness_manager = new ACA_Content_Freshness();
+        
+        // Get posts that need analysis using the approach from documentation
+        $posts = get_posts(array(
+            'post_status' => 'publish',
+            'numberposts' => 10, // Limit to prevent timeout
+            'meta_query' => array(
+                array(
+                    'key' => '_aca_last_freshness_check',
+                    'value' => date('Y-m-d', strtotime('-7 days')),
+                    'compare' => '<'
+                )
+            )
+        ));
+        
+        $analyzed_count = 0;
+        foreach ($posts as $post) {
+            $analysis = $freshness_manager->analyze_post_freshness($post->ID);
+            
+            if (!is_wp_error($analysis)) {
+                $analyzed_count++;
+                
+                if ($analysis['needs_update']) {
+                    // Queue for manual review or auto-update based on settings
+                    self::queue_content_update($post->ID, $analysis);
+                }
+                
+                update_post_meta($post->ID, '_aca_last_freshness_check', current_time('mysql'));
+            }
+        }
+        
+        // Update last run time
+        update_option('aca_last_freshness_analysis', time());
+        
+        // Log the activity
+        if ($analyzed_count > 0) {
+            self::add_activity_log('content_freshness_analysis', "Automatically analyzed $analyzed_count posts for content freshness", 'Sparkles');
+        }
+    }
+    
+    /**
+     * Queue content update (from documentation)
+     */
+    private static function queue_content_update($post_id, $analysis) {
+        // Get freshness settings
+        $freshness_settings = get_option('aca_freshness_settings', array());
+        
+        // If auto-update is enabled, queue it
+        if (isset($freshness_settings['autoUpdate']) && $freshness_settings['autoUpdate']) {
+            require_once ACA_PLUGIN_PATH . 'includes/class-aca-content-freshness.php';
+            $freshness_manager = new ACA_Content_Freshness();
+            $freshness_manager->queue_content_update($post_id, $analysis);
+        }
+    }
+    
+    /**
+     * Legacy method - kept for backward compatibility
      */
     private static function run_content_freshness_analysis() {
         // Check if Pro license is active (content freshness is a Pro feature)

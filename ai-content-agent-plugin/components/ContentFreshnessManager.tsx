@@ -221,14 +221,18 @@ export const ContentFreshnessManager: React.FC<ContentFreshnessManagerProps> = (
         setIsLoading(true);
         try {
             const response = await contentFreshnessApi.getPosts(20, filter === 'all' ? undefined : filter);
-            if (response.success) {
+            if (response && response.success) {
                 setPosts(response.posts || []);
             } else {
-                onShowToast('Failed to load posts', 'error');
+                const errorMessage = response?.message || 'Failed to load posts';
+                onShowToast(errorMessage, 'error');
+                setPosts([]);
             }
         } catch (error) {
             console.error('Error loading posts:', error);
-            onShowToast('Error loading posts', 'error');
+            const errorMessage = error instanceof Error ? error.message : 'Error loading posts';
+            onShowToast(errorMessage, 'error');
+            setPosts([]);
         } finally {
             setIsLoading(false);
         }
@@ -237,11 +241,14 @@ export const ContentFreshnessManager: React.FC<ContentFreshnessManagerProps> = (
     const loadSettings = useCallback(async () => {
         try {
             const response = await contentFreshnessApi.getSettings();
-            if (response.success) {
+            if (response && response.success) {
                 setSettings(response.settings);
+            } else {
+                console.warn('Failed to load freshness settings, using defaults');
             }
         } catch (error) {
             console.error('Error loading settings:', error);
+            // Keep default settings on error
         }
     }, []);
 

@@ -17,9 +17,7 @@ class ACA_Cron {
         // Add custom cron schedules
         add_filter('cron_schedules', array($this, 'add_cron_intervals'));
         
-        // Hook cron events
-        add_action('aca_thirty_minute_event', array($this, 'thirty_minute_task'));
-        add_action('aca_fifteen_minute_event', array($this, 'fifteen_minute_task'));
+        // Cron events are now hooked in main plugin file as static methods
     }
     
     /**
@@ -43,7 +41,7 @@ class ACA_Cron {
      * Task that runs every 30 minutes
      * Handles full-automatic mode operations
      */
-    public function thirty_minute_task() {
+    public static function thirty_minute_task() {
         $settings = get_option('aca_settings', array());
         
         if (empty($settings['geminiApiKey'])) {
@@ -54,16 +52,16 @@ class ACA_Cron {
         update_option('aca_last_cron_run', current_time('mysql') . ' (30min - Full-Auto)');
         
         // Auto-analyze style guide
-        $this->auto_analyze_style_guide();
+        self::auto_analyze_style_guide();
         
         // Run content freshness analysis
-        $this->run_content_freshness_analysis();
+        self::run_content_freshness_analysis();
         
         // Run full content cycle if in full-automatic mode
         if (isset($settings['mode']) && $settings['mode'] === 'full-automatic') {
             // Check if pro license is active for full-automatic mode
             if (is_aca_pro_active()) {
-                $this->run_full_automatic_cycle();
+                self::run_full_automatic_cycle();
             } else {
                 error_log('ACA: Full-automatic mode requires Pro license');
             }
@@ -74,7 +72,7 @@ class ACA_Cron {
      * Task that runs every 15 minutes
      * Handles semi-automatic mode operations
      */
-    public function fifteen_minute_task() {
+    public static function fifteen_minute_task() {
         $settings = get_option('aca_settings', array());
         
         if (empty($settings['geminiApiKey'])) {
@@ -98,7 +96,7 @@ class ACA_Cron {
     /**
      * Auto-analyze style guide
      */
-    private function auto_analyze_style_guide() {
+    private static function auto_analyze_style_guide() {
         $rest_api = new ACA_Rest_Api();
         $result = $rest_api->analyze_style_guide(null, true); // null request, true = auto mode
         
@@ -110,7 +108,7 @@ class ACA_Cron {
     /**
      * Generate ideas in semi-automatic mode
      */
-    private function generate_ideas_semi_auto() {
+    private static function generate_ideas_semi_auto() {
         $rest_api = new ACA_Rest_Api();
         
         // Create a mock WP_REST_Request for internal API call
@@ -128,7 +126,7 @@ class ACA_Cron {
     /**
      * Run full automatic content cycle
      */
-    private function run_full_automatic_cycle() {
+    private static function run_full_automatic_cycle() {
         $settings = get_option('aca_settings', array());
         $style_guide = get_option('aca_style_guide');
         
@@ -194,7 +192,7 @@ class ACA_Cron {
     /**
      * Run content freshness analysis
      */
-    private function run_content_freshness_analysis() {
+    private static function run_content_freshness_analysis() {
         // Check if Pro license is active (content freshness is a Pro feature)
         if (!is_aca_pro_active()) {
             return;
@@ -218,6 +216,11 @@ class ACA_Cron {
         $last_run = get_option('aca_last_freshness_analysis', 0);
         $current_time = time();
         $should_run = false;
+        
+        // If this is the first run, set last_run to a week ago to allow immediate execution
+        if ($last_run == 0) {
+            $last_run = $current_time - (7 * 24 * 60 * 60);
+        }
         
         switch ($frequency) {
             case 'daily':
@@ -264,14 +267,14 @@ class ACA_Cron {
         
         // Log the activity
         if ($analyzed_count > 0) {
-            $this->add_activity_log('content_freshness_analysis', "Automatically analyzed $analyzed_count posts for content freshness", 'Sparkles');
+            self::add_activity_log('content_freshness_analysis', "Automatically analyzed $analyzed_count posts for content freshness", 'Sparkles');
         }
     }
     
     /**
      * Add activity log entry
      */
-    private function add_activity_log($type, $details, $icon) {
+    private static function add_activity_log($type, $details, $icon) {
         global $wpdb;
         
         $wpdb->insert(

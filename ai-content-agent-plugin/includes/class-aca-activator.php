@@ -69,7 +69,7 @@ class ACA_Activator {
             post_id bigint(20) NOT NULL,
             freshness_score tinyint(3) DEFAULT 0,
             last_analyzed datetime NOT NULL,
-            needs_update boolean DEFAULT false,
+            needs_update tinyint(1) DEFAULT 0,
             update_priority tinyint(1) DEFAULT 1,
             PRIMARY KEY  (post_id)
         ) $charset_collate;";

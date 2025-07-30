@@ -194,3 +194,7 @@ class AI_Content_Agent {
 
 // Initialize the plugin
 new AI_Content_Agent();
+
+// Hook cron events
+add_action('aca_thirty_minute_event', array('ACA_Cron', 'thirty_minute_task'));
+add_action('aca_fifteen_minute_event', array('ACA_Cron', 'fifteen_minute_task'));

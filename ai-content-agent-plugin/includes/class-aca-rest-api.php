@@ -2529,7 +2529,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         $cron = new ACA_Cron();
         
         try {
-            $cron->fifteen_minute_task();
+            ACA_Cron::fifteen_minute_task();
             $this->add_activity_log('debug_cron', 'Semi-automatic cron manually triggered', 'Settings');
             update_option('aca_last_cron_run', current_time('mysql') . ' (Semi-Auto Manual)');
             

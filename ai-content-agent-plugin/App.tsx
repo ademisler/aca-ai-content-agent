@@ -1,6 +1,6 @@
 
 import React, { useState, useCallback, useEffect } from 'react';
-import { settingsApi, styleGuideApi, ideasApi, draftsApi, publishedApi, activityApi } from './services/wordpressApi';
+import { settingsApi, styleGuideApi, ideasApi, draftsApi, publishedApi, activityApi, contentFreshnessApi } from './services/wordpressApi';
 import { setGeminiApiKey } from './services/geminiService';
 import type { StyleGuide, ContentIdea, Draft, View, AppSettings, ActivityLog, ActivityLogType, IconName } from './types';
 import { GeminiApiWarning } from './components/GeminiApiWarning';
@@ -60,7 +60,11 @@ const App: React.FC = () => {
     const [toasts, setToasts] = useState<ToastData[]>([]);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [publishingId, setPublishingId] = useState<number | null>(null);
-
+    const [contentFreshness, setContentFreshness] = useState<{
+        total: number;
+        needsUpdate: number;
+        averageScore: number;
+    } | null>(null);
 
     const drafts = posts.filter(p => p.status === 'draft');
     const publishedPosts = posts.filter(p => p.status === 'published');
@@ -524,7 +528,12 @@ const App: React.FC = () => {
             case 'dashboard':
             default:
                 return <Dashboard
-                    stats={{ ideas: ideas.filter(idea => idea.status === 'active').length, drafts: drafts.length, published: publishedPosts.length }}
+                    stats={{ 
+                        ideas: ideas.filter(idea => idea.status === 'active').length, 
+                        drafts: drafts.length, 
+                        published: publishedPosts.length,
+                        contentFreshness: contentFreshness
+                    }}
                     lastAnalyzed={styleGuide?.lastAnalyzed}
                     activityLogs={activityLogs}
                     onNavigate={setView}
@@ -559,6 +568,28 @@ const App: React.FC = () => {
                     publishedApi.get(),
                     activityApi.get()
                 ]);
+                
+                // Load content freshness data if Pro is active
+                try {
+                    const freshnessResponse = await contentFreshnessApi.getPosts(50, 'all');
+                    if (freshnessResponse && freshnessResponse.success && freshnessResponse.posts) {
+                        const posts = freshnessResponse.posts;
+                        const needsUpdate = posts.filter(post => post.needs_update).length;
+                        const postsWithScores = posts.filter(post => post.freshness_score !== null);
+                        const averageScore = postsWithScores.length > 0 
+                            ? Math.round(postsWithScores.reduce((sum, post) => sum + (post.freshness_score || 0), 0) / postsWithScores.length)
+                            : 0;
+                        
+                        setContentFreshness({
+                            total: posts.length,
+                            needsUpdate,
+                            averageScore
+                        });
+                    }
+                } catch (error) {
+                    // Content freshness is a Pro feature, don't show error if not available
+                    console.log('Content freshness not available (Pro feature)');
+                }
                 
                 setSettings(settingsData || {
                     mode: 'manual',

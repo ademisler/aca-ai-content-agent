@@ -79,7 +79,8 @@ export type ActivityLogType =
     | 'idea_updated'
     | 'draft_updated'
     | 'draft_scheduled'
-    | 'idea_added';
+    | 'idea_added'
+    | 'content_freshness_analysis';
 
 export type IconName = 'BookOpen' | 'Lightbulb' | 'FileText' | 'Send' | 'Settings' | 'Archive' | 'Edit' | 'Calendar' | 'Sparkles' | 'PlusCircle' | 'Trash' | 'Pencil';
 

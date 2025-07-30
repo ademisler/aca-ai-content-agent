@@ -11942,10 +11942,18 @@ body.toplevel_page_ai-content-agent #wpfooter {
         setTimeout(() => {
           const sectionElement = document.getElementById(`section-content-${openSection}`);
           if (sectionElement) {
-            sectionElement.scrollIntoView({
-              behavior: "smooth",
-              block: "start"
-            });
+            const parentCard = sectionElement.closest(".aca-card");
+            if (parentCard) {
+              parentCard.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+              });
+            } else {
+              sectionElement.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+              });
+            }
           }
         }, 300);
       }
@@ -12330,7 +12338,7 @@ body.toplevel_page_ai-content-agent #wpfooter {
               maxHeight: isCollapsed ? "0" : "2000px",
               opacity: isCollapsed ? 0 : 1,
               overflow: "hidden",
-              transition: "max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease",
+              transition: "max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease, padding 0.3s ease",
               padding: isCollapsed ? "0 0 0 0" : "20px 0 0 0"
             },
             "aria-hidden": isCollapsed,

@@ -173,10 +173,19 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
             setTimeout(() => {
                 const sectionElement = document.getElementById(`section-content-${openSection}`);
                 if (sectionElement) {
-                    sectionElement.scrollIntoView({ 
-                        behavior: 'smooth', 
-                        block: 'start' 
-                    });
+                    // Scroll to the parent card for better visibility
+                    const parentCard = sectionElement.closest('.aca-card');
+                    if (parentCard) {
+                        parentCard.scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'start' 
+                        });
+                    } else {
+                        sectionElement.scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'start' 
+                        });
+                    }
                 }
             }, 300);
         }
@@ -620,7 +629,7 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
                         maxHeight: isCollapsed ? '0' : '2000px',
                         opacity: isCollapsed ? 0 : 1,
                         overflow: 'hidden',
-                        transition: 'max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease',
+                        transition: 'max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease, padding 0.3s ease',
                         padding: isCollapsed ? '0 0 0 0' : '20px 0 0 0'
                     }}
                     aria-hidden={isCollapsed}

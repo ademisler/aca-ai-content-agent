@@ -1,4 +1,4 @@
-# Google Search Console Integration Setup Guide - v2.0.4
+# Google Search Console Integration Setup Guide - v2.0.5
 
 This guide will walk you through setting up Google Search Console integration with the AI Content Agent (ACA) plugin to access real search performance data for your content creation.
 

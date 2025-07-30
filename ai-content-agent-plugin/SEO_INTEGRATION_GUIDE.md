@@ -1,4 +1,4 @@
-# SEO Integration Guide - v2.0.4
+# SEO Integration Guide - v2.0.5
 
 This guide explains the automatic SEO plugin detection and integration system in the AI Content Agent (ACA) plugin.
 
@@ -15,7 +15,7 @@ This guide explains the automatic SEO plugin detection and integration system in
 
 ## 🔌 Overview
 
-The AI Content Agent (ACA) plugin v2.0.4 automatically detects and integrates with popular SEO plugins installed on your WordPress site. This eliminates the need for manual configuration and ensures seamless transfer of AI-generated content metadata to your SEO tools with enhanced error handling and retry capabilities.
+The AI Content Agent (ACA) plugin v2.0.5 automatically detects and integrates with popular SEO plugins installed on your WordPress site. This eliminates the need for manual configuration and ensures seamless transfer of AI-generated content metadata to your SEO tools with enhanced error handling and retry capabilities.
 
 ## ✅ Supported SEO Plugins
 

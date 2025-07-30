@@ -1,19 +1,19 @@
 # AI Content Agent (ACA) for WordPress
 
-**Version:** 2.0.4  
+**Version:** 2.0.5  
 **Requires:** WordPress 5.0+, PHP 7.4+  
 **License:** GPL v2 or later
 
 AI Content Agent (ACA) is a powerful WordPress plugin that leverages Google's Gemini AI to automate content creation, SEO optimization, and publishing workflows.
 
-## 🚀 Latest Updates - v2.0.4
+## 🚀 Latest Updates - v2.0.5
 
-### 🎨 Complete License Management & UX Overhaul
-- **Smart License Validation**: Intelligent Gumroad API response parsing with multi-format support
-- **Toast Notification System**: Eliminated browser alerts, implemented professional in-app notifications
-- **UX Improvements**: Removed notification spam, fixed Pro license flickering
-- **Backend Exception Handling**: Eliminated WordPress critical errors with defensive programming
-- **Console Error Resolution**: Fixed state management issues in app refresh functionality
+### 🚨 Essential Gemini API Warning System
+- **Persistent API Warning**: Displays prominent warning banner when Gemini API key is missing
+- **Smart Navigation**: Direct "Go to Settings" button for immediate API configuration
+- **Real-time Validation**: Warning automatically disappears when API key is configured
+- **User-Friendly Guidance**: Clear instructions for new users on essential setup requirements
+- **Improved First-Run Experience**: Prevents confusion when quick actions don't work without API key
 
 ## 🚀 Features
 
@@ -70,8 +70,8 @@ AI Content Agent (ACA) is a powerful WordPress plugin that leverages Google's Ge
 ## 📁 Release Management
 
 ### Current Release
-- **Latest Version**: v2.0.4 (Located in `/releases/`)
-- **File**: `ai-content-agent-aca-v2.0.4-complete-branding.zip`
+- **Latest Version**: v2.0.5 (Located in `/releases/`)
+- **File**: `ai-content-agent-aca-v2.0.5-gemini-api-warning.zip`
 - **Status**: Stable, ready for production with complete license management and enhanced UX
 
 ### Archive
@@ -82,7 +82,7 @@ AI Content Agent (ACA) is a powerful WordPress plugin that leverages Google's Ge
 ### For Developers
 ```bash
 # Latest release
-releases/ai-content-agent-aca-v2.0.4-complete-branding.zip
+releases/ai-content-agent-aca-v2.0.5-gemini-api-warning.zip
 
 # Development build (after making changes)
 npm run build:wp  # Builds and copies to both admin/assets/ and admin/js/
@@ -172,7 +172,8 @@ This plugin is licensed under the GPL v2 or later.
 
 ## 🔄 Version History
 
-- **v2.0.4**: Complete license management & UX overhaul (Latest)
+- **v2.0.5**: Essential Gemini API warning system (Latest)
+- **v2.0.4**: Complete license management & UX overhaul
 - **v2.0.3**: Asset deployment & cache invalidation
 - **v1.7.0**: Comprehensive feature enhancements & improvements
 - **v1.6.9**: UI/UX improvements & critical bug fixes
@@ -196,4 +197,4 @@ For complete version history, see `CHANGELOG.md`.
 
 ---
 
-**Ready to revolutionize your content workflow with AI Content Agent (ACA)?** Download v2.0.4 and start creating smarter content with smart license validation, professional notifications, and seamless user experience today! 🚀
+**Ready to revolutionize your content workflow with AI Content Agent (ACA)?** Download v2.0.5 and start creating smarter content with essential API guidance, persistent warnings, and improved first-run experience today! 🚀

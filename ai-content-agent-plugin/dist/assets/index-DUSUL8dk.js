@@ -9371,6 +9371,78 @@
     /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M20 13c0 5-3.5 7.5-8 7.5s-8-2.5-8-7.5c0-1.3.3-2.6.7-3.8C6.4 7.6 8.7 6.5 12 6.5s5.6 1.1 7.3 3.2c.4 1.2.7 2.5.7 3.8z" }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "m9 12 2 2 4-4" })
   ] });
+  const GeminiApiWarning = ({ onNavigateToSettings }) => {
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
+      {
+        className: "aca-gemini-warning",
+        style: {
+          backgroundColor: "#fff3cd",
+          border: "1px solid #ffeaa7",
+          borderRadius: "4px",
+          padding: "12px 16px",
+          margin: "0 0 20px 0",
+          display: "flex",
+          alignItems: "center",
+          gap: "12px",
+          boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
+        },
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            AlertTriangle,
+            {
+              style: {
+                width: "20px",
+                height: "20px",
+                color: "#856404",
+                flexShrink: 0
+              }
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+              fontWeight: "600",
+              color: "#856404",
+              marginBottom: "4px",
+              fontSize: "14px"
+            }, children: "Gemini API Key Required" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+              color: "#856404",
+              fontSize: "13px",
+              lineHeight: "1.4"
+            }, children: "AI Content Agent (ACA) requires a Google Gemini API key to function. Please configure your API key in Settings to enable content generation, idea creation, and all AI-powered features." })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              onClick: onNavigateToSettings,
+              style: {
+                backgroundColor: "#856404",
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
+                padding: "8px 12px",
+                fontSize: "12px",
+                fontWeight: "500",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+                flexShrink: 0,
+                transition: "background-color 0.2s"
+              },
+              onMouseOver: (e) => e.currentTarget.style.backgroundColor = "#6c5ce7",
+              onMouseOut: (e) => e.currentTarget.style.backgroundColor = "#856404",
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$1, { style: { width: "14px", height: "14px" } }),
+                "Go to Settings"
+              ]
+            }
+          )
+        ]
+      }
+    );
+  };
   const NavItem = ({ icon, label, view, currentView, onClick }) => {
     const isActive = currentView === view;
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -12756,6 +12828,7 @@
     const [publishingId, setPublishingId] = reactExports.useState(null);
     const drafts = posts.filter((p) => p.status === "draft");
     const publishedPosts = posts.filter((p) => p.status === "published");
+    const isGeminiApiConfigured = !!(settings.geminiApiKey && settings.geminiApiKey.trim());
     const addToast = reactExports.useCallback((toast) => {
       const id = Date.now();
       setToasts((prev) => [...prev, { ...toast, id }]);
@@ -13237,7 +13310,10 @@
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold text-white", children: "AI Content Agent (ACA)" })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-fade-in", children: renderView() })
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-fade-in", children: [
+            !isGeminiApiConfigured && view !== "settings" && /* @__PURE__ */ jsxRuntimeExports.jsx(GeminiApiWarning, { onNavigateToSettings: () => setView("settings") }),
+            renderView()
+          ] })
         ] })
       ] }),
       selectedDraft && /* @__PURE__ */ jsxRuntimeExports.jsx(

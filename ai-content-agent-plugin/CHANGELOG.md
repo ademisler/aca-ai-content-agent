@@ -2,6 +2,36 @@
 
 All notable changes to AI Content Agent (ACA) will be documented in this file.
 
+## [2.0.5] - 2025-01-30
+
+### 🚨 ESSENTIAL GEMINI API WARNING SYSTEM
+
+#### ✅ Persistent API Key Warning
+- **Warning Banner Component**: Created professional warning banner for missing Gemini API key
+- **Smart Visibility**: Shows on all pages except Settings when API key is not configured
+- **Real-time Validation**: Automatically disappears when valid API key is saved
+- **Professional Design**: WordPress-compatible styling with clear messaging
+
+#### 🎯 Enhanced First-Run Experience
+- **Clear Guidance**: Explains why Gemini API key is essential for plugin functionality
+- **Direct Navigation**: "Go to Settings" button for immediate API configuration
+- **Prevents Confusion**: Users understand why quick actions don't work without API key
+- **User-Friendly Messages**: Professional, helpful tone explaining requirements
+
+#### 🔧 Technical Implementation
+- **GeminiApiWarning Component**: Reusable React component with proper styling
+- **App-level Integration**: Seamlessly integrated into main application flow
+- **Performance Optimized**: Minimal overhead with efficient state checking
+- **Responsive Design**: Works perfectly on mobile and desktop interfaces
+
+#### 📚 Documentation Updates
+- **README Updates**: Comprehensive v2.0.5 feature documentation
+- **Changelog Entries**: Detailed technical and user-facing improvements
+- **Version Consistency**: All files updated to v2.0.5 across the codebase
+- **User Guidance**: Clear instructions for new users on essential setup
+
+---
+
 ## [2.0.4] - 2025-01-30
 
 ### 🎨 COMPLETE LICENSE MANAGEMENT & UX OVERHAUL

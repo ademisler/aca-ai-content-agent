@@ -3,6 +3,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { settingsApi, styleGuideApi, ideasApi, draftsApi, publishedApi, activityApi } from './services/wordpressApi';
 import { setGeminiApiKey } from './services/geminiService';
 import type { StyleGuide, ContentIdea, Draft, View, AppSettings, ActivityLog, ActivityLogType, IconName } from './types';
+import { GeminiApiWarning } from './components/GeminiApiWarning';
 import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './components/Dashboard';
 import { StyleGuideManager } from './components/StyleGuideManager';
@@ -62,6 +63,9 @@ const App: React.FC = () => {
 
     const drafts = posts.filter(p => p.status === 'draft');
     const publishedPosts = posts.filter(p => p.status === 'published');
+    
+    // Check if Gemini API key is configured
+    const isGeminiApiConfigured = !!(settings.geminiApiKey && settings.geminiApiKey.trim());
 
     const addToast = useCallback((toast: Omit<ToastData, 'id'>) => {
         const id = Date.now();
@@ -620,6 +624,10 @@ const App: React.FC = () => {
                     
                     {/* Page content */}
                     <div className="aca-fade-in">
+                        {/* Gemini API Warning - Show on all pages except Settings if API key is missing */}
+                        {!isGeminiApiConfigured && view !== 'settings' && (
+                            <GeminiApiWarning onNavigateToSettings={() => setView('settings')} />
+                        )}
                         {renderView()}
                     </div>
                 </div>

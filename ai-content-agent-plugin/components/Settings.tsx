@@ -761,35 +761,19 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
             </CollapsibleSection>
 
             {/* 2. Automation Mode - Core Functionality */}
+            <CollapsibleSection
+                id="automation"
+                title="Automation Mode"
+                description="Configure how AI Content Agent creates and publishes content automatically"
+                icon={<Zap style={{ width: '18px', height: '18px', color: 'white' }} />}
+                defaultOpen={false}
+            >
             {isLoadingLicenseStatus ? (
-                <div className="aca-card">
-                    <div className="aca-card-header">
-                        <h2 className="aca-card-title">
-                            <Zap className="aca-nav-item-icon" />
-                            Automation Mode
-                        </h2>
-                    </div>
-                    <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
-                        Loading license status...
-                    </div>
+                <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
+                    Loading license status...
                 </div>
             ) : isProActive() ? (
-                <div className="aca-card">
-                    <div className="aca-card-header">
-                        <h2 className="aca-card-title">
-                            <Zap className="aca-nav-item-icon" />
-                            Automation Mode
-                            <span style={{ 
-                                marginLeft: '10px',
-                                background: 'linear-gradient(135deg, #f39c12 0%, #e67e22 100%)',
-                                color: 'white',
-                                padding: '2px 8px',
-                                borderRadius: '8px',
-                                fontSize: '10px',
-                                fontWeight: 'bold'
-                            }}>PRO</span>
-                        </h2>
-                    </div>
+                <div>
                     <p className="aca-page-description">
                                                     Choose how you want the AI Content Agent (ACA) to operate. You can change this at any time.
                     </p>
@@ -981,18 +965,16 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
                     ]}
                 />
             )}
+            </CollapsibleSection>
 
             {/* 3. Integrations - External Services */}
-            <div className="aca-card">
-                <div className="aca-card-header">
-                    <h2 className="aca-card-title">
-                        <Shield className="aca-nav-item-icon" />
-                        Integrations & Services
-                    </h2>
-                </div>
-                <p className="aca-page-description">
-                    Connect to external services and configure how content is generated and optimized.
-                </p>
+            <CollapsibleSection
+                id="integrations"
+                title="Integrations & Services"
+                description="Connect to external services and configure how content is generated and optimized"
+                icon={<Shield style={{ width: '18px', height: '18px', color: 'white' }} />}
+                defaultOpen={false}
+            >
                 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
                     {/* Google AI Integration */}
@@ -1635,19 +1617,16 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
                         />
                     )}
                 </div>
-            </div>
+            </CollapsibleSection>
             
             {/* 4. Content Analysis Settings - AI Optimization */}
-            <div className="aca-card">
-                <div className="aca-card-header">
-                    <h2 className="aca-card-title">
-                        <SettingsIcon className="aca-nav-item-icon" />
-                        Content Analysis Settings
-                    </h2>
-                </div>
-                <p className="aca-page-description">
-                    Configure how often the AI should analyze your content to update the style guide.
-                </p>
+            <CollapsibleSection
+                id="content"
+                title="Content Analysis Settings"
+                description="Configure how often the AI should analyze your content to update the style guide"
+                icon={<SettingsIcon style={{ width: '18px', height: '18px', color: 'white' }} />}
+                defaultOpen={false}
+            >
                 
                 <div className="aca-form-group">
                     <label className="aca-label" htmlFor="analyze-frequency">Content Analysis Frequency</label>
@@ -1667,16 +1646,16 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
                         How often should the AI automatically analyze your site content to update the style guide? Manual mode gives you full control.
                     </p>
                 </div>
-            </div>
+            </CollapsibleSection>
             
             {/* 5. Debug Panel for Automation Testing - For Developers */}
-            <div className="aca-card">
-                <div className="aca-card-header">
-                    <h2 className="aca-card-title">
-                        <SettingsIcon className="aca-nav-item-icon" />
-                        Automation Debug Panel
-                    </h2>
-                </div>
+            <CollapsibleSection
+                id="advanced"
+                title="Automation Debug Panel"
+                description="For developers and advanced users - test automation functionality and debug issues"
+                icon={<SettingsIcon style={{ width: '18px', height: '18px', color: 'white' }} />}
+                defaultOpen={false}
+            >
                 <div className="aca-alert info" style={{ marginBottom: '20px' }}>
                     <p style={{ margin: 0, fontSize: '14px' }}>
                         <strong>🛠️ For Developers & Advanced Users:</strong> This panel is designed for testing and debugging automation features. 
@@ -1760,9 +1739,9 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
                     >
                         Test Full-Auto Cron
                     </button>
-                </div>
-            </div>
-            
+                                </div>
+            </CollapsibleSection>
+
             {/* Save Button */}
             <div style={{ 
                 display: 'flex', 

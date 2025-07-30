@@ -130,6 +130,28 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
         verified_at?: string
     }>({status: 'inactive', is_active: false});
     const [isVerifyingLicense, setIsVerifyingLicense] = useState(false);
+    const [isLoadingLicenseStatus, setIsLoadingLicenseStatus] = useState(true);
+
+    // Load license status on component mount
+    useEffect(() => {
+        const loadLicenseStatus = async () => {
+            try {
+                const status = await licenseApi.getStatus();
+                setLicenseStatus({
+                    status: status.status || 'inactive',
+                    is_active: status.is_active || false,
+                    verified_at: status.verified_at
+                });
+            } catch (error) {
+                console.error('Failed to load license status:', error);
+                // Keep default inactive status
+            } finally {
+                setIsLoadingLicenseStatus(false);
+            }
+        };
+        
+        loadLicenseStatus();
+    }, []);
 
     // Load GSC auth status on component mount
     useEffect(() => {
@@ -592,7 +614,19 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
             </div>
 
             {/* 2. Automation Mode - Core Functionality */}
-            {isProActive() ? (
+            {isLoadingLicenseStatus ? (
+                <div className="aca-card">
+                    <div className="aca-card-header">
+                        <h2 className="aca-card-title">
+                            <Zap className="aca-nav-item-icon" />
+                            Automation Mode
+                        </h2>
+                    </div>
+                    <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
+                        Loading license status...
+                    </div>
+                </div>
+            ) : isProActive() ? (
                 <div className="aca-card">
                     <div className="aca-card-header">
                         <h2 className="aca-card-title">
@@ -1320,7 +1354,17 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
                     </IntegrationCard>
 
                     {/* Google Search Console */}
-                    {isProActive() ? (
+                    {isLoadingLicenseStatus ? (
+                        <IntegrationCard 
+                            title="Google Search Console"
+                            icon={<Google className="aca-nav-item-icon" />}
+                            isConfigured={false}
+                        >
+                            <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
+                                Loading license status...
+                            </div>
+                        </IntegrationCard>
+                    ) : isProActive() ? (
                         <IntegrationCard 
                             title={
                                 <span style={{ display: 'flex', alignItems: 'center' }}>

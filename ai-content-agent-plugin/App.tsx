@@ -384,17 +384,12 @@ const App: React.FC = () => {
     }, [addToast, addLogEntry]);
 
     const handleRefreshApp = useCallback(async () => {
+        // Reload app data individually to avoid Promise.all failure cascade
+        let refreshErrors = [];
+        
+        // Refresh settings (most important for license changes)
         try {
-            // Reload all app data to reflect license changes
-            const [settingsData, ideasData, draftsData, publishedData, activityData] = await Promise.all([
-                settingsApi.get(),
-                ideasApi.get(),
-                draftsApi.get(),
-                publishedApi.get(),
-                activityApi.get()
-            ]);
-            
-            // Update state with fresh data
+            const settingsData = await settingsApi.get();
             setSettings(settingsData || {
                 mode: 'manual',
                 autoPublish: false,
@@ -408,16 +403,54 @@ const App: React.FC = () => {
                 imageSource: 'none',
                 aiImageStyle: 'photographic'
             });
-            setIdeas(ideasData || []);
-            setDrafts(draftsData || []);
-            setPublishedPosts(publishedData || []);
-            setActivityLogs(activityData || []);
-            
-            addToast({ message: 'App data refreshed successfully!', type: 'success' });
         } catch (error) {
-            console.error('Failed to refresh app data:', error);
-            addToast({ message: 'Failed to refresh app data', type: 'error' });
+            console.error('Failed to refresh settings:', error);
+            refreshErrors.push('settings');
         }
+        
+        // Refresh other data (less critical)
+        try {
+            const ideasData = await ideasApi.get();
+            setIdeas(ideasData || []);
+        } catch (error) {
+            console.error('Failed to refresh ideas:', error);
+            refreshErrors.push('ideas');
+        }
+        
+        try {
+            const draftsData = await draftsApi.get();
+            setDrafts(draftsData || []);
+        } catch (error) {
+            console.error('Failed to refresh drafts:', error);
+            refreshErrors.push('drafts');
+        }
+        
+        try {
+            const publishedData = await publishedApi.get();
+            setPublishedPosts(publishedData || []);
+        } catch (error) {
+            console.error('Failed to refresh published posts:', error);
+            refreshErrors.push('published');
+        }
+        
+        try {
+            const activityData = await activityApi.get();
+            setActivityLogs(activityData || []);
+        } catch (error) {
+            console.error('Failed to refresh activity logs:', error);
+            refreshErrors.push('activity');
+        }
+        
+        // Only show error if critical data (settings) failed
+        if (refreshErrors.includes('settings')) {
+            addToast({ message: 'Failed to refresh app settings', type: 'error' });
+        } else if (refreshErrors.length > 0) {
+            // Non-critical errors, just log them
+            console.log('Some non-critical data failed to refresh:', refreshErrors);
+        }
+        
+        // Don't show success toast to reduce notification spam
+        // The license success toast is already shown
     }, [addToast]);
 
     const handleAddIdea = useCallback(async (title: string, description?: string) => {

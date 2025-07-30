@@ -10665,6 +10665,24 @@
     const [licenseKey, setLicenseKey] = reactExports.useState("");
     const [licenseStatus, setLicenseStatus] = reactExports.useState({ status: "inactive", is_active: false });
     const [isVerifyingLicense, setIsVerifyingLicense] = reactExports.useState(false);
+    const [isLoadingLicenseStatus, setIsLoadingLicenseStatus] = reactExports.useState(true);
+    reactExports.useEffect(() => {
+      const loadLicenseStatus2 = async () => {
+        try {
+          const status = await licenseApi.getStatus();
+          setLicenseStatus({
+            status: status.status || "inactive",
+            is_active: status.is_active || false,
+            verified_at: status.verified_at
+          });
+        } catch (error) {
+          console.error("Failed to load license status:", error);
+        } finally {
+          setIsLoadingLicenseStatus(false);
+        }
+      };
+      loadLicenseStatus2();
+    }, []);
     reactExports.useEffect(() => {
       const loadGscAuthStatus = async () => {
         if (!window.acaData) {
@@ -11030,7 +11048,13 @@
           ] })
         ] })
       ] }),
-      isProActive() ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", children: [
+      isLoadingLicenseStatus ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-card-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "aca-card-title", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { className: "aca-nav-item-icon" }),
+          "Automation Mode"
+        ] }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "20px", textAlign: "center", color: "#666" }, children: "Loading license status..." })
+      ] }) : isProActive() ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-card-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "aca-card-title", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { className: "aca-nav-item-icon" }),
           "Automation Mode",
@@ -11717,7 +11741,15 @@
               ] })
             }
           ),
-          isProActive() ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          isLoadingLicenseStatus ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+            IntegrationCard,
+            {
+              title: "Google Search Console",
+              icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Google, { className: "aca-nav-item-icon" }),
+              isConfigured: false,
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "20px", textAlign: "center", color: "#666" }, children: "Loading license status..." })
+            }
+          ) : isProActive() ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
             IntegrationCard,
             {
               title: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "flex", alignItems: "center" }, children: [
@@ -12993,14 +13025,9 @@
       }
     }, [addToast, addLogEntry]);
     const handleRefreshApp = reactExports.useCallback(async () => {
+      let refreshErrors = [];
       try {
-        const [settingsData, ideasData, draftsData, publishedData, activityData] = await Promise.all([
-          settingsApi.get(),
-          ideasApi.get(),
-          draftsApi.get(),
-          publishedApi.get(),
-          activityApi.get()
-        ]);
+        const settingsData = await settingsApi.get();
         setSettings(settingsData || {
           mode: "manual",
           autoPublish: false,
@@ -13014,14 +13041,42 @@
           imageSource: "none",
           aiImageStyle: "photographic"
         });
-        setIdeas(ideasData || []);
-        setDrafts(draftsData || []);
-        setPublishedPosts(publishedData || []);
-        setActivityLogs(activityData || []);
-        addToast({ message: "App data refreshed successfully!", type: "success" });
       } catch (error) {
-        console.error("Failed to refresh app data:", error);
-        addToast({ message: "Failed to refresh app data", type: "error" });
+        console.error("Failed to refresh settings:", error);
+        refreshErrors.push("settings");
+      }
+      try {
+        const ideasData = await ideasApi.get();
+        setIdeas(ideasData || []);
+      } catch (error) {
+        console.error("Failed to refresh ideas:", error);
+        refreshErrors.push("ideas");
+      }
+      try {
+        const draftsData = await draftsApi.get();
+        setDrafts(draftsData || []);
+      } catch (error) {
+        console.error("Failed to refresh drafts:", error);
+        refreshErrors.push("drafts");
+      }
+      try {
+        const publishedData = await publishedApi.get();
+        setPublishedPosts(publishedData || []);
+      } catch (error) {
+        console.error("Failed to refresh published posts:", error);
+        refreshErrors.push("published");
+      }
+      try {
+        const activityData = await activityApi.get();
+        setActivityLogs(activityData || []);
+      } catch (error) {
+        console.error("Failed to refresh activity logs:", error);
+        refreshErrors.push("activity");
+      }
+      if (refreshErrors.includes("settings")) {
+        addToast({ message: "Failed to refresh app settings", type: "error" });
+      } else if (refreshErrors.length > 0) {
+        console.log("Some non-critical data failed to refresh:", refreshErrors);
       }
     }, [addToast]);
     const handleAddIdea = reactExports.useCallback(async (title, description) => {

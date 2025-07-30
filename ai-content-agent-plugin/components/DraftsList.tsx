@@ -84,12 +84,13 @@ const DraftCard: React.FC<{
                     className="aca-button secondary"
                     style={{ 
                         minWidth: '110px',
-                        background: '#f6f7f7',
+                        background: '#ffffff',
                         borderColor: '#0073aa',
-                        color: '#0073aa'
+                        color: '#0073aa',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
                     }}
                 >
-                    <Eye className="aca-nav-item-icon" style={{ color: '#0073aa' }} />
+                    <Eye className="aca-nav-item-icon" style={{ color: '#0073aa', strokeWidth: '1.5' }} />
                     View Draft
                 </button>
                 

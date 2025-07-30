@@ -163,14 +163,16 @@
   filter: contrast(1.2);
 }
 
-/* Special handling for Eye icon (View Draft button) */
+/* Special handling for stroke-based icons in secondary buttons */
 .aca-button.secondary .aca-nav-item-icon {
   fill: #0073aa;
-  stroke: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
 }
 
 .aca-button.secondary:hover .aca-nav-item-icon {
   fill: #005a87;
+  stroke: currentColor;
 }
 
 /* Toast notification icons */

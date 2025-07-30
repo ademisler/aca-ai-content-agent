@@ -179,15 +179,17 @@
   filter: contrast(1.2);
 }
 
-/* Special handling for Eye icon (View Draft button) */
+/* Special handling for stroke-based icons in secondary buttons */
 
 .aca-button.secondary .aca-nav-item-icon {
   fill: #0073aa;
-  stroke: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
 }
 
 .aca-button.secondary:hover .aca-nav-item-icon {
   fill: #005a87;
+  stroke: currentColor;
 }
 
 /* Toast notification icons */
@@ -10374,12 +10376,13 @@
             className: "aca-button secondary",
             style: {
               minWidth: "110px",
-              background: "#f6f7f7",
+              background: "#ffffff",
               borderColor: "#0073aa",
-              color: "#0073aa"
+              color: "#0073aa",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.1)"
             },
             children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Eye, { className: "aca-nav-item-icon", style: { color: "#0073aa" } }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Eye, { className: "aca-nav-item-icon", style: { color: "#0073aa", strokeWidth: "1.5" } }),
               "View Draft"
             ]
           }
@@ -12107,12 +12110,13 @@
           onClick: () => onSelectPost(post),
           className: "aca-button secondary",
           style: {
-            background: "#f6f7f7",
+            background: "#ffffff",
             borderColor: "#0073aa",
-            color: "#0073aa"
+            color: "#0073aa",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.1)"
           },
           children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Eye, { className: "aca-nav-item-icon", style: { color: "#0073aa" } }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Eye, { className: "aca-nav-item-icon", style: { color: "#0073aa", strokeWidth: "1.5" } }),
             "View Content"
           ]
         }

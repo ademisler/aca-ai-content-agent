@@ -2,6 +2,30 @@
 
 All notable changes to AI Content Agent will be documented in this file.
 
+## [2.0.1] - 2025-01-30
+
+### 🔍 ICON CONTRAST FIXES & ACCESSIBILITY IMPROVEMENTS
+
+#### ✨ Enhanced View Button Icons
+- **Improved Contrast**: Fixed poor contrast in View Draft and View Content button icons
+- **Better Visibility**: Changed button background from light gray (#f6f7f7) to white (#ffffff)
+- **Enhanced Styling**: Added subtle box-shadow for better visual separation
+- **Stroke Optimization**: Improved stroke-width (1.5) for better icon clarity
+
+#### 🎨 CSS Icon Handling Improvements
+- **Stroke Icon Support**: Enhanced CSS to properly handle stroke-based icons (currentColor)
+- **Secondary Button Icons**: Improved styling for all icons in secondary buttons
+- **Hover States**: Better hover state handling for stroke-based icons
+- **Accessibility**: Improved color contrast ratios for better accessibility compliance
+
+#### 🔧 Technical Enhancements
+- **Icon System**: Better handling of both fill and stroke-based SVG icons
+- **CSS Architecture**: Improved icon styling architecture for consistency
+- **Visual Consistency**: Standardized icon appearance across all button types
+- **Maintainability**: Cleaner CSS structure for future icon additions
+
+---
+
 ## [2.0.0] - 2025-01-30
 
 ### 🎨 UI IMPROVEMENTS & STABILITY ENHANCEMENTS

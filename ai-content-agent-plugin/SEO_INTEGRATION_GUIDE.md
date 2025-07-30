@@ -1,6 +1,6 @@
-# SEO Integration Guide - v2.0.3
+# SEO Integration Guide - v2.0.4
 
-This guide explains the automatic SEO plugin detection and integration system in the AI Content Agent plugin.
+This guide explains the automatic SEO plugin detection and integration system in the AI Content Agent (ACA) plugin.
 
 ## 🚀 Latest Updates - v2.0.3
 

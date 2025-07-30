@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to AI Content Agent will be documented in this file.
+All notable changes to AI Content Agent (ACA) will be documented in this file.
 
 ## [2.0.4] - 2025-01-30
 

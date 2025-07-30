@@ -1,6 +1,6 @@
-# Developer Guide - AI Content Agent Plugin
+# Developer Guide - AI Content Agent (ACA) Plugin
 
-This comprehensive guide covers development, deployment, and maintenance procedures for the AI Content Agent WordPress plugin.
+This comprehensive guide covers development, deployment, and maintenance procedures for the AI Content Agent (ACA) WordPress plugin.
 
 ## 📋 Table of Contents
 

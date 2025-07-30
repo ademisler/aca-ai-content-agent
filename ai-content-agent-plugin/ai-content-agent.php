@@ -1,7 +1,7 @@
 <?php
 /**
- * Plugin Name: AI Content Agent
- * Plugin URI: https://github.com/ademisler/aca-ai-content-agent
+ * Plugin Name: AI Content Agent (ACA)
+ * Plugin URI: https://ademisler.gumroad.com/l/ai-content-agent-pro
  * Description: AI-powered content creation and management plugin that generates blog posts, ideas, and manages your content workflow automatically with Google Search Console integration and Pro features.
  * Version: 2.0.4
  * Author: Adem Isler

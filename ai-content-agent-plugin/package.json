@@ -1,7 +1,7 @@
 {
-  "name": "ai-content-agent",
+  "name": "ai-content-agent-aca",
   "version": "2.0.4",
-  "description": "AI-powered WordPress content creation plugin with Pro licensing",
+  "description": "AI Content Agent (ACA) - AI-powered WordPress content creation plugin with Pro licensing",
   "private": true,
   "type": "module",
   "scripts": {

@@ -1,6 +1,6 @@
-# AI Image Generation Setup Guide - v2.0.3
+# AI Image Generation Setup Guide - v2.0.4
 
-This guide explains how to set up AI image generation using Google's Imagen 3.0 API in the AI Content Agent plugin.
+This guide explains how to set up AI image generation using Google's Imagen 3.0 API in the AI Content Agent (ACA) plugin.
 
 ## 🖼️ Latest Updates - v2.0.3
 

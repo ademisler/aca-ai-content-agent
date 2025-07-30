@@ -1,6 +1,6 @@
-# AI Content Agent for WordPress
+# AI Content Agent (ACA) for WordPress
 
-**Version:** 2.0.3  
+**Version:** 2.0.4  
 **Requires:** WordPress 5.0+, PHP 7.4+  
 **License:** GPL v2 or later
 
@@ -196,4 +196,4 @@ For complete version history, see `CHANGELOG.md`.
 
 ---
 
-**Ready to revolutionize your content workflow with a complete license management system?** Download v2.0.4 and start creating smarter content with smart license validation, professional notifications, and seamless user experience today! 🚀
+**Ready to revolutionize your content workflow with AI Content Agent (ACA)?** Download v2.0.4 and start creating smarter content with smart license validation, professional notifications, and seamless user experience today! 🚀

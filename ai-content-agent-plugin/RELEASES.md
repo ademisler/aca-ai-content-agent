@@ -1,4 +1,4 @@
-# AI Content Agent - Release Management
+# AI Content Agent (ACA) - Release Management
 
 ## 📦 Current Release
 

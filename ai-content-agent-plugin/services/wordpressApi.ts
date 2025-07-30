@@ -150,9 +150,21 @@ export const activityApi = {
 
 // License API
 export const licenseApi = {
-  verify: (licenseKey: string) => makeApiCall('license/verify', {
-    method: 'POST',
-    body: JSON.stringify({ license_key: licenseKey }),
-  }),
+  verify: async (licenseKey: string) => {
+    try {
+      const result = await makeApiCall('license/verify', {
+        method: 'POST',
+        body: JSON.stringify({ license_key: licenseKey }),
+      });
+      
+      // Log the result for debugging
+      console.log('License verification result:', result);
+      
+      return result;
+    } catch (error) {
+      console.error('License API error:', error);
+      throw error;
+    }
+  },
   getStatus: () => makeApiCall('license/status'),
 };

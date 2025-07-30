@@ -3155,6 +3155,9 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         // NOTE: For products created after Jan 9, 2023, use product_id instead of product_permalink
         $product_id = 'Q2Mhx923crYSQP19FBbYsg==';
         
+        // Log the product ID being used for debugging
+        error_log('ACA: Using product_id: ' . $product_id . ' for license verification');
+        
         try {
             $verification_result = $this->call_gumroad_api($product_id, $license_key);
             
@@ -3204,15 +3207,37 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
     private function call_gumroad_api($product_id, $license_key) {
         $url = 'https://api.gumroad.com/v2/licenses/verify';
         
+        // Log API call details
+        error_log('ACA: Calling Gumroad API - URL: ' . $url . ', Product ID: ' . $product_id);
+        
+        // Try with product_id first (for newer products)
+        $body_data = array(
+            'product_id' => $product_id,           // Use product_id for products after Jan 9, 2023
+            'license_key' => $license_key,
+            'increment_uses_count' => 'true'       // Track usage for analytics
+        );
+        
+        // Alternative: If product_id doesn't work, some products might need product_permalink
+        // You can get the permalink from the Gumroad product URL (e.g., ai-content-agent-pro)
+        // Uncomment and use this if product_id fails:
+        /*
+        $body_data = array(
+            'product_permalink' => 'ai-content-agent-pro',  // The slug from your Gumroad URL
+            'license_key' => $license_key,
+            'increment_uses_count' => 'true'
+        );
+        */
+        
+        // Log request body (without showing full license key for security)
+        $log_body = $body_data;
+        $log_body['license_key'] = substr($license_key, 0, 8) . '...';
+        error_log('ACA: Request body: ' . print_r($log_body, true));
+        
         $response = wp_remote_post($url, array(
             'headers' => array(
                 'Content-Type' => 'application/x-www-form-urlencoded'
             ),
-            'body' => array(
-                'product_id' => $product_id,           // Use product_id for products after Jan 9, 2023
-                'license_key' => $license_key,
-                'increment_uses_count' => 'true'       // Track usage for analytics
-            ),
+            'body' => $body_data,
             'timeout' => 30,
             'blocking' => true,
             'sslverify' => true
@@ -3226,19 +3251,35 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         $body = wp_remote_retrieve_body($response);
         
         if ($response_code !== 200) {
-            throw new Exception('Gumroad API returned error code: ' . $response_code);
+            error_log('ACA: Gumroad API error - Code: ' . $response_code . ', Body: ' . $body);
+            throw new Exception('Gumroad API returned error code: ' . $response_code . '. Response: ' . $body);
         }
         
         $data = json_decode($body, true);
         
         if (json_last_error() !== JSON_ERROR_NONE) {
+            error_log('ACA: JSON decode error - Body: ' . $body);
             throw new Exception('Invalid JSON response from Gumroad API');
         }
         
+        // Log the full response for debugging
+        error_log('ACA: Gumroad API response: ' . print_r($data, true));
+        
         // Validate license according to Gumroad documentation
-        $is_valid = ($data['success'] === true) && 
-                    ($data['purchase']['refunded'] === false) && 
-                    ($data['purchase']['chargebacked'] === false);
+        // Check if response has success field and purchase data
+        if (!isset($data['success'])) {
+            error_log('ACA: Missing success field in Gumroad response');
+            throw new Exception('Invalid Gumroad API response format');
+        }
+        
+        $is_valid = ($data['success'] === true);
+        
+        // Additional validation if purchase data exists
+        if (isset($data['purchase'])) {
+            $is_valid = $is_valid && 
+                       ($data['purchase']['refunded'] === false) && 
+                       ($data['purchase']['chargebacked'] === false);
+        }
         
         return array(
             'success' => $is_valid,

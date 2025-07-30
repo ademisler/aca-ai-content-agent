@@ -7996,6 +7996,18 @@
         throw error;
       }
     },
+    deactivate: async () => {
+      try {
+        const result = await makeApiCall("license/deactivate", {
+          method: "POST"
+        });
+        console.log("License deactivation result:", result);
+        return result;
+      } catch (error) {
+        console.error("License deactivation error:", error);
+        throw error;
+      }
+    },
     getStatus: () => makeApiCall("license/status")
   };
   var SchemaType;
@@ -10681,6 +10693,38 @@
         console.error("Failed to load license status:", error);
       }
     };
+    const handleLicenseDeactivation = async () => {
+      if (!confirm("Are you sure you want to deactivate your Pro license? This will disable all Pro features.")) {
+        return;
+      }
+      setIsVerifyingLicense(true);
+      try {
+        const result = await licenseApi.deactivate();
+        if (result.success) {
+          setLicenseStatus({
+            status: "inactive",
+            is_active: false,
+            verified_at: void 0
+          });
+          const updatedSettings = { ...settings, is_pro: false };
+          setCurrentSettings(updatedSettings);
+          try {
+            await onSaveSettings(updatedSettings);
+          } catch (saveError) {
+            console.error("Settings save error:", saveError);
+          }
+          alert("License deactivated successfully. Pro features are now disabled.");
+          window.location.reload();
+        } else {
+          alert("Failed to deactivate license. Please try again.");
+        }
+      } catch (error) {
+        console.error("License deactivation failed:", error);
+        alert("License deactivation failed. Please try again.");
+      } finally {
+        setIsVerifyingLicense(false);
+      }
+    };
     const handleLicenseVerification = async () => {
       if (!licenseKey.trim()) {
         alert("Please enter a license key");
@@ -10704,6 +10748,7 @@
             console.error("Settings save error:", saveError);
           }
           alert("License verified successfully! Pro features are now active.");
+          window.location.reload();
         } else {
           alert("Invalid license key. Please check and try again.");
         }
@@ -10901,9 +10946,32 @@
             /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: "https://ademisler.gumroad.com/l/ai-content-agent-pro", target: "_blank", rel: "noopener noreferrer", style: { color: "#0073aa" }, children: "Purchase here" })
           ] })
         ] }),
-        licenseStatus.is_active && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-alert aca-alert-success", style: { margin: "20px 0" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(CheckCircle, { style: { width: "16px", height: "16px", marginRight: "8px" } }),
-          "Pro license is active! You now have access to all premium features."
+        licenseStatus.is_active && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-alert aca-alert-success", style: { margin: "20px 0" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(CheckCircle, { style: { width: "16px", height: "16px", marginRight: "8px" } }),
+            "Pro license is active! You now have access to all premium features."
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: "15px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                onClick: handleLicenseDeactivation,
+                disabled: isVerifyingLicense,
+                className: "aca-button aca-button-secondary",
+                style: {
+                  minWidth: "140px",
+                  backgroundColor: "#dc3545",
+                  borderColor: "#dc3545",
+                  color: "#ffffff"
+                },
+                children: isVerifyingLicense ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { className: "aca-spinner" }),
+                  "Deactivating..."
+                ] }) : "Deactivate License"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", style: { marginTop: "8px", fontSize: "12px" }, children: "This will disable all Pro features and allow you to use the license on another site." })
+          ] })
         ] })
       ] }),
       isProActive() ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", children: [

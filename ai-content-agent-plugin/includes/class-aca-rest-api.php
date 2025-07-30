@@ -255,6 +255,13 @@ class ACA_Rest_Api {
             'callback' => array($this, 'get_license_status'),
             'permission_callback' => array($this, 'check_admin_permissions')
         ));
+        
+        // License deactivation endpoint
+        register_rest_route('aca/v1', '/license/deactivate', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'deactivate_license'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
     }
     
     /**
@@ -3162,9 +3169,22 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             $verification_result = $this->call_gumroad_api($product_id, $license_key);
             
             if ($verification_result['success']) {
-                // Store license status
+                // Check if license is already bound to another site
+                $stored_site_hash = get_option('aca_license_site_hash', '');
+                $current_site_hash = hash('sha256', get_site_url() . NONCE_SALT);
+                
+                if (!empty($stored_site_hash) && $stored_site_hash !== $current_site_hash) {
+                    error_log('ACA: License already bound to another site');
+                    return rest_ensure_response(array(
+                        'success' => false,
+                        'message' => 'This license is already active on another website. Each license can only be used on one site at a time. Please deactivate it from the other site first.'
+                    ));
+                }
+                
+                // Store license status and bind to current site
                 update_option('aca_license_status', 'active');
                 update_option('aca_license_data', $verification_result);
+                update_option('aca_license_site_hash', $current_site_hash);
                 
                 // Log license activation
                 $this->log_activity('license_activated', 'Pro license activated successfully');
@@ -3175,6 +3195,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 // Remove license status
                 delete_option('aca_license_status');
                 delete_option('aca_license_data');
+                delete_option('aca_license_site_hash');
                 
                 // Add failure message to response
                 $verification_result['message'] = 'License verification failed. Please check your license key and try again.';
@@ -3208,6 +3229,41 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
     }
     
     /**
+     * Deactivate license
+     */
+    public function deactivate_license($request) {
+        $nonce_check = $this->verify_nonce($request);
+        if (is_wp_error($nonce_check)) {
+            return $nonce_check;
+        }
+        
+        try {
+            // Remove license status and data
+            delete_option('aca_license_status');
+            delete_option('aca_license_data');
+            delete_option('aca_license_site_hash');
+            
+            // Log license deactivation
+            $this->log_activity('license_deactivated', 'Pro license deactivated successfully');
+            
+            error_log('ACA: License deactivated successfully');
+            
+            return rest_ensure_response(array(
+                'success' => true,
+                'message' => 'License deactivated successfully. You can now use this license on another site.'
+            ));
+            
+        } catch (Exception $e) {
+            error_log('ACA: License deactivation error: ' . $e->getMessage());
+            return new WP_Error(
+                'license_deactivation_failed', 
+                'License deactivation failed: ' . $e->getMessage(), 
+                array('status' => 500)
+            );
+        }
+    }
+    
+    /**
      * Call Gumroad License Verification API
      */
     private function call_gumroad_api($product_id, $license_key) {
@@ -3216,11 +3272,19 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         // Log API call details
         error_log('ACA: Calling Gumroad API - URL: ' . $url . ', Product ID: ' . $product_id);
         
+        // Generate site-specific hash for license binding
+        $site_url = get_site_url();
+        $site_hash = hash('sha256', $site_url . NONCE_SALT);
+        
         // Use product_id for products created on or after Jan 9, 2023
         $body_data = array(
             'product_id' => $product_id,           // Required for products after Jan 9, 2023
             'license_key' => $license_key,
-            'increment_uses_count' => 'true'       // Track usage for analytics
+            'increment_uses_count' => 'true',      // Track usage for analytics
+            'metadata' => array(
+                'site_url' => $site_url,
+                'site_hash' => $site_hash
+            )
         );
         
         // Log request body (without showing full license key for security)

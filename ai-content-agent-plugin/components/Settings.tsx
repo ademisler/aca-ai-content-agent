@@ -164,6 +164,44 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
     };
     
     // Verify license key
+    const handleLicenseDeactivation = async () => {
+        if (!confirm('Are you sure you want to deactivate your Pro license? This will disable all Pro features.')) {
+            return;
+        }
+        
+        setIsVerifyingLicense(true);
+        try {
+            const result = await licenseApi.deactivate();
+            if (result.success) {
+                setLicenseStatus({
+                    status: 'inactive',
+                    is_active: false,
+                    verified_at: undefined
+                });
+                
+                // Update settings to reflect non-pro status
+                const updatedSettings = { ...settings, is_pro: false };
+                setCurrentSettings(updatedSettings);
+                
+                try {
+                    await onSaveSettings(updatedSettings);
+                } catch (saveError) {
+                    console.error('Settings save error:', saveError);
+                }
+                
+                alert('License deactivated successfully. Pro features are now disabled.');
+                window.location.reload();
+            } else {
+                alert('Failed to deactivate license. Please try again.');
+            }
+        } catch (error) {
+            console.error('License deactivation failed:', error);
+            alert('License deactivation failed. Please try again.');
+        } finally {
+            setIsVerifyingLicense(false);
+        }
+    };
+
     const handleLicenseVerification = async () => {
         if (!licenseKey.trim()) {
             alert('Please enter a license key');
@@ -196,6 +234,8 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                 }
                 
                 alert('License verified successfully! Pro features are now active.');
+                // Reload page to ensure all components reflect the new license status
+                window.location.reload();
             } else {
                 alert('Invalid license key. Please check and try again.');
             }
@@ -458,10 +498,37 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                 )}
 
                 {licenseStatus.is_active && (
-                    <div className="aca-alert aca-alert-success" style={{ margin: '20px 0' }}>
-                        <CheckCircle style={{ width: '16px', height: '16px', marginRight: '8px' }} />
-                        Pro license is active! You now have access to all premium features.
-                    </div>
+                    <>
+                        <div className="aca-alert aca-alert-success" style={{ margin: '20px 0' }}>
+                            <CheckCircle style={{ width: '16px', height: '16px', marginRight: '8px' }} />
+                            Pro license is active! You now have access to all premium features.
+                        </div>
+                        <div style={{ marginTop: '15px' }}>
+                            <button
+                                onClick={handleLicenseDeactivation}
+                                disabled={isVerifyingLicense}
+                                className="aca-button aca-button-secondary"
+                                style={{ 
+                                    minWidth: '140px',
+                                    backgroundColor: '#dc3545',
+                                    borderColor: '#dc3545',
+                                    color: '#ffffff'
+                                }}
+                            >
+                                {isVerifyingLicense ? (
+                                    <>
+                                        <Spinner className="aca-spinner" />
+                                        Deactivating...
+                                    </>
+                                ) : (
+                                    'Deactivate License'
+                                )}
+                            </button>
+                            <p className="aca-page-description" style={{ marginTop: '8px', fontSize: '12px' }}>
+                                This will disable all Pro features and allow you to use the license on another site.
+                            </p>
+                        </div>
+                    </>
                 )}
             </div>
 

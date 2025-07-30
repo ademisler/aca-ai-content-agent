@@ -14,6 +14,25 @@ class ACA_Deactivator {
      */
     public static function deactivate() {
         self::clear_scheduled_hooks();
+        self::cleanup_plugin_data();
+    }
+    
+    /**
+     * Clean up plugin data on deactivation
+     */
+    private static function cleanup_plugin_data() {
+        // Clear license data to allow fresh installation
+        delete_option('aca_license_status');
+        delete_option('aca_license_data');
+        delete_option('aca_license_site_hash');
+        
+        // Clear all plugin settings to ensure fresh start
+        delete_option('aca_settings');
+        delete_option('aca_style_guide');
+        delete_option('aca_google_auth_token');
+        delete_option('aca_gsc_site_url');
+        
+        error_log('ACA: Plugin data cleaned up on deactivation');
     }
     
     /**

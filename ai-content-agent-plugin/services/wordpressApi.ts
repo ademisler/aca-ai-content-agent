@@ -166,5 +166,17 @@ export const licenseApi = {
       throw error;
     }
   },
+  deactivate: async () => {
+    try {
+      const result = await makeApiCall('license/deactivate', {
+        method: 'POST',
+      });
+      console.log('License deactivation result:', result);
+      return result;
+    } catch (error) {
+      console.error('License deactivation error:', error);
+      throw error;
+    }
+  },
   getStatus: () => makeApiCall('license/status'),
 };

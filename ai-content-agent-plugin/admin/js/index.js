@@ -263,7 +263,7 @@
   }
   
   .aca-main {
-    margin-left: 400px; /* Sidebar ends at 400px (160px + 240px) */
+    margin-left: 240px; /* Only account for sidebar width, not WordPress menu */
     padding: 20px;
   }
 }
@@ -1110,9 +1110,15 @@ body.toplevel_page_ai-content-agent .aca-card-content {
 
 /* SETTINGS DROPDOWN SMOOTH BEHAVIOR */
 
-/* Prevent scroll jump on collapsible sections */
+/* Prevent scroll jump on collapsible sections - disable smooth for fixed position */
 
 body.toplevel_page_ai-content-agent {
+  scroll-behavior: auto !important;
+}
+
+/* Apply smooth behavior only to our container, not the whole page */
+
+body.toplevel_page_ai-content-agent #root {
   scroll-behavior: smooth !important;
 }
 
@@ -1364,7 +1370,7 @@ body.toplevel_page_ai-content-agent #root {
   margin: 0 !important;
   padding: 0 !important;
   width: calc(100% - 160px) !important; /* Account for WordPress admin menu */
-  height: 100vh !important;
+  height: calc(100vh - 32px) !important; /* Account for WordPress admin bar */
   position: fixed !important;
   top: 32px !important; /* Account for WordPress admin bar */
   left: 160px !important; /* Right next to WordPress admin menu */
@@ -1372,6 +1378,8 @@ body.toplevel_page_ai-content-agent #root {
   bottom: 0 !important;
   z-index: 999999 !important;
   background: #f0f0f1 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
 }
 
 /* Responsive WordPress admin menu adjustments */
@@ -1380,6 +1388,7 @@ body.toplevel_page_ai-content-agent #root {
   body.toplevel_page_ai-content-agent #root {
     width: calc(100% - 36px) !important; /* Collapsed menu width */
     left: 36px !important; /* Collapsed menu width */
+    height: calc(100vh - 32px) !important;
   }
 }
 
@@ -1387,6 +1396,8 @@ body.toplevel_page_ai-content-agent #root {
   body.toplevel_page_ai-content-agent #root {
     width: 100% !important; /* Mobile: no side menu */
     left: 0 !important;
+    height: calc(100vh - 46px) !important; /* Mobile admin bar is taller */
+    top: 46px !important;
   }
 }
 
@@ -12194,12 +12205,17 @@ body.toplevel_page_ai-content-agent #wpfooter {
     };
     const toggleSection = (sectionKey) => {
       const scrollY = window.scrollY;
+      const rootElement2 = document.getElementById("root");
+      const rootScrollTop = rootElement2 ? rootElement2.scrollTop : 0;
       setCollapsedSections((prev) => ({
         ...prev,
         [sectionKey]: !prev[sectionKey]
       }));
       requestAnimationFrame(() => {
         window.scrollTo({ top: scrollY, behavior: "instant" });
+        if (rootElement2) {
+          rootElement2.scrollTop = rootScrollTop;
+        }
       });
     };
     const CollapsibleSection = ({ id, title, description, icon, children, defaultOpen = false }) => {

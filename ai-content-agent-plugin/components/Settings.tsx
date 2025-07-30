@@ -502,17 +502,25 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
     };
 
     const toggleSection = (sectionKey: string) => {
-        // Prevent scroll jump by maintaining scroll position
+        // Prevent scroll jump by maintaining scroll position for fixed layout
         const scrollY = window.scrollY;
+        const rootElement = document.getElementById('root');
+        const rootScrollTop = rootElement ? rootElement.scrollTop : 0;
         
         setCollapsedSections(prev => ({
             ...prev,
             [sectionKey]: !prev[sectionKey]
         }));
         
-        // Restore scroll position after state update
+        // Restore scroll position after state update for both window and root
         requestAnimationFrame(() => {
+            // Restore window scroll (for non-fixed elements)
             window.scrollTo({ top: scrollY, behavior: 'instant' });
+            
+            // Restore root scroll (for our fixed container)
+            if (rootElement) {
+                rootElement.scrollTop = rootScrollTop;
+            }
         });
     };
 

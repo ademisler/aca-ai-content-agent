@@ -138,10 +138,10 @@ export default defineConfig({
 ## 📦 Release Management
 
 ### Current Release Information
-- **Latest Version**: v2.2.5
-- **Release File**: `ai-content-agent-v2.2.5-comprehensive-ux-improvements-and-fixes.zip`
-- **Status**: Production ready with comprehensive UX improvements and fixes
-- **Key Features**: Fixed Settings dropdown jumping, enhanced navigation system, stable accordion animations, smart API configuration targeting, improved scroll behavior, refined animation system
+- **Latest Version**: v2.2.6
+- **Release File**: `ai-content-agent-v2.2.6-settings-scroll-jumping-fix.zip`
+- **Status**: Production ready with critical Settings page scroll jumping fix
+- **Key Features**: Complete resolution of Settings dropdown page jumping, fixed height containers, scroll position preservation, internal dropdown scrolling, professional Settings page behavior
 
 ### Release Process
 

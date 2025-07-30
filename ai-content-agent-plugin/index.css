@@ -1324,6 +1324,13 @@ body.toplevel_page_ai-content-agent #root {
   overflow-x: hidden !important;
 }
 
+/* Prevent page jumping when Settings dropdowns open */
+body.toplevel_page_ai-content-agent #root .aca-main {
+  max-height: calc(100vh - 32px) !important;
+  overflow-y: auto !important;
+  scroll-behavior: smooth !important;
+}
+
 /* Responsive WordPress admin menu adjustments */
 @media screen and (max-width: 960px) {
   body.toplevel_page_ai-content-agent #root {

@@ -533,10 +533,27 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
     };
 
     const toggleSection = (sectionKey: string) => {
+        const wasCollapsed = collapsedSections[sectionKey] ?? true;
+        
         setCollapsedSections(prev => ({
             ...prev,
             [sectionKey]: !prev[sectionKey]
         }));
+
+        // If opening a section, prevent scroll jumping
+        if (wasCollapsed) {
+            // Maintain current scroll position
+            requestAnimationFrame(() => {
+                const mainContainer = document.querySelector('.aca-main');
+                if (mainContainer) {
+                    const currentScrollTop = mainContainer.scrollTop;
+                    // Small timeout to let the animation start
+                    setTimeout(() => {
+                        mainContainer.scrollTop = currentScrollTop;
+                    }, 10);
+                }
+            });
+        }
     };
 
     const CollapsibleSection: React.FC<{
@@ -626,9 +643,9 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
                 <div 
                     id={`section-content-${id}`}
                     style={{ 
-                        maxHeight: isCollapsed ? '0' : '2000px',
+                        maxHeight: isCollapsed ? '0' : '500px',
                         opacity: isCollapsed ? 0 : 1,
-                        overflow: 'hidden',
+                        overflow: isCollapsed ? 'hidden' : 'auto',
                         transition: 'max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease, padding 0.3s ease',
                         padding: isCollapsed ? '0 0 0 0' : '20px 0 0 0'
                     }}
@@ -648,7 +665,11 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
         (currentSettings.imageSourceProvider === 'pixabay' && !!currentSettings.pixabayApiKey);
 
     return (
-        <div className="aca-fade-in">
+        <div className="aca-fade-in" style={{
+            maxHeight: 'calc(100vh - 100px)',
+            overflowY: 'auto',
+            paddingRight: '10px'
+        }}>
             {/* Modern Settings Header */}
             <div style={{
                 background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',

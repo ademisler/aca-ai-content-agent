@@ -1396,6 +1396,14 @@ body.toplevel_page_ai-content-agent #root {
   overflow-x: hidden !important;
 }
 
+/* Prevent page jumping when Settings dropdowns open */
+
+body.toplevel_page_ai-content-agent #root .aca-main {
+  max-height: calc(100vh - 32px) !important;
+  overflow-y: auto !important;
+  scroll-behavior: smooth !important;
+}
+
 /* Responsive WordPress admin menu adjustments */
 
 @media screen and (max-width: 960px) {
@@ -12243,10 +12251,22 @@ body.toplevel_page_ai-content-agent #wpfooter {
       }, 700);
     };
     const toggleSection = (sectionKey) => {
+      const wasCollapsed = collapsedSections[sectionKey] ?? true;
       setCollapsedSections((prev) => ({
         ...prev,
         [sectionKey]: !prev[sectionKey]
       }));
+      if (wasCollapsed) {
+        requestAnimationFrame(() => {
+          const mainContainer = document.querySelector(".aca-main");
+          if (mainContainer) {
+            const currentScrollTop = mainContainer.scrollTop;
+            setTimeout(() => {
+              mainContainer.scrollTop = currentScrollTop;
+            }, 10);
+          }
+        });
+      }
     };
     const CollapsibleSection = ({ id, title, description, icon, children, defaultOpen = false }) => {
       const isCollapsed = collapsedSections[id] ?? !defaultOpen;
@@ -12335,9 +12355,9 @@ body.toplevel_page_ai-content-agent #wpfooter {
           {
             id: `section-content-${id}`,
             style: {
-              maxHeight: isCollapsed ? "0" : "2000px",
+              maxHeight: isCollapsed ? "0" : "500px",
               opacity: isCollapsed ? 0 : 1,
-              overflow: "hidden",
+              overflow: isCollapsed ? "hidden" : "auto",
               transition: "max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease, padding 0.3s ease",
               padding: isCollapsed ? "0 0 0 0" : "20px 0 0 0"
             },
@@ -12348,7 +12368,11 @@ body.toplevel_page_ai-content-agent #wpfooter {
       ] });
     };
     const isImageSourceConfigured = currentSettings.imageSourceProvider === "ai" || currentSettings.imageSourceProvider === "pexels" && !!currentSettings.pexelsApiKey || currentSettings.imageSourceProvider === "unsplash" && !!currentSettings.unsplashApiKey || currentSettings.imageSourceProvider === "pixabay" && !!currentSettings.pixabayApiKey;
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-fade-in", children: [
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-fade-in", style: {
+      maxHeight: "calc(100vh - 100px)",
+      overflowY: "auto",
+      paddingRight: "10px"
+    }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
         background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)",
         borderRadius: "12px",

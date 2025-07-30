@@ -5,7 +5,7 @@ Tags: ai, content, automation, gemini, seo, pro, license
 Requires at least: 5.0
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 2.2.5
+Stable tag: 2.2.6
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -28,6 +28,16 @@ AI Content Agent (ACA) transforms your WordPress site into an intelligent conten
 * Clear guidance for essential plugin setup requirements
 
 == Changelog ==
+
+= 2.2.6 - 2025-01-30 =
+* FIXED: Critical Settings page scroll jumping issue completely resolved
+* FIXED: Dropdown expansion no longer causes page to jump to top
+* Enhanced: Added fixed height containers with proper overflow handling
+* Enhanced: Limited dropdown content height with internal scrolling (500px max)
+* Enhanced: Scroll position preservation during dropdown animations
+* Enhanced: Dedicated scroll container for Settings page
+* Improved: Professional Settings page behavior like modern web applications
+* Improved: Predictable dropdown interactions without unexpected jumps
 
 = 2.2.5 - 2025-01-30 =
 * Enhanced: Improved scroll navigation targeting for better user focus

@@ -2,6 +2,35 @@
 
 All notable changes to AI Content Agent (ACA) will be documented in this file.
 
+## [2.2.6] - 2025-01-30
+
+### 🔧 CRITICAL SETTINGS PAGE SCROLL JUMPING FIX
+
+#### ✅ Complete Resolution of Page Jumping Issue
+- **Root Cause Fixed**: Settings dropdown expansion causing page to jump to top
+- **CSS Container Stabilization**: Added fixed height containers with proper overflow handling
+- **Dropdown Height Limiting**: Limited dropdown content to maximum 500px with internal scrolling
+- **Scroll Position Preservation**: Implemented scroll position locking during dropdown animations
+- **Settings Page Wrapper**: Added dedicated scroll container for Settings page
+
+#### 🎨 Enhanced User Experience
+- **Smooth Dropdown Behavior**: Dropdowns now expand without affecting page scroll position
+- **Internal Scrolling**: Large dropdown content scrolls internally instead of expanding page
+- **Stable Layout**: No more unexpected page jumps when opening Settings sections
+- **Responsive Design**: All improvements work across different screen sizes
+
+#### 📱 Technical Improvements
+- **CSS Optimization**: Enhanced main container CSS for better scroll behavior
+- **React State Management**: Improved dropdown state handling with position preservation
+- **Performance**: Reduced layout thrashing and reflow during animations
+- **Browser Compatibility**: Consistent behavior across different browsers
+
+#### 🚀 User Interface Polish
+- **Professional Feel**: Settings page now behaves like modern web applications
+- **Predictable Interactions**: Users can confidently click dropdown sections
+- **Better Accessibility**: Improved focus management and keyboard navigation
+- **Visual Consistency**: Maintained design aesthetics while fixing functionality
+
 ## [2.2.5] - 2025-01-30
 
 ### 🔧 ENHANCED UX IMPROVEMENTS & POLISH

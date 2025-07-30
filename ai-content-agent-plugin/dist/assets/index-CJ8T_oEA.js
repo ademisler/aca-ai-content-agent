@@ -1008,18 +1008,48 @@
   }
 }
 
-/* Hide WordPress admin notices on our page */
+/* COMPREHENSIVE WORDPRESS ADMIN NOTIFICATIONS HIDING */
 
-.wp-admin .notice,
-.wp-admin .error,
-.wp-admin .updated {
+/* Hide all WordPress admin notices/notifications on plugin page */
+
+body.toplevel_page_ai-content-agent .notice,
+body.toplevel_page_ai-content-agent .updated,
+body.toplevel_page_ai-content-agent .error,
+body.toplevel_page_ai-content-agent .notice-warning,
+body.toplevel_page_ai-content-agent .notice-error,
+body.toplevel_page_ai-content-agent .notice-success,
+body.toplevel_page_ai-content-agent .notice-info,
+body.toplevel_page_ai-content-agent .update-nag,
+body.toplevel_page_ai-content-agent .admin-notice,
+body.toplevel_page_ai-content-agent .plugin-update-tr,
+body.toplevel_page_ai-content-agent .update-message,
+body.toplevel_page_ai-content-agent .wp-admin-notice,
+body.toplevel_page_ai-content-agent .notice-dismiss,
+body.toplevel_page_ai-content-agent .is-dismissible,
+body.toplevel_page_ai-content-agent #wpbody-content > .notice,
+body.toplevel_page_ai-content-agent #wpbody-content > .updated,
+body.toplevel_page_ai-content-agent #wpbody-content > .error,
+body.toplevel_page_ai-content-agent .wrap > .notice,
+body.toplevel_page_ai-content-agent .wrap > .updated,
+body.toplevel_page_ai-content-agent .wrap > .error {
   display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
-#root .notice,
-#root .error,
-#root .updated {
+/* Allow our own plugin notices to show if needed */
+
+body.toplevel_page_ai-content-agent #root .notice,
+body.toplevel_page_ai-content-agent #root .error,
+body.toplevel_page_ai-content-agent #root .updated,
+body.toplevel_page_ai-content-agent .aca-notice {
   display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  height: auto !important;
 }
 
 /* Progress bar animation for loading states */

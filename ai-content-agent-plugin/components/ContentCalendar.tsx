@@ -207,7 +207,14 @@ export const ContentCalendar: React.FC<ContentCalendarProps> = ({ drafts, publis
                 ) : (
                     <Eye style={{ width: isCompact ? '8px' : '9px', height: isCompact ? '8px' : '9px', flexShrink: 0 }} />
                 )}
-                <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                <span style={{ 
+                    flex: 1, 
+                    overflow: 'hidden', 
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    maxWidth: '100%',
+                    wordBreak: 'break-word'
+                }}>
                     {post.title || `${isScheduled ? 'Draft' : 'Post'} ${post.id}`}
                 </span>
                 <Edit style={{ width: isCompact ? '6px' : '7px', height: isCompact ? '6px' : '7px', flexShrink: 0 }} />
@@ -331,7 +338,11 @@ export const ContentCalendar: React.FC<ContentCalendarProps> = ({ drafts, publis
                             gridTemplateColumns: 'repeat(7, 1fr)', 
                             gap: '1px', 
                             backgroundColor: '#e0e0e0',
-                            border: '1px solid #e0e0e0'
+                            border: '1px solid #e0e0e0',
+                            width: '100%',
+                            maxWidth: '100%',
+                            overflow: 'hidden',
+                            boxSizing: 'border-box'
                         }}>
                             {/* Day headers */}
                             {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
@@ -381,7 +392,11 @@ export const ContentCalendar: React.FC<ContentCalendarProps> = ({ drafts, publis
                                             position: 'relative',
                                             border: isToday ? '2px solid #2196f3' : 'none',
                                             cursor: 'pointer',
-                                            overflow: 'visible'
+                                            overflow: 'hidden',
+                                            wordWrap: 'break-word',
+                                            wordBreak: 'break-word',
+                                            maxWidth: '100%',
+                                            boxSizing: 'border-box'
                                         }}
                                     >
                                         {/* Date number */}

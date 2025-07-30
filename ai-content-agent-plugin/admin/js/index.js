@@ -1052,6 +1052,53 @@ body.toplevel_page_ai-content-agent .aca-notice {
   height: auto !important;
 }
 
+/* CALENDAR OVERFLOW AND LAYOUT FIXES */
+
+/* Fix calendar container overflow issues */
+
+body.toplevel_page_ai-content-agent .aca-main {
+  overflow-x: hidden !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Calendar grid container fixes */
+
+body.toplevel_page_ai-content-agent .aca-card {
+  overflow: hidden !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Calendar day cells overflow control */
+
+body.toplevel_page_ai-content-agent .aca-card-content > div[style*="display: grid"] > div {
+  overflow: hidden !important;
+  word-wrap: break-word !important;
+  word-break: break-word !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Post items in calendar cells - prevent overflow */
+
+body.toplevel_page_ai-content-agent .aca-card-content div[style*="flex-direction: column"] > div {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  max-width: 100% !important;
+  word-break: break-word !important;
+}
+
+/* Ensure calendar doesn't exceed main content bounds */
+
+body.toplevel_page_ai-content-agent .aca-card-content {
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  max-width: 100% !important;
+}
+
 /* Progress bar animation for loading states */
 
 @keyframes aca-progress-slide {
@@ -13980,7 +14027,14 @@ body.toplevel_page_ai-content-agent #wpfooter {
           title: `${isScheduled ? "Scheduled" : "Published"}: ${post.title || `${isScheduled ? "Draft" : "Post"} ${post.id}`} (Click to edit, drag to reschedule)`,
           children: [
             isScheduled ? /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { style: { width: isCompact ? "8px" : "9px", height: isCompact ? "8px" : "9px", flexShrink: 0 } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Eye, { style: { width: isCompact ? "8px" : "9px", height: isCompact ? "8px" : "9px", flexShrink: 0 } }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { flex: 1, overflow: "hidden", textOverflow: "ellipsis" }, children: post.title || `${isScheduled ? "Draft" : "Post"} ${post.id}` }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: {
+              flex: 1,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              maxWidth: "100%",
+              wordBreak: "break-word"
+            }, children: post.title || `${isScheduled ? "Draft" : "Post"} ${post.id}` }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(Edit, { style: { width: isCompact ? "6px" : "7px", height: isCompact ? "6px" : "7px", flexShrink: 0 } })
           ]
         },
@@ -14089,7 +14143,11 @@ body.toplevel_page_ai-content-agent #wpfooter {
             gridTemplateColumns: "repeat(7, 1fr)",
             gap: "1px",
             backgroundColor: "#e0e0e0",
-            border: "1px solid #e0e0e0"
+            border: "1px solid #e0e0e0",
+            width: "100%",
+            maxWidth: "100%",
+            overflow: "hidden",
+            boxSizing: "border-box"
           }, children: [
             ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
               backgroundColor: "#f8f9fa",
@@ -14128,7 +14186,11 @@ body.toplevel_page_ai-content-agent #wpfooter {
                     position: "relative",
                     border: isToday ? "2px solid #2196f3" : "none",
                     cursor: "pointer",
-                    overflow: "visible"
+                    overflow: "hidden",
+                    wordWrap: "break-word",
+                    wordBreak: "break-word",
+                    maxWidth: "100%",
+                    boxSizing: "border-box"
                   },
                   children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {

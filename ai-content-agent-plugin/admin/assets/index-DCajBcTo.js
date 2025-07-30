@@ -10697,6 +10697,8 @@
           });
           setLicenseKey("");
           alert("License verified successfully! Pro features are now active.");
+          const updatedSettings = { ...settings, is_pro: true };
+          onSaveSettings(updatedSettings);
           window.location.reload();
         } else {
           alert("Invalid license key. Please check and try again.");
@@ -10719,12 +10721,22 @@
     reactExports.useEffect(() => {
       setCurrentSettings(settings);
     }, [settings]);
+    reactExports.useEffect(() => {
+      if (licenseStatus.is_active && !currentSettings.is_pro) {
+        setCurrentSettings((prev) => ({ ...prev, is_pro: true }));
+      } else if (!licenseStatus.is_active && currentSettings.is_pro) {
+        setCurrentSettings((prev) => ({ ...prev, is_pro: false }));
+      }
+    }, [licenseStatus.is_active, currentSettings.is_pro]);
     const isDirty = JSON.stringify(currentSettings) !== JSON.stringify(settings);
     const handleSettingChange = (field, value) => {
       setCurrentSettings((prev) => ({ ...prev, [field]: value }));
     };
+    const isProActive = () => {
+      return currentSettings.is_pro || licenseStatus.is_active;
+    };
     const handleModeChange = (mode) => {
-      if ((mode === "semi-automatic" || mode === "full-automatic") && !currentSettings.is_pro) {
+      if ((mode === "semi-automatic" || mode === "full-automatic") && !isProActive()) {
         alert("This automation mode requires a Pro license. Please upgrade or activate your license to use this feature.");
         return;
       }
@@ -10890,7 +10902,7 @@
           "Pro license is active! You now have access to all premium features."
         ] })
       ] }),
-      currentSettings.is_pro ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", children: [
+      isProActive() ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-card-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "aca-card-title", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { className: "aca-nav-item-icon" }),
           "Automation Mode",
@@ -11577,7 +11589,7 @@
               ] })
             }
           ),
-          currentSettings.is_pro ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          isProActive() ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
             IntegrationCard,
             {
               title: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "flex", alignItems: "center" }, children: [

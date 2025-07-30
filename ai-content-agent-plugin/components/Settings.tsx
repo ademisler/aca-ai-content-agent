@@ -184,6 +184,10 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                 setLicenseKey(''); // Clear the input
                 alert('License verified successfully! Pro features are now active.');
                 
+                // Update settings to reflect pro status
+                const updatedSettings = { ...settings, is_pro: true };
+                onSaveSettings(updatedSettings);
+                
                 // Reload settings to get updated pro status
                 window.location.reload();
             } else {
@@ -212,15 +216,29 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
         setCurrentSettings(settings);
     }, [settings]);
 
+    // Update settings when license status changes
+    useEffect(() => {
+        if (licenseStatus.is_active && !currentSettings.is_pro) {
+            setCurrentSettings(prev => ({ ...prev, is_pro: true }));
+        } else if (!licenseStatus.is_active && currentSettings.is_pro) {
+            setCurrentSettings(prev => ({ ...prev, is_pro: false }));
+        }
+    }, [licenseStatus.is_active, currentSettings.is_pro]);
+
     const isDirty = JSON.stringify(currentSettings) !== JSON.stringify(settings);
 
     const handleSettingChange = (field: keyof AppSettings, value: any) => {
         setCurrentSettings(prev => ({ ...prev, [field]: value }));
     };
     
+    // Helper function to check if Pro features are available
+    const isProActive = () => {
+        return currentSettings.is_pro || licenseStatus.is_active;
+    };
+
     const handleModeChange = (mode: AutomationMode) => {
         // Prevent selection of pro modes without active license
-        if ((mode === 'semi-automatic' || mode === 'full-automatic') && !currentSettings.is_pro) {
+        if ((mode === 'semi-automatic' || mode === 'full-automatic') && !isProActive()) {
             alert('This automation mode requires a Pro license. Please upgrade or activate your license to use this feature.');
             return;
         }
@@ -442,7 +460,7 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
             </div>
 
             {/* 2. Automation Mode - Core Functionality */}
-            {currentSettings.is_pro ? (
+            {isProActive() ? (
                 <div className="aca-card">
                     <div className="aca-card-header">
                         <h2 className="aca-card-title">
@@ -1170,7 +1188,7 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
                     </IntegrationCard>
 
                     {/* Google Search Console */}
-                    {currentSettings.is_pro ? (
+                    {isProActive() ? (
                         <IntegrationCard 
                             title={
                                 <span style={{ display: 'flex', alignItems: 'center' }}>

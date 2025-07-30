@@ -3168,10 +3168,16 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 
                 // Log license activation
                 $this->log_activity('license_activated', 'Pro license activated successfully');
+                
+                // Add success message to response
+                $verification_result['message'] = 'License verified successfully! Pro features are now active.';
             } else {
                 // Remove license status
                 delete_option('aca_license_status');
                 delete_option('aca_license_data');
+                
+                // Add failure message to response
+                $verification_result['message'] = 'License verification failed. Please check your license key and try again.';
             }
             
             return rest_ensure_response($verification_result);

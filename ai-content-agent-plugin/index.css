@@ -1071,6 +1071,18 @@ body.toplevel_page_ai-content-agent .aca-card [id^="section-content-"] {
   transform-origin: top !important;
   backface-visibility: hidden !important;
   -webkit-backface-visibility: hidden !important;
+  will-change: transform, opacity !important;
+  contain: layout style paint !important;
+}
+
+/* Prevent layout shifts during transitions */
+body.toplevel_page_ai-content-agent .aca-card {
+  contain: layout !important;
+}
+
+/* Smooth transitions without affecting scroll */
+body.toplevel_page_ai-content-agent .aca-card [id^="section-content-"] * {
+  will-change: auto !important;
 }
 
 /* Smooth header click behavior */

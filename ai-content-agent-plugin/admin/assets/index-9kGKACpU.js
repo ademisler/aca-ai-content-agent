@@ -1128,6 +1128,20 @@ body.toplevel_page_ai-content-agent .aca-card [id^="section-content-"] {
   transform-origin: top !important;
   backface-visibility: hidden !important;
   -webkit-backface-visibility: hidden !important;
+  will-change: transform, opacity !important;
+  contain: layout style paint !important;
+}
+
+/* Prevent layout shifts during transitions */
+
+body.toplevel_page_ai-content-agent .aca-card {
+  contain: layout !important;
+}
+
+/* Smooth transitions without affecting scroll */
+
+body.toplevel_page_ai-content-agent .aca-card [id^="section-content-"] * {
+  will-change: auto !important;
 }
 
 /* Smooth header click behavior */
@@ -12204,17 +12218,21 @@ body.toplevel_page_ai-content-agent #wpfooter {
       }, 700);
     };
     const toggleSection = (sectionKey) => {
-      const scrollY = window.scrollY;
       const rootElement2 = document.getElementById("root");
-      const rootScrollTop = rootElement2 ? rootElement2.scrollTop : 0;
+      const currentScrollTop = rootElement2 ? rootElement2.scrollTop : 0;
+      if (rootElement2) {
+        rootElement2.style.scrollBehavior = "auto";
+      }
       setCollapsedSections((prev) => ({
         ...prev,
         [sectionKey]: !prev[sectionKey]
       }));
       requestAnimationFrame(() => {
-        window.scrollTo({ top: scrollY, behavior: "instant" });
         if (rootElement2) {
-          rootElement2.scrollTop = rootScrollTop;
+          rootElement2.scrollTop = currentScrollTop;
+          setTimeout(() => {
+            rootElement2.style.scrollBehavior = "smooth";
+          }, 50);
         }
       });
     };
@@ -12305,13 +12323,15 @@ body.toplevel_page_ai-content-agent #wpfooter {
           {
             id: `section-content-${id}`,
             style: {
-              maxHeight: isCollapsed ? "0" : "2000px",
+              transform: isCollapsed ? "scaleY(0)" : "scaleY(1)",
               opacity: isCollapsed ? 0 : 1,
-              overflow: "hidden",
-              transition: "max-height 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.2s ease",
+              overflow: isCollapsed ? "hidden" : "visible",
+              transition: "transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease",
               padding: isCollapsed ? "0" : "20px 0 0 0",
-              willChange: isCollapsed ? "auto" : "max-height, opacity",
-              transformOrigin: "top"
+              transformOrigin: "top",
+              willChange: "transform, opacity",
+              backfaceVisibility: "hidden",
+              height: isCollapsed ? "0" : "auto"
             },
             "aria-hidden": isCollapsed,
             children

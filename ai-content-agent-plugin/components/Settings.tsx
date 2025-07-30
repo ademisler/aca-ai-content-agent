@@ -502,24 +502,28 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
     };
 
     const toggleSection = (sectionKey: string) => {
-        // Prevent scroll jump by maintaining scroll position for fixed layout
-        const scrollY = window.scrollY;
+        // Prevent any scroll behavior during toggle
         const rootElement = document.getElementById('root');
-        const rootScrollTop = rootElement ? rootElement.scrollTop : 0;
+        const currentScrollTop = rootElement ? rootElement.scrollTop : 0;
+        
+        // Temporarily disable scroll behavior
+        if (rootElement) {
+            rootElement.style.scrollBehavior = 'auto';
+        }
         
         setCollapsedSections(prev => ({
             ...prev,
             [sectionKey]: !prev[sectionKey]
         }));
         
-        // Restore scroll position after state update for both window and root
+        // Maintain scroll position and restore behavior
         requestAnimationFrame(() => {
-            // Restore window scroll (for non-fixed elements)
-            window.scrollTo({ top: scrollY, behavior: 'instant' });
-            
-            // Restore root scroll (for our fixed container)
             if (rootElement) {
-                rootElement.scrollTop = rootScrollTop;
+                rootElement.scrollTop = currentScrollTop;
+                // Re-enable smooth scroll after a short delay
+                setTimeout(() => {
+                    rootElement.style.scrollBehavior = 'smooth';
+                }, 50);
             }
         });
     };
@@ -611,13 +615,15 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
                 <div 
                     id={`section-content-${id}`}
                     style={{ 
-                        maxHeight: isCollapsed ? '0' : '2000px',
+                        transform: isCollapsed ? 'scaleY(0)' : 'scaleY(1)',
                         opacity: isCollapsed ? 0 : 1,
-                        overflow: 'hidden',
-                        transition: 'max-height 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.2s ease',
+                        overflow: isCollapsed ? 'hidden' : 'visible',
+                        transition: 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease',
                         padding: isCollapsed ? '0' : '20px 0 0 0',
-                        willChange: isCollapsed ? 'auto' : 'max-height, opacity',
-                        transformOrigin: 'top'
+                        transformOrigin: 'top',
+                        willChange: 'transform, opacity',
+                        backfaceVisibility: 'hidden',
+                        height: isCollapsed ? '0' : 'auto'
                     }}
                     aria-hidden={isCollapsed}
                 >

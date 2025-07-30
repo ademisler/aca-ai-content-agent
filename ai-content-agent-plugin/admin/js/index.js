@@ -1205,17 +1205,39 @@
   height: 100vh !important;
 }
 
-/* Fix for WordPress clear divs causing unwanted spacing */
+/* Fix for WordPress clear divs causing unwanted spacing - More specific selectors */
 
-#toplevel_page_ai-content-agent #wpbody-content > .clear,
-#toplevel_page_ai-content-agent #wpbody > .clear {
+body.toplevel_page_ai-content-agent #wpbody-content > .clear,
+body.toplevel_page_ai-content-agent #wpbody > .clear,
+body.toplevel_page_ai-content-agent .clear {
   display: none !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
-/* Additional fix for screen-meta spacing */
+/* Additional fix for screen-meta and other spacing issues */
 
-#toplevel_page_ai-content-agent #screen-meta {
+body.toplevel_page_ai-content-agent #screen-meta {
   margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* Remove any potential spacing from WordPress admin elements */
+
+body.toplevel_page_ai-content-agent #wpbody-content {
+  padding-top: 0 !important;
+}
+
+body.toplevel_page_ai-content-agent #wpcontent {
+  padding-left: 0 !important;
+}
+
+/* Ensure our root element has no top margin/padding */
+
+body.toplevel_page_ai-content-agent #root {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
 }/*$vite$:1*/`;
   document.head.appendChild(__vite_style__);
   function getDefaultExportFromCjs(x) {

@@ -502,10 +502,18 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
     };
 
     const toggleSection = (sectionKey: string) => {
+        // Prevent scroll jump by maintaining scroll position
+        const scrollY = window.scrollY;
+        
         setCollapsedSections(prev => ({
             ...prev,
             [sectionKey]: !prev[sectionKey]
         }));
+        
+        // Restore scroll position after state update
+        requestAnimationFrame(() => {
+            window.scrollTo({ top: scrollY, behavior: 'instant' });
+        });
     };
 
     const CollapsibleSection: React.FC<{
@@ -598,8 +606,10 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
                         maxHeight: isCollapsed ? '0' : '2000px',
                         opacity: isCollapsed ? 0 : 1,
                         overflow: 'hidden',
-                        transition: 'max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease',
-                        padding: isCollapsed ? '0' : '20px 0 0 0'
+                        transition: 'max-height 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.2s ease',
+                        padding: isCollapsed ? '0' : '20px 0 0 0',
+                        willChange: isCollapsed ? 'auto' : 'max-height, opacity',
+                        transformOrigin: 'top'
                     }}
                     aria-hidden={isCollapsed}
                 >

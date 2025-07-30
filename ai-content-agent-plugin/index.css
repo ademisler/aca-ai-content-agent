@@ -1046,6 +1046,34 @@ body.toplevel_page_ai-content-agent .aca-card-content {
   max-width: 100% !important;
 }
 
+/* SETTINGS DROPDOWN SMOOTH BEHAVIOR */
+/* Prevent scroll jump on collapsible sections */
+body.toplevel_page_ai-content-agent {
+  scroll-behavior: smooth !important;
+}
+
+/* Optimize collapsible section transitions */
+body.toplevel_page_ai-content-agent .aca-card [id^="section-content-"] {
+  transform-origin: top !important;
+  backface-visibility: hidden !important;
+  -webkit-backface-visibility: hidden !important;
+}
+
+/* Smooth header click behavior */
+body.toplevel_page_ai-content-agent .aca-card-header[role="button"] {
+  transition: background-color 0.2s ease !important;
+}
+
+body.toplevel_page_ai-content-agent .aca-card-header[role="button"]:hover {
+  background-color: rgba(0, 0, 0, 0.02) !important;
+}
+
+body.toplevel_page_ai-content-agent .aca-card-header[role="button"]:active {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+  transform: translateY(1px) !important;
+  transition: all 0.1s ease !important;
+}
+
 /* Progress bar animation for loading states */
 @keyframes aca-progress-slide {
   0% {

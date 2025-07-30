@@ -1099,6 +1099,38 @@ body.toplevel_page_ai-content-agent .aca-card-content {
   max-width: 100% !important;
 }
 
+/* SETTINGS DROPDOWN SMOOTH BEHAVIOR */
+
+/* Prevent scroll jump on collapsible sections */
+
+body.toplevel_page_ai-content-agent {
+  scroll-behavior: smooth !important;
+}
+
+/* Optimize collapsible section transitions */
+
+body.toplevel_page_ai-content-agent .aca-card [id^="section-content-"] {
+  transform-origin: top !important;
+  backface-visibility: hidden !important;
+  -webkit-backface-visibility: hidden !important;
+}
+
+/* Smooth header click behavior */
+
+body.toplevel_page_ai-content-agent .aca-card-header[role="button"] {
+  transition: background-color 0.2s ease !important;
+}
+
+body.toplevel_page_ai-content-agent .aca-card-header[role="button"]:hover {
+  background-color: rgba(0, 0, 0, 0.02) !important;
+}
+
+body.toplevel_page_ai-content-agent .aca-card-header[role="button"]:active {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+  transform: translateY(1px) !important;
+  transition: all 0.1s ease !important;
+}
+
 /* Progress bar animation for loading states */
 
 @keyframes aca-progress-slide {
@@ -12130,10 +12162,14 @@ body.toplevel_page_ai-content-agent #wpfooter {
       }, 700);
     };
     const toggleSection = (sectionKey) => {
+      const scrollY = window.scrollY;
       setCollapsedSections((prev) => ({
         ...prev,
         [sectionKey]: !prev[sectionKey]
       }));
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: scrollY, behavior: "instant" });
+      });
     };
     const CollapsibleSection = ({ id, title, description, icon, children, defaultOpen = false }) => {
       const isCollapsed = collapsedSections[id] ?? !defaultOpen;
@@ -12225,8 +12261,10 @@ body.toplevel_page_ai-content-agent #wpfooter {
               maxHeight: isCollapsed ? "0" : "2000px",
               opacity: isCollapsed ? 0 : 1,
               overflow: "hidden",
-              transition: "max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease",
-              padding: isCollapsed ? "0" : "20px 0 0 0"
+              transition: "max-height 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.2s ease",
+              padding: isCollapsed ? "0" : "20px 0 0 0",
+              willChange: isCollapsed ? "auto" : "max-height, opacity",
+              transformOrigin: "top"
             },
             "aria-hidden": isCollapsed,
             children

@@ -1260,6 +1260,14 @@ body.toplevel_page_ai-content-agent .aca-container {
   position: relative !important;
   display: flex !important;
   background: #f0f0f1 !important;
+}
+
+/* Hide WordPress admin footer elements on plugin page */
+
+body.toplevel_page_ai-content-agent #footer-thankyou,
+body.toplevel_page_ai-content-agent #footer-upgrade,
+body.toplevel_page_ai-content-agent #wpfooter {
+  display: none !important;
 }/*$vite$:1*/`;
   document.head.appendChild(__vite_style__);
   function getDefaultExportFromCjs(x) {

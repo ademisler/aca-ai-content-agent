@@ -1,6 +1,23 @@
 # Changelog
 
-All notable changes to AI Content Agent (ACA) will be documented in this file.
+## [2.3.2] - 2025-01-30
+
+### Fixed
+- **CRITICAL**: Restored complete Settings page functionality that was missing in v2.3.1
+- Fixed license verification logic (was using `result.valid` instead of `result.success`)
+- Implemented full automation settings with Pro license checks
+- Implemented complete content analysis settings including image providers and SEO integration
+- Implemented advanced/debug settings with Google Search Console integration
+- Restored all original Settings functionality while maintaining the new tabbed UI
+- Ensured Gemini API warning navigation still works correctly with new tabbed interface
+
+### Enhanced
+- All automation modes (Manual, Semi-Automatic, Full-Automatic) now fully functional
+- Image source provider settings (Pexels, Unsplash, Pixabay, Google AI) with API key inputs
+- SEO plugin integration settings with auto-detection
+- Debug panel with system information and maintenance tools
+- Pro license gating for advanced features
+- Improved error handling and user feedback
 
 ## [2.3.1] - 2025-01-30
 

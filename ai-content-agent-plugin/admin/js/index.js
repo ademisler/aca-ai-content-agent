@@ -9999,6 +9999,11 @@ body.toplevel_page_ai-content-agent #wpfooter {
     /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "12", cy: "12", r: "3" })
   ] });
   const Zap = ({ className, style }) => /* @__PURE__ */ jsxRuntimeExports.jsx("svg", { xmlns: "http://www.w3.org/2000/svg", width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", className, style, children: /* @__PURE__ */ jsxRuntimeExports.jsx("polygon", { points: "13,2 3,14 12,14 11,22 21,10 12,10" }) });
+  const Image = ({ className, style }) => /* @__PURE__ */ jsxRuntimeExports.jsxs("svg", { xmlns: "http://www.w3.org/2000/svg", width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", className, style, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", ry: "2" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("circle", { cx: "9", cy: "9", r: "2" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" })
+  ] });
   const Shield = ({ className, style }) => /* @__PURE__ */ jsxRuntimeExports.jsxs("svg", { xmlns: "http://www.w3.org/2000/svg", width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", className, style, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M20 13c0 5-3.5 7.5-8 7.5s-8-2.5-8-7.5c0-1.3.3-2.6.7-3.8C6.4 7.6 8.7 6.5 12 6.5s5.6 1.1 7.3 3.2c.4 1.2.7 2.5.7 3.8z" }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "m9 12 2 2 4-4" })
@@ -11823,13 +11828,15 @@ body.toplevel_page_ai-content-agent #wpfooter {
       setIsVerifyingLicense(true);
       try {
         const result = await licenseApi.verify(licenseKey);
-        if (result.valid) {
+        if (result.success) {
           setLicenseStatus({
             status: "active",
             is_active: true,
             verified_at: (/* @__PURE__ */ new Date()).toISOString()
           });
           setLicenseKey("");
+          const updatedSettings = { ...currentSettings, is_pro: true };
+          setCurrentSettings(updatedSettings);
           if (onShowToast) {
             onShowToast("Pro license activated successfully!", "success");
           }
@@ -12007,10 +12014,303 @@ body.toplevel_page_ai-content-agent #wpfooter {
         ] })
       ] });
     };
-    const renderAutomationContent = () => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Automation Mode content will be implemented here." }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "20px", backgroundColor: "#f8f9fa", borderRadius: "8px", color: "#666" }, children: "This section will contain automation configuration options." })
-    ] });
+    const isProActive = () => {
+      return currentSettings.is_pro || licenseStatus.is_active;
+    };
+    const handleModeChange = (mode) => {
+      setCurrentSettings((prev) => ({ ...prev, mode }));
+    };
+    const handleSettingChange = (field, value) => {
+      setCurrentSettings((prev) => ({ ...prev, [field]: value }));
+    };
+    const RadioCard = ({ id, title, description, currentSelection, onChange }) => {
+      const isChecked = currentSelection === id;
+      return /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "label",
+        {
+          htmlFor: id,
+          style: {
+            display: "block",
+            margin: 0,
+            border: "2px solid",
+            borderColor: isChecked ? "#0073aa" : "#ccd0d4",
+            borderRadius: "8px",
+            padding: "20px",
+            cursor: "pointer",
+            transition: "all 0.2s ease",
+            background: isChecked ? "#f0f6fc" : "#ffffff",
+            boxShadow: isChecked ? "0 2px 4px rgba(0, 0, 0, 0.1)" : "none"
+          },
+          children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "flex-start", gap: "12px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "radio",
+                id,
+                name: "automation-mode",
+                checked: isChecked,
+                onChange: () => onChange(id),
+                style: {
+                  marginTop: "2px",
+                  width: "18px",
+                  height: "18px",
+                  accentColor: "#0073aa",
+                  flexShrink: 0
+                }
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: {
+                fontSize: "16px",
+                fontWeight: "600",
+                margin: "0 0 8px 0",
+                color: "#1e293b"
+              }, children: title }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: {
+                margin: 0,
+                color: "#64748b",
+                fontSize: "14px",
+                lineHeight: "1.5"
+              }, children: description })
+            ] })
+          ] })
+        }
+      );
+    };
+    const renderAutomationContent = () => {
+      if (isLoadingLicenseStatus) {
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "20px", textAlign: "center", color: "#666" }, children: "Loading license status..." });
+      }
+      if (!isProActive()) {
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+          padding: "30px",
+          backgroundColor: "#fef3cd",
+          borderRadius: "8px",
+          border: "1px solid #fbbf24",
+          textAlign: "center"
+        }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Shield, { style: { width: "48px", height: "48px", color: "#f59e0b", marginBottom: "16px" } }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { style: { color: "#92400e", margin: "0 0 8px 0" }, children: "Pro License Required" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "#92400e", margin: "0 0 16px 0" }, children: "Automation features are available with a Pro license." }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "a",
+            {
+              href: "https://ademisler.gumroad.com/l/ai-content-agent-pro",
+              target: "_blank",
+              rel: "noopener noreferrer",
+              style: {
+                display: "inline-block",
+                padding: "10px 20px",
+                backgroundColor: "#f59e0b",
+                color: "white",
+                textDecoration: "none",
+                borderRadius: "6px",
+                fontWeight: "500"
+              },
+              children: "Upgrade to Pro"
+            }
+          )
+        ] }) });
+      }
+      return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "#64748b", fontSize: "16px", margin: "0 0 30px 0", lineHeight: "1.5" }, children: "Choose how you want the AI Content Agent (ACA) to operate. You can change this at any time." }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "15px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            RadioCard,
+            {
+              id: "manual",
+              title: "Manual Mode",
+              description: "You are in full control. Manually generate ideas and create drafts one by one.",
+              currentSelection: currentSettings.mode,
+              onChange: handleModeChange
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+            border: "2px solid",
+            borderColor: currentSettings.mode === "semi-automatic" ? "#0073aa" : "#ccd0d4",
+            borderRadius: "8px",
+            padding: "20px",
+            background: currentSettings.mode === "semi-automatic" ? "#f0f6fc" : "#ffffff",
+            boxShadow: currentSettings.mode === "semi-automatic" ? "0 2px 4px rgba(0, 0, 0, 0.1)" : "none"
+          }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { htmlFor: "semi-automatic", style: { display: "flex", alignItems: "flex-start", cursor: "pointer", gap: "12px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "radio",
+                  id: "semi-automatic",
+                  name: "automation-mode",
+                  checked: currentSettings.mode === "semi-automatic",
+                  onChange: () => handleModeChange("semi-automatic"),
+                  style: {
+                    marginTop: "2px",
+                    width: "18px",
+                    height: "18px",
+                    accentColor: "#0073aa",
+                    flexShrink: 0
+                  }
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: {
+                  fontSize: "16px",
+                  fontWeight: "600",
+                  margin: "0 0 8px 0",
+                  color: "#1e293b"
+                }, children: "Semi-Automatic Mode" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: {
+                  margin: 0,
+                  color: "#64748b",
+                  fontSize: "14px",
+                  lineHeight: "1.5"
+                }, children: "The AI automatically generates new ideas periodically. You choose which ideas to turn into drafts." })
+              ] })
+            ] }),
+            currentSettings.mode === "semi-automatic" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+              paddingLeft: "30px",
+              paddingTop: "20px",
+              marginTop: "20px",
+              borderTop: "1px solid #e0e0e0"
+            }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: {
+                display: "block",
+                fontSize: "14px",
+                fontWeight: "500",
+                color: "#374151",
+                marginBottom: "8px"
+              }, children: "Idea Generation Frequency" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "select",
+                {
+                  className: "aca-input",
+                  value: currentSettings.semiAutoIdeaFrequency || "weekly",
+                  onChange: (e) => handleSettingChange("semiAutoIdeaFrequency", e.target.value),
+                  style: { marginTop: "5px" },
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "daily", children: "Daily - Generate new ideas every day" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "weekly", children: "Weekly - Generate new ideas every week" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "monthly", children: "Monthly - Generate new ideas every month" })
+                  ]
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: {
+                color: "#64748b",
+                fontSize: "12px",
+                margin: "5px 0 0 0",
+                lineHeight: "1.4"
+              }, children: "How often should the AI automatically generate new content ideas?" })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+            border: "2px solid",
+            borderColor: currentSettings.mode === "full-automatic" ? "#0073aa" : "#ccd0d4",
+            borderRadius: "8px",
+            padding: "20px",
+            background: currentSettings.mode === "full-automatic" ? "#f0f6fc" : "#ffffff",
+            boxShadow: currentSettings.mode === "full-automatic" ? "0 2px 4px rgba(0, 0, 0, 0.1)" : "none"
+          }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { htmlFor: "full-automatic-radio", style: { display: "flex", alignItems: "flex-start", cursor: "pointer", gap: "12px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "radio",
+                  id: "full-automatic-radio",
+                  name: "automation-mode",
+                  checked: currentSettings.mode === "full-automatic",
+                  onChange: () => handleModeChange("full-automatic"),
+                  style: {
+                    marginTop: "2px",
+                    width: "18px",
+                    height: "18px",
+                    accentColor: "#0073aa",
+                    flexShrink: 0
+                  }
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: {
+                  fontSize: "16px",
+                  fontWeight: "600",
+                  margin: "0 0 8px 0",
+                  color: "#1e293b"
+                }, children: "Full Automatic Mode" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: {
+                  margin: 0,
+                  color: "#64748b",
+                  fontSize: "14px",
+                  lineHeight: "1.5"
+                }, children: "Complete automation. The AI generates ideas, creates drafts, and can optionally publish them automatically." })
+              ] })
+            ] }),
+            currentSettings.mode === "full-automatic" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+              paddingLeft: "30px",
+              paddingTop: "20px",
+              marginTop: "20px",
+              borderTop: "1px solid #e0e0e0"
+            }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "20px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: {
+                  display: "block",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                  color: "#374151",
+                  marginBottom: "8px"
+                }, children: "Content Generation Frequency" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "select",
+                  {
+                    className: "aca-input",
+                    value: currentSettings.fullAutoFrequency || "weekly",
+                    onChange: (e) => handleSettingChange("fullAutoFrequency", e.target.value),
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "daily", children: "Daily - Generate and create content every day" }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "weekly", children: "Weekly - Generate and create content every week" }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "monthly", children: "Monthly - Generate and create content every month" })
+                    ]
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "15px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { style: {
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  cursor: "pointer",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                  color: "#374151"
+                }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "input",
+                    {
+                      type: "checkbox",
+                      checked: currentSettings.autoPublish || false,
+                      onChange: (e) => handleSettingChange("autoPublish", e.target.checked),
+                      style: {
+                        width: "16px",
+                        height: "16px",
+                        accentColor: "#0073aa"
+                      }
+                    }
+                  ),
+                  "Auto-Publish Content"
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { style: {
+                  color: "#64748b",
+                  fontSize: "12px",
+                  margin: "5px 0 0 26px",
+                  lineHeight: "1.4"
+                }, children: [
+                  "⚠️ ",
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Use with caution:" }),
+                  " When enabled, content will be published automatically without your review."
+                ] })
+              ] })
+            ] })
+          ] })
+        ] })
+      ] });
+    };
     const renderIntegrationsContent = () => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-form-group", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "aca-label", htmlFor: "gemini-api-key", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
@@ -12053,12 +12353,512 @@ body.toplevel_page_ai-content-agent #wpfooter {
       ] })
     ] });
     const renderContentContent = () => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Content Analysis Settings will be implemented here." }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "20px", backgroundColor: "#f8f9fa", borderRadius: "8px", color: "#666" }, children: "This section will contain content analysis configuration options." })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "#64748b", fontSize: "16px", margin: "0 0 30px 0", lineHeight: "1.5" }, children: "Configure content generation preferences and image settings." }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "30px" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { style: {
+          fontSize: "18px",
+          fontWeight: "600",
+          margin: "0 0 16px 0",
+          color: "#1e293b",
+          display: "flex",
+          alignItems: "center",
+          gap: "8px"
+        }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Image, { style: { width: "20px", height: "20px", color: "#8b5cf6" } }),
+          "Image Source Provider"
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "grid", gap: "12px" }, children: [
+          { id: "pexels", name: "Pexels", description: "Free stock photos (Recommended for beginners)", apiKeyField: "pexelsApiKey" },
+          { id: "unsplash", name: "Unsplash", description: "High-quality photos from professional photographers", apiKeyField: "unsplashApiKey" },
+          { id: "pixabay", name: "Pixabay", description: "Large collection of free images and illustrations", apiKeyField: "pixabayApiKey" },
+          { id: "google-ai", name: "Google AI Generated", description: "AI-generated images using Google Cloud (Pro feature)", apiKeyField: null }
+        ].map((provider) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "label",
+          {
+            style: {
+              display: "block",
+              border: "2px solid",
+              borderColor: currentSettings.imageSourceProvider === provider.id ? "#8b5cf6" : "#e2e8f0",
+              borderRadius: "8px",
+              padding: "16px",
+              cursor: "pointer",
+              transition: "all 0.2s ease",
+              background: currentSettings.imageSourceProvider === provider.id ? "#faf5ff" : "#ffffff"
+            },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "flex-start", gap: "12px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "radio",
+                    name: "image-provider",
+                    checked: currentSettings.imageSourceProvider === provider.id,
+                    onChange: () => handleSettingChange("imageSourceProvider", provider.id),
+                    style: {
+                      marginTop: "2px",
+                      width: "16px",
+                      height: "16px",
+                      accentColor: "#8b5cf6"
+                    }
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1 }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+                    fontSize: "16px",
+                    fontWeight: "600",
+                    margin: "0 0 4px 0",
+                    color: "#1e293b"
+                  }, children: [
+                    provider.name,
+                    provider.id === "google-ai" && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: {
+                      marginLeft: "8px",
+                      background: "linear-gradient(135deg, #f39c12 0%, #e67e22 100%)",
+                      color: "white",
+                      padding: "2px 6px",
+                      borderRadius: "4px",
+                      fontSize: "10px",
+                      fontWeight: "bold"
+                    }, children: "PRO" })
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: {
+                    margin: 0,
+                    color: "#64748b",
+                    fontSize: "14px",
+                    lineHeight: "1.4"
+                  }, children: provider.description })
+                ] })
+              ] }),
+              currentSettings.imageSourceProvider === provider.id && provider.apiKeyField && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: "16px", paddingTop: "16px", borderTop: "1px solid #e2e8f0" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { style: {
+                  display: "block",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                  color: "#374151",
+                  marginBottom: "8px"
+                }, children: [
+                  provider.name,
+                  " API Key"
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "password",
+                    value: currentSettings[provider.apiKeyField] || "",
+                    onChange: (e) => handleSettingChange(provider.apiKeyField, e.target.value),
+                    placeholder: `Enter your ${provider.name} API key`,
+                    className: "aca-input",
+                    style: { width: "100%" }
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { style: {
+                  color: "#64748b",
+                  fontSize: "12px",
+                  margin: "4px 0 0 0",
+                  lineHeight: "1.4"
+                }, children: [
+                  "Get your API key from ",
+                  provider.name,
+                  "'s developer portal."
+                ] })
+              ] }),
+              currentSettings.imageSourceProvider === "google-ai" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: "16px", paddingTop: "16px", borderTop: "1px solid #e2e8f0" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "16px" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: {
+                    display: "block",
+                    fontSize: "14px",
+                    fontWeight: "500",
+                    color: "#374151",
+                    marginBottom: "8px"
+                  }, children: "Google Cloud Project ID" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "input",
+                    {
+                      type: "text",
+                      value: currentSettings.googleCloudProjectId || "",
+                      onChange: (e) => handleSettingChange("googleCloudProjectId", e.target.value),
+                      placeholder: "your-project-id",
+                      className: "aca-input",
+                      style: { width: "100%" }
+                    }
+                  )
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "16px" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: {
+                    display: "block",
+                    fontSize: "14px",
+                    fontWeight: "500",
+                    color: "#374151",
+                    marginBottom: "8px"
+                  }, children: "AI Image Style" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "select",
+                    {
+                      value: currentSettings.aiImageStyle || "photorealistic",
+                      onChange: (e) => handleSettingChange("aiImageStyle", e.target.value),
+                      className: "aca-input",
+                      style: { width: "100%" },
+                      children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "photorealistic", children: "Photorealistic" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "artistic", children: "Artistic" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "illustration", children: "Illustration" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "cartoon", children: "Cartoon" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "abstract", children: "Abstract" })
+                      ]
+                    }
+                  )
+                ] })
+              ] })
+            ]
+          },
+          provider.id
+        )) })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "30px" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { style: {
+          fontSize: "18px",
+          fontWeight: "600",
+          margin: "0 0 16px 0",
+          color: "#1e293b",
+          display: "flex",
+          alignItems: "center",
+          gap: "8px"
+        }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Settings, { style: { width: "20px", height: "20px", color: "#8b5cf6" } }),
+          "SEO Plugin Integration"
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+          padding: "20px",
+          backgroundColor: "#f8fafc",
+          borderRadius: "8px",
+          border: "1px solid #e2e8f0"
+        }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: {
+            color: "#64748b",
+            fontSize: "14px",
+            margin: "0 0 16px 0",
+            lineHeight: "1.5"
+          }, children: "AI Content Agent can automatically configure SEO metadata when creating content. We'll detect which SEO plugin you're using and optimize accordingly." }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: {
+            display: "block",
+            fontSize: "14px",
+            fontWeight: "500",
+            color: "#374151",
+            marginBottom: "8px"
+          }, children: "SEO Plugin" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "select",
+            {
+              value: currentSettings.seoPlugin || "auto",
+              onChange: (e) => handleSettingChange("seoPlugin", e.target.value),
+              className: "aca-input",
+              style: { width: "100%" },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "auto", children: "Auto-detect" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "yoast", children: "Yoast SEO" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "rankmath", children: "RankMath" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "aioseo", children: "All in One SEO" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "seopress", children: "SEOPress" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "none", children: "No SEO Plugin" })
+              ]
+            }
+          )
+        ] })
+      ] })
     ] });
     const renderAdvancedContent = () => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Debug Panel content will be implemented here." }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "20px", backgroundColor: "#f8f9fa", borderRadius: "8px", color: "#666" }, children: "This section will contain advanced debugging tools and developer options." })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "#64748b", fontSize: "16px", margin: "0 0 30px 0", lineHeight: "1.5" }, children: "Advanced debugging tools and developer options for troubleshooting." }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "30px" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { style: {
+          fontSize: "18px",
+          fontWeight: "600",
+          margin: "0 0 16px 0",
+          color: "#1e293b",
+          display: "flex",
+          alignItems: "center",
+          gap: "8px"
+        }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Google, { style: { width: "20px", height: "20px", color: "#ef4444" } }),
+          "Google Search Console Integration",
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: {
+            marginLeft: "8px",
+            background: "linear-gradient(135deg, #f39c12 0%, #e67e22 100%)",
+            color: "white",
+            padding: "4px 8px",
+            borderRadius: "6px",
+            fontSize: "12px",
+            fontWeight: "bold"
+          }, children: "PRO" })
+        ] }),
+        isLoadingLicenseStatus ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "20px", textAlign: "center", color: "#666" }, children: "Loading license status..." }) : !isProActive() ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+          padding: "20px",
+          backgroundColor: "#fef3cd",
+          borderRadius: "8px",
+          border: "1px solid #fbbf24"
+        }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "#92400e", margin: "0 0 16px 0" }, children: "Google Search Console integration is available with a Pro license." }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "a",
+            {
+              href: "https://ademisler.gumroad.com/l/ai-content-agent-pro",
+              target: "_blank",
+              rel: "noopener noreferrer",
+              style: {
+                display: "inline-block",
+                padding: "8px 16px",
+                backgroundColor: "#f59e0b",
+                color: "white",
+                textDecoration: "none",
+                borderRadius: "6px",
+                fontSize: "14px",
+                fontWeight: "500"
+              },
+              children: "Upgrade to Pro"
+            }
+          )
+        ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+          padding: "20px",
+          backgroundColor: "#f8fafc",
+          borderRadius: "8px",
+          border: "1px solid #e2e8f0"
+        }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: {
+            color: "#64748b",
+            fontSize: "14px",
+            margin: "0 0 20px 0",
+            lineHeight: "1.5"
+          }, children: "Connect with Google Search Console to analyze your content performance and get data-driven insights." }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gap: "16px", marginBottom: "20px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: {
+                display: "block",
+                fontSize: "14px",
+                fontWeight: "500",
+                color: "#374151",
+                marginBottom: "8px"
+              }, children: "Google OAuth2 Client ID" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "text",
+                  value: currentSettings.gscClientId || "",
+                  onChange: (e) => handleSettingChange("gscClientId", e.target.value),
+                  placeholder: "Your Google OAuth2 Client ID",
+                  className: "aca-input",
+                  style: { width: "100%" }
+                }
+              )
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: {
+                display: "block",
+                fontSize: "14px",
+                fontWeight: "500",
+                color: "#374151",
+                marginBottom: "8px"
+              }, children: "Google OAuth2 Client Secret" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "password",
+                  value: currentSettings.gscClientSecret || "",
+                  onChange: (e) => handleSettingChange("gscClientSecret", e.target.value),
+                  placeholder: "Your Google OAuth2 Client Secret",
+                  className: "aca-input",
+                  style: { width: "100%" }
+                }
+              )
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: {
+            color: "#64748b",
+            fontSize: "12px",
+            margin: "0",
+            lineHeight: "1.4"
+          }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: "https://console.cloud.google.com/", target: "_blank", rel: "noopener noreferrer", style: { color: "#0073aa" }, children: "Learn how to set up Google OAuth2 credentials →" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+            marginTop: "20px",
+            padding: "16px",
+            backgroundColor: currentSettings.searchConsoleUser ? "#dcfce7" : "#fef2f2",
+            borderRadius: "6px",
+            border: `1px solid ${currentSettings.searchConsoleUser ? "#16a34a" : "#ef4444"}`
+          }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
+              currentSettings.searchConsoleUser ? /* @__PURE__ */ jsxRuntimeExports.jsx(CheckCircle, { style: { width: "16px", height: "16px", color: "#16a34a" } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Settings, { style: { width: "16px", height: "16px", color: "#ef4444" } }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: {
+                fontSize: "14px",
+                fontWeight: "500",
+                color: currentSettings.searchConsoleUser ? "#166534" : "#991b1b"
+              }, children: currentSettings.searchConsoleUser ? "Connected" : "Not Connected" })
+            ] }),
+            currentSettings.searchConsoleUser && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { style: {
+              margin: "4px 0 0 24px",
+              fontSize: "12px",
+              color: "#166534"
+            }, children: [
+              "Connected as: ",
+              currentSettings.searchConsoleUser
+            ] })
+          ] })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "30px" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { style: {
+          fontSize: "18px",
+          fontWeight: "600",
+          margin: "0 0 16px 0",
+          color: "#1e293b",
+          display: "flex",
+          alignItems: "center",
+          gap: "8px"
+        }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Settings, { style: { width: "20px", height: "20px", color: "#ef4444" } }),
+          "Debug Information"
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+          padding: "20px",
+          backgroundColor: "#f8fafc",
+          borderRadius: "8px",
+          border: "1px solid #e2e8f0"
+        }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gap: "12px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            padding: "8px 0",
+            borderBottom: "1px solid #e2e8f0"
+          }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "14px", fontWeight: "500", color: "#374151" }, children: "Plugin Version" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "14px", color: "#64748b" }, children: "2.3.1" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            padding: "8px 0",
+            borderBottom: "1px solid #e2e8f0"
+          }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "14px", fontWeight: "500", color: "#374151" }, children: "License Status" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: {
+              fontSize: "14px",
+              color: licenseStatus.is_active ? "#16a34a" : "#ef4444",
+              fontWeight: "500"
+            }, children: licenseStatus.is_active ? "Pro Active" : "Free Version" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            padding: "8px 0",
+            borderBottom: "1px solid #e2e8f0"
+          }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "14px", fontWeight: "500", color: "#374151" }, children: "Automation Mode" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "14px", color: "#64748b" }, children: currentSettings.mode || "manual" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            padding: "8px 0",
+            borderBottom: "1px solid #e2e8f0"
+          }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "14px", fontWeight: "500", color: "#374151" }, children: "Gemini API" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: {
+              fontSize: "14px",
+              color: currentSettings.geminiApiKey ? "#16a34a" : "#ef4444",
+              fontWeight: "500"
+            }, children: currentSettings.geminiApiKey ? "Configured" : "Not Configured" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            padding: "8px 0"
+          }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "14px", fontWeight: "500", color: "#374151" }, children: "Image Provider" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "14px", color: "#64748b" }, children: currentSettings.imageSourceProvider || "pexels" })
+          ] })
+        ] }) })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "30px" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { style: {
+          fontSize: "18px",
+          fontWeight: "600",
+          margin: "0 0 16px 0",
+          color: "#1e293b",
+          display: "flex",
+          alignItems: "center",
+          gap: "8px"
+        }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Settings, { style: { width: "20px", height: "20px", color: "#ef4444" } }),
+          "Maintenance"
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+          padding: "20px",
+          backgroundColor: "#fef2f2",
+          borderRadius: "8px",
+          border: "1px solid #fecaca"
+        }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { style: {
+            color: "#991b1b",
+            fontSize: "14px",
+            margin: "0 0 16px 0",
+            lineHeight: "1.5"
+          }, children: [
+            "⚠️ ",
+            /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Caution:" }),
+            " These actions will affect your plugin data. Use only when troubleshooting issues."
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "12px", flexWrap: "wrap" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                onClick: () => {
+                  if (window.confirm("This will clear all cached data. Continue?")) {
+                    if (onShowToast) {
+                      onShowToast("Cache cleared successfully", "info");
+                    }
+                  }
+                },
+                style: {
+                  padding: "8px 16px",
+                  backgroundColor: "#ef4444",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "6px",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                  cursor: "pointer"
+                },
+                children: "Clear Cache"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                onClick: () => {
+                  if (onRefreshApp) {
+                    onRefreshApp();
+                    if (onShowToast) {
+                      onShowToast("Application refreshed", "info");
+                    }
+                  }
+                },
+                style: {
+                  padding: "8px 16px",
+                  backgroundColor: "#64748b",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "6px",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                  cursor: "pointer"
+                },
+                children: "Refresh App"
+              }
+            )
+          ] })
+        ] })
+      ] })
     ] });
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-fade-in", style: {
       maxHeight: "calc(100vh - 100px)",

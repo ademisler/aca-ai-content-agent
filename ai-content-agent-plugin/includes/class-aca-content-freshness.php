@@ -116,8 +116,13 @@ class ACA_Content_Freshness {
             return $this->get_fallback_analysis($content, $title);
         }
         
-        // In a real implementation, this would call the Gemini API via JavaScript/AJAX
-        // For now, we'll use a more sophisticated heuristic analysis
+        // Try to call the real AI analysis first, fallback to heuristic
+        $ai_result = $this->call_gemini_ai_analysis($content, $title);
+        if (!is_wp_error($ai_result)) {
+            return $ai_result;
+        }
+        
+        // Fallback to enhanced heuristic analysis
         return $this->get_enhanced_heuristic_analysis($content, $title);
     }
     
@@ -318,6 +323,121 @@ class ACA_Content_Freshness {
     }
     
     /**
+     * Call real Gemini AI analysis for content freshness
+     * 
+     * @param string $content Post content
+     * @param string $title Post title
+     * @return string|WP_Error JSON response from AI or error
+     */
+    private function call_gemini_ai_analysis($content, $title) {
+        $settings = get_option('aca_settings', array());
+        if (empty($settings['geminiApiKey'])) {
+            return new WP_Error('no_api_key', 'Gemini API key not configured');
+        }
+        
+        try {
+            // Prepare the API request
+            $api_url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent';
+            $api_key = $settings['geminiApiKey'];
+            
+            $prompt = "Analyze this published content for freshness and provide comprehensive update recommendations:
+
+Title: {$title}
+Content: " . substr(strip_tags($content), 0, 2000) . "...
+
+Provide a detailed JSON response with:
+1. freshness_score (0-100) - Overall content freshness score
+2. update_priority (1-5, 5 being urgent) - Priority level for updates  
+3. specific_suggestions (array of actionable improvements)
+4. outdated_information (array of potentially outdated facts/statistics)
+5. seo_improvements (array of SEO enhancement suggestions)
+6. readability_improvements (array of readability enhancements)
+7. content_gaps (array of missing topics that should be added)
+8. technical_updates (array of technical aspects that need updating)
+
+Consider factors like:
+- Date references and time-sensitive information
+- Industry trends and developments
+- Technology changes and updates
+- Statistical data and research findings
+- Link relevance and availability
+- Content comprehensiveness
+- Search intent alignment
+- User engagement potential
+
+Return only valid JSON format.";
+
+            $request_body = array(
+                'contents' => array(
+                    array(
+                        'parts' => array(
+                            array('text' => $prompt)
+                        )
+                    )
+                ),
+                'generationConfig' => array(
+                    'temperature' => 0.3,
+                    'topK' => 40,
+                    'topP' => 0.95,
+                    'maxOutputTokens' => 2048,
+                    'responseMimeType' => 'application/json'
+                )
+            );
+            
+            $response = wp_remote_post($api_url . '?key=' . $api_key, array(
+                'headers' => array(
+                    'Content-Type' => 'application/json',
+                ),
+                'body' => json_encode($request_body),
+                'timeout' => 30,
+            ));
+            
+            if (is_wp_error($response)) {
+                error_log('ACA Content Freshness: Gemini API request failed: ' . $response->get_error_message());
+                return new WP_Error('api_request_failed', $response->get_error_message());
+            }
+            
+            $response_code = wp_remote_retrieve_response_code($response);
+            if ($response_code !== 200) {
+                error_log('ACA Content Freshness: Gemini API returned error code: ' . $response_code);
+                return new WP_Error('api_error', 'API request failed with code: ' . $response_code);
+            }
+            
+            $response_body = wp_remote_retrieve_body($response);
+            $data = json_decode($response_body, true);
+            
+            if (!$data || !isset($data['candidates'][0]['content']['parts'][0]['text'])) {
+                error_log('ACA Content Freshness: Invalid Gemini API response format');
+                return new WP_Error('invalid_response', 'Invalid API response format');
+            }
+            
+            $ai_response = $data['candidates'][0]['content']['parts'][0]['text'];
+            
+            // Validate that the response is valid JSON
+            $parsed_response = json_decode($ai_response, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                error_log('ACA Content Freshness: AI returned invalid JSON: ' . json_last_error_msg());
+                return new WP_Error('invalid_json', 'AI response is not valid JSON');
+            }
+            
+            // Validate required fields
+            $required_fields = array('freshness_score', 'update_priority', 'specific_suggestions');
+            foreach ($required_fields as $field) {
+                if (!isset($parsed_response[$field])) {
+                    error_log('ACA Content Freshness: Missing required field in AI response: ' . $field);
+                    return new WP_Error('missing_field', 'Missing required field: ' . $field);
+                }
+            }
+            
+            return $ai_response;
+            
+        } catch (Exception $e) {
+            error_log('ACA Content Freshness: Exception in AI analysis: ' . $e->getMessage());
+            return new WP_Error('exception', $e->getMessage());
+        }
+    }
+    
+    /**
      * Calculate update priority based on freshness and SEO performance
      * 
      * @param float $freshness_score
@@ -394,15 +514,23 @@ class ACA_Content_Freshness {
         global $wpdb;
         
         $freshness_table = $wpdb->prefix . 'aca_content_freshness';
+        $postmeta_table = $wpdb->prefix . 'postmeta';
         
         // Get published posts that haven't been analyzed in the last week
+        // Check both the freshness table and the meta field
         $posts = $wpdb->get_col($wpdb->prepare("
             SELECT p.ID 
             FROM {$wpdb->posts} p
             LEFT JOIN $freshness_table f ON p.ID = f.post_id
+            LEFT JOIN $postmeta_table pm ON p.ID = pm.post_id AND pm.meta_key = '_aca_last_freshness_check'
             WHERE p.post_status = 'publish'
             AND p.post_type = 'post'
-            AND (f.last_analyzed IS NULL OR f.last_analyzed < DATE_SUB(NOW(), INTERVAL 7 DAY))
+            AND (
+                f.last_analyzed IS NULL 
+                OR f.last_analyzed < DATE_SUB(NOW(), INTERVAL 7 DAY)
+                OR pm.meta_value IS NULL
+                OR pm.meta_value < DATE_SUB(NOW(), INTERVAL 7 DAY)
+            )
             ORDER BY p.post_date DESC
             LIMIT %d
         ", $limit));

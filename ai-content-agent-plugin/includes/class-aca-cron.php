@@ -249,6 +249,9 @@ class ACA_Cron {
             if (!is_wp_error($analysis)) {
                 $analyzed_count++;
                 
+                // Update meta field to track last analysis
+                update_post_meta($post_id, '_aca_last_freshness_check', current_time('mysql'));
+                
                 // If post needs update and auto-update is enabled, queue it
                 if ($analysis['needs_update'] && isset($freshness_settings['autoUpdate']) && $freshness_settings['autoUpdate']) {
                     $freshness_manager->queue_content_update($post_id, $analysis);

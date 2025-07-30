@@ -1,7 +1,7 @@
 
 import React, { memo } from 'react';
 import type { View, ActivityLog } from '../types';
-import { Lightbulb, BookOpen, FileText, Send, CheckCircle } from './Icons';
+import { Lightbulb, BookOpen, FileText, Send, CheckCircle, Sparkles, AlertTriangle } from './Icons';
 import { ActivityLogList } from './ActivityLog';
 
 interface DashboardProps {
@@ -9,6 +9,11 @@ interface DashboardProps {
         ideas: number;
         drafts: number;
         published: number;
+        contentFreshness?: {
+            total: number;
+            needsUpdate: number;
+            averageScore: number;
+        };
     };
     lastAnalyzed?: string | undefined;
     activityLogs: ActivityLog[];
@@ -196,6 +201,57 @@ export const Dashboard: React.FC<DashboardProps> = ({
                             disabled={isLoadingStyle}
                         >
                             {isLoadingStyle ? 'Updating...' : 'Refresh Analysis'}
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* Content Freshness Widget (Pro Feature) */}
+            {stats.contentFreshness && (
+                <div className="aca-card" style={{ marginBottom: '30px' }}>
+                    <div className="aca-card-header">
+                        <h2 className="aca-card-title">
+                            <Sparkles style={{ marginRight: '8px' }} />
+                            Content Freshness (Pro)
+                        </h2>
+                    </div>
+                    <div className="aca-grid aca-grid-3">
+                        <div style={{ textAlign: 'center', padding: '15px' }}>
+                            <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#0073aa', marginBottom: '5px' }}>
+                                {stats.contentFreshness.total}
+                            </div>
+                            <div style={{ fontSize: '13px', color: '#666' }}>Total Posts</div>
+                        </div>
+                        <div style={{ textAlign: 'center', padding: '15px' }}>
+                            <div style={{ fontSize: '24px', fontWeight: 'bold', color: stats.contentFreshness.needsUpdate > 0 ? '#dc3545' : '#28a745', marginBottom: '5px' }}>
+                                {stats.contentFreshness.needsUpdate}
+                            </div>
+                            <div style={{ fontSize: '13px', color: '#666', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                                {stats.contentFreshness.needsUpdate > 0 && <AlertTriangle style={{ width: '14px', height: '14px' }} />}
+                                Need Updates
+                            </div>
+                        </div>
+                        <div style={{ textAlign: 'center', padding: '15px' }}>
+                            <div style={{ 
+                                fontSize: '24px', 
+                                fontWeight: 'bold', 
+                                color: stats.contentFreshness.averageScore >= 80 ? '#28a745' : 
+                                       stats.contentFreshness.averageScore >= 60 ? '#ffc107' : '#dc3545',
+                                marginBottom: '5px' 
+                            }}>
+                                {stats.contentFreshness.averageScore}
+                            </div>
+                            <div style={{ fontSize: '13px', color: '#666' }}>Avg. Score</div>
+                        </div>
+                    </div>
+                    <div style={{ marginTop: '15px', textAlign: 'center' }}>
+                        <button 
+                            onClick={() => onNavigate('content-freshness')} 
+                            className="aca-button primary"
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                        >
+                            <Sparkles style={{ width: '16px', height: '16px' }} />
+                            Manage Content Freshness
                         </button>
                     </div>
                 </div>

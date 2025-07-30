@@ -199,20 +199,17 @@ export const contentFreshnessApi = {
     method: 'POST',
     body: JSON.stringify(settings),
   }),
-  getPosts: (limit?: number, status?: string) => makeApiCall('content-freshness/posts', {
-    method: 'GET',
-    ...(limit || status ? { 
-      headers: {
-        'X-Query-Params': JSON.stringify({ limit, status })
-      }
-    } : {})
-  }),
-  getPostsNeedingUpdates: (limit?: number) => makeApiCall('content-freshness/posts/needing-updates', {
-    method: 'GET',
-    ...(limit ? { 
-      headers: {
-        'X-Query-Params': JSON.stringify({ limit })
-      }
-    } : {})
-  }),
+  getPosts: (limit?: number, status?: string) => {
+    const params = new URLSearchParams();
+    if (limit) params.append('limit', limit.toString());
+    if (status) params.append('status', status);
+    const queryString = params.toString();
+    return makeApiCall(`content-freshness/posts${queryString ? '?' + queryString : ''}`);
+  },
+  getPostsNeedingUpdates: (limit?: number) => {
+    const params = new URLSearchParams();
+    if (limit) params.append('limit', limit.toString());
+    const queryString = params.toString();
+    return makeApiCall(`content-freshness/posts/needing-updates${queryString ? '?' + queryString : ''}`);
+  },
 };

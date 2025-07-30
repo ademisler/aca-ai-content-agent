@@ -7983,10 +7983,19 @@
     })
   };
   const licenseApi = {
-    verify: (licenseKey) => makeApiCall("license/verify", {
-      method: "POST",
-      body: JSON.stringify({ license_key: licenseKey })
-    }),
+    verify: async (licenseKey) => {
+      try {
+        const result = await makeApiCall("license/verify", {
+          method: "POST",
+          body: JSON.stringify({ license_key: licenseKey })
+        });
+        console.log("License verification result:", result);
+        return result;
+      } catch (error) {
+        console.error("License API error:", error);
+        throw error;
+      }
+    },
     getStatus: () => makeApiCall("license/status")
   };
   var SchemaType;
@@ -10694,7 +10703,15 @@
         }
       } catch (error) {
         console.error("License verification failed:", error);
-        alert("License verification failed. Please try again.");
+        let errorMessage = "License verification failed. Please try again.";
+        if (error && typeof error === "object") {
+          if (error.message) {
+            errorMessage = `License verification failed: ${error.message}`;
+          } else if (error.data && error.data.message) {
+            errorMessage = `License verification failed: ${error.data.message}`;
+          }
+        }
+        alert(errorMessage);
       } finally {
         setIsVerifyingLicense(false);
       }

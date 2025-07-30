@@ -191,7 +191,18 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings }) 
             }
         } catch (error) {
             console.error('License verification failed:', error);
-            alert('License verification failed. Please try again.');
+            let errorMessage = 'License verification failed. Please try again.';
+            
+            // Try to extract more specific error information
+            if (error && typeof error === 'object') {
+                if (error.message) {
+                    errorMessage = `License verification failed: ${error.message}`;
+                } else if (error.data && error.data.message) {
+                    errorMessage = `License verification failed: ${error.data.message}`;
+                }
+            }
+            
+            alert(errorMessage);
         } finally {
             setIsVerifyingLicense(false);
         }

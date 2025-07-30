@@ -3150,16 +3150,16 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             );
         }
         
-        // Gumroad product permalink - get this from your product URL
-        // If your product URL is "https://gumroad.com/l/ai-content-agent-pro" 
-        // then your product_permalink is "ai-content-agent-pro"
-        $product_permalink = 'ai-content-agent-pro';
+        // Gumroad product ID - get this from your product's content page by expanding the license key module
+        // ⚠️ Important: For products created on or after Jan 9, 2023, use product_id instead of product_permalink
+        // You can find this ID by going to your product's content page and expanding the license key module
+        $product_id = 'Q2Mhx923crYSQP19FBbYsg==';
         
-        // Log the product permalink being used for debugging
-        error_log('ACA: Using product_permalink: ' . $product_permalink . ' for license verification');
+        // Log the product ID being used for debugging
+        error_log('ACA: Using product_id: ' . $product_id . ' for license verification');
         
         try {
-            $verification_result = $this->call_gumroad_api($product_permalink, $license_key);
+            $verification_result = $this->call_gumroad_api($product_id, $license_key);
             
             if ($verification_result['success']) {
                 // Store license status
@@ -3204,29 +3204,18 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
     /**
      * Call Gumroad License Verification API
      */
-    private function call_gumroad_api($product_permalink, $license_key) {
+    private function call_gumroad_api($product_id, $license_key) {
         $url = 'https://api.gumroad.com/v2/licenses/verify';
         
         // Log API call details
         error_log('ACA: Calling Gumroad API - URL: ' . $url . ', Product ID: ' . $product_id);
         
-        // Try with product_id first (for newer products)
+        // Use product_id for products created on or after Jan 9, 2023
         $body_data = array(
-            'product_id' => $product_id,           // Use product_id for products after Jan 9, 2023
+            'product_id' => $product_id,           // Required for products after Jan 9, 2023
             'license_key' => $license_key,
             'increment_uses_count' => 'true'       // Track usage for analytics
         );
-        
-        // Alternative: If product_id doesn't work, some products might need product_permalink
-        // You can get the permalink from the Gumroad product URL (e.g., ai-content-agent-pro)
-        // Uncomment and use this if product_id fails:
-        /*
-        $body_data = array(
-            'product_permalink' => 'ai-content-agent-pro',  // The slug from your Gumroad URL
-            'license_key' => $license_key,
-            'increment_uses_count' => 'true'
-        );
-        */
         
         // Log request body (without showing full license key for security)
         $log_body = $body_data;
@@ -3279,6 +3268,20 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             $is_valid = $is_valid && 
                        ($data['purchase']['refunded'] === false) && 
                        ($data['purchase']['chargebacked'] === false);
+                       
+            // Check if subscription has ended, cancelled, or failed (for subscription products)
+            if (isset($data['purchase']['subscription_ended_at']) && $data['purchase']['subscription_ended_at'] !== null) {
+                $is_valid = false;
+                error_log('ACA: License invalid - subscription ended at: ' . $data['purchase']['subscription_ended_at']);
+            }
+            if (isset($data['purchase']['subscription_cancelled_at']) && $data['purchase']['subscription_cancelled_at'] !== null) {
+                $is_valid = false;
+                error_log('ACA: License invalid - subscription cancelled at: ' . $data['purchase']['subscription_cancelled_at']);
+            }
+            if (isset($data['purchase']['subscription_failed_at']) && $data['purchase']['subscription_failed_at'] !== null) {
+                $is_valid = false;
+                error_log('ACA: License invalid - subscription failed at: ' . $data['purchase']['subscription_failed_at']);
+            }
         }
         
         return array(

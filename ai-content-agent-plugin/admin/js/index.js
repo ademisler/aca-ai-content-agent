@@ -1203,6 +1203,19 @@
   left: 160px !important; /* Right next to WordPress admin menu */
   top: 0 !important;
   height: 100vh !important;
+}
+
+/* Fix for WordPress clear divs causing unwanted spacing */
+
+#toplevel_page_ai-content-agent #wpbody-content > .clear,
+#toplevel_page_ai-content-agent #wpbody > .clear {
+  display: none !important;
+}
+
+/* Additional fix for screen-meta spacing */
+
+#toplevel_page_ai-content-agent #screen-meta {
+  margin-bottom: 0 !important;
 }/*$vite$:1*/`;
   document.head.appendChild(__vite_style__);
   function getDefaultExportFromCjs(x) {

@@ -235,24 +235,116 @@ export const IdeaBoard: React.FC<IdeaBoardProps> = ({
 
     return (
         <div className="aca-fade-in">
-            <div className="aca-page-header">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '20px' }}>
-                    <div>
-                        <h1 className="aca-page-title">Idea Board</h1>
-                        <p className="aca-page-description">
-                            Generate fresh content ideas and turn your favorites into drafts. Click any title to edit it.
-                        </p>
+            {/* Modern Ideas Header */}
+            <div style={{
+                background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                borderRadius: '12px',
+                padding: '30px',
+                marginBottom: '30px',
+                color: 'white',
+                position: 'relative',
+                overflow: 'hidden'
+            }}>
+                <div style={{ position: 'relative', zIndex: 2 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '20px' }}>
+                        <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                                <div style={{
+                                    width: '48px',
+                                    height: '48px',
+                                    background: 'rgba(255,255,255,0.2)',
+                                    borderRadius: '12px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    backdropFilter: 'blur(10px)'
+                                }}>
+                                    <Lightbulb style={{ width: '24px', height: '24px' }} />
+                                </div>
+                                <div>
+                                    <h1 style={{ 
+                                        fontSize: '28px', 
+                                        fontWeight: '700', 
+                                        margin: 0,
+                                        textShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                                    }}>
+                                        Idea Board
+                                    </h1>
+                                    <div style={{ fontSize: '16px', opacity: 0.9, marginTop: '4px' }}>
+                                        AI-powered content inspiration
+                                    </div>
+                                </div>
+                            </div>
+                            <p style={{ 
+                                fontSize: '14px', 
+                                opacity: 0.85,
+                                margin: 0,
+                                maxWidth: '600px',
+                                lineHeight: '1.5'
+                            }}>
+                                Generate fresh content ideas and transform your favorites into drafts. Click any title to edit it.
+                            </p>
+                        </div>
+                        <button
+                            onClick={onGenerate}
+                            disabled={isLoading}
+                            style={{
+                                background: 'rgba(255,255,255,0.2)',
+                                border: '1px solid rgba(255,255,255,0.3)',
+                                color: 'white',
+                                padding: '12px 24px',
+                                borderRadius: '8px',
+                                fontSize: '14px',
+                                fontWeight: '600',
+                                cursor: isLoading ? 'not-allowed' : 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                transition: 'all 0.2s ease',
+                                backdropFilter: 'blur(10px)',
+                                minWidth: '140px',
+                                justifyContent: 'center'
+                            }}
+                            onMouseEnter={(e) => {
+                                if (!isLoading) {
+                                    e.currentTarget.style.background = 'rgba(255,255,255,0.3)';
+                                    e.currentTarget.style.transform = 'translateY(-1px)';
+                                }
+                            }}
+                            onMouseLeave={(e) => {
+                                if (!isLoading) {
+                                    e.currentTarget.style.background = 'rgba(255,255,255,0.2)';
+                                    e.currentTarget.style.transform = 'translateY(0)';
+                                }
+                            }}
+                        >
+                            {isLoading && <span className="aca-spinner"></span>}
+                            {!isLoading && <Sparkles style={{ width: '16px', height: '16px' }} />}
+                            {isLoading ? 'Generating...' : 'Generate Ideas'}
+                        </button>
                     </div>
-                    <button
-                        onClick={onGenerate}
-                        disabled={isLoading}
-                        className="aca-button large"
-                    >
-                        {isLoading && <span className="aca-spinner"></span>}
-                        <Lightbulb className="aca-nav-item-icon" />
-                        {isLoading ? 'Generating...' : 'Generate Ideas'}
-                    </button>
                 </div>
+                {/* Decorative elements */}
+                <div style={{
+                    position: 'absolute',
+                    top: '-30px',
+                    right: '-30px',
+                    width: '120px',
+                    height: '120px',
+                    background: 'rgba(255,255,255,0.1)',
+                    borderRadius: '50%',
+                    zIndex: 1
+                }}></div>
+                <div style={{
+                    position: 'absolute',
+                    bottom: '-20px',
+                    left: '-20px',
+                    width: '80px',
+                    height: '80px',
+                    background: 'rgba(255,255,255,0.05)',
+                    borderRadius: '50%',
+                    zIndex: 1
+                }}></div>
             </div>
 
             {/* Add New Idea */}

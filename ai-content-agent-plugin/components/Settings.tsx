@@ -501,24 +501,108 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
 
     return (
         <div className="aca-fade-in">
-            <div className="aca-page-header">
-                <h1 className="aca-page-title">Settings</h1>
-                <p className="aca-page-description">
-                                            Configure automation modes, integrations, and content generation preferences to customize your AI Content Agent (ACA) experience.
-                </p>
+            {/* Modern Settings Header */}
+            <div style={{
+                background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                borderRadius: '12px',
+                padding: '30px',
+                marginBottom: '30px',
+                color: 'white',
+                position: 'relative',
+                overflow: 'hidden'
+            }}>
+                <div style={{ position: 'relative', zIndex: 2 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                        <div style={{
+                            width: '48px',
+                            height: '48px',
+                            background: 'rgba(255,255,255,0.2)',
+                            borderRadius: '12px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            backdropFilter: 'blur(10px)'
+                        }}>
+                            <SettingsIcon style={{ width: '24px', height: '24px' }} />
+                        </div>
+                        <div>
+                            <h1 style={{ 
+                                fontSize: '28px', 
+                                fontWeight: '700', 
+                                margin: 0,
+                                textShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                            }}>
+                                Settings & Configuration
+                            </h1>
+                            <div style={{ fontSize: '16px', opacity: 0.9, marginTop: '4px' }}>
+                                Customize your AI Content Agent experience
+                            </div>
+                        </div>
+                    </div>
+                    <p style={{ 
+                        fontSize: '14px', 
+                        opacity: 0.85,
+                        margin: 0,
+                        maxWidth: '600px',
+                        lineHeight: '1.5'
+                    }}>
+                        Configure automation modes, API integrations, and content generation preferences to optimize your workflow
+                    </p>
+                </div>
+                {/* Decorative elements */}
+                <div style={{
+                    position: 'absolute',
+                    top: '-30px',
+                    right: '-30px',
+                    width: '120px',
+                    height: '120px',
+                    background: 'rgba(255,255,255,0.1)',
+                    borderRadius: '50%',
+                    zIndex: 1
+                }}></div>
+                <div style={{
+                    position: 'absolute',
+                    bottom: '-20px',
+                    left: '-20px',
+                    width: '80px',
+                    height: '80px',
+                    background: 'rgba(255,255,255,0.05)',
+                    borderRadius: '50%',
+                    zIndex: 1
+                }}></div>
             </div>
 
             {/* 1. License Activation - First Priority */}
-            <div className="aca-card">
-                <div className="aca-card-header">
-                    <h2 className="aca-card-title">
-                        <Shield className="aca-nav-item-icon" />
+            <div className="aca-card" style={{ 
+                background: 'linear-gradient(145deg, #fefefe 0%, #f8f9fa 100%)',
+                border: '1px solid #e2e8f0',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+            }}>
+                <div className="aca-card-header" style={{ borderBottom: '1px solid #e2e8f0', paddingBottom: '15px' }}>
+                    <h2 className="aca-card-title" style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '8px',
+                        color: '#1e293b'
+                    }}>
+                        <div style={{ 
+                            width: '32px', 
+                            height: '32px', 
+                            background: 'linear-gradient(135deg, #10b981, #059669)',
+                            borderRadius: '8px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}>
+                            <Shield style={{ width: '18px', height: '18px', color: 'white' }} />
+                        </div>
                         Pro License Activation
                     </h2>
+                    <p style={{ margin: '8px 0 0 0', color: '#64748b', fontSize: '14px' }}>
+                        Unlock advanced features and automation capabilities
+                    </p>
                 </div>
-                <p className="aca-page-description">
-                    Activate your Pro license to unlock advanced automation modes and Google Search Console integration.
-                </p>
+
                 
                 <div className="aca-stat-item" style={{ margin: '0 0 20px 0' }}>
                     <div className="aca-stat-info">

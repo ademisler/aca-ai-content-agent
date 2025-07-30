@@ -217,11 +217,91 @@ export const ContentCalendar: React.FC<ContentCalendarProps> = ({ drafts, publis
 
     return (
         <div className="aca-fade-in">
-            <div className="aca-page-header">
-                <h1 className="aca-page-title">Content Calendar</h1>
-                <p className="aca-page-description">
-                    Schedule your drafts by dragging them onto calendar dates. View scheduled and published content timeline.
-                </p>
+            {/* Modern Calendar Header */}
+            <div style={{
+                background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+                borderRadius: '12px',
+                padding: '30px',
+                marginBottom: '30px',
+                color: 'white',
+                position: 'relative',
+                overflow: 'hidden'
+            }}>
+                <div style={{ position: 'relative', zIndex: 2 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                        <div style={{
+                            width: '48px',
+                            height: '48px',
+                            background: 'rgba(255,255,255,0.2)',
+                            borderRadius: '12px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            backdropFilter: 'blur(10px)'
+                        }}>
+                            <CalendarIcon style={{ width: '24px', height: '24px' }} />
+                        </div>
+                        <div>
+                            <h1 style={{ 
+                                fontSize: '28px', 
+                                fontWeight: '700', 
+                                margin: 0,
+                                textShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                            }}>
+                                Content Calendar
+                            </h1>
+                            <div style={{ fontSize: '16px', opacity: 0.9, marginTop: '4px' }}>
+                                Schedule and organize your content timeline
+                            </div>
+                        </div>
+                    </div>
+                    <p style={{ 
+                        fontSize: '14px', 
+                        opacity: 0.85,
+                        margin: 0,
+                        maxWidth: '600px',
+                        lineHeight: '1.5'
+                    }}>
+                        Schedule your drafts by dragging them onto calendar dates. View scheduled and published content timeline.
+                    </p>
+                    
+                    {/* Stats */}
+                    <div style={{ display: 'flex', gap: '20px', marginTop: '20px', flexWrap: 'wrap' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <div style={{ width: '8px', height: '8px', backgroundColor: '#fbbf24', borderRadius: '50%' }}></div>
+                            <span style={{ fontSize: '14px', opacity: 0.9 }}>{scheduledDrafts.length} Scheduled</span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <div style={{ width: '8px', height: '8px', backgroundColor: '#4ade80', borderRadius: '50%' }}></div>
+                            <span style={{ fontSize: '14px', opacity: 0.9 }}>{publishedPosts.length} Published</span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <div style={{ width: '8px', height: '8px', backgroundColor: '#60a5fa', borderRadius: '50%' }}></div>
+                            <span style={{ fontSize: '14px', opacity: 0.9 }}>{unscheduledDrafts.length} Unscheduled</span>
+                        </div>
+                    </div>
+                </div>
+                {/* Decorative elements */}
+                <div style={{
+                    position: 'absolute',
+                    top: '-30px',
+                    right: '-30px',
+                    width: '120px',
+                    height: '120px',
+                    background: 'rgba(255,255,255,0.1)',
+                    borderRadius: '50%',
+                    zIndex: 1
+                }}></div>
+                <div style={{
+                    position: 'absolute',
+                    bottom: '-20px',
+                    left: '-20px',
+                    width: '80px',
+                    height: '80px',
+                    background: 'rgba(255,255,255,0.05)',
+                    borderRadius: '50%',
+                    zIndex: 1
+                }}></div>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>

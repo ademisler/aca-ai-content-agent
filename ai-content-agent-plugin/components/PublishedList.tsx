@@ -102,11 +102,91 @@ export const PublishedList: React.FC<PublishedListProps> = ({ posts, onSelectPos
 
     return (
         <div className="aca-fade-in">
-            <div className="aca-page-header">
-                <h1 className="aca-page-title">Published Posts</h1>
-                <p className="aca-page-description">
-                    Congratulations! Here are your successfully published articles. Click "View Content" to see the full post.
-                </p>
+            {/* Modern Published Posts Header */}
+            <div style={{
+                background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+                borderRadius: '12px',
+                padding: '30px',
+                marginBottom: '30px',
+                color: 'white',
+                position: 'relative',
+                overflow: 'hidden'
+            }}>
+                <div style={{ position: 'relative', zIndex: 2 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                        <div style={{
+                            width: '48px',
+                            height: '48px',
+                            background: 'rgba(255,255,255,0.2)',
+                            borderRadius: '12px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            backdropFilter: 'blur(10px)'
+                        }}>
+                            <Send style={{ width: '24px', height: '24px' }} />
+                        </div>
+                        <div>
+                            <h1 style={{ 
+                                fontSize: '28px', 
+                                fontWeight: '700', 
+                                margin: 0,
+                                textShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                            }}>
+                                Published Posts
+                            </h1>
+                            <div style={{ fontSize: '16px', opacity: 0.9, marginTop: '4px' }}>
+                                Your successful content publications
+                            </div>
+                        </div>
+                    </div>
+                    <p style={{ 
+                        fontSize: '14px', 
+                        opacity: 0.85,
+                        margin: 0,
+                        maxWidth: '600px',
+                        lineHeight: '1.5'
+                    }}>
+                        Congratulations! Here are your successfully published articles. Click "View Content" to see the full post.
+                    </p>
+                    
+                    {/* Stats */}
+                    <div style={{ display: 'flex', gap: '20px', marginTop: '20px', flexWrap: 'wrap' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <div style={{ width: '8px', height: '8px', backgroundColor: '#4ade80', borderRadius: '50%' }}></div>
+                            <span style={{ fontSize: '14px', opacity: 0.9 }}>{posts.length} Published Articles</span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <div style={{ width: '8px', height: '8px', backgroundColor: '#60a5fa', borderRadius: '50%' }}></div>
+                            <span style={{ fontSize: '14px', opacity: 0.9 }}>AI-Generated Content</span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <div style={{ width: '8px', height: '8px', backgroundColor: '#fbbf24', borderRadius: '50%' }}></div>
+                            <span style={{ fontSize: '14px', opacity: 0.9 }}>SEO Optimized</span>
+                        </div>
+                    </div>
+                </div>
+                {/* Decorative elements */}
+                <div style={{
+                    position: 'absolute',
+                    top: '-30px',
+                    right: '-30px',
+                    width: '120px',
+                    height: '120px',
+                    background: 'rgba(255,255,255,0.1)',
+                    borderRadius: '50%',
+                    zIndex: 1
+                }}></div>
+                <div style={{
+                    position: 'absolute',
+                    bottom: '-20px',
+                    left: '-20px',
+                    width: '80px',
+                    height: '80px',
+                    background: 'rgba(255,255,255,0.05)',
+                    borderRadius: '50%',
+                    zIndex: 1
+                }}></div>
             </div>
 
             {posts.length > 0 ? (

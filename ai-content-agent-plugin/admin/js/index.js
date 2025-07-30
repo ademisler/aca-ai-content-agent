@@ -624,20 +624,50 @@
   }
 }
 
-/* Animation classes */
+/* Modern animation classes */
 
 .aca-fade-in {
-  animation: aca-fade-in 0.3s ease-out;
+  animation: aca-fade-in 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.aca-slide-up {
+  animation: aca-slide-up 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.aca-scale-in {
+  animation: aca-scale-in 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @keyframes aca-fade-in {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes aca-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes aca-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 
@@ -690,6 +720,15 @@
   }
 }
 
+@keyframes aca-toast-progress {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
 /* Custom scrollbar for webkit browsers */
 
 ::-webkit-scrollbar {
@@ -709,11 +748,19 @@
   background: #a7aaad;
 }
 
-/* Responsive adjustments */
+/* Enhanced Responsive Design */
 
 @media (max-width: 1200px) {
   .aca-grid-2 {
     grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  }
+  
+  .aca-welcome-section {
+    padding: 25px !important;
+  }
+  
+  .aca-welcome-section h1 {
+    font-size: 24px !important;
   }
 }
 
@@ -724,6 +771,22 @@
   
   .aca-grid-4 {
     grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .aca-welcome-section {
+    padding: 20px !important;
+  }
+  
+  .aca-welcome-section h1 {
+    font-size: 22px !important;
+  }
+  
+  .aca-sidebar-header {
+    padding: 15px !important;
+  }
+  
+  .aca-sidebar-nav {
+    padding: 0 12px !important;
   }
 }
 
@@ -740,6 +803,194 @@
   
   .aca-card {
     padding: 15px;
+  }
+  
+  /* Mobile-first welcome section */
+  .aca-welcome-section {
+    padding: 20px !important;
+    margin-bottom: 20px !important;
+  }
+  
+  .aca-welcome-section h1 {
+    font-size: 20px !important;
+  }
+  
+  .aca-welcome-section p {
+    font-size: 14px !important;
+  }
+  
+  /* Mobile sidebar improvements */
+  .aca-sidebar {
+    width: 100% !important;
+    max-width: 320px;
+  }
+  
+  .aca-sidebar-header {
+    padding: 15px !important;
+  }
+  
+  .aca-sidebar-header h1 {
+    font-size: 16px !important;
+  }
+  
+  .aca-sidebar-nav {
+    padding: 0 12px !important;
+  }
+  
+  /* Mobile toast positioning */
+  .aca-toast-container {
+    left: 10px !important;
+    right: 10px !important;
+    bottom: 10px !important;
+    max-width: none !important;
+  }
+  
+  /* Mobile button improvements */
+  .aca-button {
+    min-height: 44px;
+    font-size: 14px;
+  }
+  
+  .aca-action-button {
+    min-height: 120px;
+  }
+  
+  /* Mobile form improvements */
+  .aca-input,
+  .aca-textarea,
+  .aca-select {
+    min-height: 44px;
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+}
+
+@media (max-width: 480px) {
+  .aca-main {
+    padding: 10px;
+  }
+  
+  .aca-card {
+    padding: 12px;
+    margin-bottom: 15px;
+  }
+  
+  .aca-welcome-section {
+    padding: 15px !important;
+  }
+  
+  .aca-welcome-section h1 {
+    font-size: 18px !important;
+  }
+  
+  .aca-welcome-section div[style*="display: flex"] {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+  
+  /* Ultra-mobile optimizations */
+  .aca-button {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+  
+  .aca-grid {
+    gap: 10px !important;
+  }
+}
+
+/* Accessibility Enhancements */
+
+/* Focus indicators */
+
+.aca-button:focus,
+.aca-input:focus,
+.aca-textarea:focus,
+.aca-select:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* High contrast mode support */
+
+@media (prefers-contrast: high) {
+  .aca-button {
+    border-width: 2px;
+  }
+  
+  .aca-card {
+    border-width: 2px;
+  }
+  
+  .aca-nav-item {
+    border: 1px solid transparent;
+  }
+  
+  .aca-nav-item.active {
+    border-color: currentColor;
+  }
+}
+
+/* Reduced motion support */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .aca-spinner::before,
+  .aca-spinner::after {
+    animation: none;
+  }
+  
+  .aca-pulse {
+    animation: none;
+  }
+  
+  .aca-skeleton {
+    animation: none;
+    background: #f0f0f0;
+  }
+}
+
+/* Dark mode support */
+
+@media (prefers-color-scheme: dark) {
+  .aca-skeleton {
+    background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #374151;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #6b7280;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+  }
+}
+
+/* Touch target improvements */
+
+@media (pointer: coarse) {
+  .aca-button,
+  .aca-nav-item,
+  button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  .aca-input,
+  .aca-textarea,
+  .aca-select {
+    min-height: 44px;
   }
 }
 
@@ -808,22 +1059,87 @@
   }
 }
 
-/* Improved spinner animation */
+/* Modern spinner animations */
 
 .aca-spinner {
   display: inline-block;
   width: 16px;
   height: 16px;
-  border: 2px solid #f3f3f3;
-  border-top: 2px solid #0073aa;
-  border-radius: 50%;
-  animation: aca-spin 1s linear infinite;
+  position: relative;
   vertical-align: middle;
 }
 
-@keyframes aca-spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+.aca-spinner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 2px solid transparent;
+  border-top: 2px solid #3b82f6;
+  border-right: 2px solid #3b82f6;
+  border-radius: 50%;
+  animation: aca-spin-modern 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.aca-spinner::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: calc(100% - 4px);
+  height: calc(100% - 4px);
+  border: 2px solid transparent;
+  border-top: 2px solid #60a5fa;
+  border-radius: 50%;
+  animation: aca-spin-modern 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite reverse;
+}
+
+@keyframes aca-spin-modern {
+  0% { 
+    transform: rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% { 
+    transform: rotate(360deg);
+    opacity: 1;
+  }
+}
+
+/* Pulse loading animation */
+
+.aca-pulse {
+  animation: aca-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes aca-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Skeleton loading */
+
+.aca-skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: aca-skeleton-loading 1.5s infinite;
+}
+
+@keyframes aca-skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 /* Loading overlay for cards */
@@ -9493,16 +9809,63 @@
       }
     );
   };
-  const NavItem = ({ icon, label, view, currentView, onClick }) => {
+  const NavItem = ({ icon, label, view, currentView, onClick, badge }) => {
     const isActive = currentView === view;
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(
       "button",
       {
         onClick,
         className: `aca-nav-item ${isActive ? "active" : ""}`,
+        style: {
+          position: "relative",
+          display: "flex",
+          alignItems: "center",
+          gap: "12px",
+          padding: "12px 16px",
+          margin: "2px 0",
+          borderRadius: "8px",
+          border: "none",
+          background: isActive ? "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)" : "transparent",
+          color: isActive ? "white" : "#64748b",
+          fontSize: "14px",
+          fontWeight: isActive ? "600" : "500",
+          cursor: "pointer",
+          transition: "all 0.2s ease",
+          width: "100%",
+          textAlign: "left",
+          boxShadow: isActive ? "0 4px 12px rgba(59, 130, 246, 0.3)" : "none"
+        },
+        onMouseEnter: (e) => {
+          if (!isActive) {
+            e.currentTarget.style.background = "#f1f5f9";
+            e.currentTarget.style.color = "#1e293b";
+          }
+        },
+        onMouseLeave: (e) => {
+          if (!isActive) {
+            e.currentTarget.style.background = "transparent";
+            e.currentTarget.style.color = "#64748b";
+          }
+        },
         children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "aca-nav-item-icon", children: icon }),
-          label
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: {
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: "20px",
+            height: "20px"
+          }, children: icon }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { flex: 1 }, children: label }),
+          badge && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: {
+            background: "linear-gradient(135deg, #f59e0b, #d97706)",
+            color: "white",
+            fontSize: "10px",
+            fontWeight: "700",
+            padding: "2px 6px",
+            borderRadius: "4px",
+            textTransform: "uppercase",
+            letterSpacing: "0.5px"
+          }, children: badge })
         ]
       }
     );
@@ -9513,93 +9876,181 @@
       closeSidebar();
     };
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("aside", { className: `aca-sidebar ${isOpen ? "open" : ""}`, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-sidebar-header", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "aca-sidebar-title", children: "AI Content Agent (ACA)" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "a",
-          {
-            href: "https://ademisler.com/en",
-            target: "_blank",
-            rel: "noopener noreferrer",
-            className: "aca-sidebar-subtitle",
-            children: "by Adem Isler"
-          }
-        )
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-sidebar-header", style: {
+        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        color: "white",
+        padding: "20px",
+        borderRadius: "0 0 12px 12px",
+        marginBottom: "20px",
+        position: "relative",
+        overflow: "hidden"
+      }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { position: "relative", zIndex: 2 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "12px", marginBottom: "8px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+              width: "40px",
+              height: "40px",
+              background: "rgba(255,255,255,0.2)",
+              borderRadius: "10px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backdropFilter: "blur(10px)"
+            }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "20px" }, children: "🤖" }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { style: {
+                fontSize: "18px",
+                fontWeight: "700",
+                margin: 0,
+                textShadow: "0 2px 4px rgba(0,0,0,0.1)"
+              }, children: "AI Content Agent" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "11px", opacity: 0.8, fontWeight: "500" }, children: "Powered by Gemini AI" })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "a",
+            {
+              href: "https://ademisler.com/en",
+              target: "_blank",
+              rel: "noopener noreferrer",
+              style: {
+                color: "rgba(255,255,255,0.8)",
+                textDecoration: "none",
+                fontSize: "12px",
+                display: "flex",
+                alignItems: "center",
+                gap: "4px",
+                transition: "color 0.2s"
+              },
+              onMouseEnter: (e) => e.currentTarget.style.color = "white",
+              onMouseLeave: (e) => e.currentTarget.style.color = "rgba(255,255,255,0.8)",
+              children: "by Adem Isler ↗"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+          position: "absolute",
+          top: "-20px",
+          right: "-20px",
+          width: "60px",
+          height: "60px",
+          background: "rgba(255,255,255,0.1)",
+          borderRadius: "50%",
+          zIndex: 1
+        } })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("nav", { className: "aca-sidebar-nav", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          NavItem,
-          {
-            icon: /* @__PURE__ */ jsxRuntimeExports.jsx(LayoutDashboard, {}),
-            label: "Dashboard",
-            view: "dashboard",
-            currentView,
-            onClick: () => handleNavigation("dashboard")
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          NavItem,
-          {
-            icon: /* @__PURE__ */ jsxRuntimeExports.jsx(BookOpen, {}),
-            label: "Style Guide",
-            view: "style-guide",
-            currentView,
-            onClick: () => handleNavigation("style-guide")
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          NavItem,
-          {
-            icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Lightbulb, {}),
-            label: "Idea Board",
-            view: "ideas",
-            currentView,
-            onClick: () => handleNavigation("ideas")
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          NavItem,
-          {
-            icon: /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, {}),
-            label: "Drafts",
-            view: "drafts",
-            currentView,
-            onClick: () => handleNavigation("drafts")
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          NavItem,
-          {
-            icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Calendar, {}),
-            label: "Calendar",
-            view: "calendar",
-            currentView,
-            onClick: () => handleNavigation("calendar")
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          NavItem,
-          {
-            icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Send, {}),
-            label: "Published",
-            view: "published",
-            currentView,
-            onClick: () => handleNavigation("published")
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          NavItem,
-          {
-            icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Sparkles, {}),
-            label: "Content Freshness",
-            badge: "PRO",
-            view: "content-freshness",
-            currentView,
-            onClick: () => handleNavigation("content-freshness")
-          }
-        )
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("nav", { className: "aca-sidebar-nav", style: { padding: "0 16px" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "24px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+            fontSize: "11px",
+            fontWeight: "600",
+            color: "#94a3b8",
+            textTransform: "uppercase",
+            letterSpacing: "0.5px",
+            marginBottom: "8px",
+            paddingLeft: "16px"
+          }, children: "Main" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            NavItem,
+            {
+              icon: /* @__PURE__ */ jsxRuntimeExports.jsx(LayoutDashboard, {}),
+              label: "Dashboard",
+              view: "dashboard",
+              currentView,
+              onClick: () => handleNavigation("dashboard")
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            NavItem,
+            {
+              icon: /* @__PURE__ */ jsxRuntimeExports.jsx(BookOpen, {}),
+              label: "Style Guide",
+              view: "style-guide",
+              currentView,
+              onClick: () => handleNavigation("style-guide")
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "24px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+            fontSize: "11px",
+            fontWeight: "600",
+            color: "#94a3b8",
+            textTransform: "uppercase",
+            letterSpacing: "0.5px",
+            marginBottom: "8px",
+            paddingLeft: "16px"
+          }, children: "Content Creation" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            NavItem,
+            {
+              icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Lightbulb, {}),
+              label: "Idea Board",
+              view: "ideas",
+              currentView,
+              onClick: () => handleNavigation("ideas")
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            NavItem,
+            {
+              icon: /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, {}),
+              label: "Drafts",
+              view: "drafts",
+              currentView,
+              onClick: () => handleNavigation("drafts")
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            NavItem,
+            {
+              icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Calendar, {}),
+              label: "Calendar",
+              view: "calendar",
+              currentView,
+              onClick: () => handleNavigation("calendar")
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            NavItem,
+            {
+              icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Send, {}),
+              label: "Published",
+              view: "published",
+              currentView,
+              onClick: () => handleNavigation("published")
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "24px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+            fontSize: "11px",
+            fontWeight: "600",
+            color: "#94a3b8",
+            textTransform: "uppercase",
+            letterSpacing: "0.5px",
+            marginBottom: "8px",
+            paddingLeft: "16px"
+          }, children: "Pro Features" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            NavItem,
+            {
+              icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Sparkles, {}),
+              label: "Content Freshness",
+              badge: "PRO",
+              view: "content-freshness",
+              currentView,
+              onClick: () => handleNavigation("content-freshness")
+            }
+          )
+        ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { paddingTop: "20px", borderTop: "1px solid #32373c", marginTop: "auto" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+        paddingTop: "20px",
+        borderTop: "1px solid #e2e8f0",
+        marginTop: "auto",
+        padding: "20px 16px 0 16px"
+      }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
         NavItem,
         {
           icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$1, {}),
@@ -9754,9 +10205,63 @@
   }) => {
     const isStyleGuideReady = !!lastAnalyzed;
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-fade-in", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-page-header", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "aca-page-title", children: "Dashboard" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", children: "Welcome back! Here's a quick overview of your content pipeline." })
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-welcome-section", style: {
+        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        borderRadius: "12px",
+        padding: "30px",
+        marginBottom: "30px",
+        color: "white",
+        position: "relative",
+        overflow: "hidden"
+      }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { position: "relative", zIndex: 2 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { style: {
+            fontSize: "28px",
+            fontWeight: "700",
+            marginBottom: "8px",
+            textShadow: "0 2px 4px rgba(0,0,0,0.1)"
+          }, children: "Welcome to AI Content Agent" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: {
+            fontSize: "16px",
+            opacity: 0.9,
+            marginBottom: "20px",
+            maxWidth: "600px"
+          }, children: "Your intelligent content creation companion powered by Google Gemini AI" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "15px", flexWrap: "wrap" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "6px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: "8px", height: "8px", backgroundColor: "#4ade80", borderRadius: "50%" } }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "14px", opacity: 0.9 }, children: "AI-Powered" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "6px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: "8px", height: "8px", backgroundColor: "#60a5fa", borderRadius: "50%" } }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "14px", opacity: 0.9 }, children: "Automated Workflow" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "6px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: "8px", height: "8px", backgroundColor: "#f59e0b", borderRadius: "50%" } }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "14px", opacity: 0.9 }, children: "SEO Optimized" })
+            ] })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+          position: "absolute",
+          top: "-50px",
+          right: "-50px",
+          width: "150px",
+          height: "150px",
+          background: "rgba(255,255,255,0.1)",
+          borderRadius: "50%",
+          zIndex: 1
+        } }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+          position: "absolute",
+          bottom: "-30px",
+          left: "-30px",
+          width: "100px",
+          height: "100px",
+          background: "rgba(255,255,255,0.05)",
+          borderRadius: "50%",
+          zIndex: 1
+        } })
       ] }),
       !isStyleGuideReady && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-alert info", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "15px" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center" }, children: [
@@ -9777,9 +10282,32 @@
         )
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-grid aca-grid-2", style: { marginBottom: "30px" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-card-header", children: /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "aca-card-title", children: "Quick Actions" }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-grid aca-grid-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", style: {
+          background: "linear-gradient(145deg, #f8fafc 0%, #f1f5f9 100%)",
+          border: "1px solid #e2e8f0",
+          boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
+        }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card-header", style: { borderBottom: "1px solid #e2e8f0", paddingBottom: "15px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "aca-card-title", style: {
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              color: "#1e293b"
+            }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+                width: "32px",
+                height: "32px",
+                background: "linear-gradient(135deg, #3b82f6, #1d4ed8)",
+                borderRadius: "8px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center"
+              }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "white", fontSize: "16px" }, children: "⚡" }) }),
+              "Quick Actions"
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: "8px 0 0 0", color: "#64748b", fontSize: "14px" }, children: "Get started with AI-powered content creation" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-grid aca-grid-2", style: { marginTop: "20px" }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               ActionButton,
               {
@@ -9805,9 +10333,32 @@
             )
           ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-card-header", children: /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "aca-card-title", children: "Content Pipeline" }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "10px" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", style: {
+          background: "linear-gradient(145deg, #fefefe 0%, #f8f9fa 100%)",
+          border: "1px solid #e2e8f0",
+          boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
+        }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card-header", style: { borderBottom: "1px solid #e2e8f0", paddingBottom: "15px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "aca-card-title", style: {
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              color: "#1e293b"
+            }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+                width: "32px",
+                height: "32px",
+                background: "linear-gradient(135deg, #10b981, #059669)",
+                borderRadius: "8px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center"
+              }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "white", fontSize: "16px" }, children: "📊" }) }),
+              "Content Pipeline"
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: "8px 0 0 0", color: "#64748b", fontSize: "14px" }, children: "Track your content creation progress" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "10px", marginTop: "20px" }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               PipelineItem,
               {
@@ -10350,25 +10901,109 @@
     const activeIdeas = ideas.filter((idea) => idea.status === "active");
     const archivedIdeas = ideas.filter((idea) => idea.status === "archived");
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-fade-in", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-page-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "20px" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "aca-page-title", children: "Idea Board" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", children: "Generate fresh content ideas and turn your favorites into drafts. Click any title to edit it." })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "button",
-          {
-            onClick: onGenerate,
-            disabled: isLoading,
-            className: "aca-button large",
-            children: [
-              isLoading && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "aca-spinner" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Lightbulb, { className: "aca-nav-item-icon" }),
-              isLoading ? "Generating..." : "Generate Ideas"
-            ]
-          }
-        )
-      ] }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+        background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+        borderRadius: "12px",
+        padding: "30px",
+        marginBottom: "30px",
+        color: "white",
+        position: "relative",
+        overflow: "hidden"
+      }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { position: "relative", zIndex: 2 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "20px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+                width: "48px",
+                height: "48px",
+                background: "rgba(255,255,255,0.2)",
+                borderRadius: "12px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                backdropFilter: "blur(10px)"
+              }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Lightbulb, { style: { width: "24px", height: "24px" } }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { style: {
+                  fontSize: "28px",
+                  fontWeight: "700",
+                  margin: 0,
+                  textShadow: "0 2px 4px rgba(0,0,0,0.1)"
+                }, children: "Idea Board" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "16px", opacity: 0.9, marginTop: "4px" }, children: "AI-powered content inspiration" })
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: {
+              fontSize: "14px",
+              opacity: 0.85,
+              margin: 0,
+              maxWidth: "600px",
+              lineHeight: "1.5"
+            }, children: "Generate fresh content ideas and transform your favorites into drafts. Click any title to edit it." })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              onClick: onGenerate,
+              disabled: isLoading,
+              style: {
+                background: "rgba(255,255,255,0.2)",
+                border: "1px solid rgba(255,255,255,0.3)",
+                color: "white",
+                padding: "12px 24px",
+                borderRadius: "8px",
+                fontSize: "14px",
+                fontWeight: "600",
+                cursor: isLoading ? "not-allowed" : "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                transition: "all 0.2s ease",
+                backdropFilter: "blur(10px)",
+                minWidth: "140px",
+                justifyContent: "center"
+              },
+              onMouseEnter: (e) => {
+                if (!isLoading) {
+                  e.currentTarget.style.background = "rgba(255,255,255,0.3)";
+                  e.currentTarget.style.transform = "translateY(-1px)";
+                }
+              },
+              onMouseLeave: (e) => {
+                if (!isLoading) {
+                  e.currentTarget.style.background = "rgba(255,255,255,0.2)";
+                  e.currentTarget.style.transform = "translateY(0)";
+                }
+              },
+              children: [
+                isLoading && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "aca-spinner" }),
+                !isLoading && /* @__PURE__ */ jsxRuntimeExports.jsx(Sparkles, { style: { width: "16px", height: "16px" } }),
+                isLoading ? "Generating..." : "Generate Ideas"
+              ]
+            }
+          )
+        ] }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+          position: "absolute",
+          top: "-30px",
+          right: "-30px",
+          width: "120px",
+          height: "120px",
+          background: "rgba(255,255,255,0.1)",
+          borderRadius: "50%",
+          zIndex: 1
+        } }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+          position: "absolute",
+          bottom: "-20px",
+          left: "-20px",
+          width: "80px",
+          height: "80px",
+          background: "rgba(255,255,255,0.05)",
+          borderRadius: "50%",
+          zIndex: 1
+        } })
+      ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-card-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "aca-card-title", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(PlusCircle, { className: "aca-nav-item-icon" }),
@@ -10614,9 +11249,88 @@
     const scheduledDrafts = drafts.filter((draft) => draft.scheduledFor);
     const unscheduledDrafts = drafts.filter((draft) => !draft.scheduledFor);
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-fade-in", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-page-header", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "aca-page-title", children: "Content Drafts" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", children: 'Review your AI-generated content drafts and publish them when ready. Click "View Draft" to edit before publishing.' })
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+        background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+        borderRadius: "12px",
+        padding: "30px",
+        marginBottom: "30px",
+        color: "white",
+        position: "relative",
+        overflow: "hidden"
+      }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { position: "relative", zIndex: 2 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+              width: "48px",
+              height: "48px",
+              background: "rgba(255,255,255,0.2)",
+              borderRadius: "12px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backdropFilter: "blur(10px)"
+            }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { style: { width: "24px", height: "24px" } }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { style: {
+                fontSize: "28px",
+                fontWeight: "700",
+                margin: 0,
+                textShadow: "0 2px 4px rgba(0,0,0,0.1)"
+              }, children: "Content Drafts" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "16px", opacity: 0.9, marginTop: "4px" }, children: "Review and publish your AI-generated content" })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: {
+            fontSize: "14px",
+            opacity: 0.85,
+            margin: 0,
+            maxWidth: "600px",
+            lineHeight: "1.5"
+          }, children: 'Review your AI-generated content drafts and publish them when ready. Click "View Draft" to edit before publishing.' }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "20px", marginTop: "20px", flexWrap: "wrap" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "6px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: "8px", height: "8px", backgroundColor: "#60a5fa", borderRadius: "50%" } }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: "14px", opacity: 0.9 }, children: [
+                drafts.length,
+                " Total Drafts"
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "6px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: "8px", height: "8px", backgroundColor: "#34d399", borderRadius: "50%" } }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: "14px", opacity: 0.9 }, children: [
+                scheduledDrafts.length,
+                " Scheduled"
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "6px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: "8px", height: "8px", backgroundColor: "#fbbf24", borderRadius: "50%" } }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: "14px", opacity: 0.9 }, children: [
+                unscheduledDrafts.length,
+                " Ready to Publish"
+              ] })
+            ] })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+          position: "absolute",
+          top: "-30px",
+          right: "-30px",
+          width: "120px",
+          height: "120px",
+          background: "rgba(255,255,255,0.1)",
+          borderRadius: "50%",
+          zIndex: 1
+        } }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+          position: "absolute",
+          bottom: "-20px",
+          left: "-20px",
+          width: "80px",
+          height: "80px",
+          background: "rgba(255,255,255,0.05)",
+          borderRadius: "50%",
+          zIndex: 1
+        } })
       ] }),
       drafts.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "30px" }, children: [
         scheduledDrafts.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", children: [
@@ -11146,16 +11860,91 @@
     };
     const isImageSourceConfigured = currentSettings.imageSourceProvider === "ai" || currentSettings.imageSourceProvider === "pexels" && !!currentSettings.pexelsApiKey || currentSettings.imageSourceProvider === "unsplash" && !!currentSettings.unsplashApiKey || currentSettings.imageSourceProvider === "pixabay" && !!currentSettings.pixabayApiKey;
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-fade-in", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-page-header", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "aca-page-title", children: "Settings" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", children: "Configure automation modes, integrations, and content generation preferences to customize your AI Content Agent (ACA) experience." })
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+        background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)",
+        borderRadius: "12px",
+        padding: "30px",
+        marginBottom: "30px",
+        color: "white",
+        position: "relative",
+        overflow: "hidden"
+      }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { position: "relative", zIndex: 2 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+              width: "48px",
+              height: "48px",
+              background: "rgba(255,255,255,0.2)",
+              borderRadius: "12px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backdropFilter: "blur(10px)"
+            }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$1, { style: { width: "24px", height: "24px" } }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { style: {
+                fontSize: "28px",
+                fontWeight: "700",
+                margin: 0,
+                textShadow: "0 2px 4px rgba(0,0,0,0.1)"
+              }, children: "Settings & Configuration" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "16px", opacity: 0.9, marginTop: "4px" }, children: "Customize your AI Content Agent experience" })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: {
+            fontSize: "14px",
+            opacity: 0.85,
+            margin: 0,
+            maxWidth: "600px",
+            lineHeight: "1.5"
+          }, children: "Configure automation modes, API integrations, and content generation preferences to optimize your workflow" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+          position: "absolute",
+          top: "-30px",
+          right: "-30px",
+          width: "120px",
+          height: "120px",
+          background: "rgba(255,255,255,0.1)",
+          borderRadius: "50%",
+          zIndex: 1
+        } }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+          position: "absolute",
+          bottom: "-20px",
+          left: "-20px",
+          width: "80px",
+          height: "80px",
+          background: "rgba(255,255,255,0.05)",
+          borderRadius: "50%",
+          zIndex: 1
+        } })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-card-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "aca-card-title", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Shield, { className: "aca-nav-item-icon" }),
-          "Pro License Activation"
-        ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", children: "Activate your Pro license to unlock advanced automation modes and Google Search Console integration." }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", style: {
+        background: "linear-gradient(145deg, #fefefe 0%, #f8f9fa 100%)",
+        border: "1px solid #e2e8f0",
+        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
+      }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card-header", style: { borderBottom: "1px solid #e2e8f0", paddingBottom: "15px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "aca-card-title", style: {
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            color: "#1e293b"
+          }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+              width: "32px",
+              height: "32px",
+              background: "linear-gradient(135deg, #10b981, #059669)",
+              borderRadius: "8px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center"
+            }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Shield, { style: { width: "18px", height: "18px", color: "white" } }) }),
+            "Pro License Activation"
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: "8px 0 0 0", color: "#64748b", fontSize: "14px" }, children: "Unlock advanced features and automation capabilities" })
+        ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-stat-item", style: { margin: "0 0 20px 0" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-stat-info", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-stat-icon", children: licenseStatus.is_active ? /* @__PURE__ */ jsxRuntimeExports.jsx(CheckCircle, { style: { color: "#27ae60", width: "20px", height: "20px" } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Shield, { style: { color: "#e74c3c", width: "20px", height: "20px" } }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
@@ -12396,7 +13185,7 @@
     ) });
   };
   const ToastIcon = ({ type }) => {
-    const iconProps = { style: { width: "20px", height: "20px", marginRight: "10px" } };
+    const iconProps = { style: { width: "16px", height: "16px", color: "white" } };
     switch (type) {
       case "success":
         return /* @__PURE__ */ jsxRuntimeExports.jsx(CheckCircle, { ...iconProps });
@@ -12411,37 +13200,142 @@
     }
   };
   const Toast = ({ id, message, type, onDismiss }) => {
+    const [isVisible, setIsVisible] = React.useState(false);
+    const [isExiting, setIsExiting] = React.useState(false);
     reactExports.useEffect(() => {
+      setTimeout(() => setIsVisible(true), 50);
       const timer = setTimeout(() => {
-        onDismiss(id);
+        handleDismiss();
       }, 5e3);
       return () => clearTimeout(timer);
-    }, [id, onDismiss]);
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `aca-toast ${type}`, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between" }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(ToastIcon, { type }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: message })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "button",
-        {
-          onClick: () => onDismiss(id),
-          style: {
-            background: "none",
-            border: "none",
-            color: "inherit",
-            cursor: "pointer",
-            padding: "2px",
-            marginLeft: "10px",
-            opacity: 0.7
-          },
-          onMouseEnter: (e) => e.currentTarget.style.opacity = "1",
-          onMouseLeave: (e) => e.currentTarget.style.opacity = "0.7",
-          "aria-label": "Dismiss notification",
-          children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { style: { width: "16px", height: "16px" } })
-        }
-      )
-    ] }) });
+    }, [id]);
+    const handleDismiss = () => {
+      setIsExiting(true);
+      setTimeout(() => onDismiss(id), 300);
+    };
+    const getToastColors = () => {
+      switch (type) {
+        case "success":
+          return {
+            bg: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+            border: "#10b981",
+            shadow: "rgba(16, 185, 129, 0.3)"
+          };
+        case "error":
+          return {
+            bg: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
+            border: "#ef4444",
+            shadow: "rgba(239, 68, 68, 0.3)"
+          };
+        case "warning":
+          return {
+            bg: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+            border: "#f59e0b",
+            shadow: "rgba(245, 158, 11, 0.3)"
+          };
+        case "info":
+          return {
+            bg: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
+            border: "#3b82f6",
+            shadow: "rgba(59, 130, 246, 0.3)"
+          };
+        default:
+          return {
+            bg: "linear-gradient(135deg, #6b7280 0%, #4b5563 100%)",
+            border: "#6b7280",
+            shadow: "rgba(107, 114, 128, 0.3)"
+          };
+      }
+    };
+    const colors = getToastColors();
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
+      {
+        style: {
+          background: colors.bg,
+          color: "white",
+          padding: "16px 20px",
+          borderRadius: "12px",
+          boxShadow: `0 8px 25px ${colors.shadow}, 0 4px 10px rgba(0, 0, 0, 0.1)`,
+          border: `1px solid ${colors.border}`,
+          backdropFilter: "blur(10px)",
+          transform: isExiting ? "translateX(100%) scale(0.9)" : isVisible ? "translateX(0) scale(1)" : "translateX(100%) scale(0.9)",
+          opacity: isExiting ? 0 : isVisible ? 1 : 0,
+          transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+          minWidth: "300px",
+          maxWidth: "500px",
+          position: "relative",
+          overflow: "hidden"
+        },
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "div",
+            {
+              style: {
+                position: "absolute",
+                bottom: 0,
+                left: 0,
+                height: "3px",
+                background: "rgba(255, 255, 255, 0.3)",
+                animation: "aca-toast-progress 5s linear forwards",
+                transformOrigin: "left"
+              }
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", flex: 1 }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: "24px",
+                height: "24px",
+                background: "rgba(255, 255, 255, 0.2)",
+                borderRadius: "6px",
+                marginRight: "12px",
+                flexShrink: 0
+              }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(ToastIcon, { type }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: {
+                fontSize: "14px",
+                fontWeight: "500",
+                lineHeight: "1.4",
+                wordBreak: "break-word"
+              }, children: message })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                onClick: handleDismiss,
+                style: {
+                  background: "rgba(255, 255, 255, 0.2)",
+                  border: "none",
+                  color: "white",
+                  cursor: "pointer",
+                  padding: "6px",
+                  marginLeft: "12px",
+                  borderRadius: "6px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  transition: "all 0.2s ease",
+                  flexShrink: 0
+                },
+                onMouseEnter: (e) => {
+                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.3)";
+                  e.currentTarget.style.transform = "scale(1.1)";
+                },
+                onMouseLeave: (e) => {
+                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.2)";
+                  e.currentTarget.style.transform = "scale(1)";
+                },
+                "aria-label": "Dismiss notification",
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { style: { width: "14px", height: "14px" } })
+              }
+            )
+          ] })
+        ]
+      }
+    );
   };
   const PublishedPostCard = ({ post, onSelectPost }) => {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", style: { margin: 0 }, children: [
@@ -12508,9 +13402,82 @@
       return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
     });
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-fade-in", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-page-header", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "aca-page-title", children: "Published Posts" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", children: 'Congratulations! Here are your successfully published articles. Click "View Content" to see the full post.' })
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+        background: "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)",
+        borderRadius: "12px",
+        padding: "30px",
+        marginBottom: "30px",
+        color: "white",
+        position: "relative",
+        overflow: "hidden"
+      }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { position: "relative", zIndex: 2 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+              width: "48px",
+              height: "48px",
+              background: "rgba(255,255,255,0.2)",
+              borderRadius: "12px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backdropFilter: "blur(10px)"
+            }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Send, { style: { width: "24px", height: "24px" } }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { style: {
+                fontSize: "28px",
+                fontWeight: "700",
+                margin: 0,
+                textShadow: "0 2px 4px rgba(0,0,0,0.1)"
+              }, children: "Published Posts" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "16px", opacity: 0.9, marginTop: "4px" }, children: "Your successful content publications" })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: {
+            fontSize: "14px",
+            opacity: 0.85,
+            margin: 0,
+            maxWidth: "600px",
+            lineHeight: "1.5"
+          }, children: 'Congratulations! Here are your successfully published articles. Click "View Content" to see the full post.' }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "20px", marginTop: "20px", flexWrap: "wrap" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "6px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: "8px", height: "8px", backgroundColor: "#4ade80", borderRadius: "50%" } }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: "14px", opacity: 0.9 }, children: [
+                posts.length,
+                " Published Articles"
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "6px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: "8px", height: "8px", backgroundColor: "#60a5fa", borderRadius: "50%" } }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "14px", opacity: 0.9 }, children: "AI-Generated Content" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "6px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: "8px", height: "8px", backgroundColor: "#fbbf24", borderRadius: "50%" } }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "14px", opacity: 0.9 }, children: "SEO Optimized" })
+            ] })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+          position: "absolute",
+          top: "-30px",
+          right: "-30px",
+          width: "120px",
+          height: "120px",
+          background: "rgba(255,255,255,0.1)",
+          borderRadius: "50%",
+          zIndex: 1
+        } }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+          position: "absolute",
+          bottom: "-20px",
+          left: "-20px",
+          width: "80px",
+          height: "80px",
+          background: "rgba(255,255,255,0.05)",
+          borderRadius: "50%",
+          zIndex: 1
+        } })
       ] }),
       posts.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-card-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "aca-card-title", children: [
@@ -12702,9 +13669,88 @@
       );
     };
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-fade-in", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-page-header", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "aca-page-title", children: "Content Calendar" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", children: "Schedule your drafts by dragging them onto calendar dates. View scheduled and published content timeline." })
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+        background: "linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)",
+        borderRadius: "12px",
+        padding: "30px",
+        marginBottom: "30px",
+        color: "white",
+        position: "relative",
+        overflow: "hidden"
+      }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { position: "relative", zIndex: 2 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+              width: "48px",
+              height: "48px",
+              background: "rgba(255,255,255,0.2)",
+              borderRadius: "12px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backdropFilter: "blur(10px)"
+            }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Calendar, { style: { width: "24px", height: "24px" } }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { style: {
+                fontSize: "28px",
+                fontWeight: "700",
+                margin: 0,
+                textShadow: "0 2px 4px rgba(0,0,0,0.1)"
+              }, children: "Content Calendar" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "16px", opacity: 0.9, marginTop: "4px" }, children: "Schedule and organize your content timeline" })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: {
+            fontSize: "14px",
+            opacity: 0.85,
+            margin: 0,
+            maxWidth: "600px",
+            lineHeight: "1.5"
+          }, children: "Schedule your drafts by dragging them onto calendar dates. View scheduled and published content timeline." }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "20px", marginTop: "20px", flexWrap: "wrap" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "6px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: "8px", height: "8px", backgroundColor: "#fbbf24", borderRadius: "50%" } }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: "14px", opacity: 0.9 }, children: [
+                scheduledDrafts.length,
+                " Scheduled"
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "6px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: "8px", height: "8px", backgroundColor: "#4ade80", borderRadius: "50%" } }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: "14px", opacity: 0.9 }, children: [
+                publishedPosts.length,
+                " Published"
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "6px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: "8px", height: "8px", backgroundColor: "#60a5fa", borderRadius: "50%" } }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: "14px", opacity: 0.9 }, children: [
+                unscheduledDrafts.length,
+                " Unscheduled"
+              ] })
+            ] })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+          position: "absolute",
+          top: "-30px",
+          right: "-30px",
+          width: "120px",
+          height: "120px",
+          background: "rgba(255,255,255,0.1)",
+          borderRadius: "50%",
+          zIndex: 1
+        } }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+          position: "absolute",
+          bottom: "-20px",
+          left: "-20px",
+          width: "80px",
+          height: "80px",
+          background: "rgba(255,255,255,0.05)",
+          borderRadius: "50%",
+          zIndex: 1
+        } })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "20px" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", children: [

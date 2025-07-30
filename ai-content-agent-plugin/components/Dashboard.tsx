@@ -93,9 +93,69 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
     return (
         <div className="aca-fade-in">
-            <div className="aca-page-header">
-                <h1 className="aca-page-title">Dashboard</h1>
-                <p className="aca-page-description">Welcome back! Here's a quick overview of your content pipeline.</p>
+            {/* Modern Welcome Section */}
+            <div className="aca-welcome-section" style={{
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                borderRadius: '12px',
+                padding: '30px',
+                marginBottom: '30px',
+                color: 'white',
+                position: 'relative',
+                overflow: 'hidden'
+            }}>
+                <div style={{ position: 'relative', zIndex: 2 }}>
+                    <h1 style={{ 
+                        fontSize: '28px', 
+                        fontWeight: '700', 
+                        marginBottom: '8px',
+                        textShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                    }}>
+                        Welcome to AI Content Agent
+                    </h1>
+                    <p style={{ 
+                        fontSize: '16px', 
+                        opacity: 0.9,
+                        marginBottom: '20px',
+                        maxWidth: '600px'
+                    }}>
+                        Your intelligent content creation companion powered by Google Gemini AI
+                    </p>
+                    <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <div style={{ width: '8px', height: '8px', backgroundColor: '#4ade80', borderRadius: '50%' }}></div>
+                            <span style={{ fontSize: '14px', opacity: 0.9 }}>AI-Powered</span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <div style={{ width: '8px', height: '8px', backgroundColor: '#60a5fa', borderRadius: '50%' }}></div>
+                            <span style={{ fontSize: '14px', opacity: 0.9 }}>Automated Workflow</span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <div style={{ width: '8px', height: '8px', backgroundColor: '#f59e0b', borderRadius: '50%' }}></div>
+                            <span style={{ fontSize: '14px', opacity: 0.9 }}>SEO Optimized</span>
+                        </div>
+                    </div>
+                </div>
+                {/* Decorative elements */}
+                <div style={{
+                    position: 'absolute',
+                    top: '-50px',
+                    right: '-50px',
+                    width: '150px',
+                    height: '150px',
+                    background: 'rgba(255,255,255,0.1)',
+                    borderRadius: '50%',
+                    zIndex: 1
+                }}></div>
+                <div style={{
+                    position: 'absolute',
+                    bottom: '-30px',
+                    left: '-30px',
+                    width: '100px',
+                    height: '100px',
+                    background: 'rgba(255,255,255,0.05)',
+                    borderRadius: '50%',
+                    zIndex: 1
+                }}></div>
             </div>
 
             {!isStyleGuideReady && (
@@ -120,11 +180,36 @@ export const Dashboard: React.FC<DashboardProps> = ({
             )}
 
             <div className="aca-grid aca-grid-2" style={{ marginBottom: '30px' }}>
-                <div className="aca-card">
-                    <div className="aca-card-header">
-                        <h2 className="aca-card-title">Quick Actions</h2>
+                <div className="aca-card" style={{ 
+                    background: 'linear-gradient(145deg, #f8fafc 0%, #f1f5f9 100%)',
+                    border: '1px solid #e2e8f0',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                }}>
+                    <div className="aca-card-header" style={{ borderBottom: '1px solid #e2e8f0', paddingBottom: '15px' }}>
+                        <h2 className="aca-card-title" style={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: '8px',
+                            color: '#1e293b'
+                        }}>
+                            <div style={{ 
+                                width: '32px', 
+                                height: '32px', 
+                                background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                                borderRadius: '8px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                            }}>
+                                <span style={{ color: 'white', fontSize: '16px' }}>⚡</span>
+                            </div>
+                            Quick Actions
+                        </h2>
+                        <p style={{ margin: '8px 0 0 0', color: '#64748b', fontSize: '14px' }}>
+                            Get started with AI-powered content creation
+                        </p>
                     </div>
-                    <div className="aca-grid aca-grid-2">
+                    <div className="aca-grid aca-grid-2" style={{ marginTop: '20px' }}>
                         <ActionButton
                             icon={<Lightbulb />}
                             title="Generate Ideas"
@@ -145,11 +230,36 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     </div>
                 </div>
 
-                <div className="aca-card">
-                    <div className="aca-card-header">
-                        <h2 className="aca-card-title">Content Pipeline</h2>
+                <div className="aca-card" style={{ 
+                    background: 'linear-gradient(145deg, #fefefe 0%, #f8f9fa 100%)',
+                    border: '1px solid #e2e8f0',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                }}>
+                    <div className="aca-card-header" style={{ borderBottom: '1px solid #e2e8f0', paddingBottom: '15px' }}>
+                        <h2 className="aca-card-title" style={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: '8px',
+                            color: '#1e293b'
+                        }}>
+                            <div style={{ 
+                                width: '32px', 
+                                height: '32px', 
+                                background: 'linear-gradient(135deg, #10b981, #059669)',
+                                borderRadius: '8px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                            }}>
+                                <span style={{ color: 'white', fontSize: '16px' }}>📊</span>
+                            </div>
+                            Content Pipeline
+                        </h2>
+                        <p style={{ margin: '8px 0 0 0', color: '#64748b', fontSize: '14px' }}>
+                            Track your content creation progress
+                        </p>
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '20px' }}>
                         <PipelineItem
                             icon={<Lightbulb />}
                             title="Ideas"

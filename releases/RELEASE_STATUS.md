@@ -2,19 +2,20 @@
 
 ## 📦 Current Active Release
 
-### **v2.3.14 - Professional Licensing Restored** ✅
-- **File:** `ai-content-agent-v2.3.14-professional-licensing-restored.zip`
+### **v2.3.14 - Critical Fixes Applied** ✅
+- **File:** `ai-content-agent-v2.3.14-critical-fixes-applied.zip`
 - **Size:** 1.2MB
 - **Release Date:** January 31, 2025
 - **Status:** **PRODUCTION READY - PROFESSIONAL LICENSING**
 
-#### 🔧 All Critical Issues Resolved + Professional Licensing Restored:
-- ✅ **Demo Mode Eliminated**: No more bypass - proper licensing required
+#### 🔧 All Critical Issues Resolved + Backend Integration Complete:
 - ✅ **Professional Licensing System**: Real license server validation
-- ✅ **Pro Endpoint Protection**: 403 errors for unlicensed users
-- ✅ **Hybrid GSC Integration**: Real API + demo fallback
-- ✅ **Automatic Migration**: Smooth transition from demo mode
-- ✅ **Modern License UI**: React-based license management
+- ✅ **Complete Debug Panel**: System monitoring, API logs, performance metrics with health status
+- ✅ **Bulk Operations Backend**: Full implementation of bulk create drafts and archive operations
+- ✅ **Manual Analysis Integration**: Working manual content analysis triggers
+- ✅ **Advanced SEO Integration**: FAQ and HowTo schemas with pattern recognition
+- ✅ **Log Rotation System**: Automatic cleanup and performance optimization
+- ✅ **API Health Monitoring**: Real-time Gemini API status in Debug Panel
 - ✅ **Plugin Activation**: No fatal PHP errors, clean activation
 - ✅ **JavaScript Loading**: No initialization errors, interface loads properly
 - ✅ **Google API Dependencies**: Mock classes prevent dependency errors
@@ -43,12 +44,16 @@
 
 ## 📚 Archived Versions
 
-### **Previous Demo Version**
+### **Previous Versions**
+- **v2.3.14 (Feature Enhanced)**: `archive/ai-content-agent-v2.3.14-feature-enhanced-old.zip`
+- **Status**: Archived - replaced with critical fixes version
+- **v2.3.14 (Professional Licensing)**: `archive/ai-content-agent-v2.3.14-professional-licensing-restored-old.zip`
+- **Status**: Archived - replaced with feature-enhanced version
 - **v2.3.14 (Original Demo Mode)**: `archive/ai-content-agent-v2.3.14-original-demo-mode.zip`
 - **Issue**: All Pro features accessible without license
 - **Status**: Archived - replaced with professional version
 
-- **Total Archived Versions:** 88 releases
+- **Total Archived Versions:** 90 releases
 - **Archive Location:** `releases/archive/`
 - **Archive Size:** 112MB total
 

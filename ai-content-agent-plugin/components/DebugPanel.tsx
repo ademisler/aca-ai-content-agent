@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Spinner, AlertTriangle, CheckCircle, Clock, Server, Database, Zap, RefreshCw, Download, Trash2 } from './Icons';
+import { getApiHealth } from '../services/geminiService';
 
 interface DebugPanelProps {
     onShowToast: (message: string, type: 'success' | 'error' | 'warning' | 'info') => void;
@@ -403,6 +404,28 @@ export const DebugPanel: React.FC<DebugPanelProps> = ({ onShowToast }) => {
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                                             {getStatusIcon(systemStatus.api_endpoints_status)}
                                             <strong style={{ textTransform: 'capitalize' }}>{systemStatus.api_endpoints_status}</strong>
+                                        </div>
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <span>Gemini API:</span>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                            {(() => {
+                                                const apiHealth = getApiHealth();
+                                                const status = apiHealth.isHealthy ? 'healthy' : 'error';
+                                                return (
+                                                    <>
+                                                        {getStatusIcon(status)}
+                                                        <strong style={{ textTransform: 'capitalize' }}>
+                                                            {apiHealth.isHealthy ? 'Healthy' : 'Unhealthy'}
+                                                        </strong>
+                                                        {apiHealth.responseTime > 0 && (
+                                                            <span style={{ fontSize: '11px', color: '#666', marginLeft: '4px' }}>
+                                                                ({apiHealth.responseTime}ms)
+                                                            </span>
+                                                        )}
+                                                    </>
+                                                );
+                                            })()}
                                         </div>
                                     </div>
                                 </div>

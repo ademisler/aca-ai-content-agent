@@ -396,6 +396,32 @@ class ACA_Rest_Api {
             'callback' => array($this, 'export_debug_logs'),
             'permission_callback' => array($this, 'check_admin_permissions')
         ));
+        
+        // Bulk Operations endpoints
+        register_rest_route('aca/v1', '/bulk/create-drafts', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'bulk_create_drafts'),
+            'permission_callback' => array($this, 'check_pro_permissions')
+        ));
+        
+        register_rest_route('aca/v1', '/bulk/archive-ideas', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'bulk_archive_ideas'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
+        
+        // Manual Analysis endpoints
+        register_rest_route('aca/v1', '/content-freshness/analyze-all', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'manual_analyze_all'),
+            'permission_callback' => array($this, 'check_pro_permissions')
+        ));
+        
+        register_rest_route('aca/v1', '/debug/cron-status', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_cron_status'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
     }
     
     /**
@@ -4587,9 +4613,14 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         
         $logs[] = $log_entry;
         
-        // Keep only last 200 entries
+        // Keep only last 200 entries with automatic cleanup
         if (count($logs) > 200) {
             $logs = array_slice($logs, -200);
+            // Also clean up old entries (older than 7 days)
+            $week_ago = strtotime('-7 days');
+            $logs = array_filter($logs, function($log) use ($week_ago) {
+                return strtotime($log['timestamp']) > $week_ago;
+            });
         }
         
         update_option('aca_debug_api_calls', $logs);
@@ -4622,11 +4653,245 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         
         $logs[] = $log_entry;
         
-        // Keep only last 100 entries
+        // Keep only last 100 entries with automatic cleanup
         if (count($logs) > 100) {
             $logs = array_slice($logs, -100);
+            // Also clean up old entries (older than 3 days)
+            $three_days_ago = strtotime('-3 days');
+            $logs = array_filter($logs, function($log) use ($three_days_ago) {
+                return strtotime($log['timestamp']) > $three_days_ago;
+            });
         }
         
         update_option('aca_debug_error_logs', $logs);
+    }
+    
+    /**
+     * Bulk Operations Methods
+     */
+    
+    /**
+     * Bulk create drafts from multiple ideas
+     */
+    public function bulk_create_drafts($request) {
+        $idea_ids = $request->get_param('idea_ids');
+        
+        if (empty($idea_ids) || !is_array($idea_ids)) {
+            return new WP_Error('invalid_data', 'No idea IDs provided', array('status' => 400));
+        }
+        
+        $results = array();
+        $success_count = 0;
+        $error_count = 0;
+        
+        foreach ($idea_ids as $idea_id) {
+            try {
+                // Get idea from database
+                global $wpdb;
+                $table_name = $wpdb->prefix . 'aca_ideas';
+                $idea = $wpdb->get_row($wpdb->prepare("SELECT * FROM $table_name WHERE id = %d", $idea_id));
+                
+                if (!$idea) {
+                    $results[] = array('id' => $idea_id, 'status' => 'error', 'message' => 'Idea not found');
+                    $error_count++;
+                    continue;
+                }
+                
+                // Create draft post
+                $post_data = array(
+                    'post_title' => $idea->title,
+                    'post_content' => 'Draft created from idea: ' . $idea->title,
+                    'post_status' => 'draft',
+                    'post_type' => 'post',
+                    'meta_input' => array(
+                        '_aca_created_from_idea' => $idea_id,
+                        '_aca_ai_generated' => true,
+                        '_aca_creation_date' => current_time('mysql')
+                    )
+                );
+                
+                $post_id = wp_insert_post($post_data);
+                
+                if (is_wp_error($post_id)) {
+                    $results[] = array('id' => $idea_id, 'status' => 'error', 'message' => $post_id->get_error_message());
+                    $error_count++;
+                } else {
+                    // Update idea status to used
+                    $wpdb->update(
+                        $table_name,
+                        array('status' => 'used', 'used_at' => current_time('mysql')),
+                        array('id' => $idea_id),
+                        array('%s', '%s'),
+                        array('%d')
+                    );
+                    
+                    $results[] = array('id' => $idea_id, 'status' => 'success', 'post_id' => $post_id);
+                    $success_count++;
+                }
+            } catch (Exception $e) {
+                $results[] = array('id' => $idea_id, 'status' => 'error', 'message' => $e->getMessage());
+                $error_count++;
+            }
+        }
+        
+        return rest_ensure_response(array(
+            'success' => $error_count === 0,
+            'total' => count($idea_ids),
+            'success_count' => $success_count,
+            'error_count' => $error_count,
+            'results' => $results
+        ));
+    }
+    
+    /**
+     * Bulk archive ideas
+     */
+    public function bulk_archive_ideas($request) {
+        $idea_ids = $request->get_param('idea_ids');
+        
+        if (empty($idea_ids) || !is_array($idea_ids)) {
+            return new WP_Error('invalid_data', 'No idea IDs provided', array('status' => 400));
+        }
+        
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'aca_ideas';
+        $success_count = 0;
+        $error_count = 0;
+        $results = array();
+        
+        foreach ($idea_ids as $idea_id) {
+            $result = $wpdb->update(
+                $table_name,
+                array('status' => 'archived', 'archived_at' => current_time('mysql')),
+                array('id' => $idea_id),
+                array('%s', '%s'),
+                array('%d')
+            );
+            
+            if ($result !== false) {
+                $results[] = array('id' => $idea_id, 'status' => 'success');
+                $success_count++;
+            } else {
+                $results[] = array('id' => $idea_id, 'status' => 'error', 'message' => 'Database update failed');
+                $error_count++;
+            }
+        }
+        
+        return rest_ensure_response(array(
+            'success' => $error_count === 0,
+            'total' => count($idea_ids),
+            'success_count' => $success_count,
+            'error_count' => $error_count,
+            'results' => $results
+        ));
+    }
+    
+    /**
+     * Manual Analysis Methods
+     */
+    
+    /**
+     * Trigger manual content analysis for all posts
+     */
+    public function manual_analyze_all($request) {
+        // Get all published posts
+        $posts = get_posts(array(
+            'post_type' => 'post',
+            'post_status' => 'publish',
+            'numberposts' => 50, // Limit to prevent timeout
+            'orderby' => 'date',
+            'order' => 'DESC'
+        ));
+        
+        if (empty($posts)) {
+            return rest_ensure_response(array(
+                'success' => true,
+                'message' => 'No posts found to analyze',
+                'analyzed_count' => 0
+            ));
+        }
+        
+        $analyzed_count = 0;
+        $errors = array();
+        
+        foreach ($posts as $post) {
+            try {
+                // Trigger content freshness analysis
+                $freshness_class = new ACA_Content_Freshness();
+                $analysis_result = $freshness_class->analyze_post_freshness($post->ID);
+                
+                if ($analysis_result) {
+                    $analyzed_count++;
+                } else {
+                    $errors[] = "Failed to analyze post ID: {$post->ID}";
+                }
+            } catch (Exception $e) {
+                $errors[] = "Error analyzing post ID {$post->ID}: " . $e->getMessage();
+            }
+        }
+        
+        // Update last analysis time
+        update_option('aca_last_manual_analysis', current_time('mysql'));
+        
+        return rest_ensure_response(array(
+            'success' => count($errors) === 0,
+            'message' => "Analysis completed. {$analyzed_count} posts analyzed.",
+            'analyzed_count' => $analyzed_count,
+            'total_posts' => count($posts),
+            'errors' => $errors
+        ));
+    }
+    
+    /**
+     * Get cron status and last run information
+     */
+    public function get_cron_status($request) {
+        $cron_status = array(
+            'wp_cron_enabled' => !defined('DISABLE_WP_CRON') || !DISABLE_WP_CRON,
+            'last_cron_run' => get_option('aca_last_cron_run', 'Never'),
+            'last_manual_analysis' => get_option('aca_last_manual_analysis', 'Never'),
+            'next_scheduled' => array(),
+            'cron_events' => array()
+        );
+        
+        // Get next scheduled events
+        $scheduled_events = array(
+            'aca_thirty_minute_task' => wp_next_scheduled('aca_thirty_minute_task'),
+            'aca_fifteen_minute_task' => wp_next_scheduled('aca_fifteen_minute_task'),
+            'aca_daily_license_check' => wp_next_scheduled('aca_daily_license_check')
+        );
+        
+        foreach ($scheduled_events as $event => $timestamp) {
+            if ($timestamp) {
+                $cron_status['next_scheduled'][$event] = array(
+                    'timestamp' => $timestamp,
+                    'formatted' => date('Y-m-d H:i:s', $timestamp),
+                    'time_until' => human_time_diff(time(), $timestamp)
+                );
+            } else {
+                $cron_status['next_scheduled'][$event] = 'Not scheduled';
+            }
+        }
+        
+        // Get all cron events
+        $cron_events = _get_cron_array();
+        $aca_events = array();
+        
+        foreach ($cron_events as $timestamp => $events) {
+            foreach ($events as $hook => $event_array) {
+                if (strpos($hook, 'aca_') === 0) {
+                    $aca_events[] = array(
+                        'hook' => $hook,
+                        'timestamp' => $timestamp,
+                        'formatted' => date('Y-m-d H:i:s', $timestamp),
+                        'args' => $event_array
+                    );
+                }
+            }
+        }
+        
+        $cron_status['cron_events'] = $aca_events;
+        
+        return rest_ensure_response($cron_status);
     }
 }

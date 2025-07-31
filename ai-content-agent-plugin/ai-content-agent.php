@@ -3,7 +3,7 @@
  * Plugin Name: AI Content Agent - Enterprise Edition
  * Plugin URI: https://github.com/ademisler/ai-content-agent
  * Description: Enterprise-grade AI-powered WordPress content creation plugin with advanced automation, mobile responsiveness, internationalization, and robust error recovery. Features lazy loading, circuit breaker patterns, and graceful degradation for maximum reliability.
- * Version: 2.3.10
+ * Version: 2.3.11
  * Author: Adem Isler
  * Author URI: https://github.com/ademisler
  * License: GPL v2 or later
@@ -22,7 +22,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('ACA_VERSION', '2.3.10');
+define('ACA_VERSION', '2.3.11');
 define('ACA_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('ACA_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('ACA_PLUGIN_FILE', __FILE__);
@@ -158,6 +158,11 @@ class AI_Content_Agent {
      * Admin page callback
      */
     public function admin_page() {
+        // Load dependency installer if not already loaded
+        if (!class_exists('ACA_Dependencies_Installer')) {
+            require_once ACA_PLUGIN_DIR . 'install-dependencies.php';
+        }
+        
         // Display dependency status if needed
         if (!ACA_Dependencies_Installer::are_dependencies_installed()) {
             echo '<div class="wrap">';
@@ -287,4 +292,4 @@ if (function_exists('add_action')) {
         add_action('aca_thirty_minute_event', array('ACA_Cron', 'thirty_minute_task'));
         add_action('aca_fifteen_minute_event', array('ACA_Cron', 'fifteen_minute_task'));
     });
-}}
+}

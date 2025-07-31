@@ -4108,50 +4108,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             'message' => 'Error logged successfully'
         ));
     }
-}
-    /**
-     * Check admin permissions with rate limiting - CRITICAL SECURITY FIX
-     */
-    public function check_admin_permissions_with_rate_limit($request) {
-        // Apply rate limiting first
-        $rate_limit_check = ACA_Rate_Limiter::check_rate_limit($request, 'api_general');
-        if (is_wp_error($rate_limit_check)) {
-            return $rate_limit_check;
-        }
-        
-        // Then check admin permissions
-        return $this->check_admin_permissions($request);
-    }
     
-    /**
-     * Check pro permissions with rate limiting - CRITICAL SECURITY FIX
-     */
-    public function check_pro_permissions_with_rate_limit($request) {
-        // Apply rate limiting first
-        $rate_limit_check = ACA_Rate_Limiter::check_rate_limit($request, 'ai_generation');
-        if (is_wp_error($rate_limit_check)) {
-            return $rate_limit_check;
-        }
-        
-        // Then check pro permissions
-        return $this->check_pro_permissions($request);
-    }
-    
-    /**
-     * Save settings with rate limiting - CRITICAL SECURITY FIX
-     */
-    public function save_settings_with_rate_limit($request) {
-        // Apply rate limiting for settings updates
-        $rate_limit_check = ACA_Rate_Limiter::check_rate_limit($request, 'settings_update');
-        if (is_wp_error($rate_limit_check)) {
-            return $rate_limit_check;
-        }
-        
-        // Call original save_settings method
-        return $this->save_settings($request);
-    }
-}
-
     /**
      * Performance monitoring wrapper for REST endpoints - HIGH PRIORITY FIX
      */
@@ -4200,3 +4157,4 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
     public function generate_ideas_monitored($request) {
         return $this->monitor_endpoint_performance('generate_ideas', [$this, 'generate_ideas'], $request);
     }
+}

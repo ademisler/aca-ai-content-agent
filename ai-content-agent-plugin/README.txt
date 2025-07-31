@@ -5,7 +5,7 @@ Tags: ai, content, automation, gemini, seo, enterprise, security, performance, n
 Requires at least: 5.0
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 2.3.9
+Stable tag: 2.3.11
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -53,6 +53,30 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 6. Start creating amazing content!
 
 == Changelog ==
+
+= 2.3.11 - 2025-01-31 =
+🚨 **CRITICAL BUG FIX RELEASE**
+
+**ACTIVATION ERRORS FIXED:**
+* Fixed PHP fatal error: Removed extra closing brace causing activation failure
+* Fixed orphaned methods in REST API class defined outside class scope  
+* Fixed duplicate method declarations causing "Cannot redeclare" fatal errors
+* Fixed missing class loading checks for ACA_Dependencies_Installer
+
+**DEPENDENCY MANAGEMENT:**
+* Updated Google API Client to v2.18.3 with all required dependencies
+* Fixed autoloader by replacing placeholder with proper Composer-generated version
+* Removed invalid google/generative-ai-php package from composer.json
+
+**ASSETS & PERFORMANCE:**
+* Rebuilt all frontend assets using npm build pipeline
+* Enhanced asset loading with better fallback mechanisms
+* Updated all version references to 2.3.11 for consistency
+
+**QUALITY ASSURANCE:**
+* All PHP files now pass syntax validation (php -l)
+* Proper dependency management with Composer
+* Improved error handling with try-catch blocks
 
 = 2.3.8-enterprise - 2024-12-31 =
 🎉 **MAJOR MILESTONE - ENTERPRISE EDITION RELEASE**

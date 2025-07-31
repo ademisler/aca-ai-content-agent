@@ -68,8 +68,12 @@ export const SettingsContent: React.FC<SettingsContentProps> = ({
                     headers: { 'X-WP-Nonce': window.acaData.nonce }
                 });
                 const data = await response.json();
+                console.log('ACA: SEO plugins data:', data);
                 if (data.success) {
-                    setDetectedSeoPlugins(data.plugins || []);
+                    setDetectedSeoPlugins(data.plugins || data.detected_plugins || []);
+                } else {
+                    // Try legacy format
+                    setDetectedSeoPlugins(data.detected_plugins || []);
                 }
             } catch (error) {
                 console.error('Failed to load SEO plugins:', error);
@@ -106,11 +110,18 @@ export const SettingsContent: React.FC<SettingsContentProps> = ({
                 headers: { 'X-WP-Nonce': window.acaData.nonce }
             });
             const data = await response.json();
+            console.log('ACA: SEO plugins refresh data:', data);
             if (data.success) {
-                setDetectedSeoPlugins(data.plugins || []);
+                setDetectedSeoPlugins(data.plugins || data.detected_plugins || []);
                 onShowToast('SEO plugins detection completed!', 'success');
             } else {
-                onShowToast('Failed to detect SEO plugins', 'error');
+                // Try legacy format
+                setDetectedSeoPlugins(data.detected_plugins || []);
+                if (data.detected_plugins && data.detected_plugins.length > 0) {
+                    onShowToast('SEO plugins detection completed!', 'success');
+                } else {
+                    onShowToast('Failed to detect SEO plugins', 'error');
+                }
             }
         } catch (error) {
             console.error('SEO plugin detection error:', error);

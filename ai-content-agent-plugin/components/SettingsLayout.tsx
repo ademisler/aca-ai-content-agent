@@ -27,23 +27,34 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
                 overflow: 'hidden'
             }}>
                 <div style={{ position: 'relative', zIndex: 2 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '12px' }}>
-                        <div style={{
-                            width: '48px',
-                            height: '48px',
-                            background: 'rgba(255,255,255,0.2)',
-                            borderRadius: '12px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center'
-                        }}>
-                            {icon}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                            <div style={{
+                                width: '48px',
+                                height: '48px',
+                                background: 'rgba(255,255,255,0.2)',
+                                borderRadius: '12px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                            }}>
+                                {icon}
+                            </div>
+                            <div>
+                                <h1 style={{ fontSize: '28px', fontWeight: '700', margin: 0, color: 'white' }}>
+                                    {title}
+                                </h1>
+                            </div>
                         </div>
-                        <div>
-                            <h1 style={{ fontSize: '28px', fontWeight: '700', margin: 0 }}>
-                                {title}
-                            </h1>
-                        </div>
+                        {actions && (
+                            <div style={{ 
+                                background: 'rgba(255,255,255,0.1)',
+                                borderRadius: '8px',
+                                padding: '8px'
+                            }}>
+                                {actions}
+                            </div>
+                        )}
                     </div>
                     <p style={{ 
                         fontSize: '14px', 

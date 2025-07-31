@@ -783,10 +783,9 @@ const App: React.FC = () => {
                     {/* Page content */}
                     <div className="aca-fade-in">
                         {/* Gemini API Warning - Show on all pages except Settings if API key is missing */}
-                        {!isGeminiApiConfigured && view !== 'settings' && (
+                        {!isGeminiApiConfigured && !view.startsWith('settings') && (
                             <GeminiApiWarning onNavigateToSettings={() => {
-                                setSettingsOpenSection('integrations');
-                                setView('settings');
+                                setView('settings_integrations');
                             }} />
                         )}
                         {renderView()}

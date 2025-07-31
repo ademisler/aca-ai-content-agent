@@ -11834,17 +11834,24 @@ body.toplevel_page_ai-content-agent #wpfooter {
         position: "relative",
         overflow: "hidden"
       }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { position: "relative", zIndex: 2 }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "16px", marginBottom: "12px" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
-            width: "48px",
-            height: "48px",
-            background: "rgba(255,255,255,0.2)",
-            borderRadius: "12px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center"
-          }, children: icon }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { style: { fontSize: "28px", fontWeight: "700", margin: 0 }, children: title }) })
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "16px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+              width: "48px",
+              height: "48px",
+              background: "rgba(255,255,255,0.2)",
+              borderRadius: "12px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center"
+            }, children: icon }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { style: { fontSize: "28px", fontWeight: "700", margin: 0, color: "white" }, children: title }) })
+          ] }),
+          actions && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+            background: "rgba(255,255,255,0.1)",
+            borderRadius: "8px",
+            padding: "8px"
+          }, children: actions })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: {
           fontSize: "14px",
@@ -12821,8 +12828,11 @@ body.toplevel_page_ai-content-agent #wpfooter {
             headers: { "X-WP-Nonce": window.acaData.nonce }
           });
           const data = await response.json();
+          console.log("ACA: SEO plugins data:", data);
           if (data.success) {
-            setDetectedSeoPlugins(data.plugins || []);
+            setDetectedSeoPlugins(data.plugins || data.detected_plugins || []);
+          } else {
+            setDetectedSeoPlugins(data.detected_plugins || []);
           }
         } catch (error) {
           console.error("Failed to load SEO plugins:", error);
@@ -12854,11 +12864,17 @@ body.toplevel_page_ai-content-agent #wpfooter {
           headers: { "X-WP-Nonce": window.acaData.nonce }
         });
         const data = await response.json();
+        console.log("ACA: SEO plugins refresh data:", data);
         if (data.success) {
-          setDetectedSeoPlugins(data.plugins || []);
+          setDetectedSeoPlugins(data.plugins || data.detected_plugins || []);
           onShowToast("SEO plugins detection completed!", "success");
         } else {
-          onShowToast("Failed to detect SEO plugins", "error");
+          setDetectedSeoPlugins(data.detected_plugins || []);
+          if (data.detected_plugins && data.detected_plugins.length > 0) {
+            onShowToast("SEO plugins detection completed!", "success");
+          } else {
+            onShowToast("Failed to detect SEO plugins", "error");
+          }
         }
       } catch (error) {
         console.error("SEO plugin detection error:", error);
@@ -15602,9 +15618,8 @@ body.toplevel_page_ai-content-agent #wpfooter {
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold text-white", children: "AI Content Agent (ACA)" })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-fade-in", children: [
-            !isGeminiApiConfigured && view !== "settings" && /* @__PURE__ */ jsxRuntimeExports.jsx(GeminiApiWarning, { onNavigateToSettings: () => {
-              setSettingsOpenSection("integrations");
-              setView("settings");
+            !isGeminiApiConfigured && !view.startsWith("settings") && /* @__PURE__ */ jsxRuntimeExports.jsx(GeminiApiWarning, { onNavigateToSettings: () => {
+              setView("settings_integrations");
             } }),
             renderView()
           ] })

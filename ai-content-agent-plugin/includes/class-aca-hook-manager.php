@@ -1,0 +1,1 @@
+<?php class ACA_Hook_Manager { public static function add_action($h, $c, $p=10, $a=1, $ctx="auto") { if($ctx==="admin" && !is_admin()) return false; if($ctx==="frontend" && is_admin()) return false; return add_action($h,$c,$p,$a); } }

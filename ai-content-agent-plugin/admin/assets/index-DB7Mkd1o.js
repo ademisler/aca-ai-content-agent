@@ -11964,7 +11964,7 @@ body.toplevel_page_ai-content-agent #wpfooter {
       )
     ] });
   };
-  const RadioCard = ({ id, title, description, currentSelection, onChange }) => {
+  const RadioCard$1 = ({ id, title, description, currentSelection, onChange }) => {
     const isChecked = currentSelection === id;
     return /* @__PURE__ */ jsxRuntimeExports.jsx(
       "label",
@@ -12504,7 +12504,7 @@ body.toplevel_page_ai-content-agent #wpfooter {
             /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", children: "Choose how you want the AI Content Agent (ACA) to operate. You can change this at any time." }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "15px" }, children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(
-                RadioCard,
+                RadioCard$1,
                 {
                   id: "manual",
                   title: "Manual Mode",
@@ -13678,6 +13678,513 @@ body.toplevel_page_ai-content-agent #wpfooter {
               /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", style: { marginTop: "8px", fontSize: "12px" }, children: "This will disable all Pro features and allow you to use the license on another site." })
             ] })
           ] })
+        ]
+      }
+    );
+  };
+  const RadioCard = ({ id, title, description, currentSelection, onChange }) => {
+    const isChecked = currentSelection === id;
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "label",
+      {
+        htmlFor: id,
+        className: "aca-card",
+        style: {
+          margin: 0,
+          border: "2px solid",
+          borderColor: isChecked ? "#0073aa" : "#ccd0d4",
+          background: isChecked ? "#f0f6fc" : "#ffffff",
+          boxShadow: isChecked ? "0 2px 4px rgba(0, 0, 0, 0.1)" : "none",
+          cursor: "pointer"
+        },
+        children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "flex-start", gap: "12px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "radio",
+              id,
+              name: "automation-mode",
+              checked: isChecked,
+              onChange: () => onChange(id),
+              style: {
+                marginTop: "2px",
+                width: "18px",
+                height: "18px",
+                accentColor: "#0073aa",
+                flexShrink: 0
+              }
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "aca-card-title", style: { marginBottom: "8px" }, children: title }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", style: { margin: 0 }, children: description })
+          ] })
+        ] })
+      }
+    );
+  };
+  const SettingsAutomation = ({
+    settings,
+    onSaveSettings,
+    onShowToast,
+    isProActive
+  }) => {
+    const [currentSettings, setCurrentSettings] = reactExports.useState(settings);
+    const [licenseStatus, setLicenseStatus] = reactExports.useState({ status: "inactive", is_active: false });
+    const [isLoadingLicenseStatus, setIsLoadingLicenseStatus] = reactExports.useState(true);
+    const [isDirty, setIsDirty] = reactExports.useState(false);
+    const [isSaving, setIsSaving] = reactExports.useState(false);
+    reactExports.useEffect(() => {
+      const loadLicenseStatus = async () => {
+        try {
+          const status = await licenseApi.getStatus();
+          setLicenseStatus({
+            status: status.status || "inactive",
+            is_active: status.is_active || false,
+            verified_at: status.verified_at
+          });
+        } catch (error) {
+          console.error("Failed to load license status:", error);
+        } finally {
+          setIsLoadingLicenseStatus(false);
+        }
+      };
+      loadLicenseStatus();
+    }, []);
+    const checkIsProActive = () => {
+      return isProActive !== void 0 ? isProActive : licenseStatus.is_active;
+    };
+    const handleModeChange = (mode) => {
+      const updatedSettings = { ...currentSettings, mode };
+      setCurrentSettings(updatedSettings);
+      setIsDirty(true);
+    };
+    const handleSettingChange = (key, value) => {
+      const updatedSettings = { ...currentSettings, [key]: value };
+      setCurrentSettings(updatedSettings);
+      setIsDirty(true);
+    };
+    const handleSave = async () => {
+      if (!isDirty) return;
+      setIsSaving(true);
+      try {
+        await onSaveSettings(currentSettings);
+        setIsDirty(false);
+        onShowToast("Automation settings saved successfully!", "success");
+      } catch (error) {
+        onShowToast("Failed to save automation settings", "error");
+      } finally {
+        setIsSaving(false);
+      }
+    };
+    if (isLoadingLicenseStatus) {
+      return /* @__PURE__ */ jsxRuntimeExports.jsx(
+        SettingsLayout,
+        {
+          title: "Automation Mode",
+          description: "Configure how AI Content Agent creates and publishes content automatically",
+          icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { style: { width: "24px", height: "24px", color: "white" } }),
+          children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "40px", textAlign: "center", color: "#666" }, children: "Loading license status..." })
+        }
+      );
+    }
+    const saveButton = isDirty ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "button",
+      {
+        onClick: handleSave,
+        disabled: isSaving,
+        className: "aca-button aca-button-primary",
+        style: { minWidth: "120px" },
+        children: isSaving ? "Saving..." : "Save Changes"
+      }
+    ) : null;
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(
+      SettingsLayout,
+      {
+        title: "Automation Mode",
+        description: "Configure how AI Content Agent creates and publishes content automatically",
+        icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { style: { width: "24px", height: "24px", color: "white" } }),
+        actions: saveButton,
+        children: checkIsProActive() ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", style: { marginBottom: "20px" }, children: "Choose how you want the AI Content Agent (ACA) to operate. You can change this at any time." }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "15px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              RadioCard,
+              {
+                id: "manual",
+                title: "Manual Mode",
+                description: "You are in full control. Manually generate ideas and create drafts one by one.",
+                currentSelection: currentSettings.mode,
+                onChange: handleModeChange
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", style: {
+              margin: 0,
+              border: "2px solid",
+              borderColor: currentSettings.mode === "semi-automatic" ? "#0073aa" : "#ccd0d4",
+              background: currentSettings.mode === "semi-automatic" ? "#f0f6fc" : "#ffffff",
+              boxShadow: currentSettings.mode === "semi-automatic" ? "0 2px 4px rgba(0, 0, 0, 0.1)" : "none"
+            }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { htmlFor: "semi-automatic", style: { display: "flex", alignItems: "flex-start", cursor: "pointer", gap: "12px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "radio",
+                    id: "semi-automatic",
+                    name: "automation-mode",
+                    checked: currentSettings.mode === "semi-automatic",
+                    onChange: () => handleModeChange("semi-automatic"),
+                    style: {
+                      marginTop: "2px",
+                      width: "18px",
+                      height: "18px",
+                      accentColor: "#0073aa",
+                      flexShrink: 0
+                    }
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "aca-card-title", style: { marginBottom: "8px" }, children: "Semi-Automatic Mode" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", style: { margin: 0 }, children: "The AI automatically generates new ideas periodically. You choose which ideas to turn into drafts." })
+                ] })
+              ] }),
+              currentSettings.mode === "semi-automatic" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-form-group", style: {
+                paddingLeft: "30px",
+                paddingTop: "20px",
+                marginTop: "20px",
+                borderTop: "1px solid #e0e0e0",
+                marginBottom: 0
+              }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "aca-label", htmlFor: "semi-auto-frequency", children: "Idea Generation Frequency" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "select",
+                  {
+                    id: "semi-auto-frequency",
+                    className: "aca-input",
+                    value: currentSettings.semiAutoIdeaFrequency || "weekly",
+                    onChange: (e) => handleSettingChange("semiAutoIdeaFrequency", e.target.value),
+                    style: { marginTop: "5px" },
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "daily", children: "Daily - Generate new ideas every day" }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "weekly", children: "Weekly - Generate new ideas every week" }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "monthly", children: "Monthly - Generate new ideas every month" })
+                    ]
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", style: { marginTop: "5px", margin: "5px 0 0 0" }, children: "How often should the AI automatically generate new content ideas?" })
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", style: {
+              margin: 0,
+              border: "2px solid",
+              borderColor: currentSettings.mode === "full-automatic" ? "#0073aa" : "#ccd0d4",
+              background: currentSettings.mode === "full-automatic" ? "#f0f6fc" : "#ffffff",
+              boxShadow: currentSettings.mode === "full-automatic" ? "0 2px 4px rgba(0, 0, 0, 0.1)" : "none"
+            }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { htmlFor: "full-automatic-radio", style: { display: "flex", alignItems: "flex-start", cursor: "pointer", gap: "12px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "radio",
+                    id: "full-automatic-radio",
+                    name: "automation-mode",
+                    checked: currentSettings.mode === "full-automatic",
+                    onChange: () => handleModeChange("full-automatic"),
+                    style: {
+                      marginTop: "2px",
+                      width: "18px",
+                      height: "18px",
+                      accentColor: "#0073aa",
+                      flexShrink: 0
+                    }
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "aca-card-title", style: { marginBottom: "8px" }, children: "Full-Automatic Mode (Set & Forget)" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", style: { margin: 0 }, children: "The AI handles everything: generates ideas, picks the best ones, and creates drafts automatically." })
+                ] })
+              ] }),
+              currentSettings.mode === "full-automatic" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+                paddingLeft: "30px",
+                paddingTop: "20px",
+                marginTop: "20px",
+                borderTop: "1px solid #e0e0e0",
+                marginBottom: 0
+              }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-form-group", style: { marginBottom: "20px" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "aca-label", htmlFor: "daily-post-count", children: "Daily Post Count" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "select",
+                    {
+                      id: "daily-post-count",
+                      className: "aca-input",
+                      value: currentSettings.fullAutoDailyPostCount || 1,
+                      onChange: (e) => handleSettingChange("fullAutoDailyPostCount", parseInt(e.target.value)),
+                      style: { marginTop: "5px" },
+                      children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: 1, children: "1 post per day" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: 2, children: "2 posts per day" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: 3, children: "3 posts per day" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: 5, children: "5 posts per day" })
+                      ]
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", style: { marginTop: "5px", margin: "5px 0 0 0" }, children: "How many posts should be created daily in full-automatic mode?" })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-form-group", style: { marginBottom: "20px" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "aca-label", htmlFor: "publish-frequency", children: "Publishing Frequency" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "select",
+                    {
+                      id: "publish-frequency",
+                      className: "aca-input",
+                      value: currentSettings.fullAutoPublishFrequency || "daily",
+                      onChange: (e) => handleSettingChange("fullAutoPublishFrequency", e.target.value),
+                      style: { marginTop: "5px" },
+                      children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "hourly", children: "Every hour - Publish posts throughout the day" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "daily", children: "Daily - Publish once per day" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "weekly", children: "Weekly - Publish once per week" })
+                      ]
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", style: { marginTop: "5px", margin: "5px 0 0 0" }, children: "How often should created drafts be published automatically?" })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-form-group", style: { marginBottom: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { htmlFor: "auto-publish", style: { display: "flex", alignItems: "flex-start", cursor: "pointer", gap: "12px" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "input",
+                    {
+                      type: "checkbox",
+                      id: "auto-publish",
+                      checked: currentSettings.autoPublish,
+                      onChange: (e) => handleSettingChange("autoPublish", e.target.checked),
+                      style: {
+                        marginTop: "2px",
+                        width: "16px",
+                        height: "16px",
+                        accentColor: "#0073aa"
+                      }
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "aca-label", children: "Enable Auto-Publish" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", style: { marginTop: "5px", margin: "5px 0 0 0" }, children: "When enabled, the AI will automatically publish posts according to the frequency settings above." })
+                  ] })
+                ] }) })
+              ] })
+            ] })
+          ] })
+        ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx(
+          UpgradePrompt,
+          {
+            title: "Automation Features Require Pro License",
+            description: "Unlock powerful automation modes including semi-automatic and full-automatic content generation.",
+            features: [
+              "Semi-Automatic Mode - AI generates ideas automatically",
+              "Full-Automatic Mode - Complete hands-off content creation",
+              "Flexible scheduling options",
+              "Auto-publish capabilities"
+            ]
+          }
+        )
+      }
+    );
+  };
+  const SettingsContent = ({
+    settings,
+    onSaveSettings,
+    onShowToast
+  }) => {
+    const [currentSettings, setCurrentSettings] = reactExports.useState(settings);
+    const [isDirty, setIsDirty] = reactExports.useState(false);
+    const [isSaving, setIsSaving] = reactExports.useState(false);
+    const handleSettingChange = (key, value) => {
+      const updatedSettings = { ...currentSettings, [key]: value };
+      setCurrentSettings(updatedSettings);
+      setIsDirty(true);
+    };
+    const handleSave = async () => {
+      if (!isDirty) return;
+      setIsSaving(true);
+      try {
+        await onSaveSettings(currentSettings);
+        setIsDirty(false);
+        onShowToast("Content settings saved successfully!", "success");
+      } catch (error) {
+        onShowToast("Failed to save content settings", "error");
+      } finally {
+        setIsSaving(false);
+      }
+    };
+    const saveButton = isDirty ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "button",
+      {
+        onClick: handleSave,
+        disabled: isSaving,
+        className: "aca-button aca-button-primary",
+        style: { minWidth: "120px" },
+        children: isSaving ? "Saving..." : "Save Changes"
+      }
+    ) : null;
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(
+      SettingsLayout,
+      {
+        title: "Content & SEO",
+        description: "Configure content analysis and SEO optimization settings",
+        icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Image, { style: { width: "24px", height: "24px", color: "white" } }),
+        actions: saveButton,
+        children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-form-group", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "aca-label", htmlFor: "analyze-frequency", children: "Content Analysis Frequency" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "select",
+            {
+              id: "analyze-frequency",
+              className: "aca-input",
+              value: currentSettings.analyzeContentFrequency || "manual",
+              onChange: (e) => handleSettingChange("analyzeContentFrequency", e.target.value),
+              style: { marginTop: "5px" },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "manual", children: "Manual - Only when you click the analyze button" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "daily", children: "Daily - Analyze content automatically every day" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "weekly", children: "Weekly - Analyze content automatically every week" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "monthly", children: "Monthly - Analyze content automatically every month" })
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", style: { marginTop: "5px", margin: "5px 0 0 0" }, children: "How often should the AI automatically analyze your site content to update the style guide? Manual mode gives you full control." })
+        ] })
+      }
+    );
+  };
+  const SettingsAdvanced = ({
+    onShowToast
+  }) => {
+    const handleCheckAutomationStatus = () => {
+      if (!window.acaData) {
+        console.error("ACA: WordPress data not available");
+        return;
+      }
+      fetch(window.acaData.api_url + "debug/automation", {
+        headers: { "X-WP-Nonce": window.acaData.nonce }
+      }).then((r) => r.json()).then((data) => {
+        console.log("Automation Debug Info:", data);
+        onShowToast("Debug info logged to console", "info");
+      }).catch((error) => {
+        console.error("Error checking automation status:", error);
+        onShowToast("Failed to check automation status", "error");
+      });
+    };
+    const handleTestSemiAutoCron = () => {
+      if (!window.acaData) {
+        console.error("ACA: WordPress data not available");
+        return;
+      }
+      fetch(window.acaData.api_url + "debug/cron/semi-auto", {
+        method: "POST",
+        headers: { "X-WP-Nonce": window.acaData.nonce }
+      }).then((r) => r.json()).then((data) => {
+        onShowToast(data.message || "Semi-auto cron triggered", "success");
+      }).catch((error) => {
+        console.error("Error testing semi-auto cron:", error);
+        onShowToast("Failed to test semi-auto cron", "error");
+      });
+    };
+    const handleTestFullAutoCron = () => {
+      if (!window.acaData) {
+        console.error("ACA: WordPress data not available");
+        return;
+      }
+      fetch(window.acaData.api_url + "debug/cron/full-auto", {
+        method: "POST",
+        headers: { "X-WP-Nonce": window.acaData.nonce }
+      }).then((r) => r.json()).then((data) => {
+        onShowToast(data.message || "Full-auto cron triggered", "success");
+      }).catch((error) => {
+        console.error("Error testing full-auto cron:", error);
+        onShowToast("Failed to test full-auto cron", "error");
+      });
+    };
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      SettingsLayout,
+      {
+        title: "Advanced & Debug",
+        description: "Developer tools and advanced debugging features for automation testing",
+        icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Brain, { style: { width: "24px", height: "24px", color: "white" } }),
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-alert info", style: { marginBottom: "20px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { style: { margin: 0, fontSize: "14px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "🛠️ For Developers & Advanced Users:" }),
+            " This panel is designed for testing and debugging automation features. Use these tools to manually trigger automation tasks, check cron job status, and troubleshoot issues. Regular users typically don't need to use this panel."
+          ] }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", style: { marginBottom: "20px" }, children: "Test automation functionality and check cron status. Click the buttons below to manually trigger automation tasks or check their status." }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "10px", marginBottom: "20px", flexWrap: "wrap" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                className: "aca-action-button",
+                onClick: handleCheckAutomationStatus,
+                style: {
+                  padding: "12px 20px",
+                  backgroundColor: "#3b82f6",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                  transition: "background-color 0.2s"
+                },
+                onMouseEnter: (e) => e.currentTarget.style.backgroundColor = "#2563eb",
+                onMouseLeave: (e) => e.currentTarget.style.backgroundColor = "#3b82f6",
+                children: "Check Automation Status"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                className: "aca-action-button",
+                onClick: handleTestSemiAutoCron,
+                style: {
+                  padding: "12px 20px",
+                  backgroundColor: "#10b981",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                  transition: "background-color 0.2s"
+                },
+                onMouseEnter: (e) => e.currentTarget.style.backgroundColor = "#059669",
+                onMouseLeave: (e) => e.currentTarget.style.backgroundColor = "#10b981",
+                children: "Test Semi-Auto Cron"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                className: "aca-action-button",
+                onClick: handleTestFullAutoCron,
+                style: {
+                  padding: "12px 20px",
+                  backgroundColor: "#f59e0b",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                  transition: "background-color 0.2s"
+                },
+                onMouseEnter: (e) => e.currentTarget.style.backgroundColor = "#d97706",
+                onMouseLeave: (e) => e.currentTarget.style.backgroundColor = "#f59e0b",
+                children: "Test Full-Auto Cron"
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-alert warning", style: { marginTop: "20px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { style: { margin: 0, fontSize: "13px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "⚠️ Important:" }),
+            " These debug functions are for testing purposes only. They may trigger content generation or publishing actions. Use with caution on production sites."
+          ] }) })
         ]
       }
     );
@@ -15677,13 +16184,12 @@ body.toplevel_page_ai-content-agent #wpfooter {
           );
         case "settings_automation":
           return /* @__PURE__ */ jsxRuntimeExports.jsx(
-            Settings,
+            SettingsAutomation,
             {
               settings,
               onSaveSettings: handleSaveSettings,
-              onRefreshApp: handleRefreshApp,
               onShowToast: showToast,
-              openSection: "automation"
+              isProActive: settings.is_pro
             }
           );
         case "settings_integrations":
@@ -15699,24 +16205,18 @@ body.toplevel_page_ai-content-agent #wpfooter {
           );
         case "settings_content":
           return /* @__PURE__ */ jsxRuntimeExports.jsx(
-            Settings,
+            SettingsContent,
             {
               settings,
               onSaveSettings: handleSaveSettings,
-              onRefreshApp: handleRefreshApp,
-              onShowToast: showToast,
-              openSection: "content"
+              onShowToast: showToast
             }
           );
         case "settings_advanced":
           return /* @__PURE__ */ jsxRuntimeExports.jsx(
-            Settings,
+            SettingsAdvanced,
             {
-              settings,
-              onSaveSettings: handleSaveSettings,
-              onRefreshApp: handleRefreshApp,
-              onShowToast: showToast,
-              openSection: "advanced"
+              onShowToast: showToast
             }
           );
         case "calendar":

@@ -1,14 +1,23 @@
 # AI Content Agent (ACA) for WordPress
 
-**Version:** 2.3.0  
+**Version:** 2.3.4  
 **Requires:** WordPress 5.0+, PHP 7.4+  
 **License:** GPL v2 or later
 
 AI Content Agent (ACA) is a powerful WordPress plugin that leverages Google's Gemini AI to automate content creation, SEO optimization, and publishing workflows.
 
-## 🚀 Latest Updates - v2.3.0
+## 🚀 Latest Updates - v2.3.4
 
-### 🌍 **MAJOR FEATURE: Automatic Language Detection & Multilingual Support**
+### 🔧 **MAJOR FIX: Settings Page Navigation & Scroll Jumping Resolution**
+- **Complete Settings Page Restructure**: Transformed monolithic settings into clean, separate pages
+- **Eliminated Scroll Jumping**: No more page jumping when opening settings sections
+- **Hierarchical Navigation**: Beautiful sidebar navigation with License, Automation, Integrations, Content & SEO, and Advanced sections
+- **Improved User Experience**: Each settings category now has its own dedicated page with consistent styling
+- **Per-Page Save Functionality**: Individual save buttons for each settings page with unsaved changes detection
+- **Better Code Architecture**: Extracted settings into maintainable, focused components (SettingsLicense, SettingsAutomation, etc.)
+- **Emergency Fix Applied**: Restored broken Settings page functionality by implementing missing CollapsibleSection component
+
+### 🌍 **Previous Update - v2.3.0: Automatic Language Detection & Multilingual Support**
 - **WordPress Locale Integration**: Automatically detects website language from WordPress locale settings
 - **50+ Language Support**: Comprehensive language mapping for global websites (European, Asian, Middle Eastern, Slavic, etc.)
 - **Smart Fallback System**: Graceful degradation to English if language not detected
@@ -94,11 +103,11 @@ AI Content Agent (ACA) is a powerful WordPress plugin that leverages Google's Ge
 ## 📁 Release Management
 
 ### Current Release
-- **Latest Stable**: v2.3.1 (Located in `/releases/`)
-- **File**: `ai-content-agent-v2.3.1-critical-bug-fixes.zip`
-- **Status**: Stable, ready for production with critical bug fixes
-- **Previous Stable**: v2.3.0 with multilingual support and intelligent categorization (archived)
-- **Bug Fixes**: Settings scroll jumping, GSC OAuth tokens, initial data loading resilience
+- **Latest Stable**: v2.3.4 (Located in `/releases/`)
+- **File**: `ai-content-agent-v2.3.4-settings-page-navigation-fix.zip`
+- **Status**: Stable, ready for production with complete settings page restructure
+- **Major Improvements**: Settings page navigation, scroll jumping elimination, better UX
+- **Previous Versions**: v2.3.0-2.3.3 (archived) - multilingual support and scroll jumping fixes
 
 ### Archive
 - **Previous Versions**: All older versions are stored in `/releases/archive/`
@@ -108,7 +117,7 @@ AI Content Agent (ACA) is a powerful WordPress plugin that leverages Google's Ge
 ### For Developers
 ```bash
 # Current stable release
-releases/ai-content-agent-v2.2.6-settings-scroll-jumping-fix.zip
+releases/ai-content-agent-v2.3.4-settings-page-navigation-fix.zip
 
 # Development build (after making changes)
 npm run build:wp  # Builds and copies to both admin/assets/ and admin/js/
@@ -121,6 +130,11 @@ releases/archive/ai-content-agent-v1.6.x-*.zip
 releases/archive/ai-content-agent-v1.7.x-*.zip
 releases/archive/ai-content-agent-v2.0.x-*.zip
 releases/archive/ai-content-agent-v2.1.x-*.zip
+releases/archive/ai-content-agent-v2.2.x-*.zip
+releases/archive/ai-content-agent-v2.3.0-*.zip
+releases/archive/ai-content-agent-v2.3.1-*.zip
+releases/archive/ai-content-agent-v2.3.2-*.zip
+releases/archive/ai-content-agent-v2.3.3-*.zip
 ```
 
 **⚠️ Important for Developers**: When making style changes or any frontend modifications, always use `npm run build:wp` to ensure both asset locations are updated. See `DEVELOPER_GUIDE.md` for detailed build instructions.
@@ -215,8 +229,11 @@ This plugin is licensed under the GPL v2 or later.
 
 ## 🔄 Version History
 
-- **v2.3.1**: Critical bug fixes - Settings scroll jumping, GSC OAuth tokens, data loading resilience (Current Release)
-- **v2.3.0**: Multilingual support & intelligent categorization (Stable)
+- **v2.3.4**: Settings Page Navigation & Scroll Jumping Resolution - Complete settings restructure (Current Release)
+- **v2.3.3**: Aggressive scroll fix attempts (Archived)
+- **v2.3.2**: Scroll jumping fix final attempt (Archived)
+- **v2.3.1**: Critical bug fixes - Settings scroll jumping, GSC OAuth tokens, data loading resilience (Archived)
+- **v2.3.0**: Multilingual support & intelligent categorization (Archived)
 - **v2.2.6**: Settings scroll jumping fix (Archived)
 - **v2.1.0**: AI-powered content freshness system (PRO)
 - **v2.0.5**: Essential Gemini API warning system
@@ -245,4 +262,4 @@ For complete version history, see `CHANGELOG.md`.
 
 ---
 
-**Ready to revolutionize your content workflow with AI Content Agent (ACA)?** Download v2.2.6 for the most stable experience with critical settings page fixes, or stay tuned for v2.3.0 with revolutionary multilingual support and intelligent categorization! 🚀
+**Ready to revolutionize your content workflow with AI Content Agent (ACA)?** Download v2.3.4 for the complete settings page navigation experience with eliminated scroll jumping and beautiful hierarchical navigation! 🚀

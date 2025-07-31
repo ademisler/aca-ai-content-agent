@@ -11,6 +11,9 @@ import { IdeaBoard } from './components/IdeaBoard';
 import { DraftsList } from './components/DraftsList';
 import { Settings } from './components/Settings';
 import { SettingsLicense } from './components/SettingsLicense';
+import { SettingsAutomation } from './components/SettingsAutomation';
+import { SettingsContent } from './components/SettingsContent';
+import { SettingsAdvanced } from './components/SettingsAdvanced';
 import { DraftModal } from './components/DraftModal';
 import { Toast, ToastData } from './components/Toast';
 import { PublishedList } from './components/PublishedList';
@@ -542,14 +545,13 @@ const App: React.FC = () => {
                     onSaveSettings={handleSaveSettings} 
                     onShowToast={showToast} 
                 />;
-            case 'settings_automation':
-                return <Settings 
-                    settings={settings} 
-                    onSaveSettings={handleSaveSettings} 
-                    onRefreshApp={handleRefreshApp} 
-                    onShowToast={showToast} 
-                    openSection="automation"
-                />;
+                         case 'settings_automation':
+                 return <SettingsAutomation 
+                     settings={settings} 
+                     onSaveSettings={handleSaveSettings} 
+                     onShowToast={showToast} 
+                     isProActive={settings.is_pro}
+                 />;
             case 'settings_integrations':
                 return <Settings 
                     settings={settings} 
@@ -558,22 +560,16 @@ const App: React.FC = () => {
                     onShowToast={showToast} 
                     openSection="integrations"
                 />;
-            case 'settings_content':
-                return <Settings 
-                    settings={settings} 
-                    onSaveSettings={handleSaveSettings} 
-                    onRefreshApp={handleRefreshApp} 
-                    onShowToast={showToast} 
-                    openSection="content"
-                />;
-            case 'settings_advanced':
-                return <Settings 
-                    settings={settings} 
-                    onSaveSettings={handleSaveSettings} 
-                    onRefreshApp={handleRefreshApp} 
-                    onShowToast={showToast} 
-                    openSection="advanced"
-                />;
+                         case 'settings_content':
+                 return <SettingsContent 
+                     settings={settings} 
+                     onSaveSettings={handleSaveSettings} 
+                     onShowToast={showToast} 
+                 />;
+             case 'settings_advanced':
+                 return <SettingsAdvanced 
+                     onShowToast={showToast} 
+                 />;
             case 'calendar':
                 return <ContentCalendar 
                     drafts={drafts} 

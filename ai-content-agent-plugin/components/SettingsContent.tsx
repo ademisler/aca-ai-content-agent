@@ -64,7 +64,7 @@ export const SettingsContent: React.FC<SettingsContentProps> = ({
             if (!window.acaData) return;
             
             try {
-                const response = await fetch(window.acaData.api_url + 'seo/plugins', {
+                const response = await fetch(window.acaData.api_url + 'seo-plugins', {
                     headers: { 'X-WP-Nonce': window.acaData.nonce }
                 });
                 const data = await response.json();
@@ -105,7 +105,7 @@ export const SettingsContent: React.FC<SettingsContentProps> = ({
         
         setIsDetectingSeo(true);
         try {
-            const response = await fetch(window.acaData.api_url + 'seo/plugins', {
+            const response = await fetch(window.acaData.api_url + 'seo-plugins', {
                 method: 'POST',
                 headers: { 'X-WP-Nonce': window.acaData.nonce }
             });

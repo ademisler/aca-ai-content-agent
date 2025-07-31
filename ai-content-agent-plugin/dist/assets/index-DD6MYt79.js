@@ -12931,7 +12931,7 @@ body.toplevel_page_ai-content-agent #wpfooter {
       const loadSeoPlugins = async () => {
         if (!window.acaData) return;
         try {
-          const response = await fetch(window.acaData.api_url + "seo/plugins", {
+          const response = await fetch(window.acaData.api_url + "seo-plugins", {
             headers: { "X-WP-Nonce": window.acaData.nonce }
           });
           const data = await response.json();
@@ -12966,7 +12966,7 @@ body.toplevel_page_ai-content-agent #wpfooter {
       if (!window.acaData) return;
       setIsDetectingSeo(true);
       try {
-        const response = await fetch(window.acaData.api_url + "seo/plugins", {
+        const response = await fetch(window.acaData.api_url + "seo-plugins", {
           method: "POST",
           headers: { "X-WP-Nonce": window.acaData.nonce }
         });

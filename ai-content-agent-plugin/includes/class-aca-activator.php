@@ -91,7 +91,7 @@ class ACA_Activator {
             'searchConsoleUser' => null,
             'gscClientId' => '',
             'gscClientSecret' => '',
-            'imageSourceProvider' => 'ai',
+            'imageSourceProvider' => 'pexels',
             'aiImageStyle' => 'photorealistic',
             'googleCloudProjectId' => '',
             'googleCloudLocation' => 'us-central1',

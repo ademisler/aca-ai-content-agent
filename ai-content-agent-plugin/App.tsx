@@ -64,6 +64,7 @@ const App: React.FC = () => {
     const [publishingId, setPublishingId] = useState<number | null>(null);
     const [contentFreshness, setContentFreshness] = useState<{
         total: number;
+        analyzed: number;
         needsUpdate: number;
         averageScore: number;
     } | null>(null);
@@ -74,6 +75,27 @@ const App: React.FC = () => {
     
     // Check if Gemini API key is configured
     const isGeminiApiConfigured = !!(settings.geminiApiKey && settings.geminiApiKey.trim());
+
+    // Parse URL parameters for OAuth redirects and view navigation
+    useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const viewParam = urlParams.get('view');
+        const gscConnected = urlParams.get('gsc_connected');
+        
+        // Handle GSC OAuth redirect
+        if (viewParam === 'settings' && gscConnected === '1') {
+            setView('settings');
+            setSettingsOpenSection('integrations');
+            showToast('Google Search Console connected successfully!', 'success');
+            
+            // Clean up URL parameters
+            const newUrl = window.location.pathname + window.location.hash;
+            window.history.replaceState({}, document.title, newUrl);
+        } else if (viewParam === 'settings') {
+            setView('settings');
+            // Don't clean URL in this case, might be intentional navigation
+        }
+    }, [showToast]);
 
     // Clear openSection when view changes away from settings
     useEffect(() => {
@@ -483,6 +505,7 @@ const App: React.FC = () => {
                 title: title.trim(),
                 description: description?.trim() || '',
                 status: 'active',
+                source: 'manual',
                 createdAt: new Date().toISOString(),
                 tags: []
             };

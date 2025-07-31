@@ -1,20 +1,63 @@
 <?php
 /**
- * REST API functionality
+ * REST API functionality for AI Content Agent (ACA) Plugin
+ * 
+ * This class handles all REST API endpoints for the ACA plugin, including:
+ * - Settings management
+ * - Content ideas generation and management
+ * - Draft creation and publishing
+ * - Style guide management
+ * - Google Search Console integration
+ * - SEO plugin detection
+ * - Content freshness analysis
+ * - License management
+ * - Activity logging
+ * 
+ * @package AI_Content_Agent
+ * @version 2.3.7
+ * @author Adem Isler
+ * @since 1.0.0
  */
 
 if (!defined('ABSPATH')) {
     exit;
 }
 
+/**
+ * Main REST API class for AI Content Agent
+ * 
+ * Provides secure REST API endpoints for frontend-backend communication.
+ * All endpoints require proper WordPress authentication and nonce verification.
+ * 
+ * @since 1.0.0
+ */
 class ACA_Rest_Api {
     
+    /**
+     * Constructor - Initialize REST API hooks
+     * 
+     * @since 1.0.0
+     */
     public function __construct() {
         add_action('rest_api_init', array($this, 'register_routes'));
     }
     
     /**
-     * Register REST API routes
+     * Register all REST API routes for the plugin
+     * 
+     * Registers endpoints for:
+     * - Settings (GET/POST)
+     * - Ideas (CRUD operations)
+     * - Drafts (CRUD operations)
+     * - Style guide (GET/POST)
+     * - Google Search Console integration
+     * - SEO plugin detection
+     * - Content freshness analysis
+     * - License management
+     * - Activity logging
+     * - Debug endpoints
+     * 
+     * @since 1.0.0
      */
     public function register_routes() {
         // Settings endpoints

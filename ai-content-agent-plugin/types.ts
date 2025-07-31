@@ -80,6 +80,7 @@ export type ActivityLogType =
     | 'draft_updated'
     | 'draft_scheduled'
     | 'idea_added'
+    | 'idea_restored'
     | 'content_freshness_analysis';
 
 export type IconName = 'BookOpen' | 'Lightbulb' | 'FileText' | 'Send' | 'Settings' | 'Archive' | 'Edit' | 'Calendar' | 'Sparkles' | 'PlusCircle' | 'Trash' | 'Pencil';
@@ -93,55 +94,51 @@ export interface ActivityLog {
 }
 
 // Content Freshness Types
-export interface FreshnessSettings {
-    analysisFrequency: 'daily' | 'weekly' | 'monthly' | 'manual';
-    autoUpdate: boolean;
-    updateThreshold: number;
-    enabled: boolean;
-}
-
-export interface FreshnessData {
-    postId: number;
-    freshnessScore: number;
-    lastAnalyzed: string;
-    needsUpdate: boolean;
-    updatePriority: number;
-}
-
-export interface FreshnessAnalysis {
-    score: number;
-    needs_update: boolean;
-    priority: number;
-    suggestions: string[];
-    age_score: number;
-    seo_score: number;
-    ai_score: number;
-    days_old: number;
-    outdated_information?: string[];
-    seo_improvements?: string[];
-    readability_improvements?: string[];
-    content_gaps?: string[];
-    technical_updates?: string[];
-}
-
 export interface PostWithFreshness {
-    ID: number;
-    post_title: string;
-    post_date: string;
-    post_modified: string;
+    id: number;
+    title: string;
+    url: string;
+    published_date: string;
     freshness_score: number | null;
-    last_analyzed: string | null;
-    needs_update: boolean | null;
-    update_priority: number | null;
+    needs_update: boolean;
     analysis?: FreshnessAnalysis;
 }
 
+export interface FreshnessAnalysis {
+    age_score: number;
+    seo_score: number;
+    ai_score: number;
+    final_score: number;
+    days_old: number;
+    priority: number;
+    recommendations: string[];
+}
+
+export interface FreshnessSettings {
+    enabled: boolean;
+    frequency: 'daily' | 'weekly' | 'monthly';
+    updateThreshold: number;
+    autoUpdate: boolean;
+}
+
 export interface ContentUpdate {
-    postId: number;
-    updates: {
-        title?: string;
-        content?: string;
-        metaDescription?: string;
-        focusKeywords?: string[];
+    id: number;
+    post_id: number;
+    old_content: string;
+    new_content: string;
+    update_type: string;
+    created_at: string;
+}
+
+// Dashboard Statistics
+export interface DashboardStats {
+    ideas: number;
+    drafts: number;
+    published: number;
+    contentFreshness?: {
+        total: number;
+        analyzed: number;
+        needsUpdate: number;
+        averageScore: number;
     };
 }

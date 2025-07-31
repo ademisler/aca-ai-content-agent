@@ -1013,11 +1013,18 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                         value={currentSettings.geminiApiKey} 
                         onChange={e => handleInputChange('geminiApiKey', e.target.value)} 
                         className="aca-input"
+                        aria-label="Google AI API Key"
+                        aria-describedby="gemini-api-help"
+                        aria-required="true"
+                        aria-invalid={!!validationErrors.geminiApiKey}
                     />
                     {validationErrors.geminiApiKey && (
-                        <p style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{validationErrors.geminiApiKey}</p>
+                        <p style={{ color: 'red', fontSize: '12px', marginTop: '4px' }} role="alert" aria-live="polite">
+                            {validationErrors.geminiApiKey}
+                        </p>
                     )}
                     <a 
+                        id="gemini-api-help"
                         href="https://aistudio.google.com/app/apikey" 
                         target="_blank" 
                         rel="noopener noreferrer" 
@@ -1738,6 +1745,10 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                     <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
+                        role="tab"
+                        aria-selected={activeTab === tab.id}
+                        aria-controls={`tabpanel-${tab.id}`}
+                        tabIndex={activeTab === tab.id ? 0 : -1}
                         style={{
                             display: 'flex',
                             alignItems: 'center',
@@ -1796,14 +1807,19 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
             </div>
 
             {/* Tab Content */}
-            <div style={{
-                backgroundColor: '#ffffff',
-                borderRadius: '12px',
-                border: '1px solid #e2e8f0',
-                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                padding: '30px',
-                minHeight: '500px'
-            }}>
+            <div 
+                role="tabpanel"
+                id={`tabpanel-${activeTab}`}
+                aria-labelledby={`tab-${activeTab}`}
+                style={{
+                    backgroundColor: '#ffffff',
+                    borderRadius: '12px',
+                    border: '1px solid #e2e8f0',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                    padding: '30px',
+                    minHeight: '500px'
+                }}
+            >
                 {renderTabContent()}
             </div>
 

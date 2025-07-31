@@ -3,7 +3,7 @@
  * Plugin Name: AI Content Agent (ACA)
  * Plugin URI: https://ademisler.gumroad.com/l/ai-content-agent-pro
  * Description: AI-powered content creation and management plugin that generates blog posts, ideas, and manages your content workflow automatically with Google Search Console integration and Pro features.
- * Version: 2.3.5
+ * Version: 2.3.7
  * Author: Adem Isler
  * Author URI: https://ademisler.com/en
  * License: GPL v2 or later
@@ -138,6 +138,14 @@ class AI_Content_Agent {
         
         // Find the latest built JS file in admin/assets
         $assets_dir = ACA_PLUGIN_PATH . 'admin/assets/';
+        
+        // Check if assets directory exists
+        if (!is_dir($assets_dir)) {
+            // Fallback to old files if assets directory doesn't exist
+            $this->enqueue_fallback_assets();
+            return;
+        }
+        
         $js_files = glob($assets_dir . 'index-*.js');
         
         if (!empty($js_files)) {
@@ -146,6 +154,11 @@ class AI_Content_Agent {
             $latest_time = 0;
             
             foreach ($js_files as $file) {
+                // Validate file exists and is readable
+                if (!file_exists($file) || !is_readable($file)) {
+                    continue;
+                }
+                
                 $file_time = filemtime($file);
                 if ($file_time > $latest_time) {
                     $latest_time = $file_time;
@@ -153,7 +166,7 @@ class AI_Content_Agent {
                 }
             }
             
-            if ($latest_file) {
+            if ($latest_file && file_exists($latest_file)) {
                 $js_filename = basename($latest_file);
                 $js_version = ACA_VERSION . '-' . $latest_time;
                 $script_handle = 'aca-app-' . md5($js_filename . $latest_time);
@@ -168,27 +181,51 @@ class AI_Content_Agent {
                     'admin_url' => admin_url(),
                     'plugin_url' => ACA_PLUGIN_URL,
                 ));
+            } else {
+                // Fallback if no valid file found
+                $this->enqueue_fallback_assets();
             }
         } else {
             // Fallback to old files if new build doesn't exist
-            $css_file = ACA_PLUGIN_PATH . 'admin/css/index.css';
-            $js_file = ACA_PLUGIN_PATH . 'admin/js/index.js';
-            
-            $css_version = ACA_VERSION . '-' . (file_exists($css_file) ? filemtime($css_file) : time());
-            $js_version = ACA_VERSION . '-' . (file_exists($js_file) ? filemtime($js_file) : time());
-            $fallback_handle = 'aca-app-fallback-' . md5($js_version);
-            
-            wp_enqueue_style('aca-styles', ACA_PLUGIN_URL . 'admin/css/index.css', array(), $css_version);
-            wp_enqueue_script($fallback_handle, ACA_PLUGIN_URL . 'admin/js/index.js', array(), $js_version, true);
-            
-            // Pass data to React app
-            wp_localize_script($fallback_handle, 'acaData', array(
-                'nonce' => wp_create_nonce('wp_rest'),
-                'api_url' => rest_url('aca/v1/'),
-                'admin_url' => admin_url(),
-                'plugin_url' => ACA_PLUGIN_URL,
-            ));
+            $this->enqueue_fallback_assets();
         }
+    }
+    
+    /**
+     * Enqueue fallback assets with proper validation
+     */
+    private function enqueue_fallback_assets() {
+        $css_file = ACA_PLUGIN_PATH . 'admin/css/index.css';
+        $js_file = ACA_PLUGIN_PATH . 'admin/js/index.js';
+        
+        // Validate fallback files exist
+        if (!file_exists($js_file) || !is_readable($js_file)) {
+            // Log error and show admin notice
+            error_log('ACA Error: No valid JavaScript assets found');
+            add_action('admin_notices', function() {
+                echo '<div class="notice notice-error"><p>AI Content Agent: JavaScript assets are missing. Please rebuild the plugin.</p></div>';
+            });
+            return;
+        }
+        
+        $css_version = ACA_VERSION . '-' . (file_exists($css_file) ? filemtime($css_file) : time());
+        $js_version = ACA_VERSION . '-' . filemtime($js_file);
+        $fallback_handle = 'aca-app-fallback-' . md5($js_version);
+        
+        // Only enqueue CSS if it exists
+        if (file_exists($css_file) && is_readable($css_file)) {
+            wp_enqueue_style('aca-styles', ACA_PLUGIN_URL . 'admin/css/index.css', array(), $css_version);
+        }
+        
+        wp_enqueue_script($fallback_handle, ACA_PLUGIN_URL . 'admin/js/index.js', array(), $js_version, true);
+        
+        // Pass data to React app
+        wp_localize_script($fallback_handle, 'acaData', array(
+            'nonce' => wp_create_nonce('wp_rest'),
+            'api_url' => rest_url('aca/v1/'),
+            'admin_url' => admin_url(),
+            'plugin_url' => ACA_PLUGIN_URL,
+        ));
     }
 }
 

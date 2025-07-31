@@ -16,6 +16,7 @@ import { PublishedList } from './components/PublishedList';
 import { Menu } from './components/Icons';
 import { ContentCalendar } from './components/ContentCalendar';
 import { ContentFreshnessManager } from './components/ContentFreshnessManager';
+import ErrorBoundary from './components/ErrorBoundary';
 
 declare global {
   interface Window {
@@ -583,6 +584,8 @@ const App: React.FC = () => {
 
     // Load initial data from WordPress
     useEffect(() => {
+        let isMounted = true; // Flag to prevent state updates after unmount
+        
         const loadInitialData = async () => {
             try {
                 const [settingsData, styleGuideData, ideasData, draftsData, publishedData, activityData] = await Promise.all([
@@ -594,10 +597,13 @@ const App: React.FC = () => {
                     activityApi.get()
                 ]);
                 
+                // Only update state if component is still mounted
+                if (!isMounted) return;
+                
                 // Load content freshness data if Pro is active
                 try {
                     const freshnessResponse = await contentFreshnessApi.getPosts(50, 'all');
-                    if (freshnessResponse && freshnessResponse.success && freshnessResponse.posts) {
+                    if (freshnessResponse && freshnessResponse.success && freshnessResponse.posts && isMounted) {
                         const posts = freshnessResponse.posts;
                         const needsUpdate = posts.filter(post => post.needs_update).length;
                         const postsWithScores = posts.filter(post => post.freshness_score !== null);
@@ -619,6 +625,8 @@ const App: React.FC = () => {
                     console.log('Content freshness not available (Pro feature)');
                 }
                 
+                if (!isMounted) return;
+                
                 setSettings(settingsData || {
                     mode: 'manual',
                     autoPublish: false,
@@ -639,21 +647,30 @@ const App: React.FC = () => {
                     analyzeContentFrequency: 'manual',
                 });
                 
-                if (styleGuideData) {
+                if (styleGuideData && isMounted) {
                     setStyleGuide(styleGuideData);
                 }
                 
-                setIdeas(ideasData || []);
-                setPosts([...(draftsData || []), ...(publishedData || [])]);
-                setActivityLogs(activityData || []);
+                if (isMounted) {
+                    setIdeas(ideasData || []);
+                    setPosts([...(draftsData || []), ...(publishedData || [])]);
+                    setActivityLogs(activityData || []);
+                }
             } catch (error) {
-                console.error('Failed to load initial data:', error);
-                addToast({ message: 'Failed to load plugin data', type: 'error' });
+                if (isMounted) {
+                    console.error('Failed to load initial data:', error);
+                    addToast({ message: 'Failed to load plugin data', type: 'error' });
+                }
             }
         };
         
         loadInitialData();
-    }, []);
+        
+        // Cleanup function to prevent memory leaks
+        return () => {
+            isMounted = false;
+        };
+    }, [addToast]);
 
     return (
         <>
@@ -695,7 +712,9 @@ const App: React.FC = () => {
                                 setView('settings');
                             }} />
                         )}
-                        {renderView()}
+                        <ErrorBoundary>
+                            {renderView()}
+                        </ErrorBoundary>
                     </div>
                 </div>
             </div>

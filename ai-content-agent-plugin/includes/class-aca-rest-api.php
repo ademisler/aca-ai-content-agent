@@ -50,6 +50,13 @@ class ACA_Rest_Api {
             'permission_callback' => array($this, 'check_admin_permissions')
         ));
         
+        // Error logging endpoint for React error boundary
+        register_rest_route('aca/v1', '/debug/error', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'log_frontend_error'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
+        
         // SEO Plugin Detection endpoint
         register_rest_route('aca/v1', '/seo-plugins', array(
             'methods' => 'GET',
@@ -3902,5 +3909,72 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         }
         
         return implode(' > ', $path);
+    }
+    
+    /**
+     * Log frontend errors from React error boundary
+     */
+    public function log_frontend_error($request) {
+        $error_data = $request->get_json_params();
+        
+        if (!$error_data || !isset($error_data['error'])) {
+            return new WP_Error('missing_error', 'Error data is required', array('status' => 400));
+        }
+        
+        $error_message = sanitize_text_field($error_data['error']);
+        $stack_trace = isset($error_data['stack']) ? sanitize_textarea_field($error_data['stack']) : '';
+        $component_stack = isset($error_data['componentStack']) ? sanitize_textarea_field($error_data['componentStack']) : '';
+        
+        // Create comprehensive error log entry
+        $log_entry = sprintf(
+            "ACA Frontend Error: %s\nStack Trace: %s\nComponent Stack: %s\nUser Agent: %s\nURL: %s\nTimestamp: %s",
+            $error_message,
+            $stack_trace,
+            $component_stack,
+            isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : 'Unknown',
+            isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : 'Unknown',
+            current_time('mysql')
+        );
+        
+        // Log to WordPress error log
+        error_log($log_entry);
+        
+        // Also store in database for admin review
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'aca_error_logs';
+        
+        // Create table if it doesn't exist
+        $charset_collate = $wpdb->get_charset_collate();
+        $sql = "CREATE TABLE IF NOT EXISTS $table_name (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            error_message text NOT NULL,
+            stack_trace longtext,
+            component_stack longtext,
+            user_agent text,
+            url text,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id)
+        ) $charset_collate;";
+        
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql);
+        
+        // Insert error record
+        $wpdb->insert(
+            $table_name,
+            array(
+                'error_message' => $error_message,
+                'stack_trace' => $stack_trace,
+                'component_stack' => $component_stack,
+                'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
+                'url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : ''
+            ),
+            array('%s', '%s', '%s', '%s', '%s')
+        );
+        
+        return rest_ensure_response(array(
+            'success' => true,
+            'message' => 'Error logged successfully'
+        ));
     }
 }

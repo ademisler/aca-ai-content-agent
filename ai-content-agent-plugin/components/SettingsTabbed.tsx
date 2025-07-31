@@ -195,13 +195,13 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
         if (newMode !== 'full-automatic') {
             setCurrentSettings(prev => ({ 
                 ...prev, 
-                automationMode: newMode,
+                mode: newMode,
                 autoPublish: false // Reset auto-publish when leaving full-automatic
             }));
         } else {
             setCurrentSettings(prev => ({ 
                 ...prev, 
-                automationMode: newMode 
+                mode: newMode 
             }));
         }
     };
@@ -678,14 +678,14 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                             id="manual"
                             title="Manual Mode"
                             description="Create content ideas and drafts manually when you need them. Full control over every piece of content."
-                            currentSelection={currentSettings.automationMode}
+                            currentSelection={currentSettings.mode}
                             onChange={(mode) => handleModeChange(mode as AutomationMode)}
                         />
                         <RadioCard
                             id="semi-automatic"
                             title="Semi-Automatic Mode"
                             description="Generate ideas automatically, but you review and approve each draft before publishing. Perfect balance of automation and control."
-                            currentSelection={currentSettings.automationMode}
+                            currentSelection={currentSettings.mode}
                             onChange={(mode) => handleModeChange(mode as AutomationMode)}
                             disabled={!isProActive()}
                             proBadge={!isProActive()}
@@ -694,7 +694,7 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                             id="full-automatic"
                             title="Full-Automatic Mode"
                             description="Complete automation - generates ideas, creates content, and publishes automatically based on your schedule. Maximum efficiency."
-                            currentSelection={currentSettings.automationMode}
+                            currentSelection={currentSettings.mode}
                             onChange={(mode) => handleModeChange(mode as AutomationMode)}
                             disabled={!isProActive()}
                             proBadge={!isProActive()}
@@ -702,7 +702,7 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                     </div>
 
                     {/* CRITICAL FIX #4: Add semiAutoIdeaFrequency setting for Semi-Automatic mode */}
-                    {currentSettings.automationMode === 'semi-automatic' && (
+                    {currentSettings.mode === 'semi-automatic' && (
                         <div style={{ display: 'grid', gap: '20px', marginTop: '25px' }}>
                             <h4 style={{ margin: '0 0 15px 0', fontSize: '16px', fontWeight: '600', color: '#374151' }}>
                                 Semi-Automatic Mode Settings
@@ -726,7 +726,7 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                     )}
 
                     {/* Full-Automatic Mode Settings */}
-                    {currentSettings.automationMode === 'full-automatic' && (
+                    {currentSettings.mode === 'full-automatic' && (
                         <div style={{ display: 'grid', gap: '20px', marginTop: '25px' }}>
                             <h4 style={{ margin: '0 0 15px 0', fontSize: '16px', fontWeight: '600', color: '#374151' }}>
                                 Full-Automatic Mode Settings

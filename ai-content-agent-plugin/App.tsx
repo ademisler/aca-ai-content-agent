@@ -10,6 +10,7 @@ import { StyleGuideManager } from './components/StyleGuideManager';
 import { IdeaBoard } from './components/IdeaBoard';
 import { DraftsList } from './components/DraftsList';
 import { Settings } from './components/Settings';
+import { SettingsLicense } from './components/SettingsLicense';
 import { DraftModal } from './components/DraftModal';
 import { Toast, ToastData } from './components/Toast';
 import { PublishedList } from './components/PublishedList';
@@ -529,13 +530,50 @@ const App: React.FC = () => {
                     onNavigateToDrafts={() => setView('drafts')}
                 />;
             case 'settings':
+                // Redirect to license page as default
+                return <SettingsLicense 
+                    settings={settings} 
+                    onSaveSettings={handleSaveSettings} 
+                    onShowToast={showToast} 
+                />;
+            case 'settings_license':
+                return <SettingsLicense 
+                    settings={settings} 
+                    onSaveSettings={handleSaveSettings} 
+                    onShowToast={showToast} 
+                />;
+            case 'settings_automation':
                 return <Settings 
-            settings={settings} 
-            onSaveSettings={handleSaveSettings} 
-            onRefreshApp={handleRefreshApp} 
-            onShowToast={showToast} 
-            openSection={settingsOpenSection}
-        />;
+                    settings={settings} 
+                    onSaveSettings={handleSaveSettings} 
+                    onRefreshApp={handleRefreshApp} 
+                    onShowToast={showToast} 
+                    openSection="automation"
+                />;
+            case 'settings_integrations':
+                return <Settings 
+                    settings={settings} 
+                    onSaveSettings={handleSaveSettings} 
+                    onRefreshApp={handleRefreshApp} 
+                    onShowToast={showToast} 
+                    openSection="integrations"
+                />;
+            case 'settings_content':
+                return <Settings 
+                    settings={settings} 
+                    onSaveSettings={handleSaveSettings} 
+                    onRefreshApp={handleRefreshApp} 
+                    onShowToast={showToast} 
+                    openSection="content"
+                />;
+            case 'settings_advanced':
+                return <Settings 
+                    settings={settings} 
+                    onSaveSettings={handleSaveSettings} 
+                    onRefreshApp={handleRefreshApp} 
+                    onShowToast={showToast} 
+                    openSection="advanced"
+                />;
             case 'calendar':
                 return <ContentCalendar 
                     drafts={drafts} 

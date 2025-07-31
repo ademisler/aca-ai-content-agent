@@ -10336,21 +10336,72 @@ body.toplevel_page_ai-content-agent #wpfooter {
           )
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
         paddingTop: "20px",
         borderTop: "1px solid #e2e8f0",
         marginTop: "auto",
         padding: "20px 16px 0 16px"
-      }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-        NavItem,
-        {
-          icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$1, {}),
-          label: "Settings",
-          view: "settings",
-          currentView,
-          onClick: () => handleNavigation("settings")
-        }
-      ) })
+      }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+          fontSize: "11px",
+          fontWeight: "600",
+          color: "#94a3b8",
+          textTransform: "uppercase",
+          letterSpacing: "0.5px",
+          marginBottom: "8px",
+          paddingLeft: "16px"
+        }, children: "Settings" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          NavItem,
+          {
+            icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Shield, {}),
+            label: "License",
+            view: "settings_license",
+            currentView,
+            onClick: () => handleNavigation("settings_license")
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          NavItem,
+          {
+            icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, {}),
+            label: "Automation",
+            view: "settings_automation",
+            currentView,
+            onClick: () => handleNavigation("settings_automation")
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          NavItem,
+          {
+            icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$1, {}),
+            label: "Integrations",
+            view: "settings_integrations",
+            currentView,
+            onClick: () => handleNavigation("settings_integrations")
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          NavItem,
+          {
+            icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Image, {}),
+            label: "Content & SEO",
+            view: "settings_content",
+            currentView,
+            onClick: () => handleNavigation("settings_content")
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          NavItem,
+          {
+            icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Brain, {}),
+            label: "Advanced",
+            view: "settings_advanced",
+            currentView,
+            onClick: () => handleNavigation("settings_advanced")
+          }
+        )
+      ] })
     ] });
   };
   const IconMap = {
@@ -11848,6 +11899,71 @@ body.toplevel_page_ai-content-agent #wpfooter {
       }, children: "💡 One-time purchase • Lifetime updates" })
     ] });
   };
+  const CollapsibleSection = ({
+    id,
+    title,
+    description,
+    icon,
+    defaultOpen = false,
+    children
+  }) => {
+    const [isOpen, setIsOpen] = reactExports.useState(defaultOpen);
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", style: { margin: "0 0 24px 0" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "button",
+        {
+          onClick: () => setIsOpen(!isOpen),
+          style: {
+            width: "100%",
+            padding: "20px",
+            border: "none",
+            background: "transparent",
+            textAlign: "left",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "12px"
+          },
+          "aria-expanded": isOpen,
+          "aria-controls": `section-content-${id}`,
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+              width: "40px",
+              height: "40px",
+              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              borderRadius: "10px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0
+            }, children: icon }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1 }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { style: { margin: 0, fontSize: "18px", fontWeight: "600", color: "#1a202c" }, children: title }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: "4px 0 0 0", fontSize: "14px", color: "#64748b", lineHeight: "1.4" }, children: description })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+              marginLeft: "auto",
+              fontSize: "16px",
+              color: "#64748b",
+              transform: isOpen ? "rotate(90deg)" : "rotate(0deg)",
+              transition: "transform 0.2s ease"
+            }, children: "▶" })
+          ]
+        }
+      ),
+      isOpen && /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "div",
+        {
+          id: `section-content-${id}`,
+          style: {
+            padding: "0 20px 20px 20px",
+            borderTop: "1px solid #e2e8f0"
+          },
+          children
+        }
+      )
+    ] });
+  };
   const RadioCard = ({ id, title, description, currentSelection, onChange }) => {
     const isChecked = currentSelection === id;
     return /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -11922,14 +12038,7 @@ body.toplevel_page_ai-content-agent #wpfooter {
     const [licenseStatus, setLicenseStatus] = reactExports.useState({ status: "inactive", is_active: false });
     const [isVerifyingLicense, setIsVerifyingLicense] = reactExports.useState(false);
     const [isLoadingLicenseStatus, setIsLoadingLicenseStatus] = reactExports.useState(true);
-    const [collapsedSections, setCollapsedSections] = reactExports.useState({
-      license: false,
-      // License section always open by default
-      automation: true,
-      integrations: true,
-      content: true,
-      advanced: true
-    });
+    const [activeTab, setActiveTab] = reactExports.useState("license");
     reactExports.useEffect(() => {
       const loadLicenseStatus2 = async () => {
         try {
@@ -11949,27 +12058,7 @@ body.toplevel_page_ai-content-agent #wpfooter {
     }, []);
     reactExports.useEffect(() => {
       if (openSection) {
-        setCollapsedSections((prev) => ({
-          ...prev,
-          [openSection]: false
-        }));
-        setTimeout(() => {
-          const sectionElement = document.getElementById(`section-content-${openSection}`);
-          if (sectionElement) {
-            const parentCard = sectionElement.closest(".aca-card");
-            if (parentCard) {
-              parentCard.scrollIntoView({
-                behavior: "smooth",
-                block: "start"
-              });
-            } else {
-              sectionElement.scrollIntoView({
-                behavior: "smooth",
-                block: "start"
-              });
-            }
-          }
-        }, 300);
+        setActiveTab(openSection);
       }
     }, [openSection]);
     reactExports.useEffect(() => {
@@ -12255,144 +12344,6 @@ body.toplevel_page_ai-content-agent #wpfooter {
         onSaveSettings(currentSettings);
         setIsSaving(false);
       }, 700);
-    };
-    const toggleSection = (sectionKey) => {
-      const mainContainer = document.getElementById("root");
-      if (!mainContainer) {
-        const fallbackContainer = document.querySelector(".aca-main");
-        if (fallbackContainer) {
-          setCollapsedSections((prev) => ({
-            ...prev,
-            [sectionKey]: !prev[sectionKey]
-          }));
-        }
-        return;
-      }
-      const wasCollapsed = collapsedSections[sectionKey] ?? true;
-      if (wasCollapsed) {
-        const currentScrollTop = mainContainer.scrollTop;
-        mainContainer.classList.add("no-smooth-scroll");
-        setCollapsedSections((prev) => ({
-          ...prev,
-          [sectionKey]: false
-        }));
-        const preserveScrollPosition = () => {
-          mainContainer.scrollTop = currentScrollTop;
-        };
-        preserveScrollPosition();
-        const intervals = [];
-        for (let i = 0; i <= 20; i++) {
-          intervals.push(setTimeout(preserveScrollPosition, i * 20));
-        }
-        setTimeout(() => {
-          intervals.forEach(clearTimeout);
-          mainContainer.classList.remove("no-smooth-scroll");
-        }, 450);
-      } else {
-        setCollapsedSections((prev) => ({
-          ...prev,
-          [sectionKey]: true
-        }));
-      }
-    };
-    const CollapsibleSection = ({ id, title, description, icon, children, defaultOpen = false }) => {
-      const isCollapsed = collapsedSections[id] ?? !defaultOpen;
-      const getGradientColor = (sectionId) => {
-        switch (sectionId) {
-          case "license":
-            return "linear-gradient(135deg, #3b82f6, #1d4ed8)";
-          // Blue
-          case "automation":
-            return "linear-gradient(135deg, #f59e0b, #d97706)";
-          // Orange
-          case "integrations":
-            return "linear-gradient(135deg, #10b981, #059669)";
-          // Green
-          case "content":
-            return "linear-gradient(135deg, #8b5cf6, #7c3aed)";
-          // Purple
-          case "advanced":
-            return "linear-gradient(135deg, #ef4444, #dc2626)";
-          // Red
-          default:
-            return "linear-gradient(135deg, #6b7280, #4b5563)";
-        }
-      };
-      return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", style: {
-        background: "linear-gradient(145deg, #fefefe 0%, #f8f9fa 100%)",
-        border: "1px solid #e2e8f0",
-        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-        marginBottom: "20px"
-      }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "div",
-          {
-            className: "aca-card-header",
-            style: {
-              borderBottom: isCollapsed ? "none" : "1px solid #e2e8f0",
-              paddingBottom: "15px",
-              cursor: "pointer",
-              userSelect: "none"
-            },
-            onClick: () => toggleSection(id),
-            onKeyDown: (e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                toggleSection(id);
-              }
-            },
-            tabIndex: 0,
-            role: "button",
-            "aria-expanded": !isCollapsed,
-            "aria-controls": `section-content-${id}`,
-            "aria-label": `Toggle ${title} section`,
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between" }, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "aca-card-title", style: {
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  color: "#1e293b",
-                  margin: 0
-                }, children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
-                    width: "32px",
-                    height: "32px",
-                    background: getGradientColor(id),
-                    borderRadius: "8px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center"
-                  }, children: icon }),
-                  title
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
-                  transform: isCollapsed ? "rotate(0deg)" : "rotate(180deg)",
-                  transition: "transform 0.2s ease",
-                  fontSize: "20px",
-                  color: "#64748b"
-                }, children: "▼" })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: "8px 0 0 0", color: "#64748b", fontSize: "14px" }, children: description })
-            ]
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "div",
-          {
-            id: `section-content-${id}`,
-            style: {
-              maxHeight: isCollapsed ? "0" : "1000px",
-              opacity: isCollapsed ? 0 : 1,
-              overflow: isCollapsed ? "hidden" : "auto",
-              transition: "max-height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.3s ease, padding 0.4s ease",
-              padding: isCollapsed ? "0 0 0 0" : "20px 0 0 0"
-            },
-            "aria-hidden": isCollapsed,
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: isCollapsed ? "0" : "0" }, children })
-          }
-        )
-      ] });
     };
     const isImageSourceConfigured = currentSettings.imageSourceProvider === "ai" || currentSettings.imageSourceProvider === "pexels" && !!currentSettings.pexelsApiKey || currentSettings.imageSourceProvider === "unsplash" && !!currentSettings.unsplashApiKey || currentSettings.imageSourceProvider === "pixabay" && !!currentSettings.pixabayApiKey;
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-fade-in", style: {
@@ -13510,6 +13461,226 @@ body.toplevel_page_ai-content-agent #wpfooter {
         ) })
       ] })
     ] });
+  };
+  const SettingsLayout = ({
+    title,
+    description,
+    icon,
+    children,
+    actions
+  }) => {
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-page", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-page-header", style: {
+        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        color: "white",
+        padding: "32px",
+        borderRadius: "12px",
+        marginBottom: "32px",
+        position: "relative",
+        overflow: "hidden"
+      }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { position: "relative", zIndex: 2 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "16px", marginBottom: "12px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+            width: "48px",
+            height: "48px",
+            background: "rgba(255,255,255,0.2)",
+            borderRadius: "12px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center"
+          }, children: icon }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { style: { fontSize: "28px", fontWeight: "700", margin: 0 }, children: title }) })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: {
+          fontSize: "14px",
+          opacity: 0.85,
+          margin: 0,
+          maxWidth: "600px",
+          lineHeight: "1.5"
+        }, children: description })
+      ] }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-settings-content", children }),
+      actions && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-settings-actions", style: {
+        marginTop: "32px",
+        padding: "24px",
+        background: "#f8fafc",
+        borderRadius: "12px",
+        borderTop: "1px solid #e2e8f0"
+      }, children: actions })
+    ] });
+  };
+  const SettingsLicense = ({
+    settings,
+    onSaveSettings,
+    onShowToast
+  }) => {
+    const [licenseKey, setLicenseKey] = reactExports.useState("");
+    const [licenseStatus, setLicenseStatus] = reactExports.useState({ status: "inactive", is_active: false });
+    const [isVerifyingLicense, setIsVerifyingLicense] = reactExports.useState(false);
+    const [isLoadingLicenseStatus, setIsLoadingLicenseStatus] = reactExports.useState(true);
+    const [isDirty, setIsDirty] = reactExports.useState(false);
+    reactExports.useEffect(() => {
+      const loadLicenseStatus = async () => {
+        try {
+          const status = await licenseApi.getStatus();
+          setLicenseStatus({
+            status: status.status || "inactive",
+            is_active: status.is_active || false,
+            verified_at: status.verified_at
+          });
+        } catch (error) {
+          console.error("Failed to load license status:", error);
+        } finally {
+          setIsLoadingLicenseStatus(false);
+        }
+      };
+      loadLicenseStatus();
+    }, []);
+    const handleLicenseVerification = async () => {
+      if (!licenseKey.trim()) {
+        onShowToast("Please enter a license key", "warning");
+        return;
+      }
+      setIsVerifyingLicense(true);
+      try {
+        const result = await licenseApi.verify(licenseKey);
+        if (result.success) {
+          setLicenseStatus({
+            status: "active",
+            is_active: true,
+            verified_at: (/* @__PURE__ */ new Date()).toISOString()
+          });
+          setLicenseKey("");
+          onShowToast("License verified successfully! Pro features are now active.", "success");
+          const updatedSettings = { ...settings, is_pro: true };
+          onSaveSettings(updatedSettings);
+        } else {
+          onShowToast(result.message || "License verification failed", "error");
+        }
+      } catch (error) {
+        console.error("License verification error:", error);
+        onShowToast("Failed to verify license. Please try again.", "error");
+      } finally {
+        setIsVerifyingLicense(false);
+      }
+    };
+    const handleLicenseDeactivation = async () => {
+      if (!confirm("Are you sure you want to deactivate your Pro license? This will disable all Pro features.")) {
+        return;
+      }
+      setIsVerifyingLicense(true);
+      try {
+        const result = await licenseApi.deactivate();
+        if (result.success) {
+          setLicenseStatus({
+            status: "inactive",
+            is_active: false
+          });
+          onShowToast("License deactivated successfully. You can now use it on another site.", "success");
+          const updatedSettings = { ...settings, is_pro: false };
+          onSaveSettings(updatedSettings);
+        } else {
+          onShowToast(result.message || "License deactivation failed", "error");
+        }
+      } catch (error) {
+        console.error("License deactivation error:", error);
+        onShowToast("Failed to deactivate license. Please try again.", "error");
+      } finally {
+        setIsVerifyingLicense(false);
+      }
+    };
+    if (isLoadingLicenseStatus) {
+      return /* @__PURE__ */ jsxRuntimeExports.jsx(
+        SettingsLayout,
+        {
+          title: "Pro License",
+          description: "Unlock advanced features and automation capabilities",
+          icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Shield, { style: { width: "24px", height: "24px", color: "white" } }),
+          children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "40px", textAlign: "center", color: "#666" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { style: { width: "24px", height: "24px", marginBottom: "16px" } }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: "Loading license status..." })
+          ] })
+        }
+      );
+    }
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      SettingsLayout,
+      {
+        title: "Pro License",
+        description: "Unlock advanced features and automation capabilities",
+        icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Shield, { style: { width: "24px", height: "24px", color: "white" } }),
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-stat-item", style: { margin: "0 0 20px 0" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-stat-info", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-stat-icon", children: licenseStatus.is_active ? /* @__PURE__ */ jsxRuntimeExports.jsx(CheckCircle, { style: { color: "#27ae60", width: "20px", height: "20px" } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Shield, { style: { color: "#e74c3c", width: "20px", height: "20px" } }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-stat-number", children: licenseStatus.is_active ? "Pro Active" : "Free Version" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-stat-label", children: licenseStatus.is_active ? `Verified ${licenseStatus.verified_at ? new Date(licenseStatus.verified_at).toLocaleDateString() : ""}` : "Upgrade to unlock Pro features" })
+            ] })
+          ] }) }),
+          !licenseStatus.is_active && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-form-group", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "aca-label", htmlFor: "license-key", children: "License Key" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "10px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  id: "license-key",
+                  type: "text",
+                  className: "aca-input",
+                  value: licenseKey,
+                  onChange: (e) => setLicenseKey(e.target.value),
+                  placeholder: "Enter your Pro license key",
+                  disabled: isVerifyingLicense
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  onClick: handleLicenseVerification,
+                  disabled: isVerifyingLicense || !licenseKey.trim(),
+                  className: "aca-button aca-button-primary",
+                  style: { minWidth: "120px" },
+                  children: isVerifyingLicense ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { className: "aca-spinner" }),
+                    "Verifying..."
+                  ] }) : "Verify License"
+                }
+              )
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "aca-page-description", style: { marginTop: "10px" }, children: [
+              "Don't have a Pro license? ",
+              /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: "https://ademisler.gumroad.com/l/ai-content-agent-pro", target: "_blank", rel: "noopener noreferrer", style: { color: "#0073aa" }, children: "Purchase here" })
+            ] })
+          ] }),
+          licenseStatus.is_active && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-alert aca-alert-success", style: { margin: "20px 0" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(CheckCircle, { style: { width: "16px", height: "16px", marginRight: "8px" } }),
+              "Pro license is active! You now have access to all premium features."
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: "15px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  onClick: handleLicenseDeactivation,
+                  disabled: isVerifyingLicense,
+                  className: "aca-button aca-button-secondary",
+                  style: {
+                    minWidth: "140px",
+                    backgroundColor: "#dc3545",
+                    borderColor: "#dc3545",
+                    color: "#ffffff"
+                  },
+                  children: isVerifyingLicense ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { className: "aca-spinner" }),
+                    "Deactivating..."
+                  ] }) : "Deactivate License"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", style: { marginTop: "8px", fontSize: "12px" }, children: "This will disable all Pro features and allow you to use the license on another site." })
+            ] })
+          ] })
+        ]
+      }
+    );
   };
   const DraftModal = ({ draft, onClose, onSave, settings }) => {
     const { seoPlugin } = settings;
@@ -15488,13 +15659,64 @@ body.toplevel_page_ai-content-agent #wpfooter {
           );
         case "settings":
           return /* @__PURE__ */ jsxRuntimeExports.jsx(
+            SettingsLicense,
+            {
+              settings,
+              onSaveSettings: handleSaveSettings,
+              onShowToast: showToast
+            }
+          );
+        case "settings_license":
+          return /* @__PURE__ */ jsxRuntimeExports.jsx(
+            SettingsLicense,
+            {
+              settings,
+              onSaveSettings: handleSaveSettings,
+              onShowToast: showToast
+            }
+          );
+        case "settings_automation":
+          return /* @__PURE__ */ jsxRuntimeExports.jsx(
             Settings,
             {
               settings,
               onSaveSettings: handleSaveSettings,
               onRefreshApp: handleRefreshApp,
               onShowToast: showToast,
-              openSection: settingsOpenSection
+              openSection: "automation"
+            }
+          );
+        case "settings_integrations":
+          return /* @__PURE__ */ jsxRuntimeExports.jsx(
+            Settings,
+            {
+              settings,
+              onSaveSettings: handleSaveSettings,
+              onRefreshApp: handleRefreshApp,
+              onShowToast: showToast,
+              openSection: "integrations"
+            }
+          );
+        case "settings_content":
+          return /* @__PURE__ */ jsxRuntimeExports.jsx(
+            Settings,
+            {
+              settings,
+              onSaveSettings: handleSaveSettings,
+              onRefreshApp: handleRefreshApp,
+              onShowToast: showToast,
+              openSection: "content"
+            }
+          );
+        case "settings_advanced":
+          return /* @__PURE__ */ jsxRuntimeExports.jsx(
+            Settings,
+            {
+              settings,
+              onSaveSettings: handleSaveSettings,
+              onRefreshApp: handleRefreshApp,
+              onShowToast: showToast,
+              openSection: "advanced"
             }
           );
         case "calendar":

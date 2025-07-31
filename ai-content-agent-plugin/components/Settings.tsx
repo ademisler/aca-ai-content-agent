@@ -32,6 +32,84 @@ interface SettingsProps {
     openSection?: string; // Section to open when component loads
 }
 
+// EMERGENCY FIX: CollapsibleSection component definition
+interface CollapsibleSectionProps {
+    id: string;
+    title: string;
+    description: string;
+    icon: React.ReactNode;
+    defaultOpen?: boolean;
+    children: React.ReactNode;
+}
+
+const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({ 
+    id, title, description, icon, defaultOpen = false, children 
+}) => {
+    const [isOpen, setIsOpen] = useState(defaultOpen);
+    
+    return (
+        <div className="aca-card" style={{ margin: '0 0 24px 0' }}>
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                style={{
+                    width: '100%',
+                    padding: '20px',
+                    border: 'none',
+                    background: 'transparent',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px'
+                }}
+                aria-expanded={isOpen}
+                aria-controls={`section-content-${id}`}
+            >
+                <div style={{
+                    width: '40px',
+                    height: '40px',
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    borderRadius: '10px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0
+                }}>
+                    {icon}
+                </div>
+                <div style={{ flex: 1 }}>
+                    <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '600', color: '#1a202c' }}>
+                        {title}
+                    </h3>
+                    <p style={{ margin: '4px 0 0 0', fontSize: '14px', color: '#64748b', lineHeight: '1.4' }}>
+                        {description}
+                    </p>
+                </div>
+                <div style={{ 
+                    marginLeft: 'auto',
+                    fontSize: '16px',
+                    color: '#64748b',
+                    transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)',
+                    transition: 'transform 0.2s ease'
+                }}>
+                    ▶
+                </div>
+            </button>
+            {isOpen && (
+                <div 
+                    id={`section-content-${id}`}
+                    style={{ 
+                        padding: '0 20px 20px 20px',
+                        borderTop: '1px solid #e2e8f0'
+                    }}
+                >
+                    {children}
+                </div>
+            )}
+        </div>
+    );
+};
+
 const RadioCard: React.FC<{
     id: AutomationMode;
     title: string;

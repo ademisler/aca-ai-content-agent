@@ -1,5 +1,15 @@
 
-export type View = 'dashboard' | 'style-guide' | 'ideas' | 'drafts' | 'published' | 'settings' | 'calendar' | 'content-freshness';
+export type View = 'dashboard' | 'style-guide' | 'ideas' | 'drafts' | 'published' | 'settings' | 'calendar' | 'content-freshness' | 'settings_license' | 'settings_automation' | 'settings_integrations' | 'settings_content' | 'settings_advanced';
+
+export type SettingsView = 'license' | 'automation' | 'integrations' | 'content' | 'advanced';
+
+export interface SettingsNavigation {
+    view: SettingsView;
+    title: string;
+    description: string;
+    icon: React.ReactNode;
+    requiresPro?: boolean;
+}
 
 export interface StyleGuide {
     tone: string;

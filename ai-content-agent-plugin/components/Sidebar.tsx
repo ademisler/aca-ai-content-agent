@@ -1,7 +1,7 @@
 
 import React from 'react';
 import type { View } from '../types';
-import { Lightbulb, BookOpen, Settings, LayoutDashboard, FileText, Send, Calendar, Sparkles, Brain } from './Icons';
+import { Lightbulb, BookOpen, Settings, LayoutDashboard, FileText, Send, Calendar, Sparkles, Brain, Shield, Zap, Image } from './Icons';
 
 interface SidebarProps {
     currentView: View;
@@ -272,12 +272,52 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, isOpen, 
                 marginTop: 'auto',
                 padding: '20px 16px 0 16px'
             }}>
+                {/* Settings Navigation */}
+                <div style={{ 
+                    fontSize: '11px', 
+                    fontWeight: '600', 
+                    color: '#94a3b8', 
+                    textTransform: 'uppercase', 
+                    letterSpacing: '0.5px',
+                    marginBottom: '8px',
+                    paddingLeft: '16px'
+                }}>
+                    Settings
+                </div>
+                <NavItem 
+                    icon={<Shield />} 
+                    label="License" 
+                    view="settings_license" 
+                    currentView={currentView} 
+                    onClick={() => handleNavigation('settings_license')} 
+                />
+                <NavItem 
+                    icon={<Zap />} 
+                    label="Automation" 
+                    view="settings_automation" 
+                    currentView={currentView} 
+                    onClick={() => handleNavigation('settings_automation')} 
+                />
                 <NavItem 
                     icon={<Settings />} 
-                    label="Settings" 
-                    view="settings" 
+                    label="Integrations" 
+                    view="settings_integrations" 
                     currentView={currentView} 
-                    onClick={() => handleNavigation('settings')} 
+                    onClick={() => handleNavigation('settings_integrations')} 
+                />
+                <NavItem 
+                    icon={<Image />} 
+                    label="Content & SEO" 
+                    view="settings_content" 
+                    currentView={currentView} 
+                    onClick={() => handleNavigation('settings_content')} 
+                />
+                <NavItem 
+                    icon={<Brain />} 
+                    label="Advanced" 
+                    view="settings_advanced" 
+                    currentView={currentView} 
+                    onClick={() => handleNavigation('settings_advanced')} 
                 />
             </div>
         </aside>

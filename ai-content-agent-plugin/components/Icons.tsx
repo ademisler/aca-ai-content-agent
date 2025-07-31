@@ -216,3 +216,27 @@ export const BarChart3: React.FC<IconProps> = ({ className, style }) => (
         <path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>
     </svg>
 );
+
+export const Server: React.FC<IconProps> = ({ className, style }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} style={style}>
+        <rect width="20" height="8" x="2" y="2" rx="2" ry="2"/><rect width="20" height="8" x="2" y="14" rx="2" ry="2"/><line x1="6" x2="6.01" y1="6" y2="6"/><line x1="6" x2="6.01" y1="18" y2="18"/>
+    </svg>
+);
+
+export const Database: React.FC<IconProps> = ({ className, style }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} style={style}>
+        <ellipse cx="12" cy="5" rx="9" ry="3"/><path d="m3 5 0 14c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/><path d="m3 12c0 1.66 4.03 3 9 3s9-1.34 9-3"/>
+    </svg>
+);
+
+export const Download: React.FC<IconProps> = ({ className, style }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} style={style}>
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" x2="12" y1="15" y2="3"/>
+    </svg>
+);
+
+export const Trash2: React.FC<IconProps> = ({ className, style }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} style={style}>
+        <path d="m3 6 3 0"/><path d="m21 6-3 0"/><path d="m6 6 .934 13.071A2 2 0 0 0 8.929 21h6.142a2 2 0 0 0 1.995-1.929L18 6"/><path d="m14 6-.5-3A1.5 1.5 0 0 0 12 2h0a1.5 1.5 0 0 0-1.5 1.5L10 6"/>
+    </svg>
+);

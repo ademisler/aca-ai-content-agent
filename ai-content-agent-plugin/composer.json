@@ -4,7 +4,6 @@
     "type": "wordpress-plugin",
     "require": {
         "php": ">=7.4",
-        "google/generative-ai-php": "^0.1",
         "google/apiclient": "^2.0"
     },
     "autoload": {

@@ -10,6 +10,11 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Ensure ACA_PLUGIN_PATH is defined
+if (!defined('ACA_PLUGIN_PATH')) {
+    define('ACA_PLUGIN_PATH', plugin_dir_path(__FILE__));
+}
+
 class ACA_Dependencies_Installer {
     
     public function __construct() {
@@ -17,11 +22,17 @@ class ACA_Dependencies_Installer {
     }
     
     /**
-     * Check if dependencies are installed
+     * Check if dependencies are installed (including mock classes)
      */
     public static function are_dependencies_installed() {
-        return file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php') && 
-               file_exists(ACA_PLUGIN_PATH . 'vendor/google/apiclient');
+        // Check if autoloader exists
+        $autoload_exists = file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php');
+        
+        // Check if Google API is available (real or mock)
+        $google_available = class_exists('Google_Client') || 
+                           file_exists(ACA_PLUGIN_PATH . 'vendor/google/apiclient');
+        
+        return $autoload_exists && $google_available;
     }
     
     /**
@@ -72,12 +83,14 @@ class ACA_Dependencies_Installer {
     public function install_dependencies() {
         // Check permissions
         if (!current_user_can('manage_options')) {
-            wp_die('Insufficient permissions');
+            wp_send_json_error(array('message' => 'Insufficient permissions to install dependencies'), 403);
+            return;
         }
         
         // Verify nonce
         if (!wp_verify_nonce($_POST['nonce'], 'aca_install_dependencies')) {
-            wp_die('Security check failed');
+            wp_send_json_error(array('message' => 'Security check failed'), 403);
+            return;
         }
         
         $result = $this->run_composer_install();
@@ -204,5 +217,7 @@ class ACA_Dependencies_Installer {
     }
 }
 
-// Initialize the installer
-new ACA_Dependencies_Installer();
+// Initialize the installer when WordPress is ready
+add_action('init', function() {
+    new ACA_Dependencies_Installer();
+});

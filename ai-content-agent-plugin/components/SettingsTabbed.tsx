@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import type { AppSettings, AutomationMode, ImageSourceProvider, AiImageStyle, SeoPlugin } from '../types';
+import React, { useState, useEffect, useCallback } from 'react';
+import type { AppSettings, AutomationMode, ImageSourceProvider } from '../types';
 import { 
     Spinner, 
     Google, 
@@ -7,9 +7,12 @@ import {
     Settings as SettingsIcon, 
     Zap, 
     Image, 
-    Shield 
+    Shield,
+    RefreshCw,
+    Clock
 } from './Icons';
 import { UpgradePrompt } from './UpgradePrompt';
+import { DebugPanel } from './DebugPanel';
 import { licenseApi } from '../services/wordpressApi';
 
 declare global {
@@ -128,9 +131,9 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
         status: string, 
         is_active: boolean, 
         verified_at?: string
-    }>({status: 'inactive', is_active: false});
+    }>({status: 'demo', is_active: true}); // Demo mode - enable Pro features
     const [isVerifyingLicense, setIsVerifyingLicense] = useState(false);
-    const [isLoadingLicenseStatus, setIsLoadingLicenseStatus] = useState(true);
+    const [isLoadingLicenseStatus] = useState(true);
 
     // Tab state
     const [activeTab, setActiveTab] = useState('license');
@@ -195,20 +198,21 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
         if (newMode !== 'full-automatic') {
             setCurrentSettings(prev => ({ 
                 ...prev, 
-                automationMode: newMode,
+                mode: newMode,
                 autoPublish: false // Reset auto-publish when leaving full-automatic
             }));
         } else {
             setCurrentSettings(prev => ({ 
                 ...prev, 
-                automationMode: newMode 
+                mode: newMode 
             }));
         }
     };
 
     // Helper function to check if Pro features are available
+    // Single source of truth: licenseStatus.is_active
     const isProActive = () => {
-        return currentSettings.is_pro || licenseStatus.is_active;
+        return licenseStatus.is_active;
     };
 
     // Helper function to check if image source is configured
@@ -225,6 +229,130 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
             default:
                 return false;
         }
+    };
+
+    // FORM VALIDATION FUNCTIONS
+    const validateApiKey = (key: string, type: 'gemini' | 'pexels' | 'unsplash' | 'pixabay'): { isValid: boolean; error?: string } => {
+        if (!key || key.trim() === '') {
+            return { isValid: false, error: 'API key is required' };
+        }
+
+        switch (type) {
+            case 'gemini':
+                // Gemini API keys typically start with 'AIza' and are 39 characters long
+                if (!key.startsWith('AIza') || key.length !== 39) {
+                    return { isValid: false, error: 'Invalid Gemini API key format. Should start with "AIza" and be 39 characters long.' };
+                }
+                break;
+            case 'pexels':
+                // Pexels API keys are typically 56 characters long and contain alphanumeric characters
+                if (key.length < 40 || !/^[a-zA-Z0-9]+$/.test(key)) {
+                    return { isValid: false, error: 'Invalid Pexels API key format.' };
+                }
+                break;
+            case 'unsplash':
+                // Unsplash access keys are typically 43 characters long
+                if (key.length < 40 || !/^[a-zA-Z0-9_-]+$/.test(key)) {
+                    return { isValid: false, error: 'Invalid Unsplash API key format.' };
+                }
+                break;
+            case 'pixabay':
+                // Pixabay API keys are typically numeric and 8-20 digits
+                if (!/^\d{8,20}$/.test(key)) {
+                    return { isValid: false, error: 'Invalid Pixabay API key format. Should be 8-20 digits.' };
+                }
+                break;
+        }
+
+        return { isValid: true };
+    };
+
+    const validateGoogleCloudProjectId = (projectId: string): { isValid: boolean; error?: string } => {
+        if (!projectId || projectId.trim() === '') {
+            return { isValid: false, error: 'Project ID is required' };
+        }
+
+        // Google Cloud project IDs must be 6-30 characters, lowercase letters, digits, and hyphens
+        if (!/^[a-z][a-z0-9-]{5,29}$/.test(projectId)) {
+            return { isValid: false, error: 'Invalid project ID format. Must be 6-30 characters, start with letter, contain only lowercase letters, digits, and hyphens.' };
+        }
+
+        return { isValid: true };
+    };
+
+    const validateEmail = (email: string): { isValid: boolean; error?: string } => {
+        if (!email || email.trim() === '') {
+            return { isValid: false, error: 'Email is required' };
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return { isValid: false, error: 'Invalid email format' };
+        }
+
+        return { isValid: true };
+    };
+
+    const validateLicenseKey = (key: string): { isValid: boolean; error?: string } => {
+        if (!key || key.trim() === '') {
+            return { isValid: false, error: 'License key is required' };
+        }
+
+        // License keys should be at least 20 characters
+        if (key.length < 20) {
+            return { isValid: false, error: 'License key appears to be too short' };
+        }
+
+        return { isValid: true };
+    };
+
+    // Validation state
+    const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+
+    // Validate input and update error state
+    const validateInput = (field: string, value: string) => {
+        let validation: { isValid: boolean; error?: string } = { isValid: true };
+
+        switch (field) {
+            case 'geminiApiKey':
+                validation = validateApiKey(value, 'gemini');
+                break;
+            case 'pexelsApiKey':
+                validation = validateApiKey(value, 'pexels');
+                break;
+            case 'unsplashApiKey':
+                validation = validateApiKey(value, 'unsplash');
+                break;
+            case 'pixabayApiKey':
+                validation = validateApiKey(value, 'pixabay');
+                break;
+            case 'googleCloudProjectId':
+                validation = validateGoogleCloudProjectId(value);
+                break;
+            case 'licenseKey':
+                validation = validateLicenseKey(value);
+                break;
+        }
+
+        setValidationErrors(prev => ({
+            ...prev,
+            [field]: validation.error || ''
+        }));
+
+        return validation.isValid;
+    };
+
+    // Enhanced input change handler with validation
+    const handleInputChange = (field: string, value: string) => {
+        setCurrentSettings(prev => ({
+            ...prev,
+            [field]: value
+        }));
+
+        // Validate on change (debounced)
+        setTimeout(() => {
+            validateInput(field, value);
+        }, 300);
     };
 
     // IntegrationCard component (restored from working v2.3.0)
@@ -261,12 +389,71 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
         </div>
     );
 
-    // Save functionality
+    // Save functionality with debouncing to prevent race conditions
     const isDirty = JSON.stringify(currentSettings) !== JSON.stringify(settings);
+    const [saveTimeout, setSaveTimeout] = useState<NodeJS.Timeout | null>(null);
+    const [isAutoSaving, setIsAutoSaving] = useState(false);
+
+    // Debounced auto-save function
+    const debouncedSave = useCallback(async (settingsToSave: AppSettings) => {
+        // Clear existing timeout
+        if (saveTimeout) {
+            clearTimeout(saveTimeout);
+        }
+
+        // Set new timeout for auto-save
+        const newTimeout = setTimeout(async () => {
+            setIsAutoSaving(true);
+            try {
+                await onSaveSettings(settingsToSave);
+                onShowToast?.('Settings auto-saved', 'success');
+            } catch (error) {
+                console.error('Auto-save failed:', error);
+                onShowToast?.('Auto-save failed. Please save manually.', 'warning');
+            } finally {
+                setIsAutoSaving(false);
+            }
+        }, 2000); // 2 second delay
+
+        setSaveTimeout(newTimeout);
+    }, [saveTimeout, onSaveSettings, onShowToast]);
+
+    // Effect to trigger auto-save when settings change
+    useEffect(() => {
+        if (isDirty && !isSaving) {
+            debouncedSave(currentSettings);
+        }
+
+        // Cleanup timeout on unmount
+        return () => {
+            if (saveTimeout) {
+                clearTimeout(saveTimeout);
+            }
+        };
+    }, [currentSettings, isDirty, isSaving, debouncedSave, saveTimeout]);
 
     const handleSave = async () => {
+        // Prevent multiple simultaneous save operations
+        if (isSaving || isAutoSaving) {
+            onShowToast?.('Save already in progress...', 'info');
+            return;
+        }
+
+        // Clear auto-save timeout since we're doing manual save
+        if (saveTimeout) {
+            clearTimeout(saveTimeout);
+            setSaveTimeout(null);
+        }
+
         setIsSaving(true);
         try {
+            // Validate all inputs before saving
+            const hasErrors = Object.values(validationErrors).some(error => error !== '');
+            if (hasErrors) {
+                onShowToast?.('Please fix validation errors before saving', 'error');
+                return;
+            }
+
             await onSaveSettings(currentSettings);
             onShowToast?.('Settings saved successfully!', 'success');
         } catch (error) {
@@ -508,7 +695,6 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
     useEffect(() => {
         const loadInitialData = async () => {
             await Promise.all([
-                loadLicenseStatus(),
                 loadGscAuthStatus(),
                 fetchSeoPlugins()
             ]);
@@ -588,9 +774,15 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                         type="text" 
                         placeholder="Enter your license key" 
                         value={licenseKey} 
-                        onChange={e => setLicenseKey(e.target.value)} 
+                        onChange={e => {
+                            setLicenseKey(e.target.value);
+                            validateInput('licenseKey', e.target.value);
+                        }} 
                         className="aca-input"
                     />
+                    {validationErrors.licenseKey && (
+                        <p style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{validationErrors.licenseKey}</p>
+                    )}
                     <button 
                         onClick={handleLicenseVerification} 
                         disabled={isVerifyingLicense || !licenseKey.trim()} 
@@ -678,14 +870,14 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                             id="manual"
                             title="Manual Mode"
                             description="Create content ideas and drafts manually when you need them. Full control over every piece of content."
-                            currentSelection={currentSettings.automationMode}
+                            currentSelection={currentSettings.mode}
                             onChange={(mode) => handleModeChange(mode as AutomationMode)}
                         />
                         <RadioCard
                             id="semi-automatic"
                             title="Semi-Automatic Mode"
                             description="Generate ideas automatically, but you review and approve each draft before publishing. Perfect balance of automation and control."
-                            currentSelection={currentSettings.automationMode}
+                            currentSelection={currentSettings.mode}
                             onChange={(mode) => handleModeChange(mode as AutomationMode)}
                             disabled={!isProActive()}
                             proBadge={!isProActive()}
@@ -694,7 +886,7 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                             id="full-automatic"
                             title="Full-Automatic Mode"
                             description="Complete automation - generates ideas, creates content, and publishes automatically based on your schedule. Maximum efficiency."
-                            currentSelection={currentSettings.automationMode}
+                            currentSelection={currentSettings.mode}
                             onChange={(mode) => handleModeChange(mode as AutomationMode)}
                             disabled={!isProActive()}
                             proBadge={!isProActive()}
@@ -702,7 +894,7 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                     </div>
 
                     {/* CRITICAL FIX #4: Add semiAutoIdeaFrequency setting for Semi-Automatic mode */}
-                    {currentSettings.automationMode === 'semi-automatic' && (
+                    {currentSettings.mode === 'semi-automatic' && (
                         <div style={{ display: 'grid', gap: '20px', marginTop: '25px' }}>
                             <h4 style={{ margin: '0 0 15px 0', fontSize: '16px', fontWeight: '600', color: '#374151' }}>
                                 Semi-Automatic Mode Settings
@@ -726,7 +918,7 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                     )}
 
                     {/* Full-Automatic Mode Settings */}
-                    {currentSettings.automationMode === 'full-automatic' && (
+                    {currentSettings.mode === 'full-automatic' && (
                         <div style={{ display: 'grid', gap: '20px', marginTop: '25px' }}>
                             <h4 style={{ margin: '0 0 15px 0', fontSize: '16px', fontWeight: '600', color: '#374151' }}>
                                 Full-Automatic Mode Settings
@@ -822,10 +1014,20 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                         type="password" 
                         placeholder="Enter Google AI API Key" 
                         value={currentSettings.geminiApiKey} 
-                        onChange={e => handleSettingChange('geminiApiKey', e.target.value)} 
+                        onChange={e => handleInputChange('geminiApiKey', e.target.value)} 
                         className="aca-input"
+                        aria-label="Google AI API Key"
+                        aria-describedby="gemini-api-help"
+                        aria-required="true"
+                        aria-invalid={!!validationErrors.geminiApiKey}
                     />
+                    {validationErrors.geminiApiKey && (
+                        <p style={{ color: 'red', fontSize: '12px', marginTop: '4px' }} role="alert" aria-live="polite">
+                            {validationErrors.geminiApiKey}
+                        </p>
+                    )}
                     <a 
+                        id="gemini-api-help"
                         href="https://aistudio.google.com/app/apikey" 
                         target="_blank" 
                         rel="noopener noreferrer" 
@@ -886,9 +1088,12 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                             type="password" 
                             placeholder="Enter Pexels API Key" 
                             value={currentSettings.pexelsApiKey} 
-                            onChange={e => handleSettingChange('pexelsApiKey', e.target.value)} 
+                            onChange={e => handleInputChange('pexelsApiKey', e.target.value)} 
                             className="aca-input"
                         />
+                        {validationErrors.pexelsApiKey && (
+                            <p style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{validationErrors.pexelsApiKey}</p>
+                        )}
                         <p 
                             className="aca-page-description"
                             style={{ marginTop: '8px', fontSize: '13px' }}
@@ -907,9 +1112,12 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                             type="password" 
                             placeholder="Enter Unsplash Access Key" 
                             value={currentSettings.unsplashApiKey} 
-                            onChange={e => handleSettingChange('unsplashApiKey', e.target.value)} 
+                            onChange={e => handleInputChange('unsplashApiKey', e.target.value)} 
                             className="aca-input"
                         />
+                        {validationErrors.unsplashApiKey && (
+                            <p style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{validationErrors.unsplashApiKey}</p>
+                        )}
                         <p 
                             className="aca-page-description"
                             style={{ marginTop: '8px', fontSize: '13px' }}
@@ -928,9 +1136,12 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                             type="password" 
                             placeholder="Enter Pixabay API Key" 
                             value={currentSettings.pixabayApiKey} 
-                            onChange={e => handleSettingChange('pixabayApiKey', e.target.value)} 
+                            onChange={e => handleInputChange('pixabayApiKey', e.target.value)} 
                             className="aca-input"
                         />
+                        {validationErrors.pixabayApiKey && (
+                            <p style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{validationErrors.pixabayApiKey}</p>
+                        )}
                         <p 
                             className="aca-page-description"
                             style={{ marginTop: '8px', fontSize: '13px' }}
@@ -963,9 +1174,12 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                                 type="text" 
                                 placeholder="your-project-id" 
                                 value={currentSettings.googleCloudProjectId || ''} 
-                                onChange={e => handleSettingChange('googleCloudProjectId', e.target.value)} 
+                                onChange={e => handleInputChange('googleCloudProjectId', e.target.value)} 
                                 className="aca-input"
                             />
+                            {validationErrors.googleCloudProjectId && (
+                                <p style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{validationErrors.googleCloudProjectId}</p>
+                            )}
                             <p className="aca-page-description" style={{ marginTop: '8px', fontSize: '13px' }}>
                                 Required for AI image generation. Get this from your Google Cloud Console.
                             </p>
@@ -1243,11 +1457,14 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                             <input
                                 type="text"
                                 value={currentSettings.gscClientId}
-                                onChange={(e) => handleSettingChange('gscClientId', e.target.value)}
+                                onChange={e => handleInputChange('gscClientId', e.target.value)}
                                 placeholder="Your Google OAuth2 Client ID"
                                 className="aca-input"
                                 style={{ width: '100%' }}
                             />
+                            {validationErrors.gscClientId && (
+                                <p style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{validationErrors.gscClientId}</p>
+                            )}
                         </div>
                         
                         <div>
@@ -1255,11 +1472,14 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                             <input
                                 type="password"
                                 value={currentSettings.gscClientSecret}
-                                onChange={(e) => handleSettingChange('gscClientSecret', e.target.value)}
+                                onChange={e => handleInputChange('gscClientSecret', e.target.value)}
                                 placeholder="Your Google OAuth2 Client Secret"
                                 className="aca-input"
                                 style={{ width: '100%' }}
                             />
+                            {validationErrors.gscClientSecret && (
+                                <p style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{validationErrors.gscClientSecret}</p>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -1361,102 +1581,126 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                     borderRadius: '8px', 
                     border: '1px solid #e2e8f0'
                 }}>
-                    <label style={{ 
-                        display: 'block', 
-                        fontSize: '14px', 
-                        fontWeight: '500',
-                        color: '#374151',
-                        marginBottom: '8px'
-                    }}>
-                        Analysis Frequency
-                    </label>
-                    <select 
-                        value={currentSettings.analyzeContentFrequency || 'manual'} 
-                        onChange={(e) => handleSettingChange('analyzeContentFrequency', e.target.value)}
-                        className="aca-input"
-                        style={{ width: '100%' }}
-                    >
-                        <option value="manual">Manual - Analyze only when requested</option>
-                        <option value="daily">Daily - Analyze content every day</option>
-                        <option value="weekly">Weekly - Analyze content every week</option>
-                        <option value="monthly">Monthly - Analyze content every month</option>
-                    </select>
-                    <p style={{ 
-                        color: '#64748b',
-                        fontSize: '12px',
-                        margin: '8px 0 0 0',
-                        lineHeight: '1.4'
-                    }}>
-                        How often should the AI analyze your content for improvements and SEO optimization?
-                    </p>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 200px', gap: '20px', alignItems: 'start' }}>
+                        <div>
+                            <label style={{ 
+                                display: 'block', 
+                                fontSize: '14px', 
+                                fontWeight: '500',
+                                color: '#374151',
+                                marginBottom: '8px'
+                            }}>
+                                Analysis Frequency
+                            </label>
+                            <select 
+                                value={currentSettings.analyzeContentFrequency || 'manual'} 
+                                onChange={(e) => handleSettingChange('analyzeContentFrequency', e.target.value)}
+                                className="aca-input"
+                                style={{ width: '100%' }}
+                            >
+                                <option value="manual">Manual - Analyze only when requested</option>
+                                <option value="daily">Daily - Analyze content every day</option>
+                                <option value="weekly">Weekly - Analyze content every week</option>
+                                <option value="monthly">Monthly - Analyze content every month</option>
+                            </select>
+                            <p style={{ 
+                                color: '#64748b',
+                                fontSize: '12px',
+                                margin: '8px 0 0 0',
+                                lineHeight: '1.4'
+                            }}>
+                                How often should the AI analyze your content for improvements and SEO optimization?
+                            </p>
+                        </div>
+                        
+                        <div>
+                            <label style={{ 
+                                display: 'block', 
+                                fontSize: '14px', 
+                                fontWeight: '500',
+                                color: '#374151',
+                                marginBottom: '8px'
+                            }}>
+                                Manual Actions
+                            </label>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                <button
+                                    onClick={async () => {
+                                        if (!isProActive()) {
+                                            onShowToast?.('Content analysis requires a Pro license', 'warning');
+                                            return;
+                                        }
+                                        try {
+                                            const response = await fetch(`${window.acaData.api_url}content-freshness/analyze-all`, {
+                                                method: 'POST',
+                                                headers: { 'X-WP-Nonce': window.acaData.nonce }
+                                            });
+                                            if (response.ok) {
+                                                onShowToast?.('Content analysis started successfully', 'success');
+                                            } else {
+                                                throw new Error('Analysis failed');
+                                            }
+                                        } catch (error) {
+                                            onShowToast?.('Failed to start content analysis', 'error');
+                                        }
+                                    }}
+                                    style={{
+                                        padding: '8px 12px',
+                                        backgroundColor: '#0073aa',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        fontSize: '12px',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '4px'
+                                    }}
+                                >
+                                    <RefreshCw style={{ width: '12px', height: '12px' }} />
+                                    Analyze Now
+                                </button>
+                                
+                                <button
+                                    onClick={async () => {
+                                        try {
+                                            const response = await fetch(`${window.acaData.api_url}debug/cron-status`, {
+                                                headers: { 'X-WP-Nonce': window.acaData.nonce }
+                                            });
+                                            if (response.ok) {
+                                                const data = await response.json();
+                                                onShowToast?.(`Last analysis: ${data.last_run || 'Never'}`, 'info');
+                                            }
+                                        } catch (error) {
+                                            onShowToast?.('Failed to get analysis status', 'error');
+                                        }
+                                    }}
+                                    style={{
+                                        padding: '8px 12px',
+                                        backgroundColor: '#6b7280',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        fontSize: '12px',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '4px'
+                                    }}
+                                >
+                                    <Clock style={{ width: '12px', height: '12px' }} />
+                                    Check Status
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     );
 
     const renderAdvancedContent = () => (
-        <div>
-            <p style={{ color: '#64748b', fontSize: '16px', margin: '0 0 30px 0', lineHeight: '1.5' }}>
-                Advanced debugging tools and developer information.
-            </p>
-
-            {/* Developer Information */}
-            <div style={{ 
-                padding: '16px', 
-                backgroundColor: '#fff3cd', 
-                border: '1px solid #ffeaa7', 
-                borderRadius: '8px',
-                marginBottom: '30px'
-            }}>
-                <h4 style={{ margin: '0 0 8px 0', color: '#856404' }}>🔧 Developer Information</h4>
-                <p style={{ margin: '0', fontSize: '14px', color: '#856404' }}>
-                    These tools are for debugging and testing purposes. Use with caution in production environments.
-                </p>
-            </div>
-
-            {/* Debug Actions */}
-            <div style={{ display: 'grid', gap: '16px' }}>
-                <button 
-                    onClick={() => {
-                        console.log('Checking automation status...');
-                        onShowToast?.('Automation status checked - see console for details', 'info');
-                    }}
-                    style={{
-                        padding: '12px 16px',
-                        backgroundColor: '#6366f1',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '6px',
-                        fontSize: '14px',
-                        fontWeight: '500',
-                        cursor: 'pointer',
-                        textAlign: 'left'
-                    }}
-                >
-                    🔍 Check Automation Status
-                </button>
-
-                <button 
-                    onClick={() => {
-                        console.log('Testing semi-auto cron...');
-                        onShowToast?.('Semi-auto cron test initiated - see console for details', 'info');
-                    }}
-                    style={{
-                        padding: '12px 16px',
-                        backgroundColor: '#059669',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '6px',
-                        fontSize: '14px',
-                        fontWeight: '500',
-                        cursor: 'pointer',
-                        textAlign: 'left'
-                    }}
-                >
-                    ⚡ Test Semi-Auto Cron
-                </button>
-            </div>
-        </div>
+        <DebugPanel onShowToast={onShowToast || (() => {})} />
     );
 
     return (
@@ -1528,6 +1772,10 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                     <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
+                        role="tab"
+                        aria-selected={activeTab === tab.id}
+                        aria-controls={`tabpanel-${tab.id}`}
+                        tabIndex={activeTab === tab.id ? 0 : -1}
                         style={{
                             display: 'flex',
                             alignItems: 'center',
@@ -1586,14 +1834,19 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
             </div>
 
             {/* Tab Content */}
-            <div style={{
-                backgroundColor: '#ffffff',
-                borderRadius: '12px',
-                border: '1px solid #e2e8f0',
-                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                padding: '30px',
-                minHeight: '500px'
-            }}>
+            <div 
+                role="tabpanel"
+                id={`tabpanel-${activeTab}`}
+                aria-labelledby={`tab-${activeTab}`}
+                style={{
+                    backgroundColor: '#ffffff',
+                    borderRadius: '12px',
+                    border: '1px solid #e2e8f0',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                    padding: '30px',
+                    minHeight: '500px'
+                }}
+            >
                 {renderTabContent()}
             </div>
 
@@ -1630,16 +1883,16 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                 <div style={{ marginLeft: 'auto' }}>
                     <button
                         onClick={handleSave}
-                        disabled={!isDirty || isSaving}
+                        disabled={!isDirty || isSaving || isAutoSaving}
                         style={{
                             padding: '12px 24px',
-                            backgroundColor: (!isDirty || isSaving) ? '#e5e7eb' : '#0073aa',
-                            color: (!isDirty || isSaving) ? '#9ca3af' : 'white',
+                            backgroundColor: (!isDirty || isSaving || isAutoSaving) ? '#e5e7eb' : '#0073aa',
+                            color: (!isDirty || isSaving || isAutoSaving) ? '#9ca3af' : 'white',
                             border: 'none',
                             borderRadius: '8px',
                             fontSize: '14px',
                             fontWeight: '600',
-                            cursor: (!isDirty || isSaving) ? 'not-allowed' : 'pointer',
+                            cursor: (!isDirty || isSaving || isAutoSaving) ? 'not-allowed' : 'pointer',
                             display: 'flex',
                             alignItems: 'center',
                             gap: '8px',
@@ -1647,7 +1900,7 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                         }}
                     >
                         {isSaving && <Spinner style={{ width: '16px', height: '16px' }} />}
-                        {isSaving ? 'Saving...' : 'Save Settings'}
+                        {isAutoSaving ? 'Auto-saving...' : isSaving ? 'Saving...' : 'Save Settings'}
                     </button>
                 </div>
             </div>

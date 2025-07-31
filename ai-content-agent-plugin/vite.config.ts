@@ -1,9 +1,9 @@
 import path from 'path';
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-export default defineConfig(({ mode }) => {
-    const env = loadEnv(mode, '.', '');
+export default defineConfig(() => {
+    // Note: API keys should be handled at runtime via WordPress settings, not build time
     return {
       plugins: [react({
         babel: {
@@ -12,10 +12,7 @@ export default defineConfig(({ mode }) => {
           }
         }
       })],
-      define: {
-        'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-        'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
-      },
+      // Removed insecure API key definitions - keys should be loaded at runtime
       resolve: {
         alias: {
           '@': path.resolve(__dirname, '.'),
@@ -23,22 +20,27 @@ export default defineConfig(({ mode }) => {
       },
       build: {
         target: 'es2020',
-        minify: false, // Disable minification to avoid hoisting issues
+        // Minification disabled to prevent Temporal Dead Zone (TDZ) issues
+        // WordPress environment can cause variable hoisting problems with minified code
+        // Trade-off: ~600KB unminified vs ~95KB minified (but stable vs unstable)
+        minify: false,
         rollupOptions: {
           output: {
             manualChunks: undefined,
-            format: 'iife',
+            format: 'iife', // Immediately Invoked Function Expression for better isolation
             name: 'ACAApp',
             inlineDynamicImports: true,
-            entryFileNames: 'assets/[name]-[hash].js',
+            entryFileNames: 'assets/[name]-[hash].js', // Cache busting with hash
             chunkFileNames: 'assets/[name]-[hash].js',
             assetFileNames: 'assets/[name]-[hash].[ext]'
           }
         },
-        sourcemap: false,
+        sourcemap: false, // Disabled for production to reduce bundle size
         outDir: 'dist',
         assetsDir: 'assets',
-        emptyOutDir: true
+        emptyOutDir: true,
+        // Chunk size warnings disabled since we prioritize stability over size
+        chunkSizeWarningLimit: 1000
       }
     };
 });

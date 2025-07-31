@@ -4,6 +4,18 @@
 
 export type StockPhotoProvider = 'pexels' | 'unsplash' | 'pixabay';
 
+export interface StockPhotoResult {
+    base64: string;
+    attribution: {
+        photographer: string;
+        photographerUrl: string;
+        source: string;
+        sourceUrl: string;
+        license: string;
+        licenseUrl: string;
+    };
+}
+
 interface PexelsResponse {
     photos: Array<{
         id: number;

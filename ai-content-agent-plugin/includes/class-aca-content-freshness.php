@@ -45,8 +45,16 @@ class ACA_Content_Freshness {
             $suggestions = array('AI analysis temporarily unavailable');
         } else {
             $ai_data = json_decode($ai_analysis, true);
-            $ai_score = $ai_data['freshness_score'] ?? 50;
-            $suggestions = $ai_data['specific_suggestions'] ?? array();
+            
+            // Check for JSON decode errors
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                error_log('ACA Content Freshness: JSON decode error - ' . json_last_error_msg());
+                $ai_score = 50;
+                $suggestions = array('AI analysis data format error');
+            } else {
+                $ai_score = $ai_data['freshness_score'] ?? 50;
+                $suggestions = $ai_data['specific_suggestions'] ?? array();
+            }
         }
         
         $freshness_score = ($age_score + $seo_performance + $ai_score) / 3;
@@ -76,8 +84,8 @@ class ACA_Content_Freshness {
      */
     private function get_gsc_performance($post_id) {
         // Try to get GSC data if available
-        if (class_exists('ACA_Google_Search_Console')) {
-            $gsc = new ACA_Google_Search_Console();
+        if (class_exists('ACA_Google_Search_Console_Hybrid')) {
+            $gsc = new ACA_Google_Search_Console_Hybrid();
             $post_url = get_permalink($post_id);
             
             try {
@@ -339,6 +347,18 @@ class ACA_Content_Freshness {
         }
         
         $ai_data = json_decode($ai_analysis, true);
+        
+        // Check for JSON decode errors
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            error_log('ACA Content Freshness: JSON decode error in get_ai_suggestions - ' . json_last_error_msg());
+            return array(
+                'Update statistics and data with current information',
+                'Add recent examples and case studies', 
+                'Review and update external links',
+                'Enhance content with new insights and trends'
+            );
+        }
+        
         if (!$ai_data || !isset($ai_data['specific_suggestions'])) {
             return array(
                 'Update statistics and data with current information',
@@ -434,6 +454,12 @@ Return only valid JSON format.";
             
             $response_body = wp_remote_retrieve_body($response);
             $data = json_decode($response_body, true);
+            
+            // Check for JSON decode errors
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                error_log('ACA Content Freshness: JSON decode error in Gemini API response - ' . json_last_error_msg());
+                return new WP_Error('json_decode_error', 'Failed to parse API response: ' . json_last_error_msg());
+            }
             
             if (!$data || !isset($data['candidates'][0]['content']['parts'][0]['text'])) {
                 error_log('ACA Content Freshness: Invalid Gemini API response format');

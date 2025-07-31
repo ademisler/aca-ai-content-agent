@@ -1,6 +1,9 @@
 /**
  * WordPress REST API wrapper for ACA plugin
+ * Enhanced with automatic parameter conversion for camelCase ↔ snake_case consistency
  */
+
+import { makeApiCallWithConversion } from '../utils/parameterConverter';
 
 // WordPress API helpers
 declare global {
@@ -14,7 +17,7 @@ declare global {
     }
 }
 
-const makeApiCall = async (path: string, options: RequestInit = {}) => {
+const makeApiCallOriginal = async (path: string, options: RequestInit = {}) => {
     // Check if WordPress localized data is available
     if (!window.acaData) {
         console.error('ACA Error: window.acaData is not defined. Plugin scripts may not be loaded correctly.');
@@ -58,6 +61,9 @@ const makeApiCall = async (path: string, options: RequestInit = {}) => {
 
   return response.json();
 }
+
+// Enhanced API call with automatic parameter conversion - HIGH PRIORITY FIX
+const makeApiCall = makeApiCallWithConversion(makeApiCallOriginal);
 
 // Settings API
 export const settingsApi = {

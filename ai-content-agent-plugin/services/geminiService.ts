@@ -9,6 +9,8 @@ export const setGeminiApiKey = (key: string) => {
     if (key && key.trim() !== '') {
         try {
             genAI = new GoogleGenerativeAI(key);
+            // Test API health after setting key
+            testApiHealth();
         } catch (error) {
             console.error("Failed to initialize GoogleGenerativeAI:", error);
             genAI = null;
@@ -17,6 +19,43 @@ export const setGeminiApiKey = (key: string) => {
         genAI = null;
     }
 };
+
+// API Health monitoring
+let apiHealthStatus = {
+    isHealthy: true,
+    lastCheck: new Date(),
+    errors: [] as string[],
+    responseTime: 0
+};
+
+const testApiHealth = async () => {
+    if (!genAI) return;
+    
+    const startTime = Date.now();
+    try {
+        const model = genAI.getGenerativeModel({ model: modelConfig.fallback });
+        await model.generateContent({
+            contents: [{ role: "user", parts: [{ text: "Hello" }] }],
+            generationConfig: { maxOutputTokens: 1 },
+        });
+        
+        apiHealthStatus = {
+            isHealthy: true,
+            lastCheck: new Date(),
+            errors: [],
+            responseTime: Date.now() - startTime
+        };
+    } catch (error: any) {
+        apiHealthStatus = {
+            isHealthy: false,
+            lastCheck: new Date(),
+            errors: [error.message || 'Unknown error'],
+            responseTime: Date.now() - startTime
+        };
+    }
+};
+
+export const getApiHealth = () => apiHealthStatus;
 
 // Model configuration with fallbacks
 const modelConfig = {

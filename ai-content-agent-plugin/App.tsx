@@ -1,21 +1,59 @@
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, lazy, Suspense } from 'react';
 import { settingsApi, styleGuideApi, ideasApi, draftsApi, publishedApi, activityApi, contentFreshnessApi } from './services/wordpressApi';
 import { setGeminiApiKey } from './services/geminiService';
 import type { StyleGuide, ContentIdea, Draft, View, AppSettings, ActivityLog, ActivityLogType, IconName } from './types';
 import { GeminiApiWarning } from './components/GeminiApiWarning';
 import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './components/Dashboard';
-import { StyleGuideManager } from './components/StyleGuideManager';
-import { IdeaBoard } from './components/IdeaBoard';
-import { DraftsList } from './components/DraftsList';
-import { SettingsTabbed } from './components/SettingsTabbed';
-import { DraftModal } from './components/DraftModal';
 import { Toast, ToastData } from './components/Toast';
-import { PublishedList } from './components/PublishedList';
 import { Menu } from './components/Icons';
-import { ContentCalendar } from './components/ContentCalendar';
-import { ContentFreshnessManager } from './components/ContentFreshnessManager';
+import ErrorBoundary from './components/ErrorBoundary';
+import logger from './utils/logger';
+
+// Lazy load heavy components for better performance
+const StyleGuideManager = lazy(() => import('./components/StyleGuideManager').then(module => ({ default: module.StyleGuideManager })));
+const IdeaBoard = lazy(() => import('./components/IdeaBoard').then(module => ({ default: module.IdeaBoard })));
+const DraftsList = lazy(() => import('./components/DraftsList').then(module => ({ default: module.DraftsList })));
+const SettingsTabbed = lazy(() => import('./components/SettingsTabbed').then(module => ({ default: module.SettingsTabbed })));
+const DraftModal = lazy(() => import('./components/DraftModal').then(module => ({ default: module.DraftModal })));
+const PublishedList = lazy(() => import('./components/PublishedList').then(module => ({ default: module.PublishedList })));
+const ContentCalendar = lazy(() => import('./components/ContentCalendar').then(module => ({ default: module.ContentCalendar })));
+const ContentFreshnessManager = lazy(() => import('./components/ContentFreshnessManager').then(module => ({ default: module.ContentFreshnessManager })));
+
+// Loading component for lazy loaded components
+const ComponentLoader = () => (
+    <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '200px',
+        fontSize: '14px',
+        color: '#666'
+    }}>
+        <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+        }}>
+            <div style={{
+                width: '20px',
+                height: '20px',
+                border: '2px solid #f3f3f3',
+                borderTop: '2px solid #0073aa',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite'
+            }}></div>
+            Loading...
+        </div>
+        <style>{`
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        `}</style>
+    </div>
+);
 
 declare global {
   interface Window {
@@ -62,6 +100,7 @@ const App: React.FC = () => {
     const [publishingId, setPublishingId] = useState<number | null>(null);
     const [contentFreshness, setContentFreshness] = useState<{
         total: number;
+        analyzed: number;
         needsUpdate: number;
         averageScore: number;
     } | null>(null);
@@ -73,13 +112,6 @@ const App: React.FC = () => {
     // Check if Gemini API key is configured
     const isGeminiApiConfigured = !!(settings.geminiApiKey && settings.geminiApiKey.trim());
 
-    // Clear openSection when view changes away from settings
-    useEffect(() => {
-        if (view !== 'settings') {
-            setSettingsOpenSection(undefined);
-        }
-    }, [view]);
-
     const addToast = useCallback((toast: Omit<ToastData, 'id'>) => {
         const id = Date.now();
         setToasts(prev => [...prev, { ...toast, id }]);
@@ -88,6 +120,34 @@ const App: React.FC = () => {
     const showToast = useCallback((message: string, type: 'success' | 'error' | 'warning' | 'info') => {
         addToast({ message, type });
     }, [addToast]);
+
+    // Parse URL parameters for OAuth redirects and view navigation
+    useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const viewParam = urlParams.get('view');
+        const gscConnected = urlParams.get('gsc_connected');
+        
+        // Handle GSC OAuth redirect
+        if (viewParam === 'settings' && gscConnected === '1') {
+            setView('settings');
+            setSettingsOpenSection('integrations');
+            showToast('Google Search Console connected successfully!', 'success');
+            
+            // Clean up URL parameters
+            const newUrl = window.location.pathname + window.location.hash;
+            window.history.replaceState({}, document.title, newUrl);
+        } else if (viewParam === 'settings') {
+            setView('settings');
+            // Don't clean URL in this case, might be intentional navigation
+        }
+    }, [showToast]);
+
+    // Clear openSection when view changes away from settings
+    useEffect(() => {
+        if (view !== 'settings') {
+            setSettingsOpenSection(undefined);
+        }
+    }, [view]);
     
     const addLogEntry = useCallback((type: ActivityLogType, details: string, icon: IconName) => {
         const newLog: ActivityLog = {
@@ -198,7 +258,7 @@ const App: React.FC = () => {
             return;
         }
 
-        console.log('Creating draft for idea:', idea);
+        logger.log('Creating draft for idea:', idea);
         setIsLoading(prev => ({ ...prev, [`draft_${ideaId}`]: true }));
         
         // Show loading toast
@@ -208,9 +268,9 @@ const App: React.FC = () => {
         });
         
         try {
-            console.log('Calling draftsApi.createFromIdea with ideaId:', ideaId);
+            logger.log('Calling draftsApi.createFromIdea with ideaId:', ideaId);
             const draft = await draftsApi.createFromIdea(ideaId);
-            console.log('Draft created successfully:', draft);
+            logger.log('Draft created successfully:', draft);
             
             setPosts(prev => [draft, ...prev]);
             
@@ -225,7 +285,7 @@ const App: React.FC = () => {
             });
             addLogEntry('draft_created', `Created draft: "${draft.title}" with full WordPress integration`, 'FileText');
         } catch (error) {
-            console.error('Error creating draft:', error);
+            logger.error('Error creating draft:', error);
             
             // Parse error message for better user feedback
             let errorMessage = 'Failed to create draft. Please try again.';
@@ -312,7 +372,7 @@ const App: React.FC = () => {
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Failed to schedule draft';
             addToast({ message: errorMessage, type: 'error' });
-            console.error('Error scheduling draft:', error);
+            logger.error('Error scheduling draft:', error);
         }
     }, [addToast, addLogEntry]);
 
@@ -421,7 +481,7 @@ const App: React.FC = () => {
                 aiImageStyle: 'photographic'
             });
         } catch (error) {
-            console.error('Failed to refresh settings:', error);
+            logger.error('Failed to refresh settings:', error);
             refreshErrors.push('settings');
         }
         
@@ -430,7 +490,7 @@ const App: React.FC = () => {
             const ideasData = await ideasApi.get();
             setIdeas(ideasData || []);
         } catch (error) {
-            console.error('Failed to refresh ideas:', error);
+            logger.error('Failed to refresh ideas:', error);
             refreshErrors.push('ideas');
         }
         
@@ -441,14 +501,14 @@ const App: React.FC = () => {
         try {
             draftsData = await draftsApi.get();
         } catch (error) {
-            console.error('Failed to refresh drafts:', error);
+            logger.error('Failed to refresh drafts:', error);
             refreshErrors.push('drafts');
         }
         
         try {
             publishedData = await publishedApi.get();
         } catch (error) {
-            console.error('Failed to refresh published posts:', error);
+            logger.error('Failed to refresh published posts:', error);
             refreshErrors.push('published');
         }
         
@@ -459,7 +519,7 @@ const App: React.FC = () => {
             const activityData = await activityApi.get();
             setActivityLogs(activityData || []);
         } catch (error) {
-            console.error('Failed to refresh activity logs:', error);
+            logger.error('Failed to refresh activity logs:', error);
             refreshErrors.push('activity');
         }
         
@@ -468,7 +528,7 @@ const App: React.FC = () => {
             addToast({ message: 'Failed to refresh app settings', type: 'error' });
         } else if (refreshErrors.length > 0) {
             // Non-critical errors, just log them
-            console.log('Some non-critical data failed to refresh:', refreshErrors);
+            logger.log('Some non-critical data failed to refresh:', refreshErrors);
         }
         
         // Don't show success toast to reduce notification spam
@@ -481,6 +541,7 @@ const App: React.FC = () => {
                 title: title.trim(),
                 description: description?.trim() || '',
                 status: 'active',
+                source: 'manual',
                 createdAt: new Date().toISOString(),
                 tags: []
             };
@@ -499,57 +560,85 @@ const App: React.FC = () => {
     const renderView = () => {
         switch (view) {
             case 'style-guide':
-                return <StyleGuideManager styleGuide={styleGuide} onAnalyze={() => handleAnalyzeStyle(false)} onSaveStyleGuide={handleSaveStyleGuide} isLoading={isLoading['style']} />;
+                return (
+                    <Suspense fallback={<ComponentLoader />}>
+                        <StyleGuideManager styleGuide={styleGuide} onAnalyze={() => handleAnalyzeStyle(false)} onSaveStyleGuide={handleSaveStyleGuide} isLoading={isLoading['style']} />
+                    </Suspense>
+                );
             case 'ideas':
-                return <IdeaBoard 
-                    ideas={ideas} 
-                    onGenerate={() => handleGenerateIdeas(false, 5)} 
-                    onCreateDraft={(idea) => handleCreateDraft(idea.id)} 
-                    onArchive={handleArchiveIdea}
-                    onDeleteIdea={handleDeleteIdea}
+                return (
+                    <Suspense fallback={<ComponentLoader />}>
+                        <IdeaBoard 
+                            ideas={ideas} 
+                            onGenerate={() => handleGenerateIdeas(false, 5)} 
+                            onCreateDraft={(idea) => handleCreateDraft(idea.id)} 
+                            onArchive={handleArchiveIdea}
+                            onDeleteIdea={handleDeleteIdea}
                     onRestoreIdea={handleRestoreIdea}
                     isLoading={isLoading['ideas']} 
                     isLoadingDraft={isLoading} 
                     onUpdateTitle={handleUpdateIdeaTitle} 
                     onGenerateSimilar={handleGenerateSimilarIdeas} 
-                    onAddIdea={handleAddIdea} 
-                />;
+                            onAddIdea={handleAddIdea} 
+                        />
+                    </Suspense>
+                );
             case 'drafts':
-                return <DraftsList 
-                    drafts={drafts} 
-                    onSelectDraft={setSelectedDraft} 
-                    onPublish={handlePublishPost} 
-                    publishingId={publishingId}
-                    onNavigateToIdeas={() => setView('ideas')}
-                />;
+                return (
+                    <Suspense fallback={<ComponentLoader />}>
+                        <DraftsList 
+                            drafts={drafts} 
+                            onSelectDraft={setSelectedDraft} 
+                            onPublish={handlePublishPost} 
+                            publishingId={publishingId}
+                            onNavigateToIdeas={() => setView('ideas')}
+                        />
+                    </Suspense>
+                );
             case 'published':
-                return <PublishedList 
-                    posts={publishedPosts} 
-                    onSelectPost={setSelectedDraft}
-                    onNavigateToDrafts={() => setView('drafts')}
-                />;
+                return (
+                    <Suspense fallback={<ComponentLoader />}>
+                        <PublishedList 
+                            posts={publishedPosts} 
+                            onSelectPost={setSelectedDraft}
+                            onNavigateToDrafts={() => setView('drafts')}
+                        />
+                    </Suspense>
+                );
             case 'settings':
-                return <SettingsTabbed 
-            settings={settings} 
-            onSaveSettings={handleSaveSettings} 
-            onRefreshApp={handleRefreshApp} 
-            onShowToast={showToast} 
-            openSection={settingsOpenSection}
-        />;
+                return (
+                    <Suspense fallback={<ComponentLoader />}>
+                        <SettingsTabbed 
+                            settings={settings} 
+                            onSaveSettings={handleSaveSettings} 
+                            onRefreshApp={handleRefreshApp} 
+                            onShowToast={showToast} 
+                            openSection={settingsOpenSection}
+                        />
+                    </Suspense>
+                );
             case 'calendar':
-                return <ContentCalendar 
-                    drafts={drafts} 
-                    publishedPosts={publishedPosts} 
-                    onScheduleDraft={handleScheduleDraft} 
-                    onSelectPost={setSelectedDraft}
-                    onPublishDraft={handlePublishPost}
-                    onUpdatePostDate={handleUpdatePostDate}
-                />;
+                return (
+                    <Suspense fallback={<ComponentLoader />}>
+                        <ContentCalendar 
+                            drafts={drafts} 
+                            publishedPosts={publishedPosts} 
+                            onScheduleDraft={handleScheduleDraft} 
+                            onSelectPost={setSelectedDraft}
+                            onPublishDraft={handlePublishPost}
+                            onUpdatePostDate={handleUpdatePostDate}
+                        />
+                    </Suspense>
+                );
             case 'content-freshness':
-                return <ContentFreshnessManager 
-                    onShowToast={showToast}
-                    settings={settings}
-                />;
+                return (
+                    <Suspense fallback={<ComponentLoader />}>
+                        <ContentFreshnessManager 
+                            onShowToast={showToast}
+                            settings={settings}
+                        />
+                    </Suspense>
+                );
             case 'dashboard':
             default:
                 return <Dashboard
@@ -573,7 +662,7 @@ const App: React.FC = () => {
     useEffect(() => {
         // Check if WordPress localized data is available
         if (!window.acaData) {
-            console.error('ACA Error: WordPress localized data not available');
+            logger.error('ACA Error: WordPress localized data not available');
             showToast('Plugin not properly loaded. Please refresh the page.', 'error');
             return;
         }
@@ -583,6 +672,8 @@ const App: React.FC = () => {
 
     // Load initial data from WordPress
     useEffect(() => {
+        let isMounted = true; // Flag to prevent state updates after unmount
+        
         const loadInitialData = async () => {
             try {
                 const [settingsData, styleGuideData, ideasData, draftsData, publishedData, activityData] = await Promise.all([
@@ -594,10 +685,13 @@ const App: React.FC = () => {
                     activityApi.get()
                 ]);
                 
+                // Only update state if component is still mounted
+                if (!isMounted) return;
+                
                 // Load content freshness data if Pro is active
                 try {
                     const freshnessResponse = await contentFreshnessApi.getPosts(50, 'all');
-                    if (freshnessResponse && freshnessResponse.success && freshnessResponse.posts) {
+                    if (freshnessResponse && freshnessResponse.success && freshnessResponse.posts && isMounted) {
                         const posts = freshnessResponse.posts;
                         const needsUpdate = posts.filter(post => post.needs_update).length;
                         const postsWithScores = posts.filter(post => post.freshness_score !== null);
@@ -616,8 +710,10 @@ const App: React.FC = () => {
                     }
                 } catch (error) {
                     // Content freshness is a Pro feature, don't show error if not available
-                    console.log('Content freshness not available (Pro feature)');
+                    logger.log('Content freshness not available (Pro feature)');
                 }
+                
+                if (!isMounted) return;
                 
                 setSettings(settingsData || {
                     mode: 'manual',
@@ -639,21 +735,30 @@ const App: React.FC = () => {
                     analyzeContentFrequency: 'manual',
                 });
                 
-                if (styleGuideData) {
+                if (styleGuideData && isMounted) {
                     setStyleGuide(styleGuideData);
                 }
                 
-                setIdeas(ideasData || []);
-                setPosts([...(draftsData || []), ...(publishedData || [])]);
-                setActivityLogs(activityData || []);
+                if (isMounted) {
+                    setIdeas(ideasData || []);
+                    setPosts([...(draftsData || []), ...(publishedData || [])]);
+                    setActivityLogs(activityData || []);
+                }
             } catch (error) {
-                console.error('Failed to load initial data:', error);
-                addToast({ message: 'Failed to load plugin data', type: 'error' });
+                if (isMounted) {
+                    logger.error('Failed to load initial data:', error);
+                    addToast({ message: 'Failed to load plugin data', type: 'error' });
+                }
             }
         };
         
         loadInitialData();
-    }, []);
+        
+        // Cleanup function to prevent memory leaks
+        return () => {
+            isMounted = false;
+        };
+    }, [addToast]);
 
     return (
         <>
@@ -695,19 +800,23 @@ const App: React.FC = () => {
                                 setView('settings');
                             }} />
                         )}
-                        {renderView()}
+                        <ErrorBoundary>
+                            {renderView()}
+                        </ErrorBoundary>
                     </div>
                 </div>
             </div>
             
             {/* Draft modal */}
             {selectedDraft && (
-                <DraftModal
-                    draft={selectedDraft}
-                    onClose={() => setSelectedDraft(null)}
-                    onSave={handleUpdateDraft}
-                    settings={settings}
-                />
+                <Suspense fallback={<ComponentLoader />}>
+                    <DraftModal
+                        draft={selectedDraft}
+                        onClose={() => setSelectedDraft(null)}
+                        onSave={handleUpdateDraft}
+                        settings={settings}
+                    />
+                </Suspense>
             )}
             
             {/* Toast notifications */}

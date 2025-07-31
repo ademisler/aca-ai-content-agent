@@ -1,27 +1,75 @@
 <?php
 /**
- * REST API functionality
+ * REST API functionality for AI Content Agent (ACA) Plugin
+ * 
+ * This class handles all REST API endpoints for the ACA plugin, including:
+ * - Settings management
+ * - Content ideas generation and management
+ * - Draft creation and publishing
+ * - Style guide management
+ * - Google Search Console integration
+ * - SEO plugin detection
+ * - Content freshness analysis
+ * - License management
+ * - Activity logging
+ * 
+ * @package AI_Content_Agent
+ * @version 2.3.7
+ * @author Adem Isler
+ * @since 1.0.0
  */
 
 if (!defined('ABSPATH')) {
     exit;
 }
 
+// Ensure ACA_PLUGIN_PATH is defined
+if (!defined('ACA_PLUGIN_PATH')) {
+    define('ACA_PLUGIN_PATH', plugin_dir_path(dirname(__FILE__)));
+}
+
+/**
+ * Main REST API class for AI Content Agent
+ * 
+ * Provides secure REST API endpoints for frontend-backend communication.
+ * All endpoints require proper WordPress authentication and nonce verification.
+ * 
+ * @since 1.0.0
+ */
 class ACA_Rest_Api {
     
+    /**
+     * Constructor - Initialize REST API hooks
+     * 
+     * @since 1.0.0
+     */
     public function __construct() {
         add_action('rest_api_init', array($this, 'register_routes'));
     }
     
     /**
-     * Register REST API routes
+     * Register all REST API routes for the plugin
+     * 
+     * Registers endpoints for:
+     * - Settings (GET/POST)
+     * - Ideas (CRUD operations)
+     * - Drafts (CRUD operations)
+     * - Style guide (GET/POST)
+     * - Google Search Console integration
+     * - SEO plugin detection
+     * - Content freshness analysis
+     * - License management
+     * - Activity logging
+     * - Debug endpoints
+     * 
+     * @since 1.0.0
      */
     public function register_routes() {
-        // Settings endpoints
+        // Settings endpoints with rate limiting - CRITICAL SECURITY FIX
         register_rest_route('aca/v1', '/settings', array(
             'methods' => 'GET',
             'callback' => array($this, 'get_settings'),
-            'permission_callback' => array($this, 'check_admin_permissions')
+            'permission_callback' => array($this, 'check_admin_permissions_with_rate_limit')
         ));
         
         register_rest_route('aca/v1', '/settings', array(
@@ -47,6 +95,13 @@ class ACA_Rest_Api {
         register_rest_route('aca/v1', '/debug/cron/full-auto', array(
             'methods' => 'POST',
             'callback' => array($this, 'debug_trigger_full_auto'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
+        
+        // Error logging endpoint for React error boundary
+        register_rest_route('aca/v1', '/debug/error', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'log_frontend_error'),
             'permission_callback' => array($this, 'check_admin_permissions')
         ));
         
@@ -242,7 +297,7 @@ class ACA_Rest_Api {
             'permission_callback' => array($this, 'check_admin_permissions')
         ));
         
-        // Content Freshness endpoints (Pro feature)
+        // Content Freshness endpoints (Pro license required)
         register_rest_route('aca/v1', '/content-freshness/analyze', array(
             'methods' => 'POST',
             'callback' => array($this, 'analyze_content_freshness'),
@@ -279,24 +334,97 @@ class ACA_Rest_Api {
             'permission_callback' => array($this, 'check_pro_permissions')
         ));
 
-        // License verification endpoint
-        register_rest_route('aca/v1', '/license/verify', array(
-            'methods' => 'POST',
-            'callback' => array($this, 'verify_license_key'),
-            'permission_callback' => array($this, 'check_admin_permissions')
-        ));
-        
-        // License status endpoint
+        // License management endpoints
         register_rest_route('aca/v1', '/license/status', array(
             'methods' => 'GET',
             'callback' => array($this, 'get_license_status'),
             'permission_callback' => array($this, 'check_admin_permissions')
         ));
         
-        // License deactivation endpoint
+        register_rest_route('aca/v1', '/license/activate', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'activate_license'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
+        
         register_rest_route('aca/v1', '/license/deactivate', array(
             'methods' => 'POST',
             'callback' => array($this, 'deactivate_license'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
+        
+        register_rest_route('aca/v1', '/license/check', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'check_license'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
+        
+        register_rest_route('aca/v1', '/license/dismiss-migration-notice', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'dismiss_migration_notice'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
+        
+        // Debug Panel endpoints
+        register_rest_route('aca/v1', '/debug/system-status', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_system_status'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
+        
+        register_rest_route('aca/v1', '/debug/api-calls', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_api_calls'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
+        
+        register_rest_route('aca/v1', '/debug/error-logs', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_error_logs'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
+        
+        register_rest_route('aca/v1', '/debug/performance', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_performance_metrics'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
+        
+        register_rest_route('aca/v1', '/debug/clear-logs', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'clear_debug_logs'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
+        
+        register_rest_route('aca/v1', '/debug/export-logs', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'export_debug_logs'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
+        
+        // Bulk Operations endpoints
+        register_rest_route('aca/v1', '/bulk/create-drafts', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'bulk_create_drafts'),
+            'permission_callback' => array($this, 'check_pro_permissions')
+        ));
+        
+        register_rest_route('aca/v1', '/bulk/archive-ideas', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'bulk_archive_ideas'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
+        
+        // Manual Analysis endpoints
+        register_rest_route('aca/v1', '/content-freshness/analyze-all', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'manual_analyze_all'),
+            'permission_callback' => array($this, 'check_pro_permissions')
+        ));
+        
+        register_rest_route('aca/v1', '/debug/cron-status', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_cron_status'),
             'permission_callback' => array($this, 'check_admin_permissions')
         ));
     }
@@ -323,23 +451,7 @@ class ACA_Rest_Api {
         return current_user_can('edit_posts') || current_user_can('manage_options');
     }
     
-    /**
-     * Check Pro permissions - requires Pro license and admin permissions
-     */
-    public function check_pro_permissions() {
-        // Check admin permissions first
-        if (!current_user_can('manage_options')) {
-            return false;
-        }
-        
-        // Check if Pro license is active
-        if (!is_aca_pro_active()) {
-            return new WP_Error('pro_required', 'This feature requires an active Pro license', array('status' => 403));
-        }
-        
-        return true;
-    }
-    
+
     /**
      * Verify nonce for security
      */
@@ -352,13 +464,47 @@ class ACA_Rest_Api {
     }
     
     /**
-     * Get settings
+     * Check admin permissions with rate limiting - CRITICAL SECURITY FIX
+     */
+    public function check_admin_permissions_with_rate_limit($request) {
+        // Apply rate limiting first
+        $rate_limit_check = ACA_Rate_Limiter::check_rate_limit($request, 'api_general');
+        if (is_wp_error($rate_limit_check)) {
+            return $rate_limit_check;
+        }
+        
+        // Then check admin permissions
+        return $this->check_admin_permissions($request);
+    }
+    
+    /**
+     * Check pro permissions with rate limiting - CRITICAL SECURITY FIX
+     */
+    public function check_pro_permissions_with_rate_limit($request) {
+        // Apply rate limiting first
+        $rate_limit_check = ACA_Rate_Limiter::check_rate_limit($request, 'ai_generation');
+        if (is_wp_error($rate_limit_check)) {
+            return $rate_limit_check;
+        }
+        
+        // Then check pro permissions
+        return $this->check_pro_permissions($request);
+    }
+    
+    /**
+     * Get settings with performance monitoring - HIGH PRIORITY FIX
      */
     public function get_settings($request) {
+        // Start performance monitoring
+        $perf_id = ACA_Performance_Monitor::start('get_settings');
+        
         $settings = get_option('aca_settings', array());
         
         // Add pro status to settings response
         $settings['is_pro'] = is_aca_pro_active();
+        
+        // End performance monitoring
+        ACA_Performance_Monitor::end($perf_id, ['endpoint' => 'get_settings', 'user_id' => get_current_user_id()]);
         
         return rest_ensure_response($settings);
     }
@@ -588,9 +734,8 @@ class ACA_Rest_Api {
             // Get search console data if user is connected
             $search_console_data = null;
             if (!empty($settings['searchConsoleUser'])) {
-                require_once ACA_PLUGIN_PATH . 'includes/class-aca-google-search-console.php';
-                
-                $gsc = new ACA_Google_Search_Console();
+                // Use hybrid version that doesn't require vendor dependencies
+                $gsc = new ACA_Google_Search_Console_Hybrid();
                 $search_console_data = $gsc->get_data_for_ai();
                 
                 // Fallback to mock data if GSC fails
@@ -2624,23 +2769,15 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
      */
     public function get_gsc_auth_status($request) {
         try {
-            if (!file_exists(ACA_PLUGIN_PATH . 'includes/class-aca-google-search-console.php')) {
-                return rest_ensure_response(array(
-                    'connected' => false, 
-                    'error' => 'Google Search Console class file not found'
-                ));
-            }
-            
-            require_once ACA_PLUGIN_PATH . 'includes/class-aca-google-search-console.php';
-            
-            if (!class_exists('ACA_Google_Search_Console')) {
+            // Use hybrid version (loaded in main plugin file)
+            if (!class_exists('ACA_Google_Search_Console_Hybrid')) {
                 return rest_ensure_response(array(
                     'connected' => false, 
                     'error' => 'Google Search Console class not loaded'
                 ));
             }
             
-            $gsc = new ACA_Google_Search_Console();
+            $gsc = new ACA_Google_Search_Console_Hybrid();
             $status = $gsc->get_auth_status();
             
             return rest_ensure_response($status);
@@ -2664,17 +2801,18 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
      */
     public function gsc_connect($request) {
         try {
-            require_once ACA_PLUGIN_PATH . 'includes/class-aca-google-search-console.php';
+            // Hybrid version already loaded in main plugin file
             
-            if (!class_exists('ACA_Google_Search_Console')) {
+            if (!class_exists('ACA_Google_Search_Console_Hybrid')) {
                 return new WP_Error('gsc_error', 'Google Search Console class not available');
             }
             
-            $gsc = new ACA_Google_Search_Console();
+            $gsc = new ACA_Google_Search_Console_Hybrid();
             
             // Check if this is an OAuth callback
             if (isset($_GET['code'])) {
-                $result = $gsc->handle_oauth_callback($_GET['code']);
+                $code = sanitize_text_field($_GET['code']);
+                $result = $gsc->handle_oauth_callback($code);
                 
                 if (is_wp_error($result)) {
                     return $result;
@@ -2716,9 +2854,9 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             return $nonce_check;
         }
         
-        require_once ACA_PLUGIN_PATH . 'includes/class-aca-google-search-console.php';
+        // Hybrid version already loaded in main plugin file
         
-        $gsc = new ACA_Google_Search_Console();
+        $gsc = new ACA_Google_Search_Console_Hybrid();
         $result = $gsc->disconnect();
         
         if ($result) {
@@ -2737,9 +2875,9 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
      * Get Google Search Console sites
      */
     public function get_gsc_sites($request) {
-        require_once ACA_PLUGIN_PATH . 'includes/class-aca-google-search-console.php';
+        // Hybrid version already loaded in main plugin file
         
-        $gsc = new ACA_Google_Search_Console();
+        $gsc = new ACA_Google_Search_Console_Hybrid();
         $sites = $gsc->get_sites();
         
         if (is_wp_error($sites)) {
@@ -3333,20 +3471,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         }
     }
     
-    /**
-     * Get license status
-     */
-    public function get_license_status($request) {
-        $license_status = get_option('aca_license_status', 'inactive');
-        $license_data = get_option('aca_license_data', array());
-        
-        return rest_ensure_response(array(
-            'status' => $license_status,
-            'is_active' => $license_status === 'active',
-            'data' => $license_data,
-            'verified_at' => isset($license_data['verified_at']) ? $license_data['verified_at'] : null
-        ));
-    }
+
     
     /**
      * Deactivate license
@@ -3902,5 +4027,277 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         }
         
         return implode(' > ', $path);
+    }
+    
+    /**
+     * Get GSC performance data - CRITICAL FIX
+     */
+    public function get_gsc_data($request) {
+        // Check if Google Search Console is configured
+        $settings = get_option('aca_settings', array());
+        if (empty($settings['gscClientId']) || empty($settings['gscClientSecret'])) {
+            return new WP_Error('gsc_not_configured', 'Google Search Console is not configured', array('status' => 400));
+        }
+        
+        // Initialize GSC Hybrid class (no require needed - already loaded in main plugin)
+        $gsc = new ACA_Google_Search_Console_Hybrid();
+        
+        // Check authentication status
+        if (!$gsc->is_authenticated()) {
+            return new WP_Error('gsc_not_authenticated', 'Not authenticated with Google Search Console', array('status' => 401));
+        }
+        
+        try {
+            // Get query parameters
+            $site_url = $request->get_param('site_url') ?: home_url();
+            $start_date = $request->get_param('start_date') ?: date('Y-m-d', strtotime('-30 days'));
+            $end_date = $request->get_param('end_date') ?: date('Y-m-d');
+            $dimensions = $request->get_param('dimensions') ?: ['query'];
+            $row_limit = $request->get_param('row_limit') ?: 100;
+            
+            // Get performance data from GSC
+            $performance_data = $gsc->get_search_analytics_data($site_url, array(
+                'startDate' => $start_date,
+                'endDate' => $end_date,
+                'dimensions' => $dimensions,
+                'rowLimit' => $row_limit
+            ));
+            
+            if (is_wp_error($performance_data)) {
+                return $performance_data;
+            }
+            
+            return rest_ensure_response(array(
+                'success' => true,
+                'data' => $performance_data,
+                'site_url' => $site_url,
+                'date_range' => array(
+                    'start' => $start_date,
+                    'end' => $end_date
+                )
+            ));
+            
+        } catch (Exception $e) {
+            return new WP_Error('gsc_data_error', 'Failed to retrieve GSC data: ' . $e->getMessage(), array('status' => 500));
+        }
+    }
+    
+    /**
+     * Log frontend errors from React error boundary
+     */
+    public function log_frontend_error($request) {
+        $error_data = $request->get_json_params();
+        
+        if (!$error_data || !isset($error_data['error'])) {
+            return new WP_Error('missing_error', 'Error data is required', array('status' => 400));
+        }
+        
+        $error_message = sanitize_text_field($error_data['error']);
+        $stack_trace = isset($error_data['stack']) ? sanitize_textarea_field($error_data['stack']) : '';
+        $component_stack = isset($error_data['componentStack']) ? sanitize_textarea_field($error_data['componentStack']) : '';
+        
+        // Create comprehensive error log entry
+        $log_entry = sprintf(
+            "ACA Frontend Error: %s\nStack Trace: %s\nComponent Stack: %s\nUser Agent: %s\nURL: %s\nTimestamp: %s",
+            $error_message,
+            $stack_trace,
+            $component_stack,
+            isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : 'Unknown',
+            isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : 'Unknown',
+            current_time('mysql')
+        );
+        
+        // Log to WordPress error log
+        error_log($log_entry);
+        
+        // Also store in database for admin review
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'aca_error_logs';
+        
+        // Create table if it doesn't exist
+        $charset_collate = $wpdb->get_charset_collate();
+        $sql = "CREATE TABLE IF NOT EXISTS $table_name (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            error_message text NOT NULL,
+            stack_trace longtext,
+            component_stack longtext,
+            user_agent text,
+            url text,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id)
+        ) $charset_collate;";
+        
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql);
+        
+        // Insert error record
+        $wpdb->insert(
+            $table_name,
+            array(
+                'error_message' => $error_message,
+                'stack_trace' => $stack_trace,
+                'component_stack' => $component_stack,
+                'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
+                'url' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : ''
+            ),
+            array('%s', '%s', '%s', '%s', '%s')
+        );
+        
+        return rest_ensure_response(array(
+            'success' => true,
+            'message' => 'Error logged successfully'
+        ));
+    }
+    
+    /**
+     * Performance monitoring wrapper for REST endpoints - HIGH PRIORITY FIX
+     */
+    private function monitor_endpoint_performance($endpoint_name, $callback, $request) {
+        $perf_id = ACA_Performance_Monitor::start($endpoint_name);
+        
+        try {
+            $result = call_user_func($callback, $request);
+            
+            ACA_Performance_Monitor::end($perf_id, [
+                'endpoint' => $endpoint_name,
+                'user_id' => get_current_user_id(),
+                'success' => !is_wp_error($result)
+            ]);
+            
+            return $result;
+        } catch (Exception $e) {
+            ACA_Performance_Monitor::end($perf_id, [
+                'endpoint' => $endpoint_name,
+                'user_id' => get_current_user_id(),
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+            
+            throw $e;
+        }
+    }
+    
+    /**
+     * Enhanced get_settings with performance monitoring
+     */
+    public function get_settings_monitored($request) {
+        return $this->monitor_endpoint_performance('get_settings', [$this, 'get_settings'], $request);
+    }
+    
+    /**
+     * Enhanced save_settings with performance monitoring
+     */
+    public function save_settings_monitored($request) {
+        return $this->monitor_endpoint_performance('save_settings', [$this, 'save_settings'], $request);
+    }
+    
+    /**
+     * Enhanced generate_ideas with performance monitoring
+     */
+    public function generate_ideas_monitored($request) {
+        return $this->monitor_endpoint_performance('generate_ideas', [$this, 'generate_ideas'], $request);
+    }
+
+    /**
+     * Execute optimized database query with caching and performance monitoring
+     * 
+     * @param string $query
+     * @param array $args
+     * @param bool $use_cache
+     * @param int $cache_ttl
+     * @return mixed
+     */
+    private function execute_optimized_query($query, $args = [], $use_cache = true, $cache_ttl = 300) {
+        global $wpdb;
+        
+        // Generate cache key
+        $query_hash = null;
+        if ($use_cache && class_exists('ACA_Performance_Monitor')) {
+            $query_hash = ACA_Performance_Monitor::generate_query_hash($query, $args);
+            $cached_result = ACA_Performance_Monitor::get_cached_query_result($query_hash);
+            if ($cached_result !== null) {
+                return $cached_result;
+            }
+        }
+        
+        // Start performance monitoring
+        $start_time = microtime(true);
+        
+        // Execute query
+        if (!empty($args)) {
+            $prepared_query = $wpdb->prepare($query, $args);
+            $result = $wpdb->get_results($prepared_query);
+        } else {
+            $result = $wpdb->get_results($query);
+        }
+        
+        // Calculate execution time
+        $execution_time = microtime(true) - $start_time;
+        
+        // Log performance if monitoring is available
+        if (class_exists('ACA_Performance_Monitor')) {
+            ACA_Performance_Monitor::log_query_performance($query, $execution_time, $result);
+            
+            // Cache successful results
+            if ($use_cache && $result !== false && !is_wp_error($result)) {
+                ACA_Performance_Monitor::cache_query_result($query_hash, $result, $cache_ttl);
+            }
+        }
+        
+        // Log slow queries
+        if ($execution_time > 0.1) {
+            error_log("ACA Plugin: Slow query in REST API (" . round($execution_time * 1000, 2) . "ms)");
+        }
+        
+        return $result;
+    }
+
+    public function get_content_ideas($request) {
+        global $wpdb;
+        try {
+            $per_page = $request->get_param('per_page') ?: 10;
+            $page = $request->get_param('page') ?: 1;
+            $status_filter = $request->get_param('status') ?: 'active';
+            $search = $request->get_param('search') ?: '';
+            
+            $offset = ($page - 1) * $per_page;
+            
+            // Build optimized query
+            $where_conditions = ["status = %s"];
+            $query_args = [$status_filter];
+            
+            if (!empty($search)) {
+                $where_conditions[] = "(title LIKE %s OR description LIKE %s)";
+                $query_args[] = '%' . $wpdb->esc_like($search) . '%';
+                $query_args[] = '%' . $wpdb->esc_like($search) . '%';
+            }
+            
+            $where_clause = implode(' AND ', $where_conditions);
+            
+            // Use optimized query execution
+            $query = "SELECT * FROM {$this->ideas_table} WHERE {$where_clause} ORDER BY created_at DESC LIMIT %d OFFSET %d";
+            $query_args[] = $per_page;
+            $query_args[] = $offset;
+            
+            $ideas = $this->execute_optimized_query($query, $query_args, true, 300);
+            
+            // Get total count with caching
+            $count_query = "SELECT COUNT(*) FROM {$this->ideas_table} WHERE {$where_clause}";
+            $count_args = array_slice($query_args, 0, -2); // Remove limit and offset
+            $total_results = $this->execute_optimized_query($count_query, $count_args, true, 600);
+            $total_count = is_array($total_results) && !empty($total_results) ? (int)$total_results[0]->{'COUNT(*)'} : 0;
+
+            return rest_ensure_response(array(
+                'success' => true,
+                'ideas' => $ideas,
+                'total_count' => $total_count,
+                'per_page' => $per_page,
+                'page' => $page,
+                'status' => $status_filter,
+                'search' => $search
+            ));
+        } catch (Exception $e) {
+            return new WP_Error('get_ideas_error', 'Failed to retrieve content ideas: ' . $e->getMessage(), array('status' => 500));
+        }
     }
 }

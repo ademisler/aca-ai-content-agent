@@ -26,27 +26,39 @@ delete_option('aca_last_freshness_analysis');
 wp_clear_scheduled_hook('aca_thirty_minute_event');
 wp_clear_scheduled_hook('aca_fifteen_minute_event');
 
-// Drop custom database tables
+// Drop custom database tables using prepared statements for security
 $tables_to_drop = array(
     $wpdb->prefix . 'aca_ideas',
     $wpdb->prefix . 'aca_activity_logs',
     $wpdb->prefix . 'aca_content_updates',
-    $wpdb->prefix . 'aca_content_freshness'
+    $wpdb->prefix . 'aca_content_freshness',
+    $wpdb->prefix . 'aca_error_logs'
 );
 
 foreach ($tables_to_drop as $table) {
-    $wpdb->query("DROP TABLE IF EXISTS $table");
+    // Validate table name format for security (WordPress doesn't support table name placeholders)
+    $table_name = sanitize_text_field($table);
+    if (preg_match('/^[a-zA-Z0-9_]+$/', $table_name) && strpos($table_name, $wpdb->prefix . 'aca_') === 0) {
+        $result = $wpdb->query("DROP TABLE IF EXISTS `{$table_name}`");
+        if ($result === false) {
+            error_log("ACA Plugin: Failed to drop table $table_name during uninstall. Error: " . $wpdb->last_error);
+        }
+    }
 }
 
-// Delete all post meta fields created by the plugin
+// Delete all post meta fields created by the plugin using safe method
 $wpdb->delete(
     $wpdb->postmeta,
     array(
         'meta_key' => '_aca_last_freshness_check'
-    )
+    ),
+    array('%s')
 );
 
-// Clean up any remaining plugin data
-$wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE 'aca_%'");
+// Clean up any remaining plugin data using prepared statement
+$result = $wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->options} WHERE option_name LIKE %s", 'aca_%'));
+if ($result === false) {
+    error_log("ACA Plugin: Failed to clean up options during uninstall. Error: " . $wpdb->last_error);
+}
 
 error_log('ACA: Plugin completely uninstalled and all data removed');

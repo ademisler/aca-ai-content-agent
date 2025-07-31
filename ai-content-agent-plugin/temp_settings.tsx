@@ -387,29 +387,25 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
 
     // Load initial data
     useEffect(() => {
-        const loadInitialData = async () => {
-            await Promise.all([
-                loadLicenseStatus(),
-                loadGscAuthStatus(),
-                fetchSeoPlugins()
-            ]);
+        const loadLicenseStatus = async () => {
+            try {
+                const status = await licenseApi.getStatus();
+                setLicenseStatus({
+                    status: status.status || 'inactive',
+                    is_active: status.is_active || false,
+                    verified_at: status.verified_at
+                });
+            } catch (error) {
+                console.error('Failed to load license status:', error);
+            } finally {
+                setIsLoadingLicenseStatus(false);
+            }
         };
-        loadInitialData();
+        
+        loadLicenseStatus();
+        fetchSeoPlugins();
+        loadGscAuthStatus();
     }, []);
-
-    // CRITICAL FIX #1: Sync settings prop changes to local state (MISSING useEffect #4)
-    useEffect(() => {
-        setCurrentSettings(settings);
-    }, [settings]);
-
-    // CRITICAL FIX #2: Sync license status to settings (MISSING useEffect #5)
-    useEffect(() => {
-        if (licenseStatus.status === 'active') {
-            setCurrentSettings(prev => ({ ...prev, is_pro: true }));
-        } else {
-            setCurrentSettings(prev => ({ ...prev, is_pro: false }));
-        }
-    }, [licenseStatus]);
 
     // Handle openSection prop
     useEffect(() => {

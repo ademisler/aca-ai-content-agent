@@ -339,56 +339,95 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
         setIsDetectingSeo(false);
     };
 
-    // GSC Functions
+    // GSC Functions (FIXED: Restored v2.3.0 functionality)
     const handleGSCConnect = async () => {
+        // CRITICAL FIX: Check if credentials are set (MISSING in v2.3.5)
+        if (!currentSettings.gscClientId || !currentSettings.gscClientSecret) {
+            if (onShowToast) {
+                onShowToast('Please enter your Google Search Console Client ID and Client Secret first.', 'warning');
+            } else {
+                alert('Please enter your Google Search Console Client ID and Client Secret first.');
+            }
+            return;
+        }
+        
+        if (!window.acaData) {
+            console.error('ACA: WordPress data not available');
+            return;
+        }
+        
         setIsConnecting(true);
         try {
-            const response = await fetch(`${window.acaData.api_url}/gsc/connect`, {
+            // CRITICAL FIX: Remove extra slash from API endpoint
+            const response = await fetch(window.acaData.api_url + 'gsc/connect', {
                 method: 'POST',
-                headers: {
-                    'X-WP-Nonce': window.acaData.nonce,
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'X-WP-Nonce': window.acaData.nonce }
             });
+            const data = await response.json();
             
-            if (response.ok) {
-                const data = await response.json();
-                if (data.auth_url) {
-                    window.open(data.auth_url, '_blank');
+            if (data.auth_url) {
+                // CRITICAL FIX: Use redirect instead of popup (v2.3.0 behavior)
+                window.location.href = data.auth_url;
+            } else {
+                if (onShowToast) {
+                    onShowToast('Failed to initiate Google Search Console connection', 'error');
+                } else {
+                    alert('Failed to initiate Google Search Console connection');
                 }
             }
         } catch (error) {
-            console.error('GSC connection failed:', error);
+            console.error('GSC connection error:', error);
+            if (onShowToast) {
+                onShowToast('Failed to connect to Google Search Console', 'error');
+            } else {
+                alert('Failed to connect to Google Search Console');
+            }
         } finally {
             setIsConnecting(false);
         }
     };
 
     const handleGSCDisconnect = async () => {
-        setIsConnecting(true);
+        if (!window.acaData) {
+            console.error('ACA: WordPress data not available');
+            return;
+        }
+        
         try {
-            const response = await fetch(`${window.acaData.api_url}/gsc/disconnect`, {
+            // CRITICAL FIX: Remove extra slash from API endpoint
+            const response = await fetch(window.acaData.api_url + 'gsc/disconnect', {
                 method: 'POST',
                 headers: {
                     'X-WP-Nonce': window.acaData.nonce,
-                    'Content-Type': 'application/json',
-                },
+                    'Content-Type': 'application/json'
+                }
             });
+            const data = await response.json();
             
-            if (response.ok) {
+            if (data.success) {
+                // CRITICAL FIX: Update settings to clear user data (MISSING in v2.3.5)
+                handleSettingChange('searchConsoleUser', null);
                 setGscAuthStatus({ authenticated: false });
-                onShowToast?.('Disconnected from Google Search Console', 'success');
+                if (onShowToast) {
+                    onShowToast('Successfully disconnected from Google Search Console', 'success');
+                } else {
+                    alert('Successfully disconnected from Google Search Console');
+                }
             }
         } catch (error) {
-            console.error('GSC disconnection failed:', error);
-        } finally {
-            setIsConnecting(false);
+            console.error('GSC disconnect error:', error);
+            if (onShowToast) {
+                onShowToast('Failed to disconnect from Google Search Console', 'error');
+            } else {
+                alert('Failed to disconnect from Google Search Console');
+            }
         }
     };
 
     const loadGscAuthStatus = async () => {
         try {
-            const response = await fetch(`${window.acaData.api_url}/gsc/status`, {
+            // CRITICAL FIX: Remove extra slash and use correct endpoint
+            const response = await fetch(window.acaData.api_url + 'gsc/auth-status', {
                 method: 'GET',
                 headers: {
                     'X-WP-Nonce': window.acaData.nonce,

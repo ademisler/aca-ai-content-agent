@@ -14,6 +14,7 @@ class ACA_Deactivator {
      */
     public static function deactivate() {
         self::clear_scheduled_hooks();
+        self::cleanup_static_classes();
         self::cleanup_plugin_data();
     }
     
@@ -43,5 +44,90 @@ class ACA_Deactivator {
     private static function clear_scheduled_hooks() {
         wp_clear_scheduled_hook('aca_thirty_minute_event');
         wp_clear_scheduled_hook('aca_fifteen_minute_event');
+    }
+    
+    /**
+     * Clean up all static class data
+     */
+    private static function cleanup_static_classes() {
+        // Clean up Performance Monitor
+        if (class_exists('ACA_Performance_Monitor')) {
+            ACA_Performance_Monitor::cleanup();
+        }
+        
+        // Clean up File Manager
+        if (class_exists('ACA_File_Manager')) {
+            ACA_File_Manager::cleanup();
+        }
+        
+        // Clean up Hook Manager
+        if (class_exists('ACA_Hook_Manager')) {
+            ACA_Hook_Manager::cleanup();
+        }
+        
+        // Clean up Service Container
+        if (class_exists('ACA_Service_Container')) {
+            ACA_Service_Container::cleanup();
+        }
+        
+        // Clean up main plugin singleton
+        if (class_exists('AI_Content_Agent')) {
+            AI_Content_Agent::destroy_instance();
+        }
+        
+        error_log('ACA: All static classes cleaned up');
+    }
+}
+    /**
+     * Clean up all static class data
+     */
+    private static function cleanup_static_classes() {
+        // Clean up Performance Monitor
+        if (class_exists("ACA_Performance_Monitor")) {
+            ACA_Performance_Monitor::cleanup();
+        }
+        
+        // Clean up File Manager
+        if (class_exists("ACA_File_Manager")) {
+            ACA_File_Manager::cleanup();
+        }
+        
+        // Clean up Hook Manager
+        if (class_exists("ACA_Hook_Manager")) {
+            ACA_Hook_Manager::cleanup();
+        }
+        
+        // Clean up main plugin singleton
+        if (class_exists("AI_Content_Agent")) {
+            AI_Content_Agent::destroy_instance();
+        }
+        
+        error_log("ACA: All static classes cleaned up");
+
+    /**
+     * Clean up all static class data
+     */
+    private static function cleanup_static_classes() {
+        // Clean up Performance Monitor
+        if (class_exists("ACA_Performance_Monitor")) {
+            ACA_Performance_Monitor::cleanup();
+        }
+        
+        // Clean up File Manager
+        if (class_exists("ACA_File_Manager")) {
+            ACA_File_Manager::cleanup();
+        }
+        
+        // Clean up Hook Manager
+        if (class_exists("ACA_Hook_Manager")) {
+            ACA_Hook_Manager::cleanup();
+        }
+        
+        // Clean up main plugin singleton
+        if (class_exists("AI_Content_Agent")) {
+            AI_Content_Agent::destroy_instance();
+        }
+        
+        error_log("ACA: All static classes cleaned up");
     }
 }

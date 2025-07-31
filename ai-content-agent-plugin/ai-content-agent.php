@@ -148,7 +148,10 @@ class AI_Content_Agent {
     private static $memory_threshold = 0.8; // 80% of memory limit
     private static $performance_tracker = null;
     
-    public function __construct() {
+    /**
+     * Private constructor to prevent direct instantiation
+     */
+    private function __construct() {
         // Memory check before initialization
         if (!$this->check_memory_availability()) {
             error_log('ACA Plugin: Insufficient memory available for initialization');
@@ -162,6 +165,49 @@ class AI_Content_Agent {
         
         $this->init_hooks();
         $this->init();
+    }
+    
+    /**
+     * Prevent cloning of the instance
+     */
+    private function __clone() {}
+    
+    /**
+     * Prevent unserialization of the instance
+     */
+    public function __wakeup() {
+        throw new Exception("Cannot unserialize singleton");
+    }
+    
+    /**
+     * Get singleton instance
+     * 
+     * @return AI_Content_Agent
+     */
+    public static function get_instance() {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+    
+    /**
+     * Destroy singleton instance (for testing purposes)
+     */
+    public static function destroy_instance() {
+        if (self::$instance !== null) {
+            // Clean up performance tracking
+            if (self::$performance_tracker) {
+                ACA_Performance_Monitor::end(self::$performance_tracker);
+                self::$performance_tracker = null;
+            }
+            
+            // Clean up initialized classes
+            self::$initialized_classes = [];
+            
+            // Destroy instance
+            self::$instance = null;
+        }
     }
     
     /**
@@ -479,10 +525,10 @@ class AI_Content_Agent {
     }
 }
 
-// Initialize the plugin when WordPress is ready
+// Initialize the plugin when WordPress is ready using singleton pattern
 if (function_exists('add_action')) {
     // WordPress is loaded, initialize immediately
-    new AI_Content_Agent();
+    AI_Content_Agent::get_instance();
     
     // Hook cron events with class existence checks
     if (class_exists('ACA_Cron')) {
@@ -492,7 +538,7 @@ if (function_exists('add_action')) {
 } else {
     // WordPress not loaded yet, wait for it
     add_action('plugins_loaded', function() {
-        new AI_Content_Agent();
+        AI_Content_Agent::get_instance();
         
         // Hook cron events with class existence checks
         if (class_exists('ACA_Cron')) {

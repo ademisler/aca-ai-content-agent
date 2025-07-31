@@ -278,4 +278,44 @@ class ACA_File_Manager {
             }
         }
     }
+    
+    /**
+     * Clean up all file manager data
+     * Used during plugin deactivation or testing
+     */
+    public static function cleanup() {
+        // Clear file cache
+        self::$file_cache = [];
+        
+        // Reset file stats
+        self::$file_stats = [
+            'total_reads' => 0,
+            'cached_reads' => 0,
+            'slow_operations' => []
+        ];
+        
+        // Reset cache settings to defaults
+        self::$cache_enabled = true;
+        self::$cache_ttl = 600;
+        self::$max_cache_size = 50;
+        
+        error_log('ACA File Manager: Cleanup completed');
+    }
+    
+    /**
+     * Get file operation summary
+     * 
+     * @return array
+     */
+    public static function get_operation_summary() {
+        return [
+            'total_reads' => self::$file_stats['total_reads'],
+            'cached_reads' => self::$file_stats['cached_reads'],
+            'cache_hit_ratio' => self::$file_stats['total_reads'] > 0 ? 
+                round((self::$file_stats['cached_reads'] / self::$file_stats['total_reads']) * 100, 2) : 0,
+            'slow_operations_count' => count(self::$file_stats['slow_operations']),
+            'cache_entries' => count(self::$file_cache),
+            'cache_enabled' => self::$cache_enabled
+        ];
+    }
 }

@@ -23,4 +23,29 @@ class ACA_Hook_Manager {
     }
     
     public static function get_stats() { return self::$hook_stats; }
+    
+    /**
+     * Clean up all hook manager data
+     */
+    public static function cleanup() {
+        self::$hook_stats = ["total" => 0, "admin" => 0, "frontend" => 0];
+        error_log('ACA Hook Manager: Cleanup completed');
+    }
+}
+
+    /**
+     * Clean up all hook manager data
+     */
+    public static function cleanup() {
+        self::$hook_stats = ["total" => 0, "admin" => 0, "frontend" => 0];
+        error_log("ACA Hook Manager: Cleanup completed");
+    }
+    
+    /**
+     * Clean up all hook manager data
+     */
+    public static function cleanup() {
+        self::$hook_stats = ["total" => 0, "admin" => 0, "frontend" => 0];
+        error_log("ACA Hook Manager: Cleanup completed");
+    }
 }

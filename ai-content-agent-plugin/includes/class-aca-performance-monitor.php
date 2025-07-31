@@ -590,6 +590,55 @@ class ACA_Performance_Monitor {
     public static function set_cache_enabled($enabled) {
         self::$cache_enabled = (bool) $enabled;
     }
+    
+    /**
+     * Clean up all performance monitoring data
+     * Used during plugin deactivation or testing
+     */
+    public static function cleanup() {
+        // Clear all metrics
+        self::$metrics = [];
+        
+        // Clear query cache
+        self::$query_cache = [];
+        
+        // Reset query stats
+        self::$query_stats = [
+            'total_queries' => 0,
+            'cached_queries' => 0,
+            'slow_queries' => []
+        ];
+        
+        // Reset thresholds to defaults
+        self::$thresholds = [
+            'memory_usage_mb' => 64,
+            'execution_time_ms' => 1000,
+            'database_queries' => 10,
+            'api_response_time_ms' => 2000
+        ];
+        
+        // Reset cache settings
+        self::$cache_enabled = true;
+        self::$cache_ttl = 300;
+        self::$max_cache_size = 100;
+        
+        error_log('ACA Performance Monitor: Cleanup completed');
+    }
+    
+    /**
+     * Get memory usage summary
+     * 
+     * @return array
+     */
+    public static function get_memory_summary() {
+        return [
+            'current_usage_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
+            'peak_usage_mb' => round(memory_get_peak_usage(true) / 1024 / 1024, 2),
+            'limit_mb' => ini_get('memory_limit'),
+            'active_metrics' => count(self::$metrics),
+            'cached_queries' => count(self::$query_cache)
+        ];
+    }
 }
 
 /**

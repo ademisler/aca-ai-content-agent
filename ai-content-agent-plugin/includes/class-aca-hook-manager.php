@@ -1,51 +1,42 @@
 <?php
 /**
- * Hook Manager for AI Content Agent - Optimizes WordPress hook registration
+ * Hook Manager for AI Content Agent
  */
-if (!defined("ABSPATH")) exit;
+if (!defined('ABSPATH')) exit;
 
-class ACA_Hook_Manager {
-    private static $hook_stats = ["total" => 0, "admin" => 0, "frontend" => 0];
+class ACA_Hook_Manager implements ACA_Cleanup_Interface {
+    private static $hook_stats = ['total' => 0, 'admin' => 0, 'frontend' => 0];
     
-    public static function add_action($hook, $callback, $priority = 10, $args = 1, $context = "auto") {
-        if ($context === "admin" && !is_admin()) return false;
-        if ($context === "frontend" && is_admin()) return false;
-        self::$hook_stats["total"]++;
-        if (is_admin()) self::$hook_stats["admin"]++; else self::$hook_stats["frontend"]++;
+    public static function add_action($hook, $callback, $priority = 10, $args = 1, $context = 'auto') {
+        if ($context === 'admin' && !is_admin()) return false;
+        if ($context === 'frontend' && is_admin()) return false;
+        self::$hook_stats['total']++;
+        if (is_admin()) self::$hook_stats['admin']++; else self::$hook_stats['frontend']++;
         return add_action($hook, $callback, $priority, $args);
     }
     
-    public static function add_filter($hook, $callback, $priority = 10, $args = 1, $context = "auto") {
-        if ($context === "admin" && !is_admin()) return false;
-        if ($context === "frontend" && is_admin()) return false;
-        self::$hook_stats["total"]++;
+    public static function add_filter($hook, $callback, $priority = 10, $args = 1, $context = 'auto') {
+        if ($context === 'admin' && !is_admin()) return false;
+        if ($context === 'frontend' && is_admin()) return false;
+        self::$hook_stats['total']++;
         return add_filter($hook, $callback, $priority, $args);
     }
     
-    public static function get_stats() { return self::$hook_stats; }
+    public static function get_stats() { 
+        return self::$hook_stats; 
+    }
     
-    /**
-     * Clean up all hook manager data
-     */
     public static function cleanup() {
-        self::$hook_stats = ["total" => 0, "admin" => 0, "frontend" => 0];
+        self::$hook_stats = ['total' => 0, 'admin' => 0, 'frontend' => 0];
         error_log('ACA Hook Manager: Cleanup completed');
     }
-}
-
-    /**
-     * Clean up all hook manager data
-     */
-    public static function cleanup() {
-        self::$hook_stats = ["total" => 0, "admin" => 0, "frontend" => 0];
-        error_log("ACA Hook Manager: Cleanup completed");
-    }
     
-    /**
-     * Clean up all hook manager data
-     */
-    public static function cleanup() {
-        self::$hook_stats = ["total" => 0, "admin" => 0, "frontend" => 0];
-        error_log("ACA Hook Manager: Cleanup completed");
+    public static function get_cleanup_status() {
+        return [
+            'total_hooks' => self::$hook_stats['total'],
+            'admin_hooks' => self::$hook_stats['admin'],
+            'frontend_hooks' => self::$hook_stats['frontend'],
+            'cleanup_available' => true
+        ];
     }
 }

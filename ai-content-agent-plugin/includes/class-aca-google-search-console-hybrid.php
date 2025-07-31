@@ -412,7 +412,7 @@ class ACA_Google_Search_Console_Hybrid {
         $start_date = sanitize_text_field($_POST['start_date'] ?? date('Y-m-d', strtotime('-30 days')));
         $end_date = sanitize_text_field($_POST['end_date'] ?? date('Y-m-d'));
         $dimensions = array_map('sanitize_text_field', $_POST['dimensions'] ?? array('query'));
-        $row_limit = intval($_POST['row_limit'] ?? 100);
+        $row_limit = intval(sanitize_text_field($_POST['row_limit'] ?? '100'));
         
         $data = $this->get_search_analytics($site_url, $start_date, $end_date, $dimensions, $row_limit);
         

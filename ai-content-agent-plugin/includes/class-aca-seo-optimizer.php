@@ -758,7 +758,7 @@ if (!function_exists('aca_log_core_web_vitals')) {
     $wpdb->insert(
         $table_name,
         [
-            'post_id' => intval($_POST['post_id']),
+            'post_id' => intval(sanitize_text_field($_POST['post_id'])),
             'metric' => sanitize_text_field($_POST['metric']),
             'value' => floatval($_POST['value']),
             'url' => esc_url_raw($_SERVER['HTTP_REFERER'] ?? ''),

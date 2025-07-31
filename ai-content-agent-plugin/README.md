@@ -1,14 +1,23 @@
 # AI Content Agent (ACA) for WordPress
 
-**Version:** 2.3.4  
+**Version:** 2.3.7  
 **Requires:** WordPress 5.0+, PHP 7.4+  
 **License:** GPL v2 or later
 
 AI Content Agent (ACA) is a powerful WordPress plugin that leverages Google's Gemini AI to automate content creation, SEO optimization, and publishing workflows.
 
-## 🚀 Latest Updates - v2.3.4
+## 🚀 Latest Updates - v2.3.7
 
-### 🔧 **MAJOR FIX: Settings Page Navigation & Scroll Jumping Resolution**
+### 🔧 **CRITICAL FIXES: SEO Detection & User Experience Improvements**
+- **SEO Plugin Detection Fixed**: Resolved critical bug preventing automatic detection of RankMath, Yoast SEO, and All in One SEO plugins
+- **API Endpoint Correction**: Fixed frontend-backend mismatch in SEO plugin detection API calls
+- **Enhanced Error Handling**: Improved debug logging and backward compatibility for SEO plugin responses
+- **Better Default Settings**: Changed Featured Image Source default from 'AI Generated' to 'Pexels' for easier setup
+- **Gemini API Key Validation**: Added real-time API key testing with visual feedback and detailed error messages
+- **Settings UI Improvements**: Save buttons now appear in page headers, white H1 text, and consistent design across all settings pages
+- **Navigation Enhancement**: Fixed Gemini API warning to properly redirect to Integrations page instead of License page
+
+### 🔧 **Previous Update - v2.3.4-2.3.6: Settings Page Navigation & Scroll Jumping Resolution**
 - **Complete Settings Page Restructure**: Transformed monolithic settings into clean, separate pages
 - **Eliminated Scroll Jumping**: No more page jumping when opening settings sections
 - **Hierarchical Navigation**: Beautiful sidebar navigation with License, Automation, Integrations, Content & SEO, and Advanced sections
@@ -103,11 +112,11 @@ AI Content Agent (ACA) is a powerful WordPress plugin that leverages Google's Ge
 ## 📁 Release Management
 
 ### Current Release
-- **Latest Stable**: v2.3.4 (Located in `/releases/`)
-- **File**: `ai-content-agent-v2.3.4-settings-page-navigation-fix.zip`
-- **Status**: Stable, ready for production with complete settings page restructure
-- **Major Improvements**: Settings page navigation, scroll jumping elimination, better UX
-- **Previous Versions**: v2.3.0-2.3.3 (archived) - multilingual support and scroll jumping fixes
+- **Latest Stable**: v2.3.7 (Located in `/releases/`)
+- **File**: `ai-content-agent-v2.3.7-seo-detection-fix-and-defaults.zip`
+- **Status**: Stable, ready for production with critical SEO detection fixes
+- **Major Improvements**: SEO plugin detection, API key validation, improved defaults, enhanced UX
+- **Previous Versions**: v2.3.0-2.3.6 (archived) - settings navigation, multilingual support, and UI fixes
 
 ### Archive
 - **Previous Versions**: All older versions are stored in `/releases/archive/`
@@ -117,7 +126,7 @@ AI Content Agent (ACA) is a powerful WordPress plugin that leverages Google's Ge
 ### For Developers
 ```bash
 # Current stable release
-releases/ai-content-agent-v2.3.4-settings-page-navigation-fix.zip
+releases/ai-content-agent-v2.3.7-seo-detection-fix-and-defaults.zip
 
 # Development build (after making changes)
 npm run build:wp  # Builds and copies to both admin/assets/ and admin/js/
@@ -135,6 +144,9 @@ releases/archive/ai-content-agent-v2.3.0-*.zip
 releases/archive/ai-content-agent-v2.3.1-*.zip
 releases/archive/ai-content-agent-v2.3.2-*.zip
 releases/archive/ai-content-agent-v2.3.3-*.zip
+releases/archive/ai-content-agent-v2.3.4-*.zip
+releases/archive/ai-content-agent-v2.3.5-*.zip
+releases/archive/ai-content-agent-v2.3.6-*.zip
 ```
 
 **⚠️ Important for Developers**: When making style changes or any frontend modifications, always use `npm run build:wp` to ensure both asset locations are updated. See `DEVELOPER_GUIDE.md` for detailed build instructions.
@@ -229,7 +241,10 @@ This plugin is licensed under the GPL v2 or later.
 
 ## 🔄 Version History
 
-- **v2.3.4**: Settings Page Navigation & Scroll Jumping Resolution - Complete settings restructure (Current Release)
+- **v2.3.7**: SEO Detection Fix & Default Improvements - Critical SEO plugin detection fix (Current Release)
+- **v2.3.6**: API Validation & UI Fixes - Gemini API key validation with real-time testing (Archived)
+- **v2.3.5**: Settings Navigation Improvements - Enhanced settings page structure (Archived)
+- **v2.3.4**: Settings Page Navigation & Scroll Jumping Resolution - Complete settings restructure (Archived)
 - **v2.3.3**: Aggressive scroll fix attempts (Archived)
 - **v2.3.2**: Scroll jumping fix final attempt (Archived)
 - **v2.3.1**: Critical bug fixes - Settings scroll jumping, GSC OAuth tokens, data loading resilience (Archived)
@@ -262,4 +277,4 @@ For complete version history, see `CHANGELOG.md`.
 
 ---
 
-**Ready to revolutionize your content workflow with AI Content Agent (ACA)?** Download v2.3.4 for the complete settings page navigation experience with eliminated scroll jumping and beautiful hierarchical navigation! 🚀
+**Ready to revolutionize your content workflow with AI Content Agent (ACA)?** Download v2.3.7 for the complete experience with fixed SEO plugin detection, API key validation, and enhanced user experience! 🚀

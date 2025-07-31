@@ -2,6 +2,58 @@
 
 All notable changes to AI Content Agent (ACA) will be documented in this file.
 
+## [2.3.7] - 2025-01-31
+
+### 🔧 CRITICAL FIXES: SEO Detection & User Experience Improvements
+
+#### ✅ SEO Plugin Detection Fix
+- **Critical Bug Resolved**: Fixed SEO plugin detection that was preventing automatic recognition of RankMath, Yoast SEO, and All in One SEO plugins
+- **API Endpoint Correction**: Corrected frontend API calls from `seo/plugins` to `seo-plugins` to match backend route
+- **Enhanced Error Handling**: Added comprehensive debug logging and backward compatibility for different API response formats
+- **Supported Plugins**: 
+  - RankMath SEO (Free & Pro versions)
+  - Yoast SEO (Free & Premium versions)
+  - All in One SEO Pack (Free & Pro versions)
+
+#### 🔑 Gemini API Key Validation
+- **Real-time Testing**: Added "Test API" button next to API key input field
+- **Visual Feedback**: Success/error icons and colored status messages
+- **Detailed Error Messages**: Specific error handling for invalid keys, quota exceeded, permission issues
+- **Enhanced UX**: Automatic clearing of test results when API key changes
+- **Toast Notifications**: User-friendly success/error notifications
+
+#### 🎨 Settings UI Improvements
+- **Header Save Buttons**: Save buttons now appear in settings page headers (top-right position)
+- **White H1 Headers**: Fixed H1 text color to be white in all settings pages
+- **Consistent Design**: Unified card-based layout across all settings sections
+- **Better Navigation**: Fixed Gemini API warning to redirect to Integrations page instead of License
+
+#### 🔧 Default Settings Optimization
+- **Featured Image Source**: Changed default from 'AI Generated' to 'Pexels' for easier initial setup
+- **User-Friendly Defaults**: Simplified configuration for new users
+- **Better Onboarding**: Reduced complexity for first-time plugin setup
+
+#### 🛠️ Technical Enhancements
+- **API Response Compatibility**: Support for both `plugins` and `detected_plugins` response formats
+- **Debug Logging**: Enhanced console logging for troubleshooting SEO detection issues
+- **Error Recovery**: Graceful fallback handling for API endpoint mismatches
+- **Build Optimization**: Updated build hash (DD6MYt79) with improved asset management
+
+## [2.3.6] - 2025-01-31
+
+### 🔑 API Validation & UI Fixes
+- **Gemini API Key Validation**: Added real-time API key testing functionality
+- **Settings UI Improvements**: Enhanced save button placement and visual consistency
+- **Navigation Fixes**: Corrected Gemini API warning navigation flow
+
+## [2.3.5] - 2025-01-31
+
+### 🎯 Settings Navigation Improvements
+- **Component Extraction**: Created dedicated SettingsIntegrations component
+- **SEO Settings Migration**: Moved SEO integration settings to Content & SEO page
+- **Icon Improvements**: Enhanced icons for better visual hierarchy
+- **Design Consistency**: Unified settings page design language
+
 ## [2.3.4] - 2025-01-31
 
 ### 🚀 MAJOR RESTRUCTURE: Settings Page Navigation & Scroll Jumping Resolution

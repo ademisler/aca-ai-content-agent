@@ -5,7 +5,7 @@ Tags: ai, content, automation, gemini, seo, pro, license
 Requires at least: 5.0
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 2.3.0
+Stable tag: 2.3.7
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -15,17 +15,17 @@ AI Content Agent (ACA) - AI-powered WordPress plugin with Pro licensing for auto
 
 AI Content Agent (ACA) transforms your WordPress site into an intelligent content creation powerhouse using Google's Gemini AI technology.
 
-**🚀 Latest v2.1.0 Features:**
-* Revolutionary AI-Powered Content Freshness System (PRO)
-* Comprehensive content analysis with multi-factor scoring
-* Automated monitoring with configurable frequency
-* Priority-based update recommendations
-* Google Search Console integration for SEO scoring
-* Beautiful management interface with statistics
-* Smart "Go to Settings" navigation button
-* Real-time warning removal when API key is configured
-* Improved first-run experience preventing user confusion
-* Clear guidance for essential plugin setup requirements
+**🚀 Latest v2.3.7 Features:**
+* Fixed SEO Plugin Detection - RankMath, Yoast SEO, All in One SEO now properly detected
+* Real-time Gemini API Key Validation with visual feedback
+* Enhanced Settings UI with header save buttons and white H1 text
+* Improved default settings - Featured Image Source defaults to Pexels
+* Better navigation flow - Gemini API warning redirects to correct page
+* Comprehensive error handling and debug logging
+* Settings page restructure with hierarchical navigation
+* Complete elimination of scroll jumping issues
+* Per-page save functionality with unsaved changes detection
+* Beautiful gradient headers and consistent design language
 
 == Changelog ==
 

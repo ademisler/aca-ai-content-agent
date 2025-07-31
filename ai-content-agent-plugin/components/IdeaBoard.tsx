@@ -13,6 +13,8 @@ interface IdeaBoardProps {
     onUpdateTitle: (id: number, newTitle: string) => void;
     onGenerateSimilar: (idea: ContentIdea) => void;
     onAddIdea: (title: string) => void;
+    onBulkCreateDrafts?: (ideas: ContentIdea[]) => void;
+    onBulkArchive?: (ids: number[]) => void;
     isLoading: boolean;
     isLoadingDraft: { [key: string]: boolean };
 }
@@ -216,11 +218,15 @@ export const IdeaBoard: React.FC<IdeaBoardProps> = ({
     onRestoreIdea,
     onUpdateTitle, 
     onGenerateSimilar, 
-    onAddIdea, 
+    onAddIdea,
+    onBulkCreateDrafts,
+    onBulkArchive,
     isLoading, 
     isLoadingDraft 
 }) => {
     const [newIdeaTitle, setNewIdeaTitle] = useState('');
+    const [selectedIdeas, setSelectedIdeas] = useState<Set<number>>(new Set());
+    const [bulkMode, setBulkMode] = useState(false);
 
     const handleAddIdeaSubmit = (e: React.FormEvent) => {
         e.preventDefault();

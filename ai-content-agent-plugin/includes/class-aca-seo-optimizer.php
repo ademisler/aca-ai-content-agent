@@ -119,6 +119,18 @@ class ACA_SEO_Optimizer {
         }
         
         echo '<script type="application/ld+json">' . json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . '</script>' . "\n";
+        
+        // Add FAQ schema if content contains Q&A patterns
+        $faq_schema = $this->generate_faq_schema($post->ID);
+        if ($faq_schema) {
+            echo '<script type="application/ld+json">' . json_encode($faq_schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . '</script>' . "\n";
+        }
+        
+        // Add HowTo schema if content contains step-by-step instructions
+        $howto_schema = $this->generate_howto_schema($post->ID);
+        if ($howto_schema) {
+            echo '<script type="application/ld+json">' . json_encode($howto_schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . '</script>' . "\n";
+        }
     }
     
     /**
@@ -652,7 +664,107 @@ function aca_log_core_web_vitals() {
     wp_die();
 }
 
+    /**
+     * Generate FAQ schema from content
+     */
+    private function generate_faq_schema($post_id) {
+        $content = get_post_field('post_content', $post_id);
+        
+        // Look for Q&A patterns in content
+        $faq_patterns = [
+            '/(?:Q|Question|Query):\s*(.+?)(?:\n|$)(?:A|Answer|Response):\s*(.+?)(?:\n|$)/i',
+            '/(?:Q\d+|Question\s*\d+):\s*(.+?)(?:\n|$)(?:A\d+|Answer\s*\d+):\s*(.+?)(?:\n|$)/i',
+            '/<h[3-6][^>]*>(.+?)<\/h[3-6]>\s*<p>(.+?)<\/p>/i'
+        ];
+        
+        $faqs = [];
+        foreach ($faq_patterns as $pattern) {
+            if (preg_match_all($pattern, $content, $matches, PREG_SET_ORDER)) {
+                foreach ($matches as $match) {
+                    if (count($match) >= 3) {
+                        $faqs[] = [
+                            '@type' => 'Question',
+                            'name' => strip_tags(trim($match[1])),
+                            'acceptedAnswer' => [
+                                '@type' => 'Answer',
+                                'text' => strip_tags(trim($match[2]))
+                            ]
+                        ];
+                    }
+                }
+            }
+        }
+        
+        if (count($faqs) >= 2) { // At least 2 FAQs required
+            return [
+                '@context' => 'https://schema.org',
+                '@type' => 'FAQPage',
+                'mainEntity' => array_slice($faqs, 0, 10) // Max 10 FAQs
+            ];
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Generate HowTo schema from content
+     */
+    private function generate_howto_schema($post_id) {
+        $content = get_post_field('post_content', $post_id);
+        $title = get_the_title($post_id);
+        
+        // Look for step-by-step patterns
+        $step_patterns = [
+            '/(?:Step\s*\d+|Step\s*[IVX]+):\s*(.+?)(?=Step\s*\d+|Step\s*[IVX]+|$)/is',
+            '/<h[3-6][^>]*>(?:Step\s*\d+|Step\s*[IVX]+)[^<]*<\/h[3-6]>\s*(.+?)(?=<h[3-6]|$)/is',
+            '/\d+\.\s*(.+?)(?=\d+\.|$)/s'
+        ];
+        
+        $steps = [];
+        foreach ($step_patterns as $pattern) {
+            if (preg_match_all($pattern, $content, $matches, PREG_SET_ORDER)) {
+                foreach ($matches as $index => $match) {
+                    if (isset($match[1])) {
+                        $step_text = strip_tags(trim($match[1]));
+                        if (strlen($step_text) > 20 && strlen($step_text) < 500) { // Reasonable step length
+                            $steps[] = [
+                                '@type' => 'HowToStep',
+                                'position' => $index + 1,
+                                'name' => substr($step_text, 0, 100) . (strlen($step_text) > 100 ? '...' : ''),
+                                'text' => $step_text
+                            ];
+                        }
+                    }
+                }
+                break; // Use first pattern that matches
+            }
+        }
+        
+        // Check if content looks like a how-to guide
+        $howto_indicators = ['how to', 'step by step', 'tutorial', 'guide', 'instructions'];
+        $is_howto = false;
+        foreach ($howto_indicators as $indicator) {
+            if (stripos($title . ' ' . $content, $indicator) !== false) {
+                $is_howto = true;
+                break;
+            }
+        }
+        
+        if ($is_howto && count($steps) >= 3) { // At least 3 steps required
+            return [
+                '@context' => 'https://schema.org',
+                '@type' => 'HowTo',
+                'name' => $title,
+                'description' => get_the_excerpt($post_id) ?: wp_trim_words(get_the_content(), 30),
+                'step' => array_slice($steps, 0, 20) // Max 20 steps
+            ];
+        }
+        
+        return null;
+    }
+}
+
 // Initialize SEO optimizer when WordPress is ready
 add_action('init', function() {
     new ACA_SEO_Optimizer();
-});});
+});

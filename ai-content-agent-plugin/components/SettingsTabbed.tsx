@@ -7,9 +7,12 @@ import {
     Settings as SettingsIcon, 
     Zap, 
     Image, 
-    Shield 
+    Shield,
+    RefreshCw,
+    Clock
 } from './Icons';
 import { UpgradePrompt } from './UpgradePrompt';
+import { DebugPanel } from './DebugPanel';
 import { licenseApi } from '../services/wordpressApi';
 
 declare global {
@@ -1578,102 +1581,126 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                     borderRadius: '8px', 
                     border: '1px solid #e2e8f0'
                 }}>
-                    <label style={{ 
-                        display: 'block', 
-                        fontSize: '14px', 
-                        fontWeight: '500',
-                        color: '#374151',
-                        marginBottom: '8px'
-                    }}>
-                        Analysis Frequency
-                    </label>
-                    <select 
-                        value={currentSettings.analyzeContentFrequency || 'manual'} 
-                        onChange={(e) => handleSettingChange('analyzeContentFrequency', e.target.value)}
-                        className="aca-input"
-                        style={{ width: '100%' }}
-                    >
-                        <option value="manual">Manual - Analyze only when requested</option>
-                        <option value="daily">Daily - Analyze content every day</option>
-                        <option value="weekly">Weekly - Analyze content every week</option>
-                        <option value="monthly">Monthly - Analyze content every month</option>
-                    </select>
-                    <p style={{ 
-                        color: '#64748b',
-                        fontSize: '12px',
-                        margin: '8px 0 0 0',
-                        lineHeight: '1.4'
-                    }}>
-                        How often should the AI analyze your content for improvements and SEO optimization?
-                    </p>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 200px', gap: '20px', alignItems: 'start' }}>
+                        <div>
+                            <label style={{ 
+                                display: 'block', 
+                                fontSize: '14px', 
+                                fontWeight: '500',
+                                color: '#374151',
+                                marginBottom: '8px'
+                            }}>
+                                Analysis Frequency
+                            </label>
+                            <select 
+                                value={currentSettings.analyzeContentFrequency || 'manual'} 
+                                onChange={(e) => handleSettingChange('analyzeContentFrequency', e.target.value)}
+                                className="aca-input"
+                                style={{ width: '100%' }}
+                            >
+                                <option value="manual">Manual - Analyze only when requested</option>
+                                <option value="daily">Daily - Analyze content every day</option>
+                                <option value="weekly">Weekly - Analyze content every week</option>
+                                <option value="monthly">Monthly - Analyze content every month</option>
+                            </select>
+                            <p style={{ 
+                                color: '#64748b',
+                                fontSize: '12px',
+                                margin: '8px 0 0 0',
+                                lineHeight: '1.4'
+                            }}>
+                                How often should the AI analyze your content for improvements and SEO optimization?
+                            </p>
+                        </div>
+                        
+                        <div>
+                            <label style={{ 
+                                display: 'block', 
+                                fontSize: '14px', 
+                                fontWeight: '500',
+                                color: '#374151',
+                                marginBottom: '8px'
+                            }}>
+                                Manual Actions
+                            </label>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                <button
+                                    onClick={async () => {
+                                        if (!isProActive()) {
+                                            onShowToast?.('Content analysis requires a Pro license', 'warning');
+                                            return;
+                                        }
+                                        try {
+                                            const response = await fetch(`${window.acaData.api_url}content-freshness/analyze-all`, {
+                                                method: 'POST',
+                                                headers: { 'X-WP-Nonce': window.acaData.nonce }
+                                            });
+                                            if (response.ok) {
+                                                onShowToast?.('Content analysis started successfully', 'success');
+                                            } else {
+                                                throw new Error('Analysis failed');
+                                            }
+                                        } catch (error) {
+                                            onShowToast?.('Failed to start content analysis', 'error');
+                                        }
+                                    }}
+                                    style={{
+                                        padding: '8px 12px',
+                                        backgroundColor: '#0073aa',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        fontSize: '12px',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '4px'
+                                    }}
+                                >
+                                    <RefreshCw style={{ width: '12px', height: '12px' }} />
+                                    Analyze Now
+                                </button>
+                                
+                                <button
+                                    onClick={async () => {
+                                        try {
+                                            const response = await fetch(`${window.acaData.api_url}debug/cron-status`, {
+                                                headers: { 'X-WP-Nonce': window.acaData.nonce }
+                                            });
+                                            if (response.ok) {
+                                                const data = await response.json();
+                                                onShowToast?.(`Last analysis: ${data.last_run || 'Never'}`, 'info');
+                                            }
+                                        } catch (error) {
+                                            onShowToast?.('Failed to get analysis status', 'error');
+                                        }
+                                    }}
+                                    style={{
+                                        padding: '8px 12px',
+                                        backgroundColor: '#6b7280',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        fontSize: '12px',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '4px'
+                                    }}
+                                >
+                                    <Clock style={{ width: '12px', height: '12px' }} />
+                                    Check Status
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     );
 
     const renderAdvancedContent = () => (
-        <div>
-            <p style={{ color: '#64748b', fontSize: '16px', margin: '0 0 30px 0', lineHeight: '1.5' }}>
-                Advanced debugging tools and developer information.
-            </p>
-
-            {/* Developer Information */}
-            <div style={{ 
-                padding: '16px', 
-                backgroundColor: '#fff3cd', 
-                border: '1px solid #ffeaa7', 
-                borderRadius: '8px',
-                marginBottom: '30px'
-            }}>
-                <h4 style={{ margin: '0 0 8px 0', color: '#856404' }}>🔧 Developer Information</h4>
-                <p style={{ margin: '0', fontSize: '14px', color: '#856404' }}>
-                    These tools are for debugging and testing purposes. Use with caution in production environments.
-                </p>
-            </div>
-
-            {/* Debug Actions */}
-            <div style={{ display: 'grid', gap: '16px' }}>
-                <button 
-                    onClick={() => {
-                        console.log('Checking automation status...');
-                        onShowToast?.('Automation status checked - see console for details', 'info');
-                    }}
-                    style={{
-                        padding: '12px 16px',
-                        backgroundColor: '#6366f1',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '6px',
-                        fontSize: '14px',
-                        fontWeight: '500',
-                        cursor: 'pointer',
-                        textAlign: 'left'
-                    }}
-                >
-                    🔍 Check Automation Status
-                </button>
-
-                <button 
-                    onClick={() => {
-                        console.log('Testing semi-auto cron...');
-                        onShowToast?.('Semi-auto cron test initiated - see console for details', 'info');
-                    }}
-                    style={{
-                        padding: '12px 16px',
-                        backgroundColor: '#059669',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '6px',
-                        fontSize: '14px',
-                        fontWeight: '500',
-                        cursor: 'pointer',
-                        textAlign: 'left'
-                    }}
-                >
-                    ⚡ Test Semi-Auto Cron
-                </button>
-            </div>
-        </div>
+        <DebugPanel onShowToast={onShowToast || (() => {})} />
     );
 
     return (

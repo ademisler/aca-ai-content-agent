@@ -359,6 +359,43 @@ class ACA_Rest_Api {
             'callback' => array($this, 'dismiss_migration_notice'),
             'permission_callback' => array($this, 'check_admin_permissions')
         ));
+        
+        // Debug Panel endpoints
+        register_rest_route('aca/v1', '/debug/system-status', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_system_status'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
+        
+        register_rest_route('aca/v1', '/debug/api-calls', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_api_calls'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
+        
+        register_rest_route('aca/v1', '/debug/error-logs', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_error_logs'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
+        
+        register_rest_route('aca/v1', '/debug/performance', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_performance_metrics'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
+        
+        register_rest_route('aca/v1', '/debug/clear-logs', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'clear_debug_logs'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
+        
+        register_rest_route('aca/v1', '/debug/export-logs', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'export_debug_logs'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
     }
     
     /**
@@ -4307,5 +4344,289 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         }
         
         return new WP_Error('licensing_unavailable', 'Licensing system not available', array('status' => 500));
+    }
+    
+    /**
+     * Debug Panel Methods
+     */
+    
+    /**
+     * Get system status for debug panel
+     */
+    public function get_system_status($request) {
+        global $wp_version;
+        
+        // Get plugin version
+        $plugin_data = get_plugin_data(plugin_dir_path(__FILE__) . '../ai-content-agent.php');
+        
+        // Memory usage
+        $memory_limit = ini_get('memory_limit');
+        $memory_usage = size_format(memory_get_usage(true));
+        
+        // Database status check
+        global $wpdb;
+        $db_status = 'healthy';
+        try {
+            $wpdb->get_results("SELECT 1");
+        } catch (Exception $e) {
+            $db_status = 'error';
+        }
+        
+        // API endpoints status check
+        $api_status = 'healthy';
+        $test_endpoint = rest_url('aca/v1/health');
+        $response = wp_remote_get($test_endpoint, array('timeout' => 5));
+        if (is_wp_error($response) || wp_remote_retrieve_response_code($response) !== 200) {
+            $api_status = 'warning';
+        }
+        
+        return rest_ensure_response(array(
+            'php_version' => PHP_VERSION,
+            'wordpress_version' => $wp_version,
+            'plugin_version' => $plugin_data['Version'] ?? '2.3.14',
+            'memory_limit' => $memory_limit,
+            'memory_usage' => $memory_usage,
+            'max_execution_time' => ini_get('max_execution_time'),
+            'wp_cron_enabled' => !defined('DISABLE_WP_CRON') || !DISABLE_WP_CRON,
+            'database_status' => $db_status,
+            'api_endpoints_status' => $api_status
+        ));
+    }
+    
+    /**
+     * Get API call logs
+     */
+    public function get_api_calls($request) {
+        $logs = get_option('aca_debug_api_calls', array());
+        
+        // Sort by timestamp (newest first)
+        usort($logs, function($a, $b) {
+            return strtotime($b['timestamp']) - strtotime($a['timestamp']);
+        });
+        
+        return rest_ensure_response(array(
+            'calls' => array_slice($logs, 0, 100) // Last 100 calls
+        ));
+    }
+    
+    /**
+     * Get error logs
+     */
+    public function get_error_logs($request) {
+        $logs = get_option('aca_debug_error_logs', array());
+        
+        // Sort by timestamp (newest first)
+        usort($logs, function($a, $b) {
+            return strtotime($b['timestamp']) - strtotime($a['timestamp']);
+        });
+        
+        return rest_ensure_response(array(
+            'logs' => array_slice($logs, 0, 50) // Last 50 errors
+        ));
+    }
+    
+    /**
+     * Get performance metrics
+     */
+    public function get_performance_metrics($request) {
+        $metrics = array();
+        
+        // Database query performance
+        global $wpdb;
+        $start_time = microtime(true);
+        $wpdb->get_results("SELECT COUNT(*) FROM {$wpdb->posts}");
+        $db_query_time = (microtime(true) - $start_time) * 1000;
+        
+        $metrics[] = array(
+            'name' => 'Database Query Time',
+            'value' => round($db_query_time, 2),
+            'unit' => 'ms',
+            'status' => $db_query_time < 100 ? 'good' : ($db_query_time < 500 ? 'warning' : 'critical'),
+            'description' => 'Time to execute a simple database query'
+        );
+        
+        // Memory usage percentage
+        $memory_limit = $this->parse_size(ini_get('memory_limit'));
+        $memory_usage = memory_get_usage(true);
+        $memory_percentage = ($memory_usage / $memory_limit) * 100;
+        
+        $metrics[] = array(
+            'name' => 'Memory Usage',
+            'value' => round($memory_percentage, 1),
+            'unit' => '%',
+            'status' => $memory_percentage < 70 ? 'good' : ($memory_percentage < 90 ? 'warning' : 'critical'),
+            'description' => 'Current memory usage percentage'
+        );
+        
+        // Plugin table count
+        $freshness_table = $wpdb->prefix . 'aca_content_freshness';
+        $table_exists = $wpdb->get_var("SHOW TABLES LIKE '$freshness_table'") === $freshness_table;
+        
+        if ($table_exists) {
+            $record_count = $wpdb->get_var("SELECT COUNT(*) FROM $freshness_table");
+            $metrics[] = array(
+                'name' => 'Freshness Records',
+                'value' => intval($record_count),
+                'unit' => '',
+                'status' => 'good',
+                'description' => 'Number of content freshness records'
+            );
+        }
+        
+        // API call frequency (last hour)
+        $api_calls = get_option('aca_debug_api_calls', array());
+        $recent_calls = array_filter($api_calls, function($call) {
+            return strtotime($call['timestamp']) > (time() - 3600);
+        });
+        
+        $metrics[] = array(
+            'name' => 'API Calls (1h)',
+            'value' => count($recent_calls),
+            'unit' => '',
+            'status' => count($recent_calls) < 100 ? 'good' : (count($recent_calls) < 500 ? 'warning' : 'critical'),
+            'description' => 'API calls in the last hour'
+        );
+        
+        return rest_ensure_response(array(
+            'metrics' => $metrics
+        ));
+    }
+    
+    /**
+     * Clear debug logs
+     */
+    public function clear_debug_logs($request) {
+        $type = $request->get_param('type');
+        
+        switch ($type) {
+            case 'api':
+                delete_option('aca_debug_api_calls');
+                break;
+            case 'errors':
+                delete_option('aca_debug_error_logs');
+                break;
+            default:
+                return new WP_Error('invalid_type', 'Invalid log type', array('status' => 400));
+        }
+        
+        return rest_ensure_response(array(
+            'success' => true,
+            'message' => ucfirst($type) . ' logs cleared successfully'
+        ));
+    }
+    
+    /**
+     * Export debug logs
+     */
+    public function export_debug_logs($request) {
+        $type = $request->get_param('type');
+        $data = array();
+        
+        switch ($type) {
+            case 'api':
+                $data = get_option('aca_debug_api_calls', array());
+                break;
+            case 'errors':
+                $data = get_option('aca_debug_error_logs', array());
+                break;
+            default:
+                return new WP_Error('invalid_type', 'Invalid log type', array('status' => 400));
+        }
+        
+        $export_data = array(
+            'type' => $type,
+            'exported_at' => current_time('mysql'),
+            'site_url' => get_site_url(),
+            'plugin_version' => '2.3.14',
+            'data' => $data
+        );
+        
+        $filename = 'aca-' . $type . '-logs-' . date('Y-m-d') . '.json';
+        
+        header('Content-Type: application/json');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Content-Length: ' . strlen(json_encode($export_data)));
+        
+        echo json_encode($export_data, JSON_PRETTY_PRINT);
+        exit;
+    }
+    
+    /**
+     * Helper method to parse size strings like "256M" to bytes
+     */
+    private function parse_size($size) {
+        $unit = preg_replace('/[^bkmgtpezy]/i', '', $size);
+        $size = preg_replace('/[^0-9\.]/', '', $size);
+        
+        if ($unit) {
+            return round($size * pow(1024, stripos('bkmgtpezy', $unit[0])));
+        }
+        
+        return round($size);
+    }
+    
+    /**
+     * Log API call for debugging
+     */
+    public static function log_api_call($endpoint, $method, $duration, $status, $response_size, $error = null) {
+        $logs = get_option('aca_debug_api_calls', array());
+        
+        $log_entry = array(
+            'id' => uniqid(),
+            'timestamp' => current_time('mysql'),
+            'endpoint' => $endpoint,
+            'method' => $method,
+            'duration' => $duration,
+            'status' => $status,
+            'response_size' => $response_size
+        );
+        
+        if ($error) {
+            $log_entry['error'] = $error;
+        }
+        
+        $logs[] = $log_entry;
+        
+        // Keep only last 200 entries
+        if (count($logs) > 200) {
+            $logs = array_slice($logs, -200);
+        }
+        
+        update_option('aca_debug_api_calls', $logs);
+    }
+    
+    /**
+     * Log error for debugging
+     */
+    public static function log_error($level, $message, $file = null, $line = null, $context = null) {
+        $logs = get_option('aca_debug_error_logs', array());
+        
+        $log_entry = array(
+            'id' => uniqid(),
+            'timestamp' => current_time('mysql'),
+            'level' => $level,
+            'message' => $message
+        );
+        
+        if ($file) {
+            $log_entry['file'] = $file;
+        }
+        
+        if ($line) {
+            $log_entry['line'] = $line;
+        }
+        
+        if ($context) {
+            $log_entry['context'] = $context;
+        }
+        
+        $logs[] = $log_entry;
+        
+        // Keep only last 100 entries
+        if (count($logs) > 100) {
+            $logs = array_slice($logs, -100);
+        }
+        
+        update_option('aca_debug_error_logs', $logs);
     }
 }

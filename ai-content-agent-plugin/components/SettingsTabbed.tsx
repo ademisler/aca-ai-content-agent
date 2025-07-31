@@ -290,24 +290,44 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
         }
     };
 
-    // SEO Detection
+    // SEO Detection (FIXED: Restored v2.3.0 functionality)
     const fetchSeoPlugins = async () => {
-        setSeoPluginsLoading(true);
         try {
-            const response = await fetch(`${window.acaData.api_url}/seo-plugins`, {
-                method: 'GET',
+            setSeoPluginsLoading(true);
+            console.log('ACA: Fetching SEO plugins...');
+            
+            if (!window.acaData) {
+                console.error('ACA: WordPress data not available');
+                return;
+            }
+            
+            const response = await fetch(`${window.acaData.api_url}seo-plugins`, {
                 headers: {
-                    'X-WP-Nonce': window.acaData.nonce,
-                    'Content-Type': 'application/json',
-                },
+                    'X-WP-Nonce': window.acaData.nonce
+                }
             });
+            
+            console.log('ACA: SEO plugins response status:', response.status);
             
             if (response.ok) {
                 const data = await response.json();
-                setDetectedSeoPlugins(data.plugins || []);
+                console.log('ACA: SEO plugins data:', data);
+                setDetectedSeoPlugins(data.detected_plugins || []);
+                
+                // CRITICAL FIX: Auto-update settings based on detected plugins (MISSING in v2.3.5)
+                if (data.detected_plugins && data.detected_plugins.length > 0) {
+                    // Use the first detected plugin as the active one
+                    const firstPlugin = data.detected_plugins[0];
+                    if (currentSettings.seoPlugin === 'none') {
+                        handleSettingChange('seoPlugin', firstPlugin.plugin);
+                    }
+                }
+            } else {
+                const errorText = await response.text();
+                console.error('ACA: Failed to fetch SEO plugins:', response.status, errorText);
             }
         } catch (error) {
-            console.error('Failed to fetch SEO plugins:', error);
+            console.error('ACA: Error fetching SEO plugins:', error);
         } finally {
             setSeoPluginsLoading(false);
         }

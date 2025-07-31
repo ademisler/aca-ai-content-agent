@@ -430,13 +430,19 @@ class ACA_Rest_Api {
     }
     
     /**
-     * Get settings
+     * Get settings with performance monitoring - HIGH PRIORITY FIX
      */
     public function get_settings($request) {
+        // Start performance monitoring
+        $perf_id = ACA_Performance_Monitor::start('get_settings');
+        
         $settings = get_option('aca_settings', array());
         
         // Add pro status to settings response
         $settings['is_pro'] = is_aca_pro_active();
+        
+        // End performance monitoring
+        ACA_Performance_Monitor::end($perf_id, ['endpoint' => 'get_settings', 'user_id' => get_current_user_id()]);
         
         return rest_ensure_response($settings);
     }
@@ -4145,3 +4151,52 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         return $this->save_settings($request);
     }
 }
+
+    /**
+     * Performance monitoring wrapper for REST endpoints - HIGH PRIORITY FIX
+     */
+    private function monitor_endpoint_performance($endpoint_name, $callback, $request) {
+        $perf_id = ACA_Performance_Monitor::start($endpoint_name);
+        
+        try {
+            $result = call_user_func($callback, $request);
+            
+            ACA_Performance_Monitor::end($perf_id, [
+                'endpoint' => $endpoint_name,
+                'user_id' => get_current_user_id(),
+                'success' => !is_wp_error($result)
+            ]);
+            
+            return $result;
+        } catch (Exception $e) {
+            ACA_Performance_Monitor::end($perf_id, [
+                'endpoint' => $endpoint_name,
+                'user_id' => get_current_user_id(),
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+            
+            throw $e;
+        }
+    }
+    
+    /**
+     * Enhanced get_settings with performance monitoring
+     */
+    public function get_settings_monitored($request) {
+        return $this->monitor_endpoint_performance('get_settings', [$this, 'get_settings'], $request);
+    }
+    
+    /**
+     * Enhanced save_settings with performance monitoring
+     */
+    public function save_settings_monitored($request) {
+        return $this->monitor_endpoint_performance('save_settings', [$this, 'save_settings'], $request);
+    }
+    
+    /**
+     * Enhanced generate_ideas with performance monitoring
+     */
+    public function generate_ideas_monitored($request) {
+        return $this->monitor_endpoint_performance('generate_ideas', [$this, 'generate_ideas'], $request);
+    }

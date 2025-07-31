@@ -616,54 +616,7 @@ class ACA_SEO_Optimizer {
         
         return array_slice($entities, 0, 5); // Limit to 5 entities
     }
-}
-
-// AJAX handler for Core Web Vitals logging
-add_action('wp_ajax_aca_log_core_web_vitals', 'aca_log_core_web_vitals');
-add_action('wp_ajax_nopriv_aca_log_core_web_vitals', 'aca_log_core_web_vitals');
-
-function aca_log_core_web_vitals() {
-    if (!wp_verify_nonce($_POST['nonce'], 'aca_cwv_nonce')) {
-        wp_die('Security check failed');
-    }
     
-    global $wpdb;
-    
-    $table_name = $wpdb->prefix . 'aca_core_web_vitals';
-    
-    // Create table if it doesn't exist
-    $charset_collate = $wpdb->get_charset_collate();
-    $sql = "CREATE TABLE IF NOT EXISTS $table_name (
-        id mediumint(9) NOT NULL AUTO_INCREMENT,
-        post_id bigint(20) NOT NULL,
-        metric varchar(10) NOT NULL,
-        value decimal(10,2) NOT NULL,
-        url varchar(255) NOT NULL,
-        user_agent text,
-        timestamp datetime DEFAULT CURRENT_TIMESTAMP,
-        PRIMARY KEY (id),
-        KEY post_metric (post_id, metric),
-        KEY timestamp (timestamp)
-    ) $charset_collate;";
-    
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-    dbDelta($sql);
-    
-    // Insert the metric
-    $wpdb->insert(
-        $table_name,
-        [
-            'post_id' => intval($_POST['post_id']),
-            'metric' => sanitize_text_field($_POST['metric']),
-            'value' => floatval($_POST['value']),
-            'url' => esc_url_raw($_SERVER['HTTP_REFERER'] ?? ''),
-            'user_agent' => sanitize_text_field($_SERVER['HTTP_USER_AGENT'] ?? '')
-        ]
-    );
-    
-    wp_die();
-}
-
     /**
      * Generate FAQ schema from content
      */
@@ -762,6 +715,52 @@ function aca_log_core_web_vitals() {
         
         return null;
     }
+}
+
+// AJAX handler for Core Web Vitals logging
+add_action('wp_ajax_aca_log_core_web_vitals', 'aca_log_core_web_vitals');
+add_action('wp_ajax_nopriv_aca_log_core_web_vitals', 'aca_log_core_web_vitals');
+
+function aca_log_core_web_vitals() {
+    if (!wp_verify_nonce($_POST['nonce'], 'aca_cwv_nonce')) {
+        wp_die('Security check failed');
+    }
+    
+    global $wpdb;
+    
+    $table_name = $wpdb->prefix . 'aca_core_web_vitals';
+    
+    // Create table if it doesn't exist
+    $charset_collate = $wpdb->get_charset_collate();
+    $sql = "CREATE TABLE IF NOT EXISTS $table_name (
+        id mediumint(9) NOT NULL AUTO_INCREMENT,
+        post_id bigint(20) NOT NULL,
+        metric varchar(10) NOT NULL,
+        value decimal(10,2) NOT NULL,
+        url varchar(255) NOT NULL,
+        user_agent text,
+        timestamp datetime DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (id),
+        KEY post_metric (post_id, metric),
+        KEY timestamp (timestamp)
+    ) $charset_collate;";
+    
+    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+    dbDelta($sql);
+    
+    // Insert the metric
+    $wpdb->insert(
+        $table_name,
+        [
+            'post_id' => intval($_POST['post_id']),
+            'metric' => sanitize_text_field($_POST['metric']),
+            'value' => floatval($_POST['value']),
+            'url' => esc_url_raw($_SERVER['HTTP_REFERER'] ?? ''),
+            'user_agent' => sanitize_text_field($_SERVER['HTTP_USER_AGENT'] ?? '')
+        ]
+    );
+    
+    wp_die();
 }
 
 // Initialize SEO optimizer when WordPress is ready

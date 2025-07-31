@@ -37,24 +37,7 @@ if (file_exists($autoloader_path)) {
     error_log('ACA Plugin Warning: Composer autoloader not found at ' . $autoloader_path);
 }
 
-/**
- * Check if ACA Pro is active - FIXED VERSION
- * 
- * @return bool True if pro license is active, false otherwise
- */
-function is_aca_pro_active() {
-    // Use proper licensing system if available
-    if (class_exists('ACA_Licensing')) {
-        $licensing = new ACA_Licensing();
-        return $licensing->is_pro_active();
-    }
-    
-    // Fallback: require both status and license key (no more demo mode)
-    $status = get_option('aca_license_status', 'inactive');
-    $license_key = get_option('aca_license_key', '');
-    
-    return ($status === 'active' && !empty($license_key));
-}
+// Note: is_aca_pro_active() function is defined in includes/class-aca-licensing.php
 
 // Include required files with error handling
 $required_files = [

@@ -1,14 +1,20 @@
 # AI Content Agent (ACA) for WordPress
 
-**Version:** 2.1.0  
+**Version:** 2.3.7  
 **Requires:** WordPress 5.0+, PHP 7.4+  
 **License:** GPL v2 or later
 
 AI Content Agent (ACA) is a powerful WordPress plugin that leverages Google's Gemini AI to automate content creation, SEO optimization, and publishing workflows.
 
-## 🚀 Latest Updates - v2.1.0
+## 🚀 Latest Updates - v2.3.7
 
-### 🌟 **NEW PRO FEATURE: AI-Powered Content Freshness & Updating System**
+### 🚨 CRITICAL UX FIX - Toast Notifications Restored
+- **Enhanced User Feedback**: Fixed missing user feedback for Pro license validation
+- **Smart Mode Selection**: Clear warnings when attempting to use Pro features without license
+- **Improved UX**: Professional warning messages guide users to upgrade
+- **Zero Silent Failures**: All user actions now provide appropriate feedback
+
+### 🌟 **PRO FEATURE: AI-Powered Content Freshness & Updating System**
 - **Revolutionary Content Maintenance**: Comprehensive AI-powered analysis of your existing content
 - **Smart Freshness Scoring**: 0-100 scale scoring with age, SEO performance, and AI analysis
 - **Automated Monitoring**: Configurable periodic analysis (daily/weekly/monthly)

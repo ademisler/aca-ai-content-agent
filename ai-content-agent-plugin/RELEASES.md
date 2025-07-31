@@ -2,24 +2,34 @@
 
 ## 📦 Current Release
 
-### v2.1.0 - AI-Powered Content Freshness System (Latest)
-- **File**: `ai-content-agent-v2.1.0-content-freshness-system.zip`
-- **Release Date**: January 31, 2025
+### v2.3.7 - Toast Notifications Fix (Latest)
+- **File**: `ai-content-agent-v2.3.7-toast-notifications-fix.zip`
+- **Release Date**: December 19, 2024
 - **Status**: ✅ Production Ready
-- **Size**: ~420KB
+- **Size**: ~572KB
 
-#### 🚀 Major Features:
-- **AI Content Freshness**: Revolutionary content maintenance system with AI analysis
-- **Comprehensive Scoring**: Multi-factor freshness scoring (0-100 scale)
-- **Automated Monitoring**: Configurable periodic analysis with cron integration
-- **Pro Feature**: Premium feature with proper license gating
-- **Beautiful UI**: Full-featured React management interface
-- **Google Search Console**: Performance-based scoring integration
-- **Zero-Error Implementation**: Follows PLUGIN_IMPROVEMENT_IDEAS.md exactly
+#### 🚨 Critical UX Fix:
+- **Toast Notifications Restored**: Fixed missing user feedback for Pro license validation
+- **Enhanced User Experience**: Clear warnings when attempting Pro features without license
+- **Professional Guidance**: Warning messages guide users to upgrade
+- **Zero Silent Failures**: All user actions now provide appropriate feedback
+- **Technical Implementation**: Proper onShowToast integration to handleModeChange function
 
 ---
 
 ## 📋 Previous Releases
+
+### v2.3.5 - Hybrid Tab System (Archived)
+- **File**: `ai-content-agent-v2.3.5-hybrid-tab-system-perfect-organization.zip` (Archived)
+- **Release Date**: January 30, 2025
+- **Status**: 🗄️ Archived - Superseded by v2.3.7
+- **Features**: Complete settings redesign with modern tabbed interface
+
+### v2.1.0 - AI-Powered Content Freshness System (Archived)
+- **File**: `ai-content-agent-v2.1.0-content-freshness-system.zip` (Archived)
+- **Release Date**: January 31, 2025
+- **Status**: 🗄️ Archived - Superseded by v2.3.7
+- **Features**: Revolutionary content maintenance system with AI analysis
 
 ### v2.0.5 - Essential Gemini API Warning System
 - **File**: `ai-content-agent-v2.0.5-gemini-api-warning.zip` (Archived)

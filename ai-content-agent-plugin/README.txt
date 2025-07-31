@@ -5,7 +5,7 @@ Tags: ai, content, automation, gemini, seo, pro, license
 Requires at least: 5.0
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 2.3.5
+Stable tag: 2.3.7
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -15,19 +15,27 @@ AI Content Agent (ACA) - AI-powered WordPress plugin with Pro licensing for auto
 
 AI Content Agent (ACA) transforms your WordPress site into an intelligent content creation powerhouse using Google's Gemini AI technology.
 
-**🚀 Latest v2.1.0 Features:**
+**🚀 Latest v2.3.7 Features:**
+* Critical UX Fix: Restored toast notifications for Pro license validation
+* Enhanced user feedback when attempting Pro features without license
+* Professional warning messages guide users to upgrade
+* Zero silent failures - all actions provide appropriate feedback
 * Revolutionary AI-Powered Content Freshness System (PRO)
 * Comprehensive content analysis with multi-factor scoring
 * Automated monitoring with configurable frequency
 * Priority-based update recommendations
 * Google Search Console integration for SEO scoring
 * Beautiful management interface with statistics
-* Smart "Go to Settings" navigation button
-* Real-time warning removal when API key is configured
-* Improved first-run experience preventing user confusion
-* Clear guidance for essential plugin setup requirements
 
 == Changelog ==
+
+= 2.3.7 - 2024-12-19 =
+* CRITICAL UX FIX: Restored toast notifications for Pro license validation
+* FIXED: Missing user feedback when selecting Pro modes without license
+* ENHANCED: Professional warning messages guide users to upgrade
+* IMPROVED: Zero silent failures - all user actions now provide feedback
+* TECHNICAL: Added proper onShowToast integration to handleModeChange function
+* UX: Maintains existing Pro license validation logic while improving user experience
 
 = 2.3.1 - 2025-01-30 =
 * MAJOR: Complete Settings page redesign with modern tabbed interface

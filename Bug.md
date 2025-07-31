@@ -229,4 +229,109 @@ Plugin still shows "Plugin could not be activated because it triggered a fatal e
 
 ---
 
-**Status**: 🚨 **4 CRITICAL FATAL ERRORS IDENTIFIED - IMMEDIATE FIXES REQUIRED**
+## 🔍 **ROUND 2: SYSTEM & ENVIRONMENT ANALYSIS**
+
+### **PHP ENVIRONMENT ISSUES**
+
+#### **9. Missing Critical PHP Extensions**
+- **Required Extensions**: curl, json, mbstring, zip
+- **Available**: Only openssl detected
+- **Missing**: curl, json, mbstring, zip
+- **Impact**: Google API, HTTP requests, JSON parsing will fail
+- **Severity**: FATAL - Core functionality depends on these extensions
+
+#### **10. WordPress Core File Dependencies**
+- **Files**: Multiple wp-admin includes required during activation
+- **Locations**: 
+  - `wp-admin/includes/upgrade.php` (4 files need this)
+  - `wp-admin/includes/media.php`, `file.php`, `image.php`
+- **Issue**: These may not be available during early plugin loading
+- **Severity**: HIGH - Database operations and media handling will fail
+
+#### **11. Massive Composer Autoload Files**
+- **File**: `vendor/composer/autoload_static.php` (30,316 lines)
+- **File**: `vendor/composer/autoload_classmap.php` (30,195 lines)
+- **Issue**: Extremely large autoload files may exceed PHP parsing limits
+- **Severity**: HIGH - May cause memory exhaustion or timeout
+
+### **DATABASE & ACTIVATION ISSUES**
+
+#### **12. Complex Database Table Creation**
+- **Location**: `class-aca-activator.php` lines 31-43
+- **Issue**: FULLTEXT indexes on title field may fail on some MySQL versions
+- **SQL**: `FULLTEXT KEY title_search (title)`
+- **Risk**: MyISAM vs InnoDB compatibility issues
+- **Severity**: HIGH - Plugin activation will fail
+
+#### **13. Multiple Init Hook Conflicts**
+- **Count**: 8+ different init hooks across plugin files
+- **Issue**: Race conditions and timing conflicts during WordPress init
+- **Files**: Main plugin, licensing, SEO optimizer, compatibility, etc.
+- **Severity**: MEDIUM - Unpredictable initialization order
+
+### **NETWORK & API ISSUES**
+
+#### **14. External API Calls During Activation**
+- **Locations**: 15+ wp_remote_post/get calls
+- **Services**: Google APIs, licensing server, Gemini API
+- **Issue**: Network failures during activation cause fatal errors
+- **Severity**: HIGH - Plugin activation depends on external services
+
+#### **15. Unhandled Exception Throwing**
+- **Count**: 25+ throw new Exception() statements
+- **Files**: REST API (15+), Service container, Google console
+- **Issue**: Uncaught exceptions cause fatal errors
+- **Severity**: HIGH - Any exception kills plugin activation
+
+### **MEMORY & PERFORMANCE ISSUES**
+
+#### **16. Giant REST API Class**
+- **File**: `class-aca-rest-api.php` (4,887 lines, 195KB)
+- **Issue**: Single class file too large for some PHP configurations
+- **Risk**: Memory limit exceeded, parsing timeout
+- **Severity**: MEDIUM - May cause activation timeout
+
+#### **17. Vendor Directory Size**
+- **Size**: 2.5MB compressed, much larger uncompressed
+- **Issue**: Large number of files may exceed server limits
+- **Components**: Google API services, Guzzle, Monolog, PHPSecLib
+- **Severity**: MEDIUM - File system and memory pressure
+
+### **WORDPRESS INTEGRATION ISSUES**
+
+#### **18. Global Variable Dependencies**
+- **Usage**: Extensive $wpdb usage throughout plugin
+- **Issue**: Database not guaranteed available during early activation
+- **Count**: 25+ global $wpdb declarations
+- **Severity**: HIGH - Database operations may fail
+
+#### **19. Shutdown Function Conflicts**
+- **Location**: Vendor libraries register shutdown functions
+- **Files**: Guzzle promises, Monolog handlers
+- **Issue**: May interfere with WordPress shutdown sequence
+- **Severity**: MEDIUM - Potential conflicts with other plugins
+
+### **SECURITY & VALIDATION ISSUES**
+
+#### **20. Missing Input Validation**
+- **Issue**: Direct $_GET, $_POST usage without proper sanitization
+- **Locations**: OAuth callbacks, API endpoints
+- **Risk**: Security vulnerabilities and unexpected data types
+- **Severity**: MEDIUM - May cause type errors or security issues
+
+---
+
+## 🚨 **ROUND 2 PRIORITY ISSUES**
+
+1. **🔥 CRITICAL**: Missing PHP extensions (curl, json, mbstring)
+2. **🔥 CRITICAL**: WordPress core file dependencies timing
+3. **⚠️ HIGH**: Massive autoload files (30K+ lines each)
+4. **⚠️ HIGH**: Database table creation with FULLTEXT indexes
+5. **⚠️ HIGH**: Unhandled exceptions throughout codebase
+6. **⚠️ HIGH**: External API calls during activation
+7. **⚠️ MEDIUM**: Giant REST API class file
+8. **⚠️ MEDIUM**: Multiple init hook conflicts
+
+---
+
+**Status**: 🚨 **16 TOTAL FATAL ERROR SOURCES IDENTIFIED (4 Round 1 + 12 Round 2)**

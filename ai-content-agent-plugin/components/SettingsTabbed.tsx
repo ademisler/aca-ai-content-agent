@@ -181,9 +181,13 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
 
     // CRITICAL FIX #3: Add missing handleModeChange function with Pro validation (RESTORED from v2.3.0)
     const handleModeChange = (newMode: AutomationMode) => {
-        // Pro license validation for advanced modes
+        // CRITICAL FIX: Pro license validation with proper user feedback (MISSING in v2.3.6)
         if ((newMode === 'semi-automatic' || newMode === 'full-automatic') && !isProActive()) {
-            // Don't change mode if not Pro - could show upgrade prompt here
+            if (onShowToast) {
+                onShowToast('This automation mode requires a Pro license. Please upgrade or activate your license to use this feature.', 'warning');
+            } else {
+                alert('This automation mode requires a Pro license. Please upgrade or activate your license to use this feature.');
+            }
             return;
         }
 

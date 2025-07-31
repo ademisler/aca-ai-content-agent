@@ -47,7 +47,7 @@ ai-content-agent-plugin/
 ├── services/                 # Frontend services
 ├── includes/                 # PHP backend classes
 ├── releases/                 # Release management
-│   ├── ai-content-agent-v2.0.3-*.zip  # Latest release
+│   ├── ai-content-agent-v2.2.6-*.zip  # Current stable release
 │   └── archive/              # Previous versions
 ├── vendor/                   # PHP dependencies (placeholders)
 ├── dist/                     # Vite build output
@@ -138,10 +138,11 @@ export default defineConfig({
 ## 📦 Release Management
 
 ### Current Release Information
-- **Latest Version**: v2.3.0
-- **Release File**: `ai-content-agent-v2.3.0-multilingual-and-smart-categorization.zip`
-- **Status**: Production ready with multilingual support and intelligent categorization
-- **Key Features**: Automatic language detection (50+ languages), intelligent category hierarchy system, AI-powered subcategory selection, WordPress locale integration, smart content categorization
+- **Development Version**: v2.3.0 (in development)
+- **Current Stable Release**: v2.2.6
+- **Release File**: `ai-content-agent-v2.2.6-settings-scroll-jumping-fix.zip`
+- **Status**: Production ready with critical settings page fixes
+- **Next Release (v2.3.0)**: Automatic language detection (50+ languages), intelligent category hierarchy system, AI-powered subcategory selection, WordPress locale integration, smart content categorization
 
 ### Release Process
 

@@ -2,29 +2,40 @@
 
 ## 📦 Current Release
 
-### v2.1.0 - AI-Powered Content Freshness System (Latest)
-- **File**: `ai-content-agent-v2.1.0-content-freshness-system.zip`
-- **Release Date**: January 31, 2025
+### v2.3.0 - Multilingual Support & Intelligent Categorization (Latest)
+- **File**: `ai-content-agent-v2.3.0-multilingual-and-smart-categorization.zip`
+- **Release Date**: January 30, 2025
 - **Status**: ✅ Production Ready
-- **Size**: ~420KB
+- **Size**: ~450KB
 
 #### 🚀 Major Features:
-- **AI Content Freshness**: Revolutionary content maintenance system with AI analysis
-- **Comprehensive Scoring**: Multi-factor freshness scoring (0-100 scale)
-- **Automated Monitoring**: Configurable periodic analysis with cron integration
-- **Pro Feature**: Premium feature with proper license gating
-- **Beautiful UI**: Full-featured React management interface
-- **Google Search Console**: Performance-based scoring integration
-- **Zero-Error Implementation**: Follows PLUGIN_IMPROVEMENT_IDEAS.md exactly
+- **Automatic Language Detection**: AI generates content in website's detected language (50+ languages)
+- **Intelligent Category Hierarchy**: AI selects appropriate subcategories based on content
+- **WordPress Locale Integration**: Seamless integration with WordPress language settings
+- **Smart Categorization**: AI distinguishes between parent and child categories
+- **Cultural Context**: Language-specific content generation with cultural awareness
+- **Zero Configuration**: Automatic detection requires no user setup
 
 ---
 
 ## 📋 Previous Releases
 
+### v2.2.6 - Settings Scroll Jumping Fix
+- **File**: `ai-content-agent-v2.2.6-settings-scroll-jumping-fix.zip` (Current in releases/)
+- **Release Date**: January 30, 2025
+- **Status**: ✅ Available - Includes critical settings page fixes
+- **Features**: Complete resolution of settings page scroll jumping issue
+
+### v2.1.0 - AI-Powered Content Freshness System
+- **File**: `ai-content-agent-v2.1.0-content-freshness-system.zip` (Archived)
+- **Release Date**: January 31, 2025
+- **Status**: 🗄️ Archived - Superseded by v2.3.0
+- **Features**: Revolutionary content maintenance system with AI analysis
+
 ### v2.0.5 - Essential Gemini API Warning System
 - **File**: `ai-content-agent-v2.0.5-gemini-api-warning.zip` (Archived)
 - **Release Date**: January 30, 2025
-- **Status**: 🗄️ Archived - Superseded by v2.1.0
+- **Status**: 🗄️ Archived - Superseded by v2.3.0
 - **Features**: Persistent API warning system and improved first-run experience
 
 ### v2.0.3 - Asset Deployment & Cache Invalidation

@@ -1,22 +1,22 @@
-# AI Image Generation Setup Guide - v2.0.5
+# AI Image Generation Setup Guide - v2.3.0
 
 This guide explains how to set up AI image generation using Google's Imagen 3.0 API in the AI Content Agent (ACA) plugin.
 
-## 🖼️ Latest Updates - v2.0.3
+## 🖼️ Latest Updates - v2.3.0
 
-### ✅ **COMPREHENSIVE FEATURE ENHANCEMENTS & IMPROVEMENTS**
-- **Author Updates**: Updated plugin author to Adem Isler with website integration (ademisler.com/en)
-- **Enhanced Error Handling**: Improved error handling for AI image generation with intelligent retry logic
+### ✅ **MULTILINGUAL IMAGE GENERATION & ENHANCED FEATURES**
+- **Language-Aware Prompts**: AI image generation prompts now consider website language and cultural context
+- **Intelligent Image Selection**: Enhanced image selection based on content category hierarchy
+- **Cultural Relevance**: Images selected with awareness of language-specific cultural preferences
+- **Smart Prompt Translation**: Image generation prompts automatically adapted for different languages
+- **Enhanced Error Handling**: Continued improvements in error handling for AI image generation
 - **Better API Reliability**: Automatic retry mechanism for image generation API failures
-- **User-Friendly Messages**: Clear error messages and recovery instructions for image generation issues
-- **Improved Stability**: Enhanced stability when generating images during content creation
-- **Timeout Handling**: Better handling of image generation timeouts with automatic retry
+- **Improved Stability**: Enhanced stability when generating images during multilingual content creation
 - **Fallback Mechanisms**: Graceful fallback to stock photo APIs when AI generation fails
-- **Image Source Optimization**: Moved AI generated images to last position, Pexels set as default
 
 ## 📋 Overview
 
-The AI Content Agent (ACA) plugin v2.0.5 supports **real AI image generation** using Google's Imagen 3.0 API through Google Cloud Vertex AI with enhanced error handling and retry capabilities. This replaces the previous placeholder implementation with actual image generation capabilities and robust error management.
+The AI Content Agent (ACA) plugin v2.3.0 supports **real AI image generation** using Google's Imagen 3.0 API through Google Cloud Vertex AI with multilingual support, enhanced error handling and retry capabilities. The system now generates culturally appropriate images based on the website's detected language and content category hierarchy.
 
 ### **Supported Image Sources:**
 - ✅ **AI Generated** - Google Imagen 3.0 API (Enhanced with retry logic)

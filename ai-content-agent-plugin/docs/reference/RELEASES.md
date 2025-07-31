@@ -2,11 +2,22 @@
 
 ## 📦 Current Release
 
-### v2.3.0 - Multilingual Support & Intelligent Categorization (Latest)
-- **File**: `ai-content-agent-v2.3.0-multilingual-and-smart-categorization.zip`
-- **Release Date**: January 30, 2025
+### v2.2.6 - Settings Scroll Jumping Fix (Latest Stable)
+- **File**: `ai-content-agent-v2.2.6-settings-scroll-jumping-fix.zip`
+- **Release Date**: January 2025
 - **Status**: ✅ Production Ready
-- **Size**: ~450KB
+- **Size**: ~429KB
+- **Features**: Complete resolution of settings page scroll jumping issue
+
+---
+
+## 🚧 Development Release
+
+### v2.3.0 - Multilingual Support & Intelligent Categorization (In Development)
+- **File**: Not yet released
+- **Expected**: When development is complete
+- **Status**: 🔨 In Development
+- **Size**: TBD
 
 #### 🚀 Major Features:
 - **Automatic Language Detection**: AI generates content in website's detected language (50+ languages)
@@ -22,31 +33,31 @@
 
 ### v2.2.6 - Settings Scroll Jumping Fix
 - **File**: `ai-content-agent-v2.2.6-settings-scroll-jumping-fix.zip` (Current in releases/)
-- **Release Date**: January 30, 2025
+- **Release Date**: January 2025
 - **Status**: ✅ Available - Includes critical settings page fixes
 - **Features**: Complete resolution of settings page scroll jumping issue
 
 ### v2.1.0 - AI-Powered Content Freshness System
 - **File**: `ai-content-agent-v2.1.0-content-freshness-system.zip` (Archived)
-- **Release Date**: January 31, 2025
-- **Status**: 🗄️ Archived - Superseded by v2.3.0
+- **Release Date**: January 2025
+- **Status**: 🗄️ Archived - Superseded by v2.2.6
 - **Features**: Revolutionary content maintenance system with AI analysis
 
 ### v2.0.5 - Essential Gemini API Warning System
 - **File**: `ai-content-agent-v2.0.5-gemini-api-warning.zip` (Archived)
-- **Release Date**: January 30, 2025
-- **Status**: 🗄️ Archived - Superseded by v2.3.0
+- **Release Date**: January 2025
+- **Status**: 🗄️ Archived - Superseded by v2.2.6
 - **Features**: Persistent API warning system and improved first-run experience
 
 ### v2.0.3 - Asset Deployment & Cache Invalidation
 - **File**: `ai-content-agent-v2.0.3-asset-deployment-and-cache-invalidation.zip` (Archived)
-- **Release Date**: January 30, 2025
+- **Release Date**: January 2025
 - **Status**: 🗄️ Archived - Superseded by v2.1.0
 - **Features**: Dual-asset system and cache invalidation fixes
 
 ### v2.0.2 - Build Fix & Proper Deployment
 - **File**: `ai-content-agent-v2.0.2-build-fix-and-proper-deployment.zip` (Archived)
-- **Release Date**: January 30, 2025
+- **Release Date**: January 2025
 - **Status**: 🗄️ Archived - Superseded by v2.0.3
 - **Features**: Build process fixes and asset verification
 

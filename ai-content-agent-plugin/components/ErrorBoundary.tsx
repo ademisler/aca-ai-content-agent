@@ -63,6 +63,7 @@ class ErrorBoundary extends Component<Props, State> {
           // React-specific context
           reactVersion: React.version || 'unknown',
           componentName: this.constructor.name
+        })
       }).catch(e => {
         console.error('Failed to log error to WordPress:', e);
       });

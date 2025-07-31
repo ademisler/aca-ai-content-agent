@@ -2091,7 +2091,7 @@ body.toplevel_page_ai-content-agent #wpfooter {
   }
   var jsxRuntimeExports = requireJsxRuntime();
   var reactExports = requireReact();
-  const React = /* @__PURE__ */ getDefaultExportFromCjs(reactExports);
+  const React$1 = /* @__PURE__ */ getDefaultExportFromCjs(reactExports);
   var client = {};
   var reactDom = { exports: {} };
   var reactDom_production_min = {};
@@ -8869,7 +8869,56 @@ body.toplevel_page_ai-content-agent #wpfooter {
       return baseModule().catch(handlePreloadError);
     });
   };
-  const makeApiCall = async (path, options = {}) => {
+  function camelToSnake(str) {
+    return str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
+  }
+  function snakeToCamel(str) {
+    return str.replace(/_([a-z])/g, (match, letter) => letter.toUpperCase());
+  }
+  function convertObjectToSnakeCase(obj) {
+    if (obj === null || typeof obj !== "object") {
+      return obj;
+    }
+    if (Array.isArray(obj)) {
+      return obj.map(convertObjectToSnakeCase);
+    }
+    const converted = {};
+    for (const [key, value] of Object.entries(obj)) {
+      const snakeKey = camelToSnake(key);
+      converted[snakeKey] = convertObjectToSnakeCase(value);
+    }
+    return converted;
+  }
+  function convertObjectToCamelCase(obj) {
+    if (obj === null || typeof obj !== "object") {
+      return obj;
+    }
+    if (Array.isArray(obj)) {
+      return obj.map(convertObjectToCamelCase);
+    }
+    const converted = {};
+    for (const [key, value] of Object.entries(obj)) {
+      const camelKey = snakeToCamel(key);
+      converted[camelKey] = convertObjectToCamelCase(value);
+    }
+    return converted;
+  }
+  function makeApiCallWithConversion(originalMakeApiCall) {
+    return async (path, options = {}) => {
+      if (options.body && typeof options.body === "string") {
+        try {
+          const parsedBody = JSON.parse(options.body);
+          const convertedBody = convertObjectToSnakeCase(parsedBody);
+          options.body = JSON.stringify(convertedBody);
+        } catch (error) {
+          console.warn("Failed to convert request body:", error);
+        }
+      }
+      const response = await originalMakeApiCall(path, options);
+      return convertObjectToCamelCase(response);
+    };
+  }
+  const makeApiCallOriginal = async (path, options = {}) => {
     if (!window.acaData) {
       console.error("ACA Error: window.acaData is not defined. Plugin scripts may not be loaded correctly.");
       throw new Error("WordPress data not available");
@@ -8904,6 +8953,7 @@ body.toplevel_page_ai-content-agent #wpfooter {
     }
     return response.json();
   };
+  const makeApiCall = makeApiCallWithConversion(makeApiCallOriginal);
   const settingsApi = {
     get: () => makeApiCall("settings"),
     save: (settings) => makeApiCall("settings", {
@@ -11182,8 +11232,8 @@ body.toplevel_page_ai-content-agent #wpfooter {
     }
   };
   const Toast = ({ id, message, type, onDismiss }) => {
-    const [isVisible, setIsVisible] = React.useState(false);
-    const [isExiting, setIsExiting] = React.useState(false);
+    const [isVisible, setIsVisible] = React$1.useState(false);
+    const [isExiting, setIsExiting] = React$1.useState(false);
     reactExports.useEffect(() => {
       setTimeout(() => setIsVisible(true), 50);
       const timer = setTimeout(() => {
@@ -11337,6 +11387,10 @@ body.toplevel_page_ai-content-agent #wpfooter {
     }
     componentDidCatch(error, errorInfo) {
       console.error("AI Content Agent Error Boundary caught an error:", error, errorInfo);
+      this.setState({
+        error,
+        errorInfo
+      });
       if (window.acaData) {
         fetch(`${window.acaData.api_url}debug/error`, {
           method: "POST",
@@ -11347,7 +11401,17 @@ body.toplevel_page_ai-content-agent #wpfooter {
           body: JSON.stringify({
             error: error.message,
             stack: error.stack,
-            componentStack: errorInfo.componentStack
+            componentStack: errorInfo.componentStack,
+            // Enhanced error context
+            timestamp: (/* @__PURE__ */ new Date()).toISOString(),
+            userAgent: navigator.userAgent,
+            url: window.location.href,
+            viewport: `${window.innerWidth}x${window.innerHeight}`,
+            errorBoundary: true,
+            severity: "critical",
+            // React-specific context
+            reactVersion: React.version || "unknown",
+            componentName: this.constructor.name
           })
         }).catch((e) => {
           console.error("Failed to log error to WordPress:", e);
@@ -11364,15 +11428,39 @@ body.toplevel_page_ai-content-agent #wpfooter {
           return this.props.fallback;
         }
         return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-error-boundary", style: {
-          padding: "20px",
+          padding: "24px",
           margin: "20px",
           border: "2px solid #dc3545",
-          borderRadius: "8px",
+          borderRadius: "12px",
           backgroundColor: "#f8d7da",
-          color: "#721c24"
+          color: "#721c24",
+          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
         }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { style: { marginTop: 0, color: "#721c24" }, children: "🚨 Something went wrong" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "The AI Content Agent encountered an unexpected error. Please try refreshing the page." }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", marginBottom: "16px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "24px", marginRight: "12px" }, children: "🚨" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { style: { margin: 0, color: "#721c24", fontSize: "20px", fontWeight: "600" }, children: "Something went wrong" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { marginBottom: "16px", lineHeight: "1.5" }, children: "The AI Content Agent encountered an unexpected error. The error has been automatically logged for investigation." }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+            backgroundColor: "#fff3cd",
+            border: "1px solid #ffeaa7",
+            borderRadius: "6px",
+            padding: "12px",
+            marginBottom: "16px",
+            fontSize: "14px"
+          }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Error ID:" }),
+            " ACA-",
+            Date.now(),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("br", {}),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Time:" }),
+            " ",
+            (/* @__PURE__ */ new Date()).toLocaleString(),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("br", {}),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Component:" }),
+            " ",
+            this.state.error?.name || "Unknown"
+          ] }),
           false,
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: "15px" }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -12092,7 +12180,7 @@ body.toplevel_page_ai-content-agent #wpfooter {
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-toast-container", children: toasts.map((toast) => /* @__PURE__ */ jsxRuntimeExports.jsx(Toast, { ...toast, onDismiss: removeToast }, toast.id)) })
     ] });
   };
-  class ErrorBoundary extends React.Component {
+  class ErrorBoundary extends React$1.Component {
     constructor(props) {
       super(props);
       this.state = { hasError: false };

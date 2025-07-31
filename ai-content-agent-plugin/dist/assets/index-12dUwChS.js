@@ -12276,10 +12276,18 @@ body.toplevel_page_ai-content-agent #wpfooter {
           ...prev,
           [sectionKey]: false
         }));
-        setTimeout(() => {
+        const preserveScrollPosition = () => {
           mainContainer.scrollTop = currentScrollTop;
+        };
+        preserveScrollPosition();
+        const intervals = [];
+        for (let i = 0; i <= 20; i++) {
+          intervals.push(setTimeout(preserveScrollPosition, i * 20));
+        }
+        setTimeout(() => {
+          intervals.forEach(clearTimeout);
           mainContainer.classList.remove("no-smooth-scroll");
-        }, 0);
+        }, 450);
       } else {
         setCollapsedSections((prev) => ({
           ...prev,

@@ -562,14 +562,25 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
                 [sectionKey]: false
             }));
 
-            // DOM'un güncellenmesi ve animasyonun başlaması için kısa bir gecikme
-            // requestAnimationFrame'den daha güvenilir sonuç verir
-            setTimeout(() => {
-                // Scroll pozisyonunu anlık olarak geri yükle
+            // Agresif scroll pozisyon koruması - transition süresi boyunca
+            const preserveScrollPosition = () => {
                 mainContainer.scrollTop = currentScrollTop;
-                // Class'ı kaldırarak normal scroll davranışını geri getir
+            };
+
+            // Hemen pozisyonu koru
+            preserveScrollPosition();
+
+            // Transition süresi boyunca (400ms) pozisyonu koru
+            const intervals = [];
+            for (let i = 0; i <= 20; i++) {
+                intervals.push(setTimeout(preserveScrollPosition, i * 20));
+            }
+
+            // Transition bitince temizle
+            setTimeout(() => {
+                intervals.forEach(clearTimeout);
                 mainContainer.classList.remove('no-smooth-scroll');
-            }, 0);
+            }, 450);
 
         } else {
             // Kapatma işleminde animasyon normal çalışır

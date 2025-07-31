@@ -34,6 +34,48 @@ const checkAi = () => {
 }
 
 /**
+ * Test API key validity
+ */
+export const testGeminiApiKey = async (apiKey: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+        if (!apiKey || apiKey.trim() === '') {
+            return { success: false, error: 'API key is required' };
+        }
+
+        const testAI = new GoogleGenerativeAI(apiKey);
+        const model = testAI.getGenerativeModel({ model: modelConfig.primary });
+        
+        // Simple test prompt
+        const result = await model.generateContent({
+            contents: [{ role: "user", parts: [{ text: "Hello" }] }],
+            generationConfig: {
+                temperature: 0.1,
+                maxOutputTokens: 10,
+            },
+        });
+
+        const response = result.response;
+        if (response && response.text) {
+            return { success: true };
+        } else {
+            return { success: false, error: 'Invalid response from API' };
+        }
+    } catch (error: any) {
+        console.error('Gemini API key test failed:', error);
+        
+        if (error.message?.includes('API_KEY_INVALID')) {
+            return { success: false, error: 'Invalid API key' };
+        } else if (error.message?.includes('quota')) {
+            return { success: false, error: 'API quota exceeded' };
+        } else if (error.message?.includes('permission')) {
+            return { success: false, error: 'API key does not have required permissions' };
+        } else {
+            return { success: false, error: error.message || 'Unknown error occurred' };
+        }
+    }
+};
+
+/**
  * Make API call with retry logic and model fallback
  */
 const makeApiCallWithRetry = async (

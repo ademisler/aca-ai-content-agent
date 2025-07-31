@@ -9888,6 +9888,46 @@ body.toplevel_page_ai-content-agent #wpfooter {
       genAI = null;
     }
   };
+  const modelConfig = {
+    primary: "gemini-2.0-flash",
+    fallback: "gemini-1.5-pro",
+    maxRetries: 3,
+    retryDelay: 2e3
+    // 2 seconds
+  };
+  const testGeminiApiKey = async (apiKey) => {
+    try {
+      if (!apiKey || apiKey.trim() === "") {
+        return { success: false, error: "API key is required" };
+      }
+      const testAI = new GoogleGenerativeAI(apiKey);
+      const model = testAI.getGenerativeModel({ model: modelConfig.primary });
+      const result = await model.generateContent({
+        contents: [{ role: "user", parts: [{ text: "Hello" }] }],
+        generationConfig: {
+          temperature: 0.1,
+          maxOutputTokens: 10
+        }
+      });
+      const response = result.response;
+      if (response && response.text) {
+        return { success: true };
+      } else {
+        return { success: false, error: "Invalid response from API" };
+      }
+    } catch (error) {
+      console.error("Gemini API key test failed:", error);
+      if (error.message?.includes("API_KEY_INVALID")) {
+        return { success: false, error: "Invalid API key" };
+      } else if (error.message?.includes("quota")) {
+        return { success: false, error: "API quota exceeded" };
+      } else if (error.message?.includes("permission")) {
+        return { success: false, error: "API key does not have required permissions" };
+      } else {
+        return { success: false, error: error.message || "Unknown error occurred" };
+      }
+    }
+  };
   const Lightbulb = ({ className, style }) => /* @__PURE__ */ jsxRuntimeExports.jsxs("svg", { xmlns: "http://www.w3.org/2000/svg", width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", className, style, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5" }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M9 18h6" }),
@@ -12490,10 +12530,37 @@ body.toplevel_page_ai-content-agent #wpfooter {
     const [currentSettings, setCurrentSettings] = reactExports.useState(settings);
     const [isDirty, setIsDirty] = reactExports.useState(false);
     const [isSaving, setIsSaving] = reactExports.useState(false);
+    const [isTestingApi, setIsTestingApi] = reactExports.useState(false);
+    const [apiTestResult, setApiTestResult] = reactExports.useState(null);
     const handleSettingChange = (key, value) => {
       const updatedSettings = { ...currentSettings, [key]: value };
       setCurrentSettings(updatedSettings);
       setIsDirty(true);
+      if (key === "geminiApiKey") {
+        setApiTestResult(null);
+      }
+    };
+    const handleTestApiKey = async () => {
+      if (!currentSettings.geminiApiKey || currentSettings.geminiApiKey.trim() === "") {
+        setApiTestResult({ success: false, error: "Please enter an API key first" });
+        return;
+      }
+      setIsTestingApi(true);
+      setApiTestResult(null);
+      try {
+        const result = await testGeminiApiKey(currentSettings.geminiApiKey);
+        setApiTestResult(result);
+        if (result.success) {
+          onShowToast("API key is valid and working!", "success");
+        } else {
+          onShowToast(`API key test failed: ${result.error}`, "error");
+        }
+      } catch (error) {
+        setApiTestResult({ success: false, error: "Test failed unexpectedly" });
+        onShowToast("API key test failed unexpectedly", "error");
+      } finally {
+        setIsTestingApi(false);
+      }
     };
     const handleSave = async () => {
       if (!isDirty) return;
@@ -12548,17 +12615,57 @@ body.toplevel_page_ai-content-agent #wpfooter {
               isConfigured: !!currentSettings.geminiApiKey,
               children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-form-group", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("label", { htmlFor: "gemini-api-key", className: "aca-label", children: "API Key" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "input",
-                  {
-                    id: "gemini-api-key",
-                    type: "password",
-                    placeholder: "Enter Google AI API Key",
-                    value: currentSettings.geminiApiKey,
-                    onChange: (e) => handleSettingChange("geminiApiKey", e.target.value),
-                    className: "aca-input"
-                  }
-                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "12px", alignItems: "flex-start" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "input",
+                    {
+                      id: "gemini-api-key",
+                      type: "password",
+                      placeholder: "Enter Google AI API Key",
+                      value: currentSettings.geminiApiKey,
+                      onChange: (e) => handleSettingChange("geminiApiKey", e.target.value),
+                      className: "aca-input",
+                      style: { flex: 1 }
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "button",
+                    {
+                      onClick: handleTestApiKey,
+                      disabled: isTestingApi || !currentSettings.geminiApiKey,
+                      className: "aca-button secondary",
+                      style: {
+                        minWidth: "100px",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px",
+                        fontSize: "14px"
+                      },
+                      children: isTestingApi ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "aca-spinner", style: { width: "14px", height: "14px" } }),
+                        "Testing..."
+                      ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                        apiTestResult?.success ? /* @__PURE__ */ jsxRuntimeExports.jsx(CheckCircle, { style: { width: "14px", height: "14px", color: "#22c55e" } }) : apiTestResult?.error ? /* @__PURE__ */ jsxRuntimeExports.jsx(AlertTriangle, { style: { width: "14px", height: "14px", color: "#ef4444" } }) : null,
+                        "Test API"
+                      ] })
+                    }
+                  )
+                ] }),
+                apiTestResult && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+                  marginTop: "8px",
+                  padding: "8px 12px",
+                  borderRadius: "6px",
+                  fontSize: "13px",
+                  backgroundColor: apiTestResult.success ? "#dcfce7" : "#fef2f2",
+                  border: `1px solid ${apiTestResult.success ? "#22c55e" : "#ef4444"}`,
+                  color: apiTestResult.success ? "#166534" : "#dc2626"
+                }, children: apiTestResult.success ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "6px" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(CheckCircle, { style: { width: "14px", height: "14px" } }),
+                  "API key is valid and working correctly"
+                ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "6px" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(AlertTriangle, { style: { width: "14px", height: "14px" } }),
+                  apiTestResult.error
+                ] }) }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   "a",
                   {

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import type { AppSettings, ImageSourceProvider, AiImageStyle } from '../types';
-import { Globe, Google, Image } from './Icons';
+import { Globe, Google, Image, CheckCircle, AlertTriangle } from './Icons';
 import { SettingsLayout } from './SettingsLayout';
+import { testGeminiApiKey } from '../services/geminiService';
 
 interface SettingsIntegrationsProps {
     settings: AppSettings;
@@ -66,11 +67,44 @@ export const SettingsIntegrations: React.FC<SettingsIntegrationsProps> = ({
     const [currentSettings, setCurrentSettings] = useState<AppSettings>(settings);
     const [isDirty, setIsDirty] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    const [isTestingApi, setIsTestingApi] = useState(false);
+    const [apiTestResult, setApiTestResult] = useState<{ success: boolean; error?: string } | null>(null);
 
     const handleSettingChange = (key: keyof AppSettings, value: any) => {
         const updatedSettings = { ...currentSettings, [key]: value };
         setCurrentSettings(updatedSettings);
         setIsDirty(true);
+        
+        // Clear API test result when API key changes
+        if (key === 'geminiApiKey') {
+            setApiTestResult(null);
+        }
+    };
+
+    const handleTestApiKey = async () => {
+        if (!currentSettings.geminiApiKey || currentSettings.geminiApiKey.trim() === '') {
+            setApiTestResult({ success: false, error: 'Please enter an API key first' });
+            return;
+        }
+
+        setIsTestingApi(true);
+        setApiTestResult(null);
+        
+        try {
+            const result = await testGeminiApiKey(currentSettings.geminiApiKey);
+            setApiTestResult(result);
+            
+            if (result.success) {
+                onShowToast('API key is valid and working!', 'success');
+            } else {
+                onShowToast(`API key test failed: ${result.error}`, 'error');
+            }
+        } catch (error) {
+            setApiTestResult({ success: false, error: 'Test failed unexpectedly' });
+            onShowToast('API key test failed unexpectedly', 'error');
+        } finally {
+            setIsTestingApi(false);
+        }
     };
 
     const handleSave = async () => {
@@ -129,14 +163,70 @@ export const SettingsIntegrations: React.FC<SettingsIntegrationsProps> = ({
             >
                 <div className="aca-form-group">
                     <label htmlFor="gemini-api-key" className="aca-label">API Key</label>
-                    <input 
-                        id="gemini-api-key" 
-                        type="password" 
-                        placeholder="Enter Google AI API Key" 
-                        value={currentSettings.geminiApiKey} 
-                        onChange={e => handleSettingChange('geminiApiKey', e.target.value)} 
-                        className="aca-input"
-                    />
+                    <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                        <input 
+                            id="gemini-api-key" 
+                            type="password" 
+                            placeholder="Enter Google AI API Key" 
+                            value={currentSettings.geminiApiKey} 
+                            onChange={e => handleSettingChange('geminiApiKey', e.target.value)} 
+                            className="aca-input"
+                            style={{ flex: 1 }}
+                        />
+                        <button
+                            onClick={handleTestApiKey}
+                            disabled={isTestingApi || !currentSettings.geminiApiKey}
+                            className="aca-button secondary"
+                            style={{ 
+                                minWidth: '100px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                fontSize: '14px'
+                            }}
+                        >
+                            {isTestingApi ? (
+                                <>
+                                    <span className="aca-spinner" style={{ width: '14px', height: '14px' }}></span>
+                                    Testing...
+                                </>
+                            ) : (
+                                <>
+                                    {apiTestResult?.success ? (
+                                        <CheckCircle style={{ width: '14px', height: '14px', color: '#22c55e' }} />
+                                    ) : apiTestResult?.error ? (
+                                        <AlertTriangle style={{ width: '14px', height: '14px', color: '#ef4444' }} />
+                                    ) : null}
+                                    Test API
+                                </>
+                            )}
+                        </button>
+                    </div>
+                    
+                    {apiTestResult && (
+                        <div style={{ 
+                            marginTop: '8px',
+                            padding: '8px 12px',
+                            borderRadius: '6px',
+                            fontSize: '13px',
+                            backgroundColor: apiTestResult.success ? '#dcfce7' : '#fef2f2',
+                            border: `1px solid ${apiTestResult.success ? '#22c55e' : '#ef4444'}`,
+                            color: apiTestResult.success ? '#166534' : '#dc2626'
+                        }}>
+                            {apiTestResult.success ? (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                    <CheckCircle style={{ width: '14px', height: '14px' }} />
+                                    API key is valid and working correctly
+                                </div>
+                            ) : (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                    <AlertTriangle style={{ width: '14px', height: '14px' }} />
+                                    {apiTestResult.error}
+                                </div>
+                            )}
+                        </div>
+                    )}
+                    
                     <a 
                         href="https://aistudio.google.com/app/apikey" 
                         target="_blank" 

@@ -2780,15 +2780,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
      */
     public function get_gsc_auth_status($request) {
         try {
-            if (!file_exists(ACA_PLUGIN_PATH . 'includes/class-aca-google-search-console.php')) {
-                return rest_ensure_response(array(
-                    'connected' => false, 
-                    'error' => 'Google Search Console class file not found'
-                ));
-            }
-            
-            // Hybrid version already loaded in main plugin file
-            
+            // Use hybrid version (loaded in main plugin file)
             if (!class_exists('ACA_Google_Search_Console_Hybrid')) {
                 return rest_ensure_response(array(
                     'connected' => false, 

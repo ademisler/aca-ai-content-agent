@@ -60,11 +60,11 @@ class ACA_Rest_Api {
      * @since 1.0.0
      */
     public function register_routes() {
-        // Settings endpoints
+        // Settings endpoints with rate limiting - CRITICAL SECURITY FIX
         register_rest_route('aca/v1', '/settings', array(
             'methods' => 'GET',
             'callback' => array($this, 'get_settings'),
-            'permission_callback' => array($this, 'check_admin_permissions')
+            'permission_callback' => array($this, 'check_admin_permissions_with_rate_limit')
         ));
         
         register_rest_route('aca/v1', '/settings', array(
@@ -399,6 +399,34 @@ class ACA_Rest_Api {
             return new WP_Error('invalid_nonce', 'Invalid nonce', array('status' => 403));
         }
         return true;
+    }
+    
+    /**
+     * Check admin permissions with rate limiting - CRITICAL SECURITY FIX
+     */
+    public function check_admin_permissions_with_rate_limit($request) {
+        // Apply rate limiting first
+        $rate_limit_check = ACA_Rate_Limiter::check_rate_limit($request, 'api_general');
+        if (is_wp_error($rate_limit_check)) {
+            return $rate_limit_check;
+        }
+        
+        // Then check admin permissions
+        return $this->check_admin_permissions($request);
+    }
+    
+    /**
+     * Check pro permissions with rate limiting - CRITICAL SECURITY FIX
+     */
+    public function check_pro_permissions_with_rate_limit($request) {
+        // Apply rate limiting first
+        $rate_limit_check = ACA_Rate_Limiter::check_rate_limit($request, 'ai_generation');
+        if (is_wp_error($rate_limit_check)) {
+            return $rate_limit_check;
+        }
+        
+        // Then check pro permissions
+        return $this->check_pro_permissions($request);
     }
     
     /**
@@ -4073,5 +4101,47 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             'success' => true,
             'message' => 'Error logged successfully'
         ));
+    }
+}
+    /**
+     * Check admin permissions with rate limiting - CRITICAL SECURITY FIX
+     */
+    public function check_admin_permissions_with_rate_limit($request) {
+        // Apply rate limiting first
+        $rate_limit_check = ACA_Rate_Limiter::check_rate_limit($request, 'api_general');
+        if (is_wp_error($rate_limit_check)) {
+            return $rate_limit_check;
+        }
+        
+        // Then check admin permissions
+        return $this->check_admin_permissions($request);
+    }
+    
+    /**
+     * Check pro permissions with rate limiting - CRITICAL SECURITY FIX
+     */
+    public function check_pro_permissions_with_rate_limit($request) {
+        // Apply rate limiting first
+        $rate_limit_check = ACA_Rate_Limiter::check_rate_limit($request, 'ai_generation');
+        if (is_wp_error($rate_limit_check)) {
+            return $rate_limit_check;
+        }
+        
+        // Then check pro permissions
+        return $this->check_pro_permissions($request);
+    }
+    
+    /**
+     * Save settings with rate limiting - CRITICAL SECURITY FIX
+     */
+    public function save_settings_with_rate_limit($request) {
+        // Apply rate limiting for settings updates
+        $rate_limit_check = ACA_Rate_Limiter::check_rate_limit($request, 'settings_update');
+        if (is_wp_error($rate_limit_check)) {
+            return $rate_limit_check;
+        }
+        
+        // Call original save_settings method
+        return $this->save_settings($request);
     }
 }

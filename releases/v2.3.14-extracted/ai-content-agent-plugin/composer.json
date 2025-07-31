@@ -1,0 +1,19 @@
+{
+    "name": "ai-content-agent/wordpress-plugin",
+    "description": "AI Content Agent (ACA) WordPress Plugin",
+    "type": "wordpress-plugin",
+    "require": {
+        "php": ">=7.4",
+        "google/apiclient": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "ACA\\": "includes/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "composer/installers": true
+        }
+    }
+}

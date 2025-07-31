@@ -76,8 +76,8 @@ class ACA_Content_Freshness {
      */
     private function get_gsc_performance($post_id) {
         // Try to get GSC data if available
-        if (class_exists('ACA_Google_Search_Console')) {
-            $gsc = new ACA_Google_Search_Console();
+        if (class_exists('ACA_Google_Search_Console_Hybrid')) {
+            $gsc = new ACA_Google_Search_Console_Hybrid();
             $post_url = get_permalink($post_id);
             
             try {

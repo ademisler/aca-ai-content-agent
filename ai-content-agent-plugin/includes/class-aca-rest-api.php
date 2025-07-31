@@ -745,9 +745,8 @@ class ACA_Rest_Api {
             // Get search console data if user is connected
             $search_console_data = null;
             if (!empty($settings['searchConsoleUser'])) {
-                require_once ACA_PLUGIN_PATH . 'includes/class-aca-google-search-console.php';
-                
-                $gsc = new ACA_Google_Search_Console();
+                // Use hybrid version that doesn't require vendor dependencies
+                $gsc = new ACA_Google_Search_Console_Hybrid();
                 $search_console_data = $gsc->get_data_for_ai();
                 
                 // Fallback to mock data if GSC fails
@@ -2788,16 +2787,16 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 ));
             }
             
-            require_once ACA_PLUGIN_PATH . 'includes/class-aca-google-search-console.php';
+            // Hybrid version already loaded in main plugin file
             
-            if (!class_exists('ACA_Google_Search_Console')) {
+            if (!class_exists('ACA_Google_Search_Console_Hybrid')) {
                 return rest_ensure_response(array(
                     'connected' => false, 
                     'error' => 'Google Search Console class not loaded'
                 ));
             }
             
-            $gsc = new ACA_Google_Search_Console();
+            $gsc = new ACA_Google_Search_Console_Hybrid();
             $status = $gsc->get_auth_status();
             
             return rest_ensure_response($status);
@@ -2821,13 +2820,13 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
      */
     public function gsc_connect($request) {
         try {
-            require_once ACA_PLUGIN_PATH . 'includes/class-aca-google-search-console.php';
+            // Hybrid version already loaded in main plugin file
             
-            if (!class_exists('ACA_Google_Search_Console')) {
+            if (!class_exists('ACA_Google_Search_Console_Hybrid')) {
                 return new WP_Error('gsc_error', 'Google Search Console class not available');
             }
             
-            $gsc = new ACA_Google_Search_Console();
+            $gsc = new ACA_Google_Search_Console_Hybrid();
             
             // Check if this is an OAuth callback
             if (isset($_GET['code'])) {
@@ -2873,9 +2872,9 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             return $nonce_check;
         }
         
-        require_once ACA_PLUGIN_PATH . 'includes/class-aca-google-search-console.php';
+        // Hybrid version already loaded in main plugin file
         
-        $gsc = new ACA_Google_Search_Console();
+        $gsc = new ACA_Google_Search_Console_Hybrid();
         $result = $gsc->disconnect();
         
         if ($result) {
@@ -2894,9 +2893,9 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
      * Get Google Search Console sites
      */
     public function get_gsc_sites($request) {
-        require_once ACA_PLUGIN_PATH . 'includes/class-aca-google-search-console.php';
+        // Hybrid version already loaded in main plugin file
         
-        $gsc = new ACA_Google_Search_Console();
+        $gsc = new ACA_Google_Search_Console_Hybrid();
         $sites = $gsc->get_sites();
         
         if (is_wp_error($sites)) {
@@ -4073,7 +4072,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         
         // Initialize GSC class
         require_once ACA_PLUGIN_DIR . 'includes/class-aca-google-search-console.php';
-        $gsc = new ACA_Google_Search_Console();
+        $gsc = new ACA_Google_Search_Console_Hybrid();
         
         // Check authentication status
         if (!$gsc->is_authenticated()) {

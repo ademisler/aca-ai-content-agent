@@ -49,7 +49,12 @@ if (file_exists($autoloader_path)) {
 
 // Note: is_aca_pro_active() function is defined in includes/class-aca-licensing.php
 
-// Include required files with error handling
+// Load file manager first for optimized file operations
+if (file_exists(ACA_PLUGIN_DIR . 'includes/class-aca-file-manager.php')) {
+    require_once ACA_PLUGIN_DIR . 'includes/class-aca-file-manager.php';
+}
+
+// Include required files with optimized file handling
 $required_files = [
     'includes/class-aca-licensing.php',
     'includes/class-aca-activator.php',
@@ -63,12 +68,27 @@ $required_files = [
     'includes/gsc-data-fix.php'
 ];
 
+// Preload file existence checks for better performance
+if (class_exists('ACA_File_Manager')) {
+    $full_paths = array_map(function($file) {
+        return ACA_PLUGIN_DIR . $file;
+    }, $required_files);
+    ACA_File_Manager::preload_files($full_paths);
+}
+
 foreach ($required_files as $file) {
     $file_path = ACA_PLUGIN_DIR . $file;
-    if (file_exists($file_path)) {
-        require_once $file_path;
+    if (class_exists('ACA_File_Manager')) {
+        if (!ACA_File_Manager::require_once_safe($file_path)) {
+            error_log("ACA Plugin: Failed to load required file: $file_path");
+        }
     } else {
-        error_log("ACA Plugin: Missing required file: $file_path");
+        // Fallback to standard file operations
+        if (file_exists($file_path)) {
+            require_once $file_path;
+        } else {
+            error_log("ACA Plugin: Missing required file: $file_path");
+        }
     }
 }
 
@@ -239,8 +259,15 @@ class AI_Content_Agent {
     
     public function init() {
         try {
-            // Initialize dependency installer
-            if (file_exists(ACA_PLUGIN_DIR . 'install-dependencies.php')) {
+            // Load file manager for optimized file operations
+            if (file_exists(ACA_PLUGIN_DIR . 'includes/class-aca-file-manager.php')) {
+                require_once ACA_PLUGIN_DIR . 'includes/class-aca-file-manager.php';
+            }
+            
+            // Initialize dependency installer with optimized file operations
+            if (class_exists('ACA_File_Manager')) {
+                ACA_File_Manager::require_once_safe(ACA_PLUGIN_DIR . 'install-dependencies.php');
+            } else if (file_exists(ACA_PLUGIN_DIR . 'install-dependencies.php')) {
                 require_once ACA_PLUGIN_DIR . 'install-dependencies.php';
             }
             
@@ -405,8 +432,12 @@ class AI_Content_Agent {
         $css_file = ACA_PLUGIN_DIR . 'admin/css/index.css';
         $js_file = ACA_PLUGIN_DIR . 'admin/js/index.js';
         
-        // Validate fallback files exist
-        if (!file_exists($js_file) || !is_readable($js_file)) {
+        // Validate fallback files exist using optimized file operations
+        $js_exists = class_exists('ACA_File_Manager') ? 
+            ACA_File_Manager::file_exists_cached($js_file) : 
+            file_exists($js_file);
+            
+        if (!$js_exists || !is_readable($js_file)) {
             // Log error and show admin notice
             error_log('ACA Error: No valid JavaScript assets found');
             add_action('admin_notices', function() {
@@ -415,8 +446,17 @@ class AI_Content_Agent {
             return;
         }
         
-        $css_version = ACA_VERSION . '-' . (file_exists($css_file) ? filemtime($css_file) : time());
-        $js_version = ACA_VERSION . '-' . filemtime($js_file);
+        // Use optimized file modification time checks
+        $css_mtime = class_exists('ACA_File_Manager') ? 
+            ACA_File_Manager::filemtime_cached($css_file) : 
+            (file_exists($css_file) ? filemtime($css_file) : time());
+            
+        $js_mtime = class_exists('ACA_File_Manager') ? 
+            ACA_File_Manager::filemtime_cached($js_file) : 
+            filemtime($js_file);
+            
+        $css_version = ACA_VERSION . '-' . ($css_mtime ?: time());
+        $js_version = ACA_VERSION . '-' . ($js_mtime ?: time());
         $fallback_handle = 'aca-app-fallback-' . md5($js_version);
         
         // Only enqueue CSS if it exists

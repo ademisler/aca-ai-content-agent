@@ -162,9 +162,8 @@ class AI_Content_Agent {
             isset($_GET['gsc_auth']) && $_GET['gsc_auth'] === 'callback' && 
             isset($_GET['code'])) {
             
-            require_once ACA_PLUGIN_DIR . 'includes/class-aca-google-search-console.php';
-            
-            $gsc = new ACA_Google_Search_Console();
+            // Use hybrid version that doesn't require vendor dependencies
+            $gsc = new ACA_Google_Search_Console_Hybrid();
             $result = $gsc->handle_oauth_callback($_GET['code']);
             
             if (is_wp_error($result)) {

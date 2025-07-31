@@ -1,11 +1,11 @@
 <?php
 /**
- * Plugin Name: AI Content Agent (ACA)
- * Plugin URI: https://ademisler.gumroad.com/l/ai-content-agent-pro
- * Description: AI-powered content creation and management plugin that generates blog posts, ideas, and manages your content workflow automatically with Google Search Console integration and Pro features.
- * Version: 2.3.7
+ * Plugin Name: AI Content Agent (ACA) - Enterprise
+ * Plugin URI: https://github.com/ademisler/ai-content-agent
+ * Description: Enterprise-grade AI-powered WordPress content creation plugin with advanced automation, mobile responsiveness, internationalization, and robust error recovery. Features lazy loading, circuit breaker patterns, and graceful degradation for maximum reliability.
+ * Version: 2.3.8
  * Author: Adem Isler
- * Author URI: https://ademisler.com/en
+ * Author URI: https://github.com/ademisler
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: ai-content-agent
@@ -22,9 +22,10 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('ACA_VERSION', '2.3.7');
+define('ACA_VERSION', '2.3.8');
+define('ACA_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('ACA_PLUGIN_URL', plugin_dir_url(__FILE__));
-define('ACA_PLUGIN_PATH', plugin_dir_path(__FILE__));
+define('ACA_PLUGIN_FILE', __FILE__);
 
 /**
  * Check if ACA Pro is active
@@ -36,11 +37,11 @@ function is_aca_pro_active() {
 }
 
 // Include required files
-require_once ACA_PLUGIN_PATH . 'includes/class-aca-activator.php';
-require_once ACA_PLUGIN_PATH . 'includes/class-aca-deactivator.php';
-require_once ACA_PLUGIN_PATH . 'includes/class-aca-rest-api.php';
-require_once ACA_PLUGIN_PATH . 'includes/class-aca-cron.php';
-require_once ACA_PLUGIN_PATH . 'includes/class-aca-content-freshness.php';
+require_once ACA_PLUGIN_DIR . 'includes/class-aca-activator.php';
+require_once ACA_PLUGIN_DIR . 'includes/class-aca-deactivator.php';
+require_once ACA_PLUGIN_DIR . 'includes/class-aca-rest-api.php';
+require_once ACA_PLUGIN_DIR . 'includes/class-aca-cron.php';
+require_once ACA_PLUGIN_DIR . 'includes/class-aca-content-freshness.php';
 
 // Activation and deactivation hooks
 register_activation_hook(__FILE__, array('ACA_Activator', 'activate'));
@@ -57,7 +58,7 @@ class AI_Content_Agent {
     
     public function init() {
         // Initialize dependency installer
-        require_once ACA_PLUGIN_PATH . 'install-dependencies.php';
+        require_once ACA_PLUGIN_DIR . 'install-dependencies.php';
         
         // Initialize REST API
         new ACA_Rest_Api();
@@ -83,7 +84,7 @@ class AI_Content_Agent {
             isset($_GET['gsc_auth']) && $_GET['gsc_auth'] === 'callback' && 
             isset($_GET['code'])) {
             
-            require_once ACA_PLUGIN_PATH . 'includes/class-aca-google-search-console.php';
+            require_once ACA_PLUGIN_DIR . 'includes/class-aca-google-search-console.php';
             
             $gsc = new ACA_Google_Search_Console();
             $result = $gsc->handle_oauth_callback($_GET['code']);
@@ -137,7 +138,7 @@ class AI_Content_Agent {
         }
         
         // Find the latest built JS file in admin/assets
-        $assets_dir = ACA_PLUGIN_PATH . 'admin/assets/';
+        $assets_dir = ACA_PLUGIN_DIR . 'admin/assets/';
         
         // Check if assets directory exists
         if (!is_dir($assets_dir)) {
@@ -195,8 +196,8 @@ class AI_Content_Agent {
      * Enqueue fallback assets with proper validation
      */
     private function enqueue_fallback_assets() {
-        $css_file = ACA_PLUGIN_PATH . 'admin/css/index.css';
-        $js_file = ACA_PLUGIN_PATH . 'admin/js/index.js';
+        $css_file = ACA_PLUGIN_DIR . 'admin/css/index.css';
+        $js_file = ACA_PLUGIN_DIR . 'admin/js/index.js';
         
         // Validate fallback files exist
         if (!file_exists($js_file) || !is_readable($js_file)) {

@@ -1,7 +1,7 @@
 {
   "name": "ai-content-agent-aca",
-  "version": "2.3.7",
-  "description": "AI Content Agent (ACA) - AI-powered WordPress content creation plugin with Pro licensing",
+  "version": "2.3.8",
+  "description": "AI Content Agent (ACA) - Enterprise-grade AI-powered WordPress content creation plugin with Pro licensing",
   "private": true,
   "type": "module",
   "scripts": {
@@ -27,7 +27,7 @@
     "jest": "^30.0.5",
     "jest-environment-jsdom": "^30.0.5",
     "terser": "^5.43.1",
-    "typescript": "~5.7.2",
-    "vite": "^6.2.0"
+    "typescript": "^5.7.3",
+    "vite": "^6.3.5"
   }
 }

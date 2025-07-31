@@ -1441,6 +1441,336 @@ body.toplevel_page_ai-content-agent #footer-thankyou,
 body.toplevel_page_ai-content-agent #footer-upgrade,
 body.toplevel_page_ai-content-agent #wpfooter {
   display: none !important;
+}
+
+/* MOBILE RESPONSIVE STYLES */
+
+/* ======================== */
+
+/* Base mobile styles for screens smaller than 768px */
+
+@media screen and (max-width: 767px) {
+    /* Container adjustments */
+    .aca-container {
+        flex-direction: column;
+        padding: 0;
+    }
+
+    /* Sidebar mobile behavior */
+    .aca-sidebar {
+        width: 100%;
+        height: auto;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 10000;
+        transform: translateY(-100%);
+        transition: transform 0.3s ease;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .aca-sidebar.open {
+        transform: translateY(0);
+    }
+
+    /* Main content mobile adjustments */
+    .aca-main-content {
+        margin-left: 0 !important;
+        padding: 10px !important;
+        width: 100% !important;
+    }
+
+    /* Header mobile */
+    .aca-header {
+        padding: 10px 15px !important;
+        flex-wrap: wrap;
+    }
+
+    .aca-menu-toggle {
+        display: block !important;
+        order: -1;
+        margin-right: 10px;
+    }
+
+    /* Cards and components */
+    .aca-card {
+        margin: 10px 0 !important;
+        padding: 15px !important;
+        border-radius: 8px !important;
+    }
+
+    .aca-card-grid {
+        grid-template-columns: 1fr !important;
+        gap: 15px !important;
+    }
+
+    /* Form elements */
+    .aca-input,
+    .aca-textarea,
+    .aca-select {
+        width: 100% !important;
+        font-size: 16px !important; /* Prevent zoom on iOS */
+        padding: 12px !important;
+    }
+
+    .aca-button {
+        width: 100% !important;
+        padding: 12px 20px !important;
+        font-size: 16px !important;
+        margin: 5px 0 !important;
+    }
+
+    /* Settings tabs mobile */
+    .aca-settings-tabs {
+        flex-direction: column !important;
+        gap: 5px !important;
+    }
+
+    .aca-settings-tab {
+        width: 100% !important;
+        text-align: center !important;
+        padding: 12px !important;
+    }
+
+    /* Modal mobile */
+    .aca-modal {
+        width: 95% !important;
+        height: 90% !important;
+        margin: 5% auto !important;
+        padding: 15px !important;
+    }
+
+    .aca-modal-content {
+        max-height: calc(90vh - 100px) !important;
+        overflow-y: auto !important;
+    }
+
+    /* Toast notifications mobile */
+    .aca-toast-container {
+        bottom: 20px !important;
+        left: 10px !important;
+        right: 10px !important;
+        width: auto !important;
+    }
+
+    .aca-toast {
+        width: 100% !important;
+        margin: 5px 0 !important;
+    }
+
+    /* Table responsive */
+    .aca-table {
+        display: block !important;
+        overflow-x: auto !important;
+        white-space: nowrap !important;
+    }
+
+    /* Stats grid mobile */
+    .aca-stats-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 10px !important;
+    }
+
+    /* Idea board mobile */
+    .aca-idea-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Draft list mobile */
+    .aca-draft-item {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+    }
+
+    .aca-draft-actions {
+        width: 100% !important;
+        justify-content: space-between !important;
+    }
+
+    /* Content calendar mobile */
+    .aca-calendar-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        font-size: 12px !important;
+    }
+
+    /* Settings form mobile */
+    .aca-form-row {
+        flex-direction: column !important;
+        gap: 10px !important;
+    }
+
+    .aca-form-col {
+        width: 100% !important;
+    }
+
+    /* Navigation mobile */
+    .aca-nav-item {
+        padding: 15px 20px !important;
+        font-size: 16px !important;
+    }
+
+    /* Hide desktop-only elements */
+    .desktop-only {
+        display: none !important;
+    }
+
+    /* Show mobile-only elements */
+    .mobile-only {
+        display: block !important;
+    }
+}
+
+/* Tablet styles (768px - 1024px) */
+
+@media screen and (min-width: 768px) and (max-width: 1024px) {
+    .aca-sidebar {
+        width: 200px;
+    }
+
+    .aca-main-content {
+        margin-left: 200px;
+        padding: 20px;
+    }
+
+    .aca-card-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .aca-stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .aca-idea-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Touch-friendly interactions */
+
+@media (hover: none) and (pointer: coarse) {
+    /* Increase touch targets */
+    .aca-button,
+    .aca-nav-item,
+    .aca-tab-button {
+        min-height: 44px !important;
+        min-width: 44px !important;
+    }
+
+    /* Remove hover effects on touch devices */
+    .aca-button:hover,
+    .aca-nav-item:hover,
+    .aca-card:hover {
+        transform: none !important;
+        box-shadow: inherit !important;
+    }
+
+    /* Add touch feedback */
+    .aca-button:active,
+    .aca-nav-item:active {
+        transform: scale(0.98) !important;
+        opacity: 0.8 !important;
+    }
+}
+
+/* High DPI displays */
+
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .aca-icon {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    }
+}
+
+/* Landscape mobile orientation */
+
+@media screen and (max-width: 767px) and (orientation: landscape) {
+    .aca-modal {
+        width: 90% !important;
+        height: 80% !important;
+        margin: 10% auto !important;
+    }
+
+    .aca-sidebar {
+        height: 100vh !important;
+    }
+}
+
+/* Accessibility - Reduced motion */
+
+@media (prefers-reduced-motion: reduce) {
+    .aca-sidebar,
+    .aca-modal,
+    .aca-toast,
+    .aca-button {
+        transition: none !important;
+        animation: none !important;
+    }
+}
+
+/* Dark mode support */
+
+@media (prefers-color-scheme: dark) {
+    .aca-container {
+        background: #1a1a1a !important;
+    }
+
+    .aca-card {
+        background: #2a2a2a !important;
+        border-color: #404040 !important;
+        color: #ffffff !important;
+    }
+
+    .aca-input,
+    .aca-textarea,
+    .aca-select {
+        background: #2a2a2a !important;
+        border-color: #404040 !important;
+        color: #ffffff !important;
+    }
+}
+
+/* Utility classes for responsive design */
+
+.mobile-hide {
+    display: block;
+}
+
+.mobile-show {
+    display: none;
+}
+
+@media screen and (max-width: 767px) {
+    .mobile-hide {
+        display: none !important;
+    }
+
+    .mobile-show {
+        display: block !important;
+    }
+}
+
+/* Print styles */
+
+@media print {
+    .aca-sidebar,
+    .aca-header,
+    .aca-toast-container,
+    .aca-modal {
+        display: none !important;
+    }
+
+    .aca-main-content {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+    }
+
+    .aca-card {
+        break-inside: avoid !important;
+        margin: 10px 0 !important;
+    }
 }/*$vite$:1*/`;
   document.head.appendChild(__vite_style__);
   function getDefaultExportFromCjs(x) {
@@ -8465,6 +8795,80 @@ body.toplevel_page_ai-content-agent #wpfooter {
   }
   var clientExports = requireClient();
   const ReactDOM = /* @__PURE__ */ getDefaultExportFromCjs(clientExports);
+  const scriptRel = "modulepreload";
+  const assetsURL = function(dep) {
+    return "/" + dep;
+  };
+  const seen = {};
+  const __vitePreload = function preload(baseModule, deps, importerUrl) {
+    let promise = Promise.resolve();
+    if (false) {
+      let allSettled2 = function(promises) {
+        return Promise.all(
+          promises.map(
+            (p) => Promise.resolve(p).then(
+              (value) => ({ status: "fulfilled", value }),
+              (reason) => ({ status: "rejected", reason })
+            )
+          )
+        );
+      };
+      document.getElementsByTagName("link");
+      const cspNonceMeta = document.querySelector(
+        "meta[property=csp-nonce]"
+      );
+      const cspNonce = cspNonceMeta?.nonce || cspNonceMeta?.getAttribute("nonce");
+      promise = allSettled2(
+        deps.map((dep) => {
+          dep = assetsURL(dep);
+          if (dep in seen) return;
+          seen[dep] = true;
+          const isCss = dep.endsWith(".css");
+          const cssSelector = isCss ? '[rel="stylesheet"]' : "";
+          if (document.querySelector(`link[href="${dep}"]${cssSelector}`)) {
+            return;
+          }
+          const link = document.createElement("link");
+          link.rel = isCss ? "stylesheet" : scriptRel;
+          if (!isCss) {
+            link.as = "script";
+          }
+          link.crossOrigin = "";
+          link.href = dep;
+          if (cspNonce) {
+            link.setAttribute("nonce", cspNonce);
+          }
+          document.head.appendChild(link);
+          if (isCss) {
+            return new Promise((res, rej) => {
+              link.addEventListener("load", res);
+              link.addEventListener(
+                "error",
+                () => rej(new Error(`Unable to preload CSS for ${dep}`))
+              );
+            });
+          }
+        })
+      );
+    }
+    function handlePreloadError(err) {
+      const e = new Event("vite:preloadError", {
+        cancelable: true
+      });
+      e.payload = err;
+      window.dispatchEvent(e);
+      if (!e.defaultPrevented) {
+        throw err;
+      }
+    }
+    return promise.then((res) => {
+      for (const item of res || []) {
+        if (item.status !== "rejected") continue;
+        handlePreloadError(item.reason);
+      }
+      return baseModule().catch(handlePreloadError);
+    });
+  };
   const makeApiCall = async (path, options = {}) => {
     if (!window.acaData) {
       console.error("ACA Error: window.acaData is not defined. Plugin scripts may not be loaded correctly.");
@@ -10762,6 +11166,986 @@ body.toplevel_page_ai-content-agent #wpfooter {
       ] })
     ] });
   };
+  const ToastIcon = ({ type }) => {
+    const iconProps = { style: { width: "16px", height: "16px", color: "white" } };
+    switch (type) {
+      case "success":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx(CheckCircle, { ...iconProps });
+      case "error":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx(XCircle, { ...iconProps });
+      case "warning":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx(AlertTriangle, { ...iconProps });
+      case "info":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx(Info, { ...iconProps });
+      default:
+        return /* @__PURE__ */ jsxRuntimeExports.jsx(Info, { ...iconProps });
+    }
+  };
+  const Toast = ({ id, message, type, onDismiss }) => {
+    const [isVisible, setIsVisible] = React.useState(false);
+    const [isExiting, setIsExiting] = React.useState(false);
+    reactExports.useEffect(() => {
+      setTimeout(() => setIsVisible(true), 50);
+      const timer = setTimeout(() => {
+        handleDismiss();
+      }, 5e3);
+      return () => clearTimeout(timer);
+    }, [id]);
+    const handleDismiss = () => {
+      setIsExiting(true);
+      setTimeout(() => onDismiss(id), 300);
+    };
+    const getToastColors = () => {
+      switch (type) {
+        case "success":
+          return {
+            bg: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+            border: "#10b981",
+            shadow: "rgba(16, 185, 129, 0.3)"
+          };
+        case "error":
+          return {
+            bg: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
+            border: "#ef4444",
+            shadow: "rgba(239, 68, 68, 0.3)"
+          };
+        case "warning":
+          return {
+            bg: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+            border: "#f59e0b",
+            shadow: "rgba(245, 158, 11, 0.3)"
+          };
+        case "info":
+          return {
+            bg: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
+            border: "#3b82f6",
+            shadow: "rgba(59, 130, 246, 0.3)"
+          };
+        default:
+          return {
+            bg: "linear-gradient(135deg, #6b7280 0%, #4b5563 100%)",
+            border: "#6b7280",
+            shadow: "rgba(107, 114, 128, 0.3)"
+          };
+      }
+    };
+    const colors = getToastColors();
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
+      {
+        style: {
+          background: colors.bg,
+          color: "white",
+          padding: "16px 20px",
+          borderRadius: "12px",
+          boxShadow: `0 8px 25px ${colors.shadow}, 0 4px 10px rgba(0, 0, 0, 0.1)`,
+          border: `1px solid ${colors.border}`,
+          backdropFilter: "blur(10px)",
+          transform: isExiting ? "translateX(100%) scale(0.9)" : isVisible ? "translateX(0) scale(1)" : "translateX(100%) scale(0.9)",
+          opacity: isExiting ? 0 : isVisible ? 1 : 0,
+          transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+          minWidth: "300px",
+          maxWidth: "500px",
+          position: "relative",
+          overflow: "hidden"
+        },
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "div",
+            {
+              style: {
+                position: "absolute",
+                bottom: 0,
+                left: 0,
+                height: "3px",
+                background: "rgba(255, 255, 255, 0.3)",
+                animation: "aca-toast-progress 5s linear forwards",
+                transformOrigin: "left"
+              }
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", flex: 1 }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: "24px",
+                height: "24px",
+                background: "rgba(255, 255, 255, 0.2)",
+                borderRadius: "6px",
+                marginRight: "12px",
+                flexShrink: 0
+              }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(ToastIcon, { type }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: {
+                fontSize: "14px",
+                fontWeight: "500",
+                lineHeight: "1.4",
+                wordBreak: "break-word"
+              }, children: message })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                onClick: handleDismiss,
+                style: {
+                  background: "rgba(255, 255, 255, 0.2)",
+                  border: "none",
+                  color: "white",
+                  cursor: "pointer",
+                  padding: "6px",
+                  marginLeft: "12px",
+                  borderRadius: "6px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  transition: "all 0.2s ease",
+                  flexShrink: 0
+                },
+                onMouseEnter: (e) => {
+                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.3)";
+                  e.currentTarget.style.transform = "scale(1.1)";
+                },
+                onMouseLeave: (e) => {
+                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.2)";
+                  e.currentTarget.style.transform = "scale(1)";
+                },
+                "aria-label": "Dismiss notification",
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { style: { width: "14px", height: "14px" } })
+              }
+            )
+          ] })
+        ]
+      }
+    );
+  };
+  let ErrorBoundary$1 = class ErrorBoundary extends reactExports.Component {
+    constructor(props) {
+      super(props);
+      this.state = {
+        hasError: false,
+        error: null,
+        errorInfo: null
+      };
+    }
+    static getDerivedStateFromError(error) {
+      return {
+        hasError: true,
+        error,
+        errorInfo: null
+      };
+    }
+    componentDidCatch(error, errorInfo) {
+      console.error("AI Content Agent Error Boundary caught an error:", error, errorInfo);
+      if (window.acaData) {
+        fetch(`${window.acaData.api_url}debug/error`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-WP-Nonce": window.acaData.nonce
+          },
+          body: JSON.stringify({
+            error: error.message,
+            stack: error.stack,
+            componentStack: errorInfo.componentStack
+          })
+        }).catch((e) => {
+          console.error("Failed to log error to WordPress:", e);
+        });
+      }
+      this.setState({
+        error,
+        errorInfo
+      });
+    }
+    render() {
+      if (this.state.hasError) {
+        if (this.props.fallback) {
+          return this.props.fallback;
+        }
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-error-boundary", style: {
+          padding: "20px",
+          margin: "20px",
+          border: "2px solid #dc3545",
+          borderRadius: "8px",
+          backgroundColor: "#f8d7da",
+          color: "#721c24"
+        }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { style: { marginTop: 0, color: "#721c24" }, children: "🚨 Something went wrong" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "The AI Content Agent encountered an unexpected error. Please try refreshing the page." }),
+          false,
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: "15px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                onClick: () => window.location.reload(),
+                style: {
+                  backgroundColor: "#007cba",
+                  color: "white",
+                  border: "none",
+                  padding: "8px 16px",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                  marginRight: "10px"
+                },
+                children: "Refresh Page"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                onClick: () => this.setState({ hasError: false, error: null, errorInfo: null }),
+                style: {
+                  backgroundColor: "#6c757d",
+                  color: "white",
+                  border: "none",
+                  padding: "8px 16px",
+                  borderRadius: "4px",
+                  cursor: "pointer"
+                },
+                children: "Try Again"
+              }
+            )
+          ] })
+        ] });
+      }
+      return this.props.children;
+    }
+  };
+  const logger = {
+    log: (message, ...args) => {
+    },
+    error: (message, error, ...args) => {
+      if (error) {
+        console.error(`[ACA] ${message}`);
+      }
+    },
+    warn: (message, ...args) => {
+    },
+    info: (message, ...args) => {
+    },
+    debug: (message, ...args) => {
+    }
+  };
+  const StyleGuideManager$2 = reactExports.lazy(() => __vitePreload(() => Promise.resolve().then(() => StyleGuideManager$1), false ? __VITE_PRELOAD__ : void 0).then((module) => ({ default: module.StyleGuideManager })));
+  const IdeaBoard$2 = reactExports.lazy(() => __vitePreload(() => Promise.resolve().then(() => IdeaBoard$1), false ? __VITE_PRELOAD__ : void 0).then((module) => ({ default: module.IdeaBoard })));
+  const DraftsList$2 = reactExports.lazy(() => __vitePreload(() => Promise.resolve().then(() => DraftsList$1), false ? __VITE_PRELOAD__ : void 0).then((module) => ({ default: module.DraftsList })));
+  const SettingsTabbed$2 = reactExports.lazy(() => __vitePreload(() => Promise.resolve().then(() => SettingsTabbed$1), false ? __VITE_PRELOAD__ : void 0).then((module) => ({ default: module.SettingsTabbed })));
+  const DraftModal$2 = reactExports.lazy(() => __vitePreload(() => Promise.resolve().then(() => DraftModal$1), false ? __VITE_PRELOAD__ : void 0).then((module) => ({ default: module.DraftModal })));
+  const PublishedList$2 = reactExports.lazy(() => __vitePreload(() => Promise.resolve().then(() => PublishedList$1), false ? __VITE_PRELOAD__ : void 0).then((module) => ({ default: module.PublishedList })));
+  const ContentCalendar$2 = reactExports.lazy(() => __vitePreload(() => Promise.resolve().then(() => ContentCalendar$1), false ? __VITE_PRELOAD__ : void 0).then((module) => ({ default: module.ContentCalendar })));
+  const ContentFreshnessManager$2 = reactExports.lazy(() => __vitePreload(() => Promise.resolve().then(() => ContentFreshnessManager$1), false ? __VITE_PRELOAD__ : void 0).then((module) => ({ default: module.ContentFreshnessManager })));
+  const ComponentLoader = () => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "200px",
+    fontSize: "14px",
+    color: "#666"
+  }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+      display: "flex",
+      alignItems: "center",
+      gap: "8px"
+    }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+        width: "20px",
+        height: "20px",
+        border: "2px solid #f3f3f3",
+        borderTop: "2px solid #0073aa",
+        borderRadius: "50%",
+        animation: "spin 1s linear infinite"
+      } }),
+      "Loading..."
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("style", { children: `
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        ` })
+  ] });
+  const App = () => {
+    const [view, setView] = reactExports.useState("dashboard");
+    const [styleGuide, setStyleGuide] = reactExports.useState(null);
+    const [ideas, setIdeas] = reactExports.useState([]);
+    const [posts, setPosts] = reactExports.useState([]);
+    const [selectedDraft, setSelectedDraft] = reactExports.useState(null);
+    const [activityLogs, setActivityLogs] = reactExports.useState([]);
+    const [settings, setSettings] = reactExports.useState({
+      mode: "manual",
+      autoPublish: false,
+      searchConsoleUser: null,
+      gscClientId: "",
+      gscClientSecret: "",
+      imageSourceProvider: "pexels",
+      // Changed default to simplest option
+      aiImageStyle: "photorealistic",
+      googleCloudProjectId: "",
+      googleCloudLocation: "us-central1",
+      pexelsApiKey: "",
+      unsplashApiKey: "",
+      pixabayApiKey: "",
+      seoPlugin: "none",
+      // Auto-detected, kept for backward compatibility
+      geminiApiKey: "",
+      // Automation frequency settings with defaults
+      semiAutoIdeaFrequency: "weekly",
+      fullAutoDailyPostCount: 1,
+      fullAutoPublishFrequency: "daily",
+      analyzeContentFrequency: "manual"
+    });
+    const [isLoading, setIsLoading] = reactExports.useState({});
+    const [toasts, setToasts] = reactExports.useState([]);
+    const [isSidebarOpen, setIsSidebarOpen] = reactExports.useState(false);
+    const [publishingId, setPublishingId] = reactExports.useState(null);
+    const [contentFreshness, setContentFreshness] = reactExports.useState(null);
+    const [settingsOpenSection, setSettingsOpenSection] = reactExports.useState(void 0);
+    const drafts = posts.filter((p) => p.status === "draft");
+    const publishedPosts = posts.filter((p) => p.status === "published");
+    const isGeminiApiConfigured = !!(settings.geminiApiKey && settings.geminiApiKey.trim());
+    reactExports.useEffect(() => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const viewParam = urlParams.get("view");
+      const gscConnected = urlParams.get("gsc_connected");
+      if (viewParam === "settings" && gscConnected === "1") {
+        setView("settings");
+        setSettingsOpenSection("integrations");
+        showToast("Google Search Console connected successfully!", "success");
+        const newUrl = window.location.pathname + window.location.hash;
+        window.history.replaceState({}, document.title, newUrl);
+      } else if (viewParam === "settings") {
+        setView("settings");
+      }
+    }, [showToast]);
+    reactExports.useEffect(() => {
+      if (view !== "settings") {
+        setSettingsOpenSection(void 0);
+      }
+    }, [view]);
+    const addToast = reactExports.useCallback((toast) => {
+      const id = Date.now();
+      setToasts((prev) => [...prev, { ...toast, id }]);
+    }, []);
+    const showToast = reactExports.useCallback((message, type) => {
+      addToast({ message, type });
+    }, [addToast]);
+    const addLogEntry = reactExports.useCallback((type, details, icon) => {
+      const newLog = {
+        id: Date.now(),
+        type,
+        details,
+        timestamp: (/* @__PURE__ */ new Date()).toISOString(),
+        icon
+      };
+      setActivityLogs((prev) => [newLog, ...prev.slice(0, 49)]);
+      activityApi.create({
+        type,
+        message: details,
+        icon
+      }).catch(console.error);
+    }, []);
+    const removeToast = reactExports.useCallback((id) => {
+      setToasts((currentToasts) => currentToasts.filter((toast) => toast.id !== id));
+    }, []);
+    const handleAnalyzeStyle = reactExports.useCallback(async (showToast2 = true) => {
+      setIsLoading((prev) => ({ ...prev, style: true }));
+      try {
+        const updatedStyleGuide = await styleGuideApi.analyze();
+        setStyleGuide(updatedStyleGuide);
+        if (showToast2) {
+          addToast({ message: "Style guide updated successfully!", type: "success" });
+        }
+        addLogEntry("style_analyzed", "Style guide analyzed and updated", "BookOpen");
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Failed to analyze style guide";
+        if (showToast2) {
+          addToast({ message: errorMessage, type: "error" });
+        }
+      } finally {
+        setIsLoading((prev) => ({ ...prev, style: false }));
+      }
+    }, [addToast, addLogEntry]);
+    const handleSaveStyleGuide = reactExports.useCallback(async (updatedGuide) => {
+      try {
+        const savedGuide = await styleGuideApi.update(updatedGuide);
+        setStyleGuide(savedGuide);
+        addToast({ message: "Style guide saved successfully!", type: "success" });
+        addLogEntry("style_updated", "Style guide manually updated", "BookOpen");
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Failed to save style guide";
+        addToast({ message: errorMessage, type: "error" });
+      }
+    }, [addToast, addLogEntry]);
+    const handleGenerateIdeas = reactExports.useCallback(async (showToast2 = true, count = 5) => {
+      if (!styleGuide) {
+        addToast({ message: "Please create a style guide first", type: "warning" });
+        return;
+      }
+      setIsLoading((prev) => ({ ...prev, ideas: true }));
+      try {
+        const newIdeas = await ideasApi.generate(count);
+        setIdeas((prev) => [...newIdeas, ...prev]);
+        if (showToast2) {
+          addToast({ message: `Generated ${newIdeas.length} new ideas!`, type: "success" });
+        }
+        addLogEntry("ideas_generated", `Generated ${newIdeas.length} new content ideas`, "Lightbulb");
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Failed to generate ideas";
+        if (showToast2) {
+          addToast({ message: errorMessage, type: "error" });
+        }
+      } finally {
+        setIsLoading((prev) => ({ ...prev, ideas: false }));
+      }
+    }, [styleGuide, addToast, addLogEntry]);
+    const handleGenerateSimilarIdeas = reactExports.useCallback(async (baseIdea) => {
+      if (!styleGuide) {
+        addToast({ message: "Please create a style guide first", type: "warning" });
+        return;
+      }
+      setIsLoading((prev) => ({ ...prev, [`similar_${baseIdea.id}`]: true }));
+      try {
+        const similarIdeas = await ideasApi.generateSimilar(baseIdea.id);
+        setIdeas((prev) => [...similarIdeas, ...prev]);
+        addToast({ message: `Generated ${similarIdeas.length} similar ideas!`, type: "success" });
+        addLogEntry("similar_ideas_generated", `Generated ${similarIdeas.length} ideas similar to "${baseIdea.title}"`, "Lightbulb");
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Failed to generate similar ideas";
+        addToast({ message: errorMessage, type: "error" });
+      } finally {
+        setIsLoading((prev) => ({ ...prev, [`similar_${baseIdea.id}`]: false }));
+      }
+    }, [styleGuide, addToast, addLogEntry]);
+    const handleCreateDraft = reactExports.useCallback(async (ideaId) => {
+      if (!styleGuide) {
+        addToast({ message: "Please create a style guide first", type: "warning" });
+        return;
+      }
+      const idea = ideas.find((i) => i.id === ideaId);
+      if (!idea) {
+        addToast({ message: "Idea not found", type: "error" });
+        return;
+      }
+      logger.log("Creating draft for idea:", idea);
+      setIsLoading((prev) => ({ ...prev, [`draft_${ideaId}`]: true }));
+      addToast({
+        message: `🤖 AI is generating draft for "${idea.title}"... This may take a moment.`,
+        type: "info"
+      });
+      try {
+        logger.log("Calling draftsApi.createFromIdea with ideaId:", ideaId);
+        const draft = await draftsApi.createFromIdea(ideaId);
+        logger.log("Draft created successfully:", draft);
+        setPosts((prev) => [draft, ...prev]);
+        const updatedIdea = { ...idea, status: "archived" };
+        await ideasApi.update(ideaId, updatedIdea);
+        setIdeas((prev) => prev.map((i) => i.id === ideaId ? updatedIdea : i));
+        addToast({
+          message: `Draft "${draft.title}" created successfully! Check WordPress admin for the post.`,
+          type: "success"
+        });
+        addLogEntry("draft_created", `Created draft: "${draft.title}" with full WordPress integration`, "FileText");
+      } catch (error) {
+        logger.error("Error creating draft:", error);
+        let errorMessage = "Failed to create draft. Please try again.";
+        if (error instanceof Error) {
+          const message = error.message.toLowerCase();
+          if (message.includes("503") || message.includes("overloaded") || message.includes("unavailable")) {
+            errorMessage = "🤖 AI service is temporarily overloaded. Please wait a moment and try again.";
+          } else if (message.includes("timeout")) {
+            errorMessage = "⏱️ Request timed out. The AI service might be busy. Please try again.";
+          } else if (message.includes("api key")) {
+            errorMessage = "🔑 AI API key is not configured. Please check your settings.";
+          } else if (message.includes("style guide")) {
+            errorMessage = "📋 Style guide is required. Please create one first.";
+          } else if (message.includes("after") && message.includes("attempts")) {
+            errorMessage = "🔄 AI service is currently unavailable after multiple attempts. Please try again in a few minutes.";
+          } else if (message.includes("ai content generation failed")) {
+            errorMessage = "🤖 AI content generation failed. The service might be temporarily unavailable. Please try again.";
+          }
+        }
+        addToast({ message: errorMessage, type: "error" });
+      } finally {
+        setIsLoading((prev) => ({ ...prev, [`draft_${ideaId}`]: false }));
+      }
+    }, [ideas, styleGuide, addToast, addLogEntry]);
+    const handleUpdateDraft = reactExports.useCallback(async (draftId, updates) => {
+      try {
+        const updatedDraft = await draftsApi.update(draftId, updates);
+        setPosts((prev) => prev.map((p) => p.id === draftId ? updatedDraft : p));
+        addToast({ message: "Draft updated successfully!", type: "success" });
+        addLogEntry("draft_updated", `Updated draft: "${updatedDraft.title}"`, "FileText");
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Failed to update draft";
+        addToast({ message: errorMessage, type: "error" });
+      }
+    }, [addToast, addLogEntry]);
+    const handlePublishPost = reactExports.useCallback(async (draftId) => {
+      setPublishingId(draftId);
+      try {
+        const publishedPost = await publishedApi.publish(draftId);
+        setPosts((prev) => prev.map((p) => p.id === draftId ? publishedPost : p));
+        addToast({ message: "Post published successfully!", type: "success" });
+        addLogEntry("post_published", `Published post: "${publishedPost.title}"`, "Send");
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Failed to publish post";
+        addToast({ message: errorMessage, type: "error" });
+      } finally {
+        setPublishingId(null);
+      }
+    }, [addToast, addLogEntry]);
+    const handleUpdatePostDate = reactExports.useCallback(async (postId, newDate, shouldConvertToDraft = false) => {
+      try {
+        const updatedPost = await publishedApi.updateDate(postId, newDate, shouldConvertToDraft);
+        setPosts((prev) => prev.map((p) => p.id === postId ? updatedPost : p));
+        const action = shouldConvertToDraft ? "converted to scheduled draft" : "publish date updated";
+        addToast({ message: `Post ${action} successfully!`, type: "success" });
+        addLogEntry("draft_updated", `Post "${updatedPost.title}" ${action}`, "Calendar");
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Failed to update post date";
+        addToast({ message: errorMessage, type: "error" });
+      }
+    }, [addToast, addLogEntry]);
+    const handleScheduleDraft = reactExports.useCallback(async (draftId, scheduledDate) => {
+      try {
+        const updatedDraft = await draftsApi.schedule(draftId, scheduledDate);
+        setPosts((prev) => prev.map((p) => p.id === draftId ? updatedDraft : p));
+        const formattedDate = new Date(scheduledDate).toLocaleDateString();
+        const draftTitle = updatedDraft.title || `Draft ${draftId}`;
+        addToast({ message: `Draft "${draftTitle}" scheduled for ${formattedDate}!`, type: "success" });
+        addLogEntry("draft_scheduled", `Scheduled draft: "${draftTitle}" for ${formattedDate}`, "Calendar");
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Failed to schedule draft";
+        addToast({ message: errorMessage, type: "error" });
+        logger.error("Error scheduling draft:", error);
+      }
+    }, [addToast, addLogEntry]);
+    const handleArchiveIdea = reactExports.useCallback(async (ideaId) => {
+      try {
+        const idea = ideas.find((i) => i.id === ideaId);
+        if (!idea) return;
+        await ideasApi.delete(ideaId);
+        const updatedIdea = { ...idea, status: "archived" };
+        setIdeas((prev) => prev.map((i) => i.id === ideaId ? updatedIdea : i));
+        addToast({ message: "Idea archived successfully!", type: "success" });
+        addLogEntry("idea_archived", `Archived idea: "${idea.title}"`, "Archive");
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Failed to archive idea";
+        addToast({ message: errorMessage, type: "error" });
+      }
+    }, [ideas, addToast, addLogEntry]);
+    const handleDeleteIdea = reactExports.useCallback(async (ideaId) => {
+      try {
+        const idea = ideas.find((i) => i.id === ideaId);
+        if (!idea) return;
+        await ideasApi.permanentDelete(ideaId);
+        setIdeas((prev) => prev.filter((i) => i.id !== ideaId));
+        addToast({ message: "Idea deleted permanently!", type: "success" });
+        addLogEntry("idea_updated", `Permanently deleted idea: "${idea.title}"`, "Trash");
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Failed to delete idea";
+        addToast({ message: errorMessage, type: "error" });
+      }
+    }, [ideas, addToast, addLogEntry]);
+    const handleRestoreIdea = reactExports.useCallback(async (ideaId) => {
+      try {
+        const idea = ideas.find((i) => i.id === ideaId);
+        if (!idea) return;
+        await ideasApi.restore(ideaId);
+        const updatedIdea = { ...idea, status: "active" };
+        setIdeas((prev) => prev.map((i) => i.id === ideaId ? updatedIdea : i));
+        addToast({ message: "Idea restored successfully!", type: "success" });
+        addLogEntry("idea_restored", `Restored idea: "${idea.title}"`, "Edit");
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Failed to restore idea";
+        addToast({ message: errorMessage, type: "error" });
+      }
+    }, [ideas, addToast, addLogEntry]);
+    const handleGenerateIdeasAndNavigate = reactExports.useCallback(async () => {
+      await handleGenerateIdeas(false, 5);
+      setView("ideas");
+    }, [handleGenerateIdeas]);
+    const handleUpdateIdeaTitle = reactExports.useCallback(async (ideaId, newTitle) => {
+      try {
+        const idea = ideas.find((i) => i.id === ideaId);
+        if (!idea) return;
+        const updatedIdea = { ...idea, title: newTitle };
+        await ideasApi.update(ideaId, updatedIdea);
+        setIdeas((prev) => prev.map((i) => i.id === ideaId ? updatedIdea : i));
+        addToast({ message: "Idea updated successfully!", type: "success" });
+        addLogEntry("idea_updated", `Updated idea title to: "${newTitle}"`, "Edit");
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Failed to update idea";
+        addToast({ message: errorMessage, type: "error" });
+      }
+    }, [ideas, addToast, addLogEntry]);
+    const handleSaveSettings = reactExports.useCallback(async (newSettings) => {
+      try {
+        await settingsApi.update(newSettings);
+        setSettings(newSettings);
+        addToast({ message: "Settings saved successfully!", type: "success" });
+        addLogEntry("settings_updated", "Plugin settings updated", "Settings");
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Failed to save settings";
+        addToast({ message: errorMessage, type: "error" });
+      }
+    }, [addToast, addLogEntry]);
+    const handleRefreshApp = reactExports.useCallback(async () => {
+      let refreshErrors = [];
+      try {
+        const settingsData = await settingsApi.get();
+        setSettings(settingsData || {
+          mode: "manual",
+          autoPublish: false,
+          searchConsoleUser: null,
+          gscClientId: "",
+          gscClientSecret: "",
+          gscSiteUrl: "",
+          geminiApiKey: "",
+          is_pro: false,
+          seoPlugin: "none",
+          imageSource: "none",
+          aiImageStyle: "photographic"
+        });
+      } catch (error) {
+        logger.error("Failed to refresh settings:", error);
+        refreshErrors.push("settings");
+      }
+      try {
+        const ideasData = await ideasApi.get();
+        setIdeas(ideasData || []);
+      } catch (error) {
+        logger.error("Failed to refresh ideas:", error);
+        refreshErrors.push("ideas");
+      }
+      let draftsData = [];
+      let publishedData = [];
+      try {
+        draftsData = await draftsApi.get();
+      } catch (error) {
+        logger.error("Failed to refresh drafts:", error);
+        refreshErrors.push("drafts");
+      }
+      try {
+        publishedData = await publishedApi.get();
+      } catch (error) {
+        logger.error("Failed to refresh published posts:", error);
+        refreshErrors.push("published");
+      }
+      setPosts([...draftsData || [], ...publishedData || []]);
+      try {
+        const activityData = await activityApi.get();
+        setActivityLogs(activityData || []);
+      } catch (error) {
+        logger.error("Failed to refresh activity logs:", error);
+        refreshErrors.push("activity");
+      }
+      if (refreshErrors.includes("settings")) {
+        addToast({ message: "Failed to refresh app settings", type: "error" });
+      } else if (refreshErrors.length > 0) {
+        logger.log("Some non-critical data failed to refresh:", refreshErrors);
+      }
+    }, [addToast]);
+    const handleAddIdea = reactExports.useCallback(async (title, description) => {
+      try {
+        const newIdea = {
+          title: title.trim(),
+          description: description?.trim() || "",
+          status: "active",
+          source: "manual",
+          createdAt: (/* @__PURE__ */ new Date()).toISOString(),
+          tags: []
+        };
+        const createdIdea = await ideasApi.create(newIdea);
+        setIdeas((prev) => [createdIdea, ...prev]);
+        addToast({ message: "Idea added successfully!", type: "success" });
+        addLogEntry("idea_added", `Manually added idea: "${title.trim()}"`, "PlusCircle");
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Failed to add idea";
+        addToast({ message: errorMessage, type: "error" });
+      }
+    }, [addToast, addLogEntry]);
+    const renderView = () => {
+      switch (view) {
+        case "style-guide":
+          return /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.Suspense, { fallback: /* @__PURE__ */ jsxRuntimeExports.jsx(ComponentLoader, {}), children: /* @__PURE__ */ jsxRuntimeExports.jsx(StyleGuideManager$2, { styleGuide, onAnalyze: () => handleAnalyzeStyle(false), onSaveStyleGuide: handleSaveStyleGuide, isLoading: isLoading["style"] }) });
+        case "ideas":
+          return /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.Suspense, { fallback: /* @__PURE__ */ jsxRuntimeExports.jsx(ComponentLoader, {}), children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            IdeaBoard$2,
+            {
+              ideas,
+              onGenerate: () => handleGenerateIdeas(false, 5),
+              onCreateDraft: (idea) => handleCreateDraft(idea.id),
+              onArchive: handleArchiveIdea,
+              onDeleteIdea: handleDeleteIdea,
+              onRestoreIdea: handleRestoreIdea,
+              isLoading: isLoading["ideas"],
+              isLoadingDraft: isLoading,
+              onUpdateTitle: handleUpdateIdeaTitle,
+              onGenerateSimilar: handleGenerateSimilarIdeas,
+              onAddIdea: handleAddIdea
+            }
+          ) });
+        case "drafts":
+          return /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.Suspense, { fallback: /* @__PURE__ */ jsxRuntimeExports.jsx(ComponentLoader, {}), children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            DraftsList$2,
+            {
+              drafts,
+              onSelectDraft: setSelectedDraft,
+              onPublish: handlePublishPost,
+              publishingId,
+              onNavigateToIdeas: () => setView("ideas")
+            }
+          ) });
+        case "published":
+          return /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.Suspense, { fallback: /* @__PURE__ */ jsxRuntimeExports.jsx(ComponentLoader, {}), children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            PublishedList$2,
+            {
+              posts: publishedPosts,
+              onSelectPost: setSelectedDraft,
+              onNavigateToDrafts: () => setView("drafts")
+            }
+          ) });
+        case "settings":
+          return /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.Suspense, { fallback: /* @__PURE__ */ jsxRuntimeExports.jsx(ComponentLoader, {}), children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            SettingsTabbed$2,
+            {
+              settings,
+              onSaveSettings: handleSaveSettings,
+              onRefreshApp: handleRefreshApp,
+              onShowToast: showToast,
+              openSection: settingsOpenSection
+            }
+          ) });
+        case "calendar":
+          return /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.Suspense, { fallback: /* @__PURE__ */ jsxRuntimeExports.jsx(ComponentLoader, {}), children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            ContentCalendar$2,
+            {
+              drafts,
+              publishedPosts,
+              onScheduleDraft: handleScheduleDraft,
+              onSelectPost: setSelectedDraft,
+              onPublishDraft: handlePublishPost,
+              onUpdatePostDate: handleUpdatePostDate
+            }
+          ) });
+        case "content-freshness":
+          return /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.Suspense, { fallback: /* @__PURE__ */ jsxRuntimeExports.jsx(ComponentLoader, {}), children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            ContentFreshnessManager$2,
+            {
+              onShowToast: showToast,
+              settings
+            }
+          ) });
+        case "dashboard":
+        default:
+          return /* @__PURE__ */ jsxRuntimeExports.jsx(
+            Dashboard,
+            {
+              stats: {
+                ideas: ideas.filter((idea) => idea.status === "active").length,
+                drafts: drafts.length,
+                published: publishedPosts.length,
+                contentFreshness
+              },
+              lastAnalyzed: styleGuide?.lastAnalyzed,
+              activityLogs,
+              onNavigate: setView,
+              onGenerateIdeas: handleGenerateIdeasAndNavigate,
+              onUpdateStyleGuide: () => handleAnalyzeStyle(false),
+              isLoadingIdeas: isLoading["ideas"] || false,
+              isLoadingStyle: isLoading["style"] || false
+            }
+          );
+      }
+    };
+    reactExports.useEffect(() => {
+      if (!window.acaData) {
+        logger.error("ACA Error: WordPress localized data not available");
+        showToast("Plugin not properly loaded. Please refresh the page.", "error");
+        return;
+      }
+      setGeminiApiKey(settings.geminiApiKey);
+    }, [settings.geminiApiKey, showToast]);
+    reactExports.useEffect(() => {
+      let isMounted = true;
+      const loadInitialData = async () => {
+        try {
+          const [settingsData, styleGuideData, ideasData, draftsData, publishedData, activityData] = await Promise.all([
+            settingsApi.get(),
+            styleGuideApi.get(),
+            ideasApi.get(),
+            draftsApi.get(),
+            publishedApi.get(),
+            activityApi.get()
+          ]);
+          if (!isMounted) return;
+          try {
+            const freshnessResponse = await contentFreshnessApi.getPosts(50, "all");
+            if (freshnessResponse && freshnessResponse.success && freshnessResponse.posts && isMounted) {
+              const posts2 = freshnessResponse.posts;
+              const needsUpdate = posts2.filter((post) => post.needs_update).length;
+              const postsWithScores = posts2.filter((post) => post.freshness_score !== null);
+              const averageScore = postsWithScores.length > 0 ? Math.round(postsWithScores.reduce((sum, post) => sum + (post.freshness_score || 0), 0) / postsWithScores.length) : 0;
+              const analyzed = postsWithScores.filter((post) => post.freshness_score !== null).length;
+              setContentFreshness({
+                total: posts2.length,
+                analyzed,
+                needsUpdate,
+                averageScore
+              });
+            }
+          } catch (error) {
+            logger.log("Content freshness not available (Pro feature)");
+          }
+          if (!isMounted) return;
+          setSettings(settingsData || {
+            mode: "manual",
+            autoPublish: false,
+            searchConsoleUser: null,
+            gscClientId: "",
+            gscClientSecret: "",
+            imageSourceProvider: "pexels",
+            aiImageStyle: "photorealistic",
+            pexelsApiKey: "",
+            unsplashApiKey: "",
+            pixabayApiKey: "",
+            seoPlugin: "none",
+            // Auto-detected, kept for backward compatibility
+            geminiApiKey: "",
+            // Automation frequency settings with defaults
+            semiAutoIdeaFrequency: "weekly",
+            fullAutoDailyPostCount: 1,
+            fullAutoPublishFrequency: "daily",
+            analyzeContentFrequency: "manual"
+          });
+          if (styleGuideData && isMounted) {
+            setStyleGuide(styleGuideData);
+          }
+          if (isMounted) {
+            setIdeas(ideasData || []);
+            setPosts([...draftsData || [], ...publishedData || []]);
+            setActivityLogs(activityData || []);
+          }
+        } catch (error) {
+          if (isMounted) {
+            logger.error("Failed to load initial data:", error);
+            addToast({ message: "Failed to load plugin data", type: "error" });
+          }
+        }
+      };
+      loadInitialData();
+      return () => {
+        isMounted = false;
+      };
+    }, [addToast]);
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-container", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            className: `aca-overlay ${isSidebarOpen ? "show" : ""}`,
+            onClick: () => setIsSidebarOpen(false)
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Sidebar,
+          {
+            currentView: view,
+            setView,
+            isOpen: isSidebarOpen,
+            closeSidebar: () => setIsSidebarOpen(false)
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-main", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-mobile-header", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                onClick: () => setIsSidebarOpen(true),
+                className: "aca-menu-toggle",
+                "aria-label": "Open menu",
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx(Menu, { className: "h-6 w-6" })
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold text-white", children: "AI Content Agent (ACA)" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-fade-in", children: [
+            !isGeminiApiConfigured && view !== "settings" && /* @__PURE__ */ jsxRuntimeExports.jsx(GeminiApiWarning, { onNavigateToSettings: () => {
+              setSettingsOpenSection("integrations");
+              setView("settings");
+            } }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorBoundary$1, { children: renderView() })
+          ] })
+        ] })
+      ] }),
+      selectedDraft && /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.Suspense, { fallback: /* @__PURE__ */ jsxRuntimeExports.jsx(ComponentLoader, {}), children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        DraftModal$2,
+        {
+          draft: selectedDraft,
+          onClose: () => setSelectedDraft(null),
+          onSave: handleUpdateDraft,
+          settings
+        }
+      ) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-toast-container", children: toasts.map((toast) => /* @__PURE__ */ jsxRuntimeExports.jsx(Toast, { ...toast, onDismiss: removeToast }, toast.id)) })
+    ] });
+  };
+  class ErrorBoundary extends React.Component {
+    constructor(props) {
+      super(props);
+      this.state = { hasError: false };
+    }
+    static getDerivedStateFromError(error) {
+      return { hasError: true, error };
+    }
+    componentDidCatch(error, errorInfo) {
+      console.error("ACA Plugin Error:", error, errorInfo);
+    }
+    render() {
+      if (this.state.hasError) {
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+          padding: "20px",
+          background: "#ffebee",
+          border: "1px solid #f44336",
+          borderRadius: "4px",
+          margin: "20px"
+        }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { style: { color: "#d32f2f", margin: "0 0 10px 0" }, children: "AI Content Agent (ACA) - Loading Error" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: "0 0 10px 0" }, children: "The plugin interface failed to load. This might be a browser cache issue." }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { style: { margin: "0 0 10px 0", fontSize: "12px", color: "#666" }, children: [
+            "Error: ",
+            this.state.error?.message || "Unknown error"
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              onClick: () => window.location.reload(),
+              style: {
+                padding: "8px 16px",
+                background: "#1976d2",
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer"
+              },
+              children: "Reload Page"
+            }
+          )
+        ] });
+      }
+      return this.props.children;
+    }
+  }
+  const rootElement = document.getElementById("root");
+  if (!rootElement) {
+    throw new Error("Could not find root element to mount to");
+  }
+  const root = ReactDOM.createRoot(rootElement);
+  root.render(
+    /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorBoundary, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) })
+  );
   const PREDEFINED_TONES = ["Friendly", "Conversational", "Formal", "Professional", "Technical", "Informative", "Witty", "Humorous"];
   const sentenceStructureMap = {
     0: "Primarily short and direct sentences",
@@ -11075,6 +12459,10 @@ body.toplevel_page_ai-content-agent #wpfooter {
       ] })
     ] });
   };
+  const StyleGuideManager$1 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+    __proto__: null,
+    StyleGuideManager
+  }, Symbol.toStringTag, { value: "Module" }));
   const sourceStyles = {
     "ai": { background: "#e6f7e6", color: "#0a5d0a", borderColor: "#28a745" },
     "search-console": { background: "#e3f2fd", color: "#0d47a1", borderColor: "#2196f3" },
@@ -11508,6 +12896,10 @@ body.toplevel_page_ai-content-agent #wpfooter {
       ] })
     ] });
   };
+  const IdeaBoard$1 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+    __proto__: null,
+    IdeaBoard
+  }, Symbol.toStringTag, { value: "Module" }));
   const DraftCard = ({ draft, onSelectDraft, onPublish, isPublishing }) => {
     const isScheduled = !!draft.scheduledFor;
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", style: {
@@ -11746,6 +13138,10 @@ body.toplevel_page_ai-content-agent #wpfooter {
       ] }) })
     ] });
   };
+  const DraftsList$1 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+    __proto__: null,
+    DraftsList
+  }, Symbol.toStringTag, { value: "Module" }));
   const UpgradePrompt = ({
     title,
     description,
@@ -11921,7 +13317,7 @@ body.toplevel_page_ai-content-agent #wpfooter {
     const [licenseKey, setLicenseKey] = reactExports.useState("");
     const [licenseStatus, setLicenseStatus] = reactExports.useState({ status: "inactive", is_active: false });
     const [isVerifyingLicense, setIsVerifyingLicense] = reactExports.useState(false);
-    const [isLoadingLicenseStatus, setIsLoadingLicenseStatus] = reactExports.useState(true);
+    const [isLoadingLicenseStatus] = reactExports.useState(true);
     const [activeTab, setActiveTab] = reactExports.useState("license");
     const tabs = [
       {
@@ -11975,19 +13371,19 @@ body.toplevel_page_ai-content-agent #wpfooter {
       if (newMode !== "full-automatic") {
         setCurrentSettings((prev) => ({
           ...prev,
-          automationMode: newMode,
+          mode: newMode,
           autoPublish: false
           // Reset auto-publish when leaving full-automatic
         }));
       } else {
         setCurrentSettings((prev) => ({
           ...prev,
-          automationMode: newMode
+          mode: newMode
         }));
       }
     };
     const isProActive = () => {
-      return currentSettings.is_pro || licenseStatus.is_active;
+      return licenseStatus.is_active;
     };
     const isImageSourceConfigured = () => {
       switch (currentSettings.imageSourceProvider) {
@@ -12002,6 +13398,90 @@ body.toplevel_page_ai-content-agent #wpfooter {
         default:
           return false;
       }
+    };
+    const validateApiKey = (key, type) => {
+      if (!key || key.trim() === "") {
+        return { isValid: false, error: "API key is required" };
+      }
+      switch (type) {
+        case "gemini":
+          if (!key.startsWith("AIza") || key.length !== 39) {
+            return { isValid: false, error: 'Invalid Gemini API key format. Should start with "AIza" and be 39 characters long.' };
+          }
+          break;
+        case "pexels":
+          if (key.length < 40 || !/^[a-zA-Z0-9]+$/.test(key)) {
+            return { isValid: false, error: "Invalid Pexels API key format." };
+          }
+          break;
+        case "unsplash":
+          if (key.length < 40 || !/^[a-zA-Z0-9_-]+$/.test(key)) {
+            return { isValid: false, error: "Invalid Unsplash API key format." };
+          }
+          break;
+        case "pixabay":
+          if (!/^\d{8,20}$/.test(key)) {
+            return { isValid: false, error: "Invalid Pixabay API key format. Should be 8-20 digits." };
+          }
+          break;
+      }
+      return { isValid: true };
+    };
+    const validateGoogleCloudProjectId = (projectId) => {
+      if (!projectId || projectId.trim() === "") {
+        return { isValid: false, error: "Project ID is required" };
+      }
+      if (!/^[a-z][a-z0-9-]{5,29}$/.test(projectId)) {
+        return { isValid: false, error: "Invalid project ID format. Must be 6-30 characters, start with letter, contain only lowercase letters, digits, and hyphens." };
+      }
+      return { isValid: true };
+    };
+    const validateLicenseKey = (key) => {
+      if (!key || key.trim() === "") {
+        return { isValid: false, error: "License key is required" };
+      }
+      if (key.length < 20) {
+        return { isValid: false, error: "License key appears to be too short" };
+      }
+      return { isValid: true };
+    };
+    const [validationErrors, setValidationErrors] = reactExports.useState({});
+    const validateInput = (field, value) => {
+      let validation = { isValid: true };
+      switch (field) {
+        case "geminiApiKey":
+          validation = validateApiKey(value, "gemini");
+          break;
+        case "pexelsApiKey":
+          validation = validateApiKey(value, "pexels");
+          break;
+        case "unsplashApiKey":
+          validation = validateApiKey(value, "unsplash");
+          break;
+        case "pixabayApiKey":
+          validation = validateApiKey(value, "pixabay");
+          break;
+        case "googleCloudProjectId":
+          validation = validateGoogleCloudProjectId(value);
+          break;
+        case "licenseKey":
+          validation = validateLicenseKey(value);
+          break;
+      }
+      setValidationErrors((prev) => ({
+        ...prev,
+        [field]: validation.error || ""
+      }));
+      return validation.isValid;
+    };
+    const handleInputChange = (field, value) => {
+      setCurrentSettings((prev) => ({
+        ...prev,
+        [field]: value
+      }));
+      setTimeout(() => {
+        validateInput(field, value);
+      }, 300);
     };
     const IntegrationCard = ({ title, icon, children, isConfigured }) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", style: { margin: 0 }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-card-header", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center" }, children: [
@@ -12025,9 +13505,52 @@ body.toplevel_page_ai-content-agent #wpfooter {
       children
     ] });
     const isDirty = JSON.stringify(currentSettings) !== JSON.stringify(settings);
+    const [saveTimeout, setSaveTimeout] = reactExports.useState(null);
+    const [isAutoSaving, setIsAutoSaving] = reactExports.useState(false);
+    const debouncedSave = reactExports.useCallback(async (settingsToSave) => {
+      if (saveTimeout) {
+        clearTimeout(saveTimeout);
+      }
+      const newTimeout = setTimeout(async () => {
+        setIsAutoSaving(true);
+        try {
+          await onSaveSettings(settingsToSave);
+          onShowToast?.("Settings auto-saved", "success");
+        } catch (error) {
+          console.error("Auto-save failed:", error);
+          onShowToast?.("Auto-save failed. Please save manually.", "warning");
+        } finally {
+          setIsAutoSaving(false);
+        }
+      }, 2e3);
+      setSaveTimeout(newTimeout);
+    }, [saveTimeout, onSaveSettings, onShowToast]);
+    reactExports.useEffect(() => {
+      if (isDirty && !isSaving) {
+        debouncedSave(currentSettings);
+      }
+      return () => {
+        if (saveTimeout) {
+          clearTimeout(saveTimeout);
+        }
+      };
+    }, [currentSettings, isDirty, isSaving, debouncedSave, saveTimeout]);
     const handleSave = async () => {
+      if (isSaving || isAutoSaving) {
+        onShowToast?.("Save already in progress...", "info");
+        return;
+      }
+      if (saveTimeout) {
+        clearTimeout(saveTimeout);
+        setSaveTimeout(null);
+      }
       setIsSaving(true);
       try {
+        const hasErrors = Object.values(validationErrors).some((error) => error !== "");
+        if (hasErrors) {
+          onShowToast?.("Please fix validation errors before saving", "error");
+          return;
+        }
         await onSaveSettings(currentSettings);
         onShowToast?.("Settings saved successfully!", "success");
       } catch (error) {
@@ -12229,7 +13752,6 @@ body.toplevel_page_ai-content-agent #wpfooter {
     reactExports.useEffect(() => {
       const loadInitialData = async () => {
         await Promise.all([
-          loadLicenseStatus(),
           loadGscAuthStatus(),
           fetchSeoPlugins()
         ]);
@@ -12284,10 +13806,14 @@ body.toplevel_page_ai-content-agent #wpfooter {
             type: "text",
             placeholder: "Enter your license key",
             value: licenseKey,
-            onChange: (e) => setLicenseKey(e.target.value),
+            onChange: (e) => {
+              setLicenseKey(e.target.value);
+              validateInput("licenseKey", e.target.value);
+            },
             className: "aca-input"
           }
         ),
+        validationErrors.licenseKey && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "red", fontSize: "12px", marginTop: "4px" }, children: validationErrors.licenseKey }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",
           {
@@ -12365,7 +13891,7 @@ body.toplevel_page_ai-content-agent #wpfooter {
             id: "manual",
             title: "Manual Mode",
             description: "Create content ideas and drafts manually when you need them. Full control over every piece of content.",
-            currentSelection: currentSettings.automationMode,
+            currentSelection: currentSettings.mode,
             onChange: (mode) => handleModeChange(mode)
           }
         ),
@@ -12375,7 +13901,7 @@ body.toplevel_page_ai-content-agent #wpfooter {
             id: "semi-automatic",
             title: "Semi-Automatic Mode",
             description: "Generate ideas automatically, but you review and approve each draft before publishing. Perfect balance of automation and control.",
-            currentSelection: currentSettings.automationMode,
+            currentSelection: currentSettings.mode,
             onChange: (mode) => handleModeChange(mode),
             disabled: !isProActive(),
             proBadge: !isProActive()
@@ -12387,14 +13913,14 @@ body.toplevel_page_ai-content-agent #wpfooter {
             id: "full-automatic",
             title: "Full-Automatic Mode",
             description: "Complete automation - generates ideas, creates content, and publishes automatically based on your schedule. Maximum efficiency.",
-            currentSelection: currentSettings.automationMode,
+            currentSelection: currentSettings.mode,
             onChange: (mode) => handleModeChange(mode),
             disabled: !isProActive(),
             proBadge: !isProActive()
           }
         )
       ] }),
-      currentSettings.automationMode === "semi-automatic" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gap: "20px", marginTop: "25px" }, children: [
+      currentSettings.mode === "semi-automatic" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gap: "20px", marginTop: "25px" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { margin: "0 0 15px 0", fontSize: "16px", fontWeight: "600", color: "#374151" }, children: "Semi-Automatic Mode Settings" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-form-group", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "aca-label", children: "Idea Generation Frequency" }),
@@ -12414,7 +13940,7 @@ body.toplevel_page_ai-content-agent #wpfooter {
           /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", style: { marginTop: "8px" }, children: "Choose how frequently the AI should automatically generate new content ideas for you to review and create." })
         ] })
       ] }),
-      currentSettings.automationMode === "full-automatic" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gap: "20px", marginTop: "25px" }, children: [
+      currentSettings.mode === "full-automatic" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gap: "20px", marginTop: "25px" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { margin: "0 0 15px 0", fontSize: "16px", fontWeight: "600", color: "#374151" }, children: "Full-Automatic Mode Settings" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-form-group", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "aca-label", children: "Daily Post Count" }),
@@ -12502,13 +14028,19 @@ body.toplevel_page_ai-content-agent #wpfooter {
                 type: "password",
                 placeholder: "Enter Google AI API Key",
                 value: currentSettings.geminiApiKey,
-                onChange: (e) => handleSettingChange("geminiApiKey", e.target.value),
-                className: "aca-input"
+                onChange: (e) => handleInputChange("geminiApiKey", e.target.value),
+                className: "aca-input",
+                "aria-label": "Google AI API Key",
+                "aria-describedby": "gemini-api-help",
+                "aria-required": "true",
+                "aria-invalid": !!validationErrors.geminiApiKey
               }
             ),
+            validationErrors.geminiApiKey && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "red", fontSize: "12px", marginTop: "4px" }, role: "alert", "aria-live": "polite", children: validationErrors.geminiApiKey }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "a",
               {
+                id: "gemini-api-help",
                 href: "https://aistudio.google.com/app/apikey",
                 target: "_blank",
                 rel: "noopener noreferrer",
@@ -12569,10 +14101,11 @@ body.toplevel_page_ai-content-agent #wpfooter {
                   type: "password",
                   placeholder: "Enter Pexels API Key",
                   value: currentSettings.pexelsApiKey,
-                  onChange: (e) => handleSettingChange("pexelsApiKey", e.target.value),
+                  onChange: (e) => handleInputChange("pexelsApiKey", e.target.value),
                   className: "aca-input"
                 }
               ),
+              validationErrors.pexelsApiKey && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "red", fontSize: "12px", marginTop: "4px" }, children: validationErrors.pexelsApiKey }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "p",
                 {
@@ -12595,10 +14128,11 @@ body.toplevel_page_ai-content-agent #wpfooter {
                   type: "password",
                   placeholder: "Enter Unsplash Access Key",
                   value: currentSettings.unsplashApiKey,
-                  onChange: (e) => handleSettingChange("unsplashApiKey", e.target.value),
+                  onChange: (e) => handleInputChange("unsplashApiKey", e.target.value),
                   className: "aca-input"
                 }
               ),
+              validationErrors.unsplashApiKey && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "red", fontSize: "12px", marginTop: "4px" }, children: validationErrors.unsplashApiKey }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "p",
                 {
@@ -12621,10 +14155,11 @@ body.toplevel_page_ai-content-agent #wpfooter {
                   type: "password",
                   placeholder: "Enter Pixabay API Key",
                   value: currentSettings.pixabayApiKey,
-                  onChange: (e) => handleSettingChange("pixabayApiKey", e.target.value),
+                  onChange: (e) => handleInputChange("pixabayApiKey", e.target.value),
                   className: "aca-input"
                 }
               ),
+              validationErrors.pixabayApiKey && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "red", fontSize: "12px", marginTop: "4px" }, children: validationErrors.pixabayApiKey }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "p",
                 {
@@ -12664,10 +14199,11 @@ body.toplevel_page_ai-content-agent #wpfooter {
                     type: "text",
                     placeholder: "your-project-id",
                     value: currentSettings.googleCloudProjectId || "",
-                    onChange: (e) => handleSettingChange("googleCloudProjectId", e.target.value),
+                    onChange: (e) => handleInputChange("googleCloudProjectId", e.target.value),
                     className: "aca-input"
                   }
                 ),
+                validationErrors.googleCloudProjectId && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "red", fontSize: "12px", marginTop: "4px" }, children: validationErrors.googleCloudProjectId }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", style: { marginTop: "8px", fontSize: "13px" }, children: "Required for AI image generation. Get this from your Google Cloud Console." })
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-form-group", children: [
@@ -12919,12 +14455,13 @@ body.toplevel_page_ai-content-agent #wpfooter {
                     {
                       type: "text",
                       value: currentSettings.gscClientId,
-                      onChange: (e) => handleSettingChange("gscClientId", e.target.value),
+                      onChange: (e) => handleInputChange("gscClientId", e.target.value),
                       placeholder: "Your Google OAuth2 Client ID",
                       className: "aca-input",
                       style: { width: "100%" }
                     }
-                  )
+                  ),
+                  validationErrors.gscClientId && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "red", fontSize: "12px", marginTop: "4px" }, children: validationErrors.gscClientId })
                 ] }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "aca-label", children: "Client Secret" }),
@@ -12933,12 +14470,13 @@ body.toplevel_page_ai-content-agent #wpfooter {
                     {
                       type: "password",
                       value: currentSettings.gscClientSecret,
-                      onChange: (e) => handleSettingChange("gscClientSecret", e.target.value),
+                      onChange: (e) => handleInputChange("gscClientSecret", e.target.value),
                       placeholder: "Your Google OAuth2 Client Secret",
                       className: "aca-input",
                       style: { width: "100%" }
                     }
-                  )
+                  ),
+                  validationErrors.gscClientSecret && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "red", fontSize: "12px", marginTop: "4px" }, children: validationErrors.gscClientSecret })
                 ] })
               ] })
             ] }),
@@ -13169,6 +14707,10 @@ body.toplevel_page_ai-content-agent #wpfooter {
         "button",
         {
           onClick: () => setActiveTab(tab.id),
+          role: "tab",
+          "aria-selected": activeTab === tab.id,
+          "aria-controls": `tabpanel-${tab.id}`,
+          tabIndex: activeTab === tab.id ? 0 : -1,
           style: {
             display: "flex",
             alignItems: "center",
@@ -13218,14 +14760,23 @@ body.toplevel_page_ai-content-agent #wpfooter {
         },
         tab.id
       )) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
-        backgroundColor: "#ffffff",
-        borderRadius: "12px",
-        border: "1px solid #e2e8f0",
-        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-        padding: "30px",
-        minHeight: "500px"
-      }, children: renderTabContent() }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "div",
+        {
+          role: "tabpanel",
+          id: `tabpanel-${activeTab}`,
+          "aria-labelledby": `tab-${activeTab}`,
+          style: {
+            backgroundColor: "#ffffff",
+            borderRadius: "12px",
+            border: "1px solid #e2e8f0",
+            boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+            padding: "30px",
+            minHeight: "500px"
+          },
+          children: renderTabContent()
+        }
+      ),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
         display: "flex",
         alignItems: "center",
@@ -13257,16 +14808,16 @@ body.toplevel_page_ai-content-agent #wpfooter {
           "button",
           {
             onClick: handleSave,
-            disabled: !isDirty || isSaving,
+            disabled: !isDirty || isSaving || isAutoSaving,
             style: {
               padding: "12px 24px",
-              backgroundColor: !isDirty || isSaving ? "#e5e7eb" : "#0073aa",
-              color: !isDirty || isSaving ? "#9ca3af" : "white",
+              backgroundColor: !isDirty || isSaving || isAutoSaving ? "#e5e7eb" : "#0073aa",
+              color: !isDirty || isSaving || isAutoSaving ? "#9ca3af" : "white",
               border: "none",
               borderRadius: "8px",
               fontSize: "14px",
               fontWeight: "600",
-              cursor: !isDirty || isSaving ? "not-allowed" : "pointer",
+              cursor: !isDirty || isSaving || isAutoSaving ? "not-allowed" : "pointer",
               display: "flex",
               alignItems: "center",
               gap: "8px",
@@ -13274,13 +14825,17 @@ body.toplevel_page_ai-content-agent #wpfooter {
             },
             children: [
               isSaving && /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { style: { width: "16px", height: "16px" } }),
-              isSaving ? "Saving..." : "Save Settings"
+              isAutoSaving ? "Auto-saving..." : isSaving ? "Saving..." : "Save Settings"
             ]
           }
         ) })
       ] })
     ] });
   };
+  const SettingsTabbed$1 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+    __proto__: null,
+    SettingsTabbed
+  }, Symbol.toStringTag, { value: "Module" }));
   const DraftModal = ({ draft, onClose, onSave, settings }) => {
     const { seoPlugin } = settings;
     const [seoStatus, setSeoStatus] = reactExports.useState("idle");
@@ -13484,159 +15039,10 @@ body.toplevel_page_ai-content-agent #wpfooter {
       }
     ) });
   };
-  const ToastIcon = ({ type }) => {
-    const iconProps = { style: { width: "16px", height: "16px", color: "white" } };
-    switch (type) {
-      case "success":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx(CheckCircle, { ...iconProps });
-      case "error":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx(XCircle, { ...iconProps });
-      case "warning":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx(AlertTriangle, { ...iconProps });
-      case "info":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx(Info, { ...iconProps });
-      default:
-        return /* @__PURE__ */ jsxRuntimeExports.jsx(Info, { ...iconProps });
-    }
-  };
-  const Toast = ({ id, message, type, onDismiss }) => {
-    const [isVisible, setIsVisible] = React.useState(false);
-    const [isExiting, setIsExiting] = React.useState(false);
-    reactExports.useEffect(() => {
-      setTimeout(() => setIsVisible(true), 50);
-      const timer = setTimeout(() => {
-        handleDismiss();
-      }, 5e3);
-      return () => clearTimeout(timer);
-    }, [id]);
-    const handleDismiss = () => {
-      setIsExiting(true);
-      setTimeout(() => onDismiss(id), 300);
-    };
-    const getToastColors = () => {
-      switch (type) {
-        case "success":
-          return {
-            bg: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
-            border: "#10b981",
-            shadow: "rgba(16, 185, 129, 0.3)"
-          };
-        case "error":
-          return {
-            bg: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
-            border: "#ef4444",
-            shadow: "rgba(239, 68, 68, 0.3)"
-          };
-        case "warning":
-          return {
-            bg: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
-            border: "#f59e0b",
-            shadow: "rgba(245, 158, 11, 0.3)"
-          };
-        case "info":
-          return {
-            bg: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
-            border: "#3b82f6",
-            shadow: "rgba(59, 130, 246, 0.3)"
-          };
-        default:
-          return {
-            bg: "linear-gradient(135deg, #6b7280 0%, #4b5563 100%)",
-            border: "#6b7280",
-            shadow: "rgba(107, 114, 128, 0.3)"
-          };
-      }
-    };
-    const colors = getToastColors();
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-      "div",
-      {
-        style: {
-          background: colors.bg,
-          color: "white",
-          padding: "16px 20px",
-          borderRadius: "12px",
-          boxShadow: `0 8px 25px ${colors.shadow}, 0 4px 10px rgba(0, 0, 0, 0.1)`,
-          border: `1px solid ${colors.border}`,
-          backdropFilter: "blur(10px)",
-          transform: isExiting ? "translateX(100%) scale(0.9)" : isVisible ? "translateX(0) scale(1)" : "translateX(100%) scale(0.9)",
-          opacity: isExiting ? 0 : isVisible ? 1 : 0,
-          transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-          minWidth: "300px",
-          maxWidth: "500px",
-          position: "relative",
-          overflow: "hidden"
-        },
-        children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "div",
-            {
-              style: {
-                position: "absolute",
-                bottom: 0,
-                left: 0,
-                height: "3px",
-                background: "rgba(255, 255, 255, 0.3)",
-                animation: "aca-toast-progress 5s linear forwards",
-                transformOrigin: "left"
-              }
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", flex: 1 }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: "24px",
-                height: "24px",
-                background: "rgba(255, 255, 255, 0.2)",
-                borderRadius: "6px",
-                marginRight: "12px",
-                flexShrink: 0
-              }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(ToastIcon, { type }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: {
-                fontSize: "14px",
-                fontWeight: "500",
-                lineHeight: "1.4",
-                wordBreak: "break-word"
-              }, children: message })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "button",
-              {
-                onClick: handleDismiss,
-                style: {
-                  background: "rgba(255, 255, 255, 0.2)",
-                  border: "none",
-                  color: "white",
-                  cursor: "pointer",
-                  padding: "6px",
-                  marginLeft: "12px",
-                  borderRadius: "6px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  transition: "all 0.2s ease",
-                  flexShrink: 0
-                },
-                onMouseEnter: (e) => {
-                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.3)";
-                  e.currentTarget.style.transform = "scale(1.1)";
-                },
-                onMouseLeave: (e) => {
-                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.2)";
-                  e.currentTarget.style.transform = "scale(1)";
-                },
-                "aria-label": "Dismiss notification",
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { style: { width: "14px", height: "14px" } })
-              }
-            )
-          ] })
-        ]
-      }
-    );
-  };
+  const DraftModal$1 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+    __proto__: null,
+    DraftModal
+  }, Symbol.toStringTag, { value: "Module" }));
   const PublishedPostCard = ({ post, onSelectPost }) => {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", style: { margin: 0, position: "relative" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "15px", paddingRight: "100px" }, children: [
@@ -13812,6 +15218,10 @@ body.toplevel_page_ai-content-agent #wpfooter {
       ] }) })
     ] });
   };
+  const PublishedList$1 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+    __proto__: null,
+    PublishedList
+  }, Symbol.toStringTag, { value: "Module" }));
   const ContentCalendar = ({ drafts, publishedPosts, onScheduleDraft, onSelectPost, onPublishDraft, onUpdatePostDate }) => {
     const [currentDate, setCurrentDate] = reactExports.useState(/* @__PURE__ */ new Date());
     const [dragOverDate, setDragOverDate] = reactExports.useState(null);
@@ -14259,6 +15669,10 @@ body.toplevel_page_ai-content-agent #wpfooter {
       ] })
     ] });
   };
+  const ContentCalendar$1 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+    __proto__: null,
+    ContentCalendar
+  }, Symbol.toStringTag, { value: "Module" }));
   const getPriorityColor = (priority) => {
     if (!priority) return "#666";
     switch (priority) {
@@ -14829,660 +16243,8 @@ body.toplevel_page_ai-content-agent #wpfooter {
       ] })
     ] });
   };
-  const App = () => {
-    const [view, setView] = reactExports.useState("dashboard");
-    const [styleGuide, setStyleGuide] = reactExports.useState(null);
-    const [ideas, setIdeas] = reactExports.useState([]);
-    const [posts, setPosts] = reactExports.useState([]);
-    const [selectedDraft, setSelectedDraft] = reactExports.useState(null);
-    const [activityLogs, setActivityLogs] = reactExports.useState([]);
-    const [settings, setSettings] = reactExports.useState({
-      mode: "manual",
-      autoPublish: false,
-      searchConsoleUser: null,
-      gscClientId: "",
-      gscClientSecret: "",
-      imageSourceProvider: "pexels",
-      // Changed default to simplest option
-      aiImageStyle: "photorealistic",
-      googleCloudProjectId: "",
-      googleCloudLocation: "us-central1",
-      pexelsApiKey: "",
-      unsplashApiKey: "",
-      pixabayApiKey: "",
-      seoPlugin: "none",
-      // Auto-detected, kept for backward compatibility
-      geminiApiKey: "",
-      // Automation frequency settings with defaults
-      semiAutoIdeaFrequency: "weekly",
-      fullAutoDailyPostCount: 1,
-      fullAutoPublishFrequency: "daily",
-      analyzeContentFrequency: "manual"
-    });
-    const [isLoading, setIsLoading] = reactExports.useState({});
-    const [toasts, setToasts] = reactExports.useState([]);
-    const [isSidebarOpen, setIsSidebarOpen] = reactExports.useState(false);
-    const [publishingId, setPublishingId] = reactExports.useState(null);
-    const [contentFreshness, setContentFreshness] = reactExports.useState(null);
-    const [settingsOpenSection, setSettingsOpenSection] = reactExports.useState(void 0);
-    const drafts = posts.filter((p) => p.status === "draft");
-    const publishedPosts = posts.filter((p) => p.status === "published");
-    const isGeminiApiConfigured = !!(settings.geminiApiKey && settings.geminiApiKey.trim());
-    reactExports.useEffect(() => {
-      if (view !== "settings") {
-        setSettingsOpenSection(void 0);
-      }
-    }, [view]);
-    const addToast = reactExports.useCallback((toast) => {
-      const id = Date.now();
-      setToasts((prev) => [...prev, { ...toast, id }]);
-    }, []);
-    const showToast = reactExports.useCallback((message, type) => {
-      addToast({ message, type });
-    }, [addToast]);
-    const addLogEntry = reactExports.useCallback((type, details, icon) => {
-      const newLog = {
-        id: Date.now(),
-        type,
-        details,
-        timestamp: (/* @__PURE__ */ new Date()).toISOString(),
-        icon
-      };
-      setActivityLogs((prev) => [newLog, ...prev.slice(0, 49)]);
-      activityApi.create({
-        type,
-        message: details,
-        icon
-      }).catch(console.error);
-    }, []);
-    const removeToast = reactExports.useCallback((id) => {
-      setToasts((currentToasts) => currentToasts.filter((toast) => toast.id !== id));
-    }, []);
-    const handleAnalyzeStyle = reactExports.useCallback(async (showToast2 = true) => {
-      setIsLoading((prev) => ({ ...prev, style: true }));
-      try {
-        const updatedStyleGuide = await styleGuideApi.analyze();
-        setStyleGuide(updatedStyleGuide);
-        if (showToast2) {
-          addToast({ message: "Style guide updated successfully!", type: "success" });
-        }
-        addLogEntry("style_analyzed", "Style guide analyzed and updated", "BookOpen");
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "Failed to analyze style guide";
-        if (showToast2) {
-          addToast({ message: errorMessage, type: "error" });
-        }
-      } finally {
-        setIsLoading((prev) => ({ ...prev, style: false }));
-      }
-    }, [addToast, addLogEntry]);
-    const handleSaveStyleGuide = reactExports.useCallback(async (updatedGuide) => {
-      try {
-        const savedGuide = await styleGuideApi.update(updatedGuide);
-        setStyleGuide(savedGuide);
-        addToast({ message: "Style guide saved successfully!", type: "success" });
-        addLogEntry("style_updated", "Style guide manually updated", "BookOpen");
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "Failed to save style guide";
-        addToast({ message: errorMessage, type: "error" });
-      }
-    }, [addToast, addLogEntry]);
-    const handleGenerateIdeas = reactExports.useCallback(async (showToast2 = true, count = 5) => {
-      if (!styleGuide) {
-        addToast({ message: "Please create a style guide first", type: "warning" });
-        return;
-      }
-      setIsLoading((prev) => ({ ...prev, ideas: true }));
-      try {
-        const newIdeas = await ideasApi.generate(count);
-        setIdeas((prev) => [...newIdeas, ...prev]);
-        if (showToast2) {
-          addToast({ message: `Generated ${newIdeas.length} new ideas!`, type: "success" });
-        }
-        addLogEntry("ideas_generated", `Generated ${newIdeas.length} new content ideas`, "Lightbulb");
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "Failed to generate ideas";
-        if (showToast2) {
-          addToast({ message: errorMessage, type: "error" });
-        }
-      } finally {
-        setIsLoading((prev) => ({ ...prev, ideas: false }));
-      }
-    }, [styleGuide, addToast, addLogEntry]);
-    const handleGenerateSimilarIdeas = reactExports.useCallback(async (baseIdea) => {
-      if (!styleGuide) {
-        addToast({ message: "Please create a style guide first", type: "warning" });
-        return;
-      }
-      setIsLoading((prev) => ({ ...prev, [`similar_${baseIdea.id}`]: true }));
-      try {
-        const similarIdeas = await ideasApi.generateSimilar(baseIdea.id);
-        setIdeas((prev) => [...similarIdeas, ...prev]);
-        addToast({ message: `Generated ${similarIdeas.length} similar ideas!`, type: "success" });
-        addLogEntry("similar_ideas_generated", `Generated ${similarIdeas.length} ideas similar to "${baseIdea.title}"`, "Lightbulb");
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "Failed to generate similar ideas";
-        addToast({ message: errorMessage, type: "error" });
-      } finally {
-        setIsLoading((prev) => ({ ...prev, [`similar_${baseIdea.id}`]: false }));
-      }
-    }, [styleGuide, addToast, addLogEntry]);
-    const handleCreateDraft = reactExports.useCallback(async (ideaId) => {
-      if (!styleGuide) {
-        addToast({ message: "Please create a style guide first", type: "warning" });
-        return;
-      }
-      const idea = ideas.find((i) => i.id === ideaId);
-      if (!idea) {
-        addToast({ message: "Idea not found", type: "error" });
-        return;
-      }
-      console.log("Creating draft for idea:", idea);
-      setIsLoading((prev) => ({ ...prev, [`draft_${ideaId}`]: true }));
-      addToast({
-        message: `🤖 AI is generating draft for "${idea.title}"... This may take a moment.`,
-        type: "info"
-      });
-      try {
-        console.log("Calling draftsApi.createFromIdea with ideaId:", ideaId);
-        const draft = await draftsApi.createFromIdea(ideaId);
-        console.log("Draft created successfully:", draft);
-        setPosts((prev) => [draft, ...prev]);
-        const updatedIdea = { ...idea, status: "archived" };
-        await ideasApi.update(ideaId, updatedIdea);
-        setIdeas((prev) => prev.map((i) => i.id === ideaId ? updatedIdea : i));
-        addToast({
-          message: `Draft "${draft.title}" created successfully! Check WordPress admin for the post.`,
-          type: "success"
-        });
-        addLogEntry("draft_created", `Created draft: "${draft.title}" with full WordPress integration`, "FileText");
-      } catch (error) {
-        console.error("Error creating draft:", error);
-        let errorMessage = "Failed to create draft. Please try again.";
-        if (error instanceof Error) {
-          const message = error.message.toLowerCase();
-          if (message.includes("503") || message.includes("overloaded") || message.includes("unavailable")) {
-            errorMessage = "🤖 AI service is temporarily overloaded. Please wait a moment and try again.";
-          } else if (message.includes("timeout")) {
-            errorMessage = "⏱️ Request timed out. The AI service might be busy. Please try again.";
-          } else if (message.includes("api key")) {
-            errorMessage = "🔑 AI API key is not configured. Please check your settings.";
-          } else if (message.includes("style guide")) {
-            errorMessage = "📋 Style guide is required. Please create one first.";
-          } else if (message.includes("after") && message.includes("attempts")) {
-            errorMessage = "🔄 AI service is currently unavailable after multiple attempts. Please try again in a few minutes.";
-          } else if (message.includes("ai content generation failed")) {
-            errorMessage = "🤖 AI content generation failed. The service might be temporarily unavailable. Please try again.";
-          }
-        }
-        addToast({ message: errorMessage, type: "error" });
-      } finally {
-        setIsLoading((prev) => ({ ...prev, [`draft_${ideaId}`]: false }));
-      }
-    }, [ideas, styleGuide, addToast, addLogEntry]);
-    const handleUpdateDraft = reactExports.useCallback(async (draftId, updates) => {
-      try {
-        const updatedDraft = await draftsApi.update(draftId, updates);
-        setPosts((prev) => prev.map((p) => p.id === draftId ? updatedDraft : p));
-        addToast({ message: "Draft updated successfully!", type: "success" });
-        addLogEntry("draft_updated", `Updated draft: "${updatedDraft.title}"`, "FileText");
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "Failed to update draft";
-        addToast({ message: errorMessage, type: "error" });
-      }
-    }, [addToast, addLogEntry]);
-    const handlePublishPost = reactExports.useCallback(async (draftId) => {
-      setPublishingId(draftId);
-      try {
-        const publishedPost = await publishedApi.publish(draftId);
-        setPosts((prev) => prev.map((p) => p.id === draftId ? publishedPost : p));
-        addToast({ message: "Post published successfully!", type: "success" });
-        addLogEntry("post_published", `Published post: "${publishedPost.title}"`, "Send");
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "Failed to publish post";
-        addToast({ message: errorMessage, type: "error" });
-      } finally {
-        setPublishingId(null);
-      }
-    }, [addToast, addLogEntry]);
-    const handleUpdatePostDate = reactExports.useCallback(async (postId, newDate, shouldConvertToDraft = false) => {
-      try {
-        const updatedPost = await publishedApi.updateDate(postId, newDate, shouldConvertToDraft);
-        setPosts((prev) => prev.map((p) => p.id === postId ? updatedPost : p));
-        const action = shouldConvertToDraft ? "converted to scheduled draft" : "publish date updated";
-        addToast({ message: `Post ${action} successfully!`, type: "success" });
-        addLogEntry("draft_updated", `Post "${updatedPost.title}" ${action}`, "Calendar");
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "Failed to update post date";
-        addToast({ message: errorMessage, type: "error" });
-      }
-    }, [addToast, addLogEntry]);
-    const handleScheduleDraft = reactExports.useCallback(async (draftId, scheduledDate) => {
-      try {
-        const updatedDraft = await draftsApi.schedule(draftId, scheduledDate);
-        setPosts((prev) => prev.map((p) => p.id === draftId ? updatedDraft : p));
-        const formattedDate = new Date(scheduledDate).toLocaleDateString();
-        const draftTitle = updatedDraft.title || `Draft ${draftId}`;
-        addToast({ message: `Draft "${draftTitle}" scheduled for ${formattedDate}!`, type: "success" });
-        addLogEntry("draft_scheduled", `Scheduled draft: "${draftTitle}" for ${formattedDate}`, "Calendar");
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "Failed to schedule draft";
-        addToast({ message: errorMessage, type: "error" });
-        console.error("Error scheduling draft:", error);
-      }
-    }, [addToast, addLogEntry]);
-    const handleArchiveIdea = reactExports.useCallback(async (ideaId) => {
-      try {
-        const idea = ideas.find((i) => i.id === ideaId);
-        if (!idea) return;
-        await ideasApi.delete(ideaId);
-        const updatedIdea = { ...idea, status: "archived" };
-        setIdeas((prev) => prev.map((i) => i.id === ideaId ? updatedIdea : i));
-        addToast({ message: "Idea archived successfully!", type: "success" });
-        addLogEntry("idea_archived", `Archived idea: "${idea.title}"`, "Archive");
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "Failed to archive idea";
-        addToast({ message: errorMessage, type: "error" });
-      }
-    }, [ideas, addToast, addLogEntry]);
-    const handleDeleteIdea = reactExports.useCallback(async (ideaId) => {
-      try {
-        const idea = ideas.find((i) => i.id === ideaId);
-        if (!idea) return;
-        await ideasApi.permanentDelete(ideaId);
-        setIdeas((prev) => prev.filter((i) => i.id !== ideaId));
-        addToast({ message: "Idea deleted permanently!", type: "success" });
-        addLogEntry("idea_updated", `Permanently deleted idea: "${idea.title}"`, "Trash");
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "Failed to delete idea";
-        addToast({ message: errorMessage, type: "error" });
-      }
-    }, [ideas, addToast, addLogEntry]);
-    const handleRestoreIdea = reactExports.useCallback(async (ideaId) => {
-      try {
-        const idea = ideas.find((i) => i.id === ideaId);
-        if (!idea) return;
-        await ideasApi.restore(ideaId);
-        const updatedIdea = { ...idea, status: "active" };
-        setIdeas((prev) => prev.map((i) => i.id === ideaId ? updatedIdea : i));
-        addToast({ message: "Idea restored successfully!", type: "success" });
-        addLogEntry("idea_restored", `Restored idea: "${idea.title}"`, "Edit");
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "Failed to restore idea";
-        addToast({ message: errorMessage, type: "error" });
-      }
-    }, [ideas, addToast, addLogEntry]);
-    const handleGenerateIdeasAndNavigate = reactExports.useCallback(async () => {
-      await handleGenerateIdeas(false, 5);
-      setView("ideas");
-    }, [handleGenerateIdeas]);
-    const handleUpdateIdeaTitle = reactExports.useCallback(async (ideaId, newTitle) => {
-      try {
-        const idea = ideas.find((i) => i.id === ideaId);
-        if (!idea) return;
-        const updatedIdea = { ...idea, title: newTitle };
-        await ideasApi.update(ideaId, updatedIdea);
-        setIdeas((prev) => prev.map((i) => i.id === ideaId ? updatedIdea : i));
-        addToast({ message: "Idea updated successfully!", type: "success" });
-        addLogEntry("idea_updated", `Updated idea title to: "${newTitle}"`, "Edit");
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "Failed to update idea";
-        addToast({ message: errorMessage, type: "error" });
-      }
-    }, [ideas, addToast, addLogEntry]);
-    const handleSaveSettings = reactExports.useCallback(async (newSettings) => {
-      try {
-        await settingsApi.update(newSettings);
-        setSettings(newSettings);
-        addToast({ message: "Settings saved successfully!", type: "success" });
-        addLogEntry("settings_updated", "Plugin settings updated", "Settings");
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "Failed to save settings";
-        addToast({ message: errorMessage, type: "error" });
-      }
-    }, [addToast, addLogEntry]);
-    const handleRefreshApp = reactExports.useCallback(async () => {
-      let refreshErrors = [];
-      try {
-        const settingsData = await settingsApi.get();
-        setSettings(settingsData || {
-          mode: "manual",
-          autoPublish: false,
-          searchConsoleUser: null,
-          gscClientId: "",
-          gscClientSecret: "",
-          gscSiteUrl: "",
-          geminiApiKey: "",
-          is_pro: false,
-          seoPlugin: "none",
-          imageSource: "none",
-          aiImageStyle: "photographic"
-        });
-      } catch (error) {
-        console.error("Failed to refresh settings:", error);
-        refreshErrors.push("settings");
-      }
-      try {
-        const ideasData = await ideasApi.get();
-        setIdeas(ideasData || []);
-      } catch (error) {
-        console.error("Failed to refresh ideas:", error);
-        refreshErrors.push("ideas");
-      }
-      let draftsData = [];
-      let publishedData = [];
-      try {
-        draftsData = await draftsApi.get();
-      } catch (error) {
-        console.error("Failed to refresh drafts:", error);
-        refreshErrors.push("drafts");
-      }
-      try {
-        publishedData = await publishedApi.get();
-      } catch (error) {
-        console.error("Failed to refresh published posts:", error);
-        refreshErrors.push("published");
-      }
-      setPosts([...draftsData || [], ...publishedData || []]);
-      try {
-        const activityData = await activityApi.get();
-        setActivityLogs(activityData || []);
-      } catch (error) {
-        console.error("Failed to refresh activity logs:", error);
-        refreshErrors.push("activity");
-      }
-      if (refreshErrors.includes("settings")) {
-        addToast({ message: "Failed to refresh app settings", type: "error" });
-      } else if (refreshErrors.length > 0) {
-        console.log("Some non-critical data failed to refresh:", refreshErrors);
-      }
-    }, [addToast]);
-    const handleAddIdea = reactExports.useCallback(async (title, description) => {
-      try {
-        const newIdea = {
-          title: title.trim(),
-          description: description?.trim() || "",
-          status: "active",
-          createdAt: (/* @__PURE__ */ new Date()).toISOString(),
-          tags: []
-        };
-        const createdIdea = await ideasApi.create(newIdea);
-        setIdeas((prev) => [createdIdea, ...prev]);
-        addToast({ message: "Idea added successfully!", type: "success" });
-        addLogEntry("idea_added", `Manually added idea: "${title.trim()}"`, "PlusCircle");
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "Failed to add idea";
-        addToast({ message: errorMessage, type: "error" });
-      }
-    }, [addToast, addLogEntry]);
-    const renderView = () => {
-      switch (view) {
-        case "style-guide":
-          return /* @__PURE__ */ jsxRuntimeExports.jsx(StyleGuideManager, { styleGuide, onAnalyze: () => handleAnalyzeStyle(false), onSaveStyleGuide: handleSaveStyleGuide, isLoading: isLoading["style"] });
-        case "ideas":
-          return /* @__PURE__ */ jsxRuntimeExports.jsx(
-            IdeaBoard,
-            {
-              ideas,
-              onGenerate: () => handleGenerateIdeas(false, 5),
-              onCreateDraft: (idea) => handleCreateDraft(idea.id),
-              onArchive: handleArchiveIdea,
-              onDeleteIdea: handleDeleteIdea,
-              onRestoreIdea: handleRestoreIdea,
-              isLoading: isLoading["ideas"],
-              isLoadingDraft: isLoading,
-              onUpdateTitle: handleUpdateIdeaTitle,
-              onGenerateSimilar: handleGenerateSimilarIdeas,
-              onAddIdea: handleAddIdea
-            }
-          );
-        case "drafts":
-          return /* @__PURE__ */ jsxRuntimeExports.jsx(
-            DraftsList,
-            {
-              drafts,
-              onSelectDraft: setSelectedDraft,
-              onPublish: handlePublishPost,
-              publishingId,
-              onNavigateToIdeas: () => setView("ideas")
-            }
-          );
-        case "published":
-          return /* @__PURE__ */ jsxRuntimeExports.jsx(
-            PublishedList,
-            {
-              posts: publishedPosts,
-              onSelectPost: setSelectedDraft,
-              onNavigateToDrafts: () => setView("drafts")
-            }
-          );
-        case "settings":
-          return /* @__PURE__ */ jsxRuntimeExports.jsx(
-            SettingsTabbed,
-            {
-              settings,
-              onSaveSettings: handleSaveSettings,
-              onRefreshApp: handleRefreshApp,
-              onShowToast: showToast,
-              openSection: settingsOpenSection
-            }
-          );
-        case "calendar":
-          return /* @__PURE__ */ jsxRuntimeExports.jsx(
-            ContentCalendar,
-            {
-              drafts,
-              publishedPosts,
-              onScheduleDraft: handleScheduleDraft,
-              onSelectPost: setSelectedDraft,
-              onPublishDraft: handlePublishPost,
-              onUpdatePostDate: handleUpdatePostDate
-            }
-          );
-        case "content-freshness":
-          return /* @__PURE__ */ jsxRuntimeExports.jsx(
-            ContentFreshnessManager,
-            {
-              onShowToast: showToast,
-              settings
-            }
-          );
-        case "dashboard":
-        default:
-          return /* @__PURE__ */ jsxRuntimeExports.jsx(
-            Dashboard,
-            {
-              stats: {
-                ideas: ideas.filter((idea) => idea.status === "active").length,
-                drafts: drafts.length,
-                published: publishedPosts.length,
-                contentFreshness
-              },
-              lastAnalyzed: styleGuide?.lastAnalyzed,
-              activityLogs,
-              onNavigate: setView,
-              onGenerateIdeas: handleGenerateIdeasAndNavigate,
-              onUpdateStyleGuide: () => handleAnalyzeStyle(false),
-              isLoadingIdeas: isLoading["ideas"] || false,
-              isLoadingStyle: isLoading["style"] || false
-            }
-          );
-      }
-    };
-    reactExports.useEffect(() => {
-      if (!window.acaData) {
-        console.error("ACA Error: WordPress localized data not available");
-        showToast("Plugin not properly loaded. Please refresh the page.", "error");
-        return;
-      }
-      setGeminiApiKey(settings.geminiApiKey);
-    }, [settings.geminiApiKey, showToast]);
-    reactExports.useEffect(() => {
-      const loadInitialData = async () => {
-        try {
-          const [settingsData, styleGuideData, ideasData, draftsData, publishedData, activityData] = await Promise.all([
-            settingsApi.get(),
-            styleGuideApi.get(),
-            ideasApi.get(),
-            draftsApi.get(),
-            publishedApi.get(),
-            activityApi.get()
-          ]);
-          try {
-            const freshnessResponse = await contentFreshnessApi.getPosts(50, "all");
-            if (freshnessResponse && freshnessResponse.success && freshnessResponse.posts) {
-              const posts2 = freshnessResponse.posts;
-              const needsUpdate = posts2.filter((post) => post.needs_update).length;
-              const postsWithScores = posts2.filter((post) => post.freshness_score !== null);
-              const averageScore = postsWithScores.length > 0 ? Math.round(postsWithScores.reduce((sum, post) => sum + (post.freshness_score || 0), 0) / postsWithScores.length) : 0;
-              const analyzed = postsWithScores.filter((post) => post.freshness_score !== null).length;
-              setContentFreshness({
-                total: posts2.length,
-                analyzed,
-                needsUpdate,
-                averageScore
-              });
-            }
-          } catch (error) {
-            console.log("Content freshness not available (Pro feature)");
-          }
-          setSettings(settingsData || {
-            mode: "manual",
-            autoPublish: false,
-            searchConsoleUser: null,
-            gscClientId: "",
-            gscClientSecret: "",
-            imageSourceProvider: "pexels",
-            aiImageStyle: "photorealistic",
-            pexelsApiKey: "",
-            unsplashApiKey: "",
-            pixabayApiKey: "",
-            seoPlugin: "none",
-            // Auto-detected, kept for backward compatibility
-            geminiApiKey: "",
-            // Automation frequency settings with defaults
-            semiAutoIdeaFrequency: "weekly",
-            fullAutoDailyPostCount: 1,
-            fullAutoPublishFrequency: "daily",
-            analyzeContentFrequency: "manual"
-          });
-          if (styleGuideData) {
-            setStyleGuide(styleGuideData);
-          }
-          setIdeas(ideasData || []);
-          setPosts([...draftsData || [], ...publishedData || []]);
-          setActivityLogs(activityData || []);
-        } catch (error) {
-          console.error("Failed to load initial data:", error);
-          addToast({ message: "Failed to load plugin data", type: "error" });
-        }
-      };
-      loadInitialData();
-    }, []);
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-container", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "div",
-          {
-            className: `aca-overlay ${isSidebarOpen ? "show" : ""}`,
-            onClick: () => setIsSidebarOpen(false)
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          Sidebar,
-          {
-            currentView: view,
-            setView,
-            isOpen: isSidebarOpen,
-            closeSidebar: () => setIsSidebarOpen(false)
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-main", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-mobile-header", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "button",
-              {
-                onClick: () => setIsSidebarOpen(true),
-                className: "aca-menu-toggle",
-                "aria-label": "Open menu",
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx(Menu, { className: "h-6 w-6" })
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold text-white", children: "AI Content Agent (ACA)" })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-fade-in", children: [
-            !isGeminiApiConfigured && view !== "settings" && /* @__PURE__ */ jsxRuntimeExports.jsx(GeminiApiWarning, { onNavigateToSettings: () => {
-              setSettingsOpenSection("integrations");
-              setView("settings");
-            } }),
-            renderView()
-          ] })
-        ] })
-      ] }),
-      selectedDraft && /* @__PURE__ */ jsxRuntimeExports.jsx(
-        DraftModal,
-        {
-          draft: selectedDraft,
-          onClose: () => setSelectedDraft(null),
-          onSave: handleUpdateDraft,
-          settings
-        }
-      ),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "aca-toast-container", children: toasts.map((toast) => /* @__PURE__ */ jsxRuntimeExports.jsx(Toast, { ...toast, onDismiss: removeToast }, toast.id)) })
-    ] });
-  };
-  class ErrorBoundary extends React.Component {
-    constructor(props) {
-      super(props);
-      this.state = { hasError: false };
-    }
-    static getDerivedStateFromError(error) {
-      return { hasError: true, error };
-    }
-    componentDidCatch(error, errorInfo) {
-      console.error("ACA Plugin Error:", error, errorInfo);
-    }
-    render() {
-      if (this.state.hasError) {
-        return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
-          padding: "20px",
-          background: "#ffebee",
-          border: "1px solid #f44336",
-          borderRadius: "4px",
-          margin: "20px"
-        }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { style: { color: "#d32f2f", margin: "0 0 10px 0" }, children: "AI Content Agent (ACA) - Loading Error" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: "0 0 10px 0" }, children: "The plugin interface failed to load. This might be a browser cache issue." }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { style: { margin: "0 0 10px 0", fontSize: "12px", color: "#666" }, children: [
-            "Error: ",
-            this.state.error?.message || "Unknown error"
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "button",
-            {
-              onClick: () => window.location.reload(),
-              style: {
-                padding: "8px 16px",
-                background: "#1976d2",
-                color: "white",
-                border: "none",
-                borderRadius: "4px",
-                cursor: "pointer"
-              },
-              children: "Reload Page"
-            }
-          )
-        ] });
-      }
-      return this.props.children;
-    }
-  }
-  const rootElement = document.getElementById("root");
-  if (!rootElement) {
-    throw new Error("Could not find root element to mount to");
-  }
-  const root = ReactDOM.createRoot(rootElement);
-  root.render(
-    /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorBoundary, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) })
-  );
+  const ContentFreshnessManager$1 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+    __proto__: null,
+    ContentFreshnessManager
+  }, Symbol.toStringTag, { value: "Module" }));
 })();

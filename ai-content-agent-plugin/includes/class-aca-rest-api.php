@@ -292,41 +292,41 @@ class ACA_Rest_Api {
             'permission_callback' => array($this, 'check_admin_permissions')
         ));
         
-        // Content Freshness endpoints (Pro feature)
+        // Content Freshness endpoints (Demo mode - admin access)
         register_rest_route('aca/v1', '/content-freshness/analyze', array(
             'methods' => 'POST',
             'callback' => array($this, 'analyze_content_freshness'),
-            'permission_callback' => array($this, 'check_pro_permissions')
+            'permission_callback' => array($this, 'check_admin_permissions')
         ));
         
         register_rest_route('aca/v1', '/content-freshness/analyze/(?P<id>\d+)', array(
             'methods' => 'POST',
             'callback' => array($this, 'analyze_single_post_freshness'),
-            'permission_callback' => array($this, 'check_pro_permissions')
+            'permission_callback' => array($this, 'check_admin_permissions')
         ));
         
         register_rest_route('aca/v1', '/content-freshness/update/(?P<id>\d+)', array(
             'methods' => 'POST', 
             'callback' => array($this, 'update_content_with_ai'),
-            'permission_callback' => array($this, 'check_pro_permissions')
+            'permission_callback' => array($this, 'check_admin_permissions')
         ));
         
         register_rest_route('aca/v1', '/content-freshness/settings', array(
             'methods' => 'GET,POST',
             'callback' => array($this, 'manage_freshness_settings'),
-            'permission_callback' => array($this, 'check_pro_permissions')
+            'permission_callback' => array($this, 'check_admin_permissions')
         ));
         
         register_rest_route('aca/v1', '/content-freshness/posts', array(
             'methods' => 'GET',
             'callback' => array($this, 'get_posts_freshness_data'),
-            'permission_callback' => array($this, 'check_pro_permissions')
+            'permission_callback' => array($this, 'check_admin_permissions')
         ));
         
         register_rest_route('aca/v1', '/content-freshness/posts/needing-updates', array(
             'methods' => 'GET',
             'callback' => array($this, 'get_posts_needing_updates'),
-            'permission_callback' => array($this, 'check_pro_permissions')
+            'permission_callback' => array($this, 'check_admin_permissions')
         ));
 
         // License verification endpoint

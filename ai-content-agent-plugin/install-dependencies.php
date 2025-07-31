@@ -204,5 +204,7 @@ class ACA_Dependencies_Installer {
     }
 }
 
-// Initialize the installer
-new ACA_Dependencies_Installer();
+// Initialize the installer when WordPress is ready
+add_action('init', function() {
+    new ACA_Dependencies_Installer();
+});

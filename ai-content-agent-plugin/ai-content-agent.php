@@ -3,7 +3,7 @@
  * Plugin Name: AI Content Agent - Enterprise Edition
  * Plugin URI: https://github.com/ademisler/ai-content-agent
  * Description: Enterprise-grade AI-powered WordPress content creation plugin with advanced automation, mobile responsiveness, internationalization, and robust error recovery. Features lazy loading, circuit breaker patterns, and graceful degradation for maximum reliability.
- * Version: 2.3.9
+ * Version: 2.3.10
  * Author: Adem Isler
  * Author URI: https://github.com/ademisler
  * License: GPL v2 or later
@@ -22,7 +22,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('ACA_VERSION', '2.3.9');
+define('ACA_VERSION', '2.3.10');
 define('ACA_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('ACA_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('ACA_PLUGIN_FILE', __FILE__);
@@ -37,15 +37,26 @@ function is_aca_pro_active() {
     return get_option('aca_license_status') === 'active';
 }
 
-// Include required files
-require_once ACA_PLUGIN_DIR . 'includes/class-aca-activator.php';
-require_once ACA_PLUGIN_DIR . 'includes/class-aca-deactivator.php';
-require_once ACA_PLUGIN_DIR . 'includes/class-aca-rest-api.php';
-require_once ACA_PLUGIN_DIR . 'includes/class-aca-cron.php';
-require_once ACA_PLUGIN_DIR . 'includes/class-aca-content-freshness.php';
-require_once ACA_PLUGIN_DIR . 'includes/class-aca-rate-limiter.php';
-require_once ACA_PLUGIN_DIR . 'includes/class-aca-performance-monitor.php';
-require_once ACA_PLUGIN_DIR . 'includes/gsc-data-fix.php'; // CRITICAL FIX: Missing GSC endpoint
+// Include required files with error handling
+$required_files = [
+    'includes/class-aca-activator.php',
+    'includes/class-aca-deactivator.php',
+    'includes/class-aca-rest-api.php',
+    'includes/class-aca-cron.php',
+    'includes/class-aca-content-freshness.php',
+    'includes/class-aca-rate-limiter.php',
+    'includes/class-aca-performance-monitor.php',
+    'includes/gsc-data-fix.php'
+];
+
+foreach ($required_files as $file) {
+    $file_path = ACA_PLUGIN_DIR . $file;
+    if (file_exists($file_path)) {
+        require_once $file_path;
+    } else {
+        error_log("ACA Plugin: Missing required file: $file_path");
+    }
+}
 
 // Activation and deactivation hooks
 register_activation_hook(__FILE__, array('ACA_Activator', 'activate'));
@@ -57,27 +68,52 @@ register_deactivation_hook(__FILE__, array('ACA_Deactivator', 'deactivate'));
 class AI_Content_Agent {
     
     public function __construct() {
-        add_action('init', array($this, 'init'));
+        // Ensure WordPress is loaded before initializing
+        if (function_exists('add_action')) {
+            add_action('init', array($this, 'init'));
+        } else {
+            // WordPress not loaded yet, try later
+            add_action('wp_loaded', array($this, 'init'));
+        }
     }
     
     public function init() {
-        // Initialize dependency installer
-        require_once ACA_PLUGIN_DIR . 'install-dependencies.php';
-        
-        // Initialize REST API
-        new ACA_Rest_Api();
-        
-        // Initialize Cron jobs
-        new ACA_Cron();
-        
-        // Handle Google Search Console OAuth callback
-        add_action('admin_init', array($this, 'handle_gsc_oauth_callback'));
-        
-        // Add admin menu
-        add_action('admin_menu', array($this, 'add_admin_menu'));
-        
-        // Enqueue admin scripts
-        add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
+        try {
+            // Initialize dependency installer
+            if (file_exists(ACA_PLUGIN_DIR . 'install-dependencies.php')) {
+                require_once ACA_PLUGIN_DIR . 'install-dependencies.php';
+            }
+            
+            // Initialize REST API with error handling
+            if (class_exists('ACA_Rest_Api')) {
+                new ACA_Rest_Api();
+            }
+            
+            // Initialize Cron jobs with error handling
+            if (class_exists('ACA_Cron')) {
+                new ACA_Cron();
+            }
+            
+            // Handle Google Search Console OAuth callback
+            add_action('admin_init', array($this, 'handle_gsc_oauth_callback'));
+            
+            // Add admin menu
+            add_action('admin_menu', array($this, 'add_admin_menu'));
+            
+            // Enqueue admin scripts
+            add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
+            
+        } catch (Error $e) {
+            error_log('ACA Plugin Init Error: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
+            add_action('admin_notices', function() use ($e) {
+                echo '<div class="notice notice-error"><p><strong>AI Content Agent Error:</strong> ' . esc_html($e->getMessage()) . '</p></div>';
+            });
+        } catch (Exception $e) {
+            error_log('ACA Plugin Init Exception: ' . $e->getMessage());
+            add_action('admin_notices', function() use ($e) {
+                echo '<div class="notice notice-error"><p><strong>AI Content Agent Exception:</strong> ' . esc_html($e->getMessage()) . '</p></div>';
+            });
+        }
     }
     
     /**
@@ -234,9 +270,21 @@ class AI_Content_Agent {
     }
 }
 
-// Initialize the plugin
-new AI_Content_Agent();
-
-// Hook cron events
-add_action('aca_thirty_minute_event', array('ACA_Cron', 'thirty_minute_task'));
-add_action('aca_fifteen_minute_event', array('ACA_Cron', 'fifteen_minute_task'));
+// Initialize the plugin when WordPress is ready
+if (function_exists('add_action')) {
+    // WordPress is loaded, initialize immediately
+    new AI_Content_Agent();
+    
+    // Hook cron events
+    add_action('aca_thirty_minute_event', array('ACA_Cron', 'thirty_minute_task'));
+    add_action('aca_fifteen_minute_event', array('ACA_Cron', 'fifteen_minute_task'));
+} else {
+    // WordPress not loaded yet, wait for it
+    add_action('plugins_loaded', function() {
+        new AI_Content_Agent();
+        
+        // Hook cron events
+        add_action('aca_thirty_minute_event', array('ACA_Cron', 'thirty_minute_task'));
+        add_action('aca_fifteen_minute_event', array('ACA_Cron', 'fifteen_minute_task'));
+    });
+}}

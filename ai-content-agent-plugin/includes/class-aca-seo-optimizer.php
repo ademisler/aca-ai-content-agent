@@ -652,5 +652,7 @@ function aca_log_core_web_vitals() {
     wp_die();
 }
 
-// Initialize SEO optimizer
-new ACA_SEO_Optimizer();
+// Initialize SEO optimizer when WordPress is ready
+add_action('init', function() {
+    new ACA_SEO_Optimizer();
+});});

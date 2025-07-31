@@ -765,8 +765,10 @@ class ACA_RankMath_Compatibility {
     }
 }
 
-// Initialize plugin compatibility
-new ACA_Plugin_Compatibility();
+// Initialize plugin compatibility when WordPress is ready
+add_action('init', function() {
+    new ACA_Plugin_Compatibility();
+});
 
 /**
  * RankMath SEO Compatibility - CRITICAL FIX

@@ -32,4 +32,7 @@ class ACA_GSC_Data_Fix {
     }
 }
 
-new ACA_GSC_Data_Fix();
+// Initialize GSC Data Fix when WordPress is ready
+add_action('init', function() {
+    new ACA_GSC_Data_Fix();
+});

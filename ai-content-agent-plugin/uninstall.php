@@ -36,11 +36,10 @@ $tables_to_drop = array(
 );
 
 foreach ($tables_to_drop as $table) {
-    // Use prepared statement for table name (WordPress doesn't support table name placeholders, 
-    // but we validate the table name format for security)
+    // Validate table name format for security (WordPress doesn't support table name placeholders)
     $table_name = sanitize_text_field($table);
-    if (preg_match('/^[a-zA-Z0-9_]+$/', $table_name)) {
-        $wpdb->query($wpdb->prepare("DROP TABLE IF EXISTS `%s`", $table_name));
+    if (preg_match('/^[a-zA-Z0-9_]+$/', $table_name) && strpos($table_name, $wpdb->prefix . 'aca_') === 0) {
+        $wpdb->query("DROP TABLE IF EXISTS `{$table_name}`");
     }
 }
 

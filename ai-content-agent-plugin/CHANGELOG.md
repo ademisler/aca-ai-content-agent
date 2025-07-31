@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.3.9-enterprise] - 2025-07-31 🚨
+
+### 🛠️ **CRITICAL STABILITY FIXES**
+
+#### **Fixed**
+- **FATAL ERROR FIX**: Added missing `ACA_PLUGIN_PATH` constant definition
+- **CRON SCHEDULING**: Fixed custom cron schedules not being available during activation
+- **DATABASE COMPATIBILITY**: Replaced `DB_NAME` with `$wpdb->dbname` for better compatibility
+- **CIRCULAR DEPENDENCIES**: Eliminated circular dependency issues between REST API and Cron classes
+- **UNINSTALL SECURITY**: Improved table dropping security in uninstall script
+- **ACTIVATION ERRORS**: Resolved "Plugin could not be activated because it triggered a fatal error"
+
+#### **Improved**
+- **Architecture**: Simplified cron task execution to prevent circular dependencies
+- **Error Handling**: Enhanced error logging for cron context operations
+- **Security**: Better validation in database operations
+- **Performance**: Reduced unnecessary class instantiations
+
+#### **Technical Details**
+- Fixed missing constant causing fatal errors in 15+ files
+- Resolved timing issues with WordPress cron schedule registration
+- Improved SQL query compatibility across different MySQL versions
+- Enhanced plugin activation reliability
+
+---
+
 ## [2.3.8-enterprise] - 2025-07-31 🚀
 
 ### 🎉 **MAJOR MILESTONE - ENTERPRISE EDITION RELEASE**

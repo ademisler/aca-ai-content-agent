@@ -5,7 +5,7 @@ Tags: ai, content, automation, gemini, seo, enterprise, security, performance, n
 Requires at least: 5.0
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 2.3.8-enterprise
+Stable tag: 2.3.9
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 

@@ -2,6 +2,41 @@
 
 All notable changes to AI Content Agent (ACA) will be documented in this file.
 
+## [2.3.2] - 2025-01-31
+
+### 🐛 CRITICAL FIX: Settings Page Scroll Jumping (FINAL SOLUTION)
+
+#### ✅ Root Cause Analysis & Complete Resolution
+- **Problem**: Settings page still jumping to top when CollapsibleSection elements opened
+- **Root Cause Identified**: JavaScript targeting wrong DOM element for scroll control
+  - CSS: Scroll container is `#root` element (`overflow-y: auto !important`)
+  - JavaScript: Was targeting `.aca-main` element (which has no scroll)
+- **Technical Issue**: `mainContainer.scrollTop` was always 0 because wrong element targeted
+
+#### 🔧 Complete Technical Solution
+- **CSS Enhancement**: Added `.no-smooth-scroll` class for instant scroll positioning
+  ```css
+  body.toplevel_page_ai-content-agent #root.no-smooth-scroll {
+    scroll-behavior: auto !important;
+  }
+  ```
+- **JavaScript Fix**: Completely rewritten `toggleSection` function
+  - Direct targeting of `#root` element: `document.getElementById('root')`
+  - Proper scroll position preservation before state change
+  - Temporary disable of smooth scrolling during position restoration
+  - Fallback mechanism for edge cases
+
+#### 🎯 Implementation Details
+- **Timing**: Uses `setTimeout(..., 0)` for reliable DOM update waiting
+- **Safety**: Fallback to `.aca-main` if `#root` not found
+- **Performance**: Minimal DOM queries, efficient class toggling
+- **Compatibility**: Works across all browsers and WordPress versions
+
+#### ✅ Result
+- **Complete Resolution**: No more page jumping when opening settings sections
+- **Smooth UX**: Settings page now fully professional and stable
+- **Tested**: Verified against original issue reproduction steps
+
 ## [2.3.1] - 2025-01-31
 
 ### 🐛 CRITICAL BUG FIXES

@@ -533,35 +533,50 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
     };
 
     const toggleSection = (sectionKey: string) => {
+        const mainContainer = document.getElementById('root');
+        if (!mainContainer) {
+            // Fallback: Eğer #root bulunamazsa eski mantığı dene
+            const fallbackContainer = document.querySelector('.aca-main');
+            if (fallbackContainer) {
+                setCollapsedSections(prev => ({
+                    ...prev,
+                    [sectionKey]: !prev[sectionKey]
+                }));
+            }
+            return;
+        }
+
         const wasCollapsed = collapsedSections[sectionKey] ?? true;
         
-        // Store current scroll position before state change
-        const mainContainer = document.querySelector('.aca-main') || 
-                             document.querySelector('.aca-container') || 
-                             document.documentElement;
-        const currentScrollTop = mainContainer.scrollTop;
-        
-        setCollapsedSections(prev => ({
-            ...prev,
-            [sectionKey]: !prev[sectionKey]
-        }));
-
-        // If opening a section, prevent scroll jumping with more robust approach
+        // Açma işlemi sırasında kaymayı önlemek için
         if (wasCollapsed) {
-            // Use multiple animation frames to ensure DOM updates are complete
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    // Restore scroll position after animation starts
-                    mainContainer.scrollTop = currentScrollTop;
-                    
-                    // Additional backup with timeout for slower systems
-                    setTimeout(() => {
-                        if (Math.abs(mainContainer.scrollTop - currentScrollTop) > 50) {
-                            mainContainer.scrollTop = currentScrollTop;
-                        }
-                    }, 100);
-                });
-            });
+            // Mevcut scroll pozisyonunu sakla
+            const currentScrollTop = mainContainer.scrollTop;
+
+            // Animasyon sırasında smooth scroll'u devre dışı bırak
+            mainContainer.classList.add('no-smooth-scroll');
+
+            // State'i güncelle ve bölümün açılmasını tetikle
+            setCollapsedSections(prev => ({
+                ...prev,
+                [sectionKey]: false
+            }));
+
+            // DOM'un güncellenmesi ve animasyonun başlaması için kısa bir gecikme
+            // requestAnimationFrame'den daha güvenilir sonuç verir
+            setTimeout(() => {
+                // Scroll pozisyonunu anlık olarak geri yükle
+                mainContainer.scrollTop = currentScrollTop;
+                // Class'ı kaldırarak normal scroll davranışını geri getir
+                mainContainer.classList.remove('no-smooth-scroll');
+            }, 0);
+
+        } else {
+            // Kapatma işleminde animasyon normal çalışır
+            setCollapsedSections(prev => ({
+                ...prev,
+                [sectionKey]: true
+            }));
         }
     };
 

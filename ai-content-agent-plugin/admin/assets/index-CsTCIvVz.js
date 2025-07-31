@@ -1122,6 +1122,12 @@ body.toplevel_page_ai-content-agent #root {
   scroll-behavior: smooth !important;
 }
 
+/* Bu sınıf eklendiğinde anlık scroll geçişi sağlar */
+
+body.toplevel_page_ai-content-agent #root.no-smooth-scroll {
+  scroll-behavior: auto !important;
+}
+
 /* Optimize collapsible section transitions */
 
 body.toplevel_page_ai-content-agent .aca-card [id^="section-content-"] {
@@ -12251,24 +12257,34 @@ body.toplevel_page_ai-content-agent #wpfooter {
       }, 700);
     };
     const toggleSection = (sectionKey) => {
+      const mainContainer = document.getElementById("root");
+      if (!mainContainer) {
+        const fallbackContainer = document.querySelector(".aca-main");
+        if (fallbackContainer) {
+          setCollapsedSections((prev) => ({
+            ...prev,
+            [sectionKey]: !prev[sectionKey]
+          }));
+        }
+        return;
+      }
       const wasCollapsed = collapsedSections[sectionKey] ?? true;
-      const mainContainer = document.querySelector(".aca-main") || document.querySelector(".aca-container") || document.documentElement;
-      const currentScrollTop = mainContainer.scrollTop;
-      setCollapsedSections((prev) => ({
-        ...prev,
-        [sectionKey]: !prev[sectionKey]
-      }));
       if (wasCollapsed) {
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            mainContainer.scrollTop = currentScrollTop;
-            setTimeout(() => {
-              if (Math.abs(mainContainer.scrollTop - currentScrollTop) > 50) {
-                mainContainer.scrollTop = currentScrollTop;
-              }
-            }, 100);
-          });
-        });
+        const currentScrollTop = mainContainer.scrollTop;
+        mainContainer.classList.add("no-smooth-scroll");
+        setCollapsedSections((prev) => ({
+          ...prev,
+          [sectionKey]: false
+        }));
+        setTimeout(() => {
+          mainContainer.scrollTop = currentScrollTop;
+          mainContainer.classList.remove("no-smooth-scroll");
+        }, 0);
+      } else {
+        setCollapsedSections((prev) => ({
+          ...prev,
+          [sectionKey]: true
+        }));
       }
     };
     const CollapsibleSection = ({ id, title, description, icon, children, defaultOpen = false }) => {

@@ -11592,6 +11592,13 @@ body.toplevel_page_ai-content-agent #wpfooter {
     const drafts = posts.filter((p) => p.status === "draft");
     const publishedPosts = posts.filter((p) => p.status === "published");
     const isGeminiApiConfigured = !!(settings.geminiApiKey && settings.geminiApiKey.trim());
+    const addToast = reactExports.useCallback((toast) => {
+      const id = Date.now();
+      setToasts((prev) => [...prev, { ...toast, id }]);
+    }, []);
+    const showToast = reactExports.useCallback((message, type) => {
+      addToast({ message, type });
+    }, [addToast]);
     reactExports.useEffect(() => {
       const urlParams = new URLSearchParams(window.location.search);
       const viewParam = urlParams.get("view");
@@ -11611,13 +11618,6 @@ body.toplevel_page_ai-content-agent #wpfooter {
         setSettingsOpenSection(void 0);
       }
     }, [view]);
-    const addToast = reactExports.useCallback((toast) => {
-      const id = Date.now();
-      setToasts((prev) => [...prev, { ...toast, id }]);
-    }, []);
-    const showToast = reactExports.useCallback((message, type) => {
-      addToast({ message, type });
-    }, [addToast]);
     const addLogEntry = reactExports.useCallback((type, details, icon) => {
       const newLog = {
         id: Date.now(),

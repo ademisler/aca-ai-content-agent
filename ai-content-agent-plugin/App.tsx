@@ -112,6 +112,15 @@ const App: React.FC = () => {
     // Check if Gemini API key is configured
     const isGeminiApiConfigured = !!(settings.geminiApiKey && settings.geminiApiKey.trim());
 
+    const addToast = useCallback((toast: Omit<ToastData, 'id'>) => {
+        const id = Date.now();
+        setToasts(prev => [...prev, { ...toast, id }]);
+    }, []);
+
+    const showToast = useCallback((message: string, type: 'success' | 'error' | 'warning' | 'info') => {
+        addToast({ message, type });
+    }, [addToast]);
+
     // Parse URL parameters for OAuth redirects and view navigation
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -139,15 +148,6 @@ const App: React.FC = () => {
             setSettingsOpenSection(undefined);
         }
     }, [view]);
-
-    const addToast = useCallback((toast: Omit<ToastData, 'id'>) => {
-        const id = Date.now();
-        setToasts(prev => [...prev, { ...toast, id }]);
-    }, []);
-
-    const showToast = useCallback((message: string, type: 'success' | 'error' | 'warning' | 'info') => {
-        addToast({ message, type });
-    }, [addToast]);
     
     const addLogEntry = useCallback((type: ActivityLogType, details: string, icon: IconName) => {
         const newLog: ActivityLog = {

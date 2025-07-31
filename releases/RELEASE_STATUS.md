@@ -4,7 +4,7 @@
 
 ### **v2.3.11 - Critical Bug Fix Release** ✅
 - **File:** `ai-content-agent-v2.3.11.zip`
-- **Size:** ~38MB
+- **Size:** 1.2MB
 - **Release Date:** January 31, 2025
 - **Status:** **STABLE & READY FOR DEPLOYMENT**
 

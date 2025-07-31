@@ -116,7 +116,13 @@ class ACA_Activator {
             KEY ip_created (ip_address, created_at)
         ) $charset_collate;";
         
-        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        $upgrade_file = ABSPATH . 'wp-admin/includes/upgrade.php';
+        if (file_exists($upgrade_file)) {
+            require_once($upgrade_file);
+        } else {
+            error_log('ACA Plugin: WordPress upgrade.php not found at ' . $upgrade_file);
+            return;
+        }
         dbDelta($sql_ideas);
         dbDelta($sql_logs);
         dbDelta($sql_content_updates);

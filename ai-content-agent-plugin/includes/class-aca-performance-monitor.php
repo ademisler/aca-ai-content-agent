@@ -193,8 +193,13 @@ class ACA_Performance_Monitor {
             KEY execution_time (execution_time_ms)
         ) $charset_collate;";
         
-        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-        dbDelta($sql);
+        $upgrade_file = ABSPATH . 'wp-admin/includes/upgrade.php';
+        if (file_exists($upgrade_file)) {
+            require_once($upgrade_file);
+            dbDelta($sql);
+        } else {
+            error_log('ACA Plugin: WordPress upgrade.php not found');
+        }
     }
     
     /**

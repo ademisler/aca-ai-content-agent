@@ -13403,7 +13403,7 @@ body.toplevel_page_ai-content-agent #wpfooter {
     const [isSaving, setIsSaving] = reactExports.useState(false);
     const [gscAuthStatus, setGscAuthStatus] = reactExports.useState(null);
     const [licenseKey, setLicenseKey] = reactExports.useState("");
-    const [licenseStatus, setLicenseStatus] = reactExports.useState({ status: "inactive", is_active: false });
+    const [licenseStatus, setLicenseStatus] = reactExports.useState({ status: "demo", is_active: true });
     const [isVerifyingLicense, setIsVerifyingLicense] = reactExports.useState(false);
     const [isLoadingLicenseStatus] = reactExports.useState(true);
     const [activeTab, setActiveTab] = reactExports.useState("license");

@@ -128,7 +128,7 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
         status: string, 
         is_active: boolean, 
         verified_at?: string
-    }>({status: 'inactive', is_active: false});
+    }>({status: 'demo', is_active: true}); // Demo mode - enable Pro features
     const [isVerifyingLicense, setIsVerifyingLicense] = useState(false);
     const [isLoadingLicenseStatus] = useState(true);
 

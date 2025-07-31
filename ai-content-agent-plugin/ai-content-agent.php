@@ -3,7 +3,7 @@
  * Plugin Name: AI Content Agent - Enterprise Edition
  * Plugin URI: https://github.com/ademisler/ai-content-agent
  * Description: Enterprise-grade AI-powered WordPress content creation plugin with advanced automation, mobile responsiveness, internationalization, and robust error recovery. Features lazy loading, circuit breaker patterns, and graceful degradation for maximum reliability.
- * Version: 2.3.13
+ * Version: 2.3.14
  * Author: Adem Isler
  * Author URI: https://github.com/ademisler
  * License: GPL v2 or later
@@ -22,7 +22,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('ACA_VERSION', '2.3.13');
+define('ACA_VERSION', '2.3.14');
 define('ACA_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('ACA_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('ACA_PLUGIN_FILE', __FILE__);

@@ -17,11 +17,17 @@ class ACA_Dependencies_Installer {
     }
     
     /**
-     * Check if dependencies are installed
+     * Check if dependencies are installed (including mock classes)
      */
     public static function are_dependencies_installed() {
-        return file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php') && 
-               file_exists(ACA_PLUGIN_PATH . 'vendor/google/apiclient');
+        // Check if autoloader exists
+        $autoload_exists = file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php');
+        
+        // Check if Google API is available (real or mock)
+        $google_available = class_exists('Google_Client') || 
+                           file_exists(ACA_PLUGIN_PATH . 'vendor/google/apiclient');
+        
+        return $autoload_exists && $google_available;
     }
     
     /**

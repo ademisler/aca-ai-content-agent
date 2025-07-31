@@ -4070,8 +4070,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             return new WP_Error('gsc_not_configured', 'Google Search Console is not configured', array('status' => 400));
         }
         
-        // Initialize GSC class
-        require_once ACA_PLUGIN_DIR . 'includes/class-aca-google-search-console.php';
+        // Initialize GSC Hybrid class (no require needed - already loaded in main plugin)
         $gsc = new ACA_Google_Search_Console_Hybrid();
         
         // Check authentication status

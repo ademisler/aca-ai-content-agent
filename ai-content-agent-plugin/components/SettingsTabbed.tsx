@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import type { AppSettings, AutomationMode, ImageSourceProvider, AiImageStyle, SeoPlugin } from '../types';
+import React, { useState, useEffect, useCallback } from 'react';
+import type { AppSettings, AutomationMode, ImageSourceProvider } from '../types';
 import { 
     Spinner, 
     Google, 
@@ -130,7 +130,7 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
         verified_at?: string
     }>({status: 'inactive', is_active: false});
     const [isVerifyingLicense, setIsVerifyingLicense] = useState(false);
-    const [isLoadingLicenseStatus, setIsLoadingLicenseStatus] = useState(true);
+    const [isLoadingLicenseStatus] = useState(true);
 
     // Tab state
     const [activeTab, setActiveTab] = useState('license');
@@ -207,8 +207,9 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
     };
 
     // Helper function to check if Pro features are available
+    // Single source of truth: licenseStatus.is_active
     const isProActive = () => {
-        return currentSettings.is_pro || licenseStatus.is_active;
+        return licenseStatus.is_active;
     };
 
     // Helper function to check if image source is configured
@@ -225,6 +226,130 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
             default:
                 return false;
         }
+    };
+
+    // FORM VALIDATION FUNCTIONS
+    const validateApiKey = (key: string, type: 'gemini' | 'pexels' | 'unsplash' | 'pixabay'): { isValid: boolean; error?: string } => {
+        if (!key || key.trim() === '') {
+            return { isValid: false, error: 'API key is required' };
+        }
+
+        switch (type) {
+            case 'gemini':
+                // Gemini API keys typically start with 'AIza' and are 39 characters long
+                if (!key.startsWith('AIza') || key.length !== 39) {
+                    return { isValid: false, error: 'Invalid Gemini API key format. Should start with "AIza" and be 39 characters long.' };
+                }
+                break;
+            case 'pexels':
+                // Pexels API keys are typically 56 characters long and contain alphanumeric characters
+                if (key.length < 40 || !/^[a-zA-Z0-9]+$/.test(key)) {
+                    return { isValid: false, error: 'Invalid Pexels API key format.' };
+                }
+                break;
+            case 'unsplash':
+                // Unsplash access keys are typically 43 characters long
+                if (key.length < 40 || !/^[a-zA-Z0-9_-]+$/.test(key)) {
+                    return { isValid: false, error: 'Invalid Unsplash API key format.' };
+                }
+                break;
+            case 'pixabay':
+                // Pixabay API keys are typically numeric and 8-20 digits
+                if (!/^\d{8,20}$/.test(key)) {
+                    return { isValid: false, error: 'Invalid Pixabay API key format. Should be 8-20 digits.' };
+                }
+                break;
+        }
+
+        return { isValid: true };
+    };
+
+    const validateGoogleCloudProjectId = (projectId: string): { isValid: boolean; error?: string } => {
+        if (!projectId || projectId.trim() === '') {
+            return { isValid: false, error: 'Project ID is required' };
+        }
+
+        // Google Cloud project IDs must be 6-30 characters, lowercase letters, digits, and hyphens
+        if (!/^[a-z][a-z0-9-]{5,29}$/.test(projectId)) {
+            return { isValid: false, error: 'Invalid project ID format. Must be 6-30 characters, start with letter, contain only lowercase letters, digits, and hyphens.' };
+        }
+
+        return { isValid: true };
+    };
+
+    const validateEmail = (email: string): { isValid: boolean; error?: string } => {
+        if (!email || email.trim() === '') {
+            return { isValid: false, error: 'Email is required' };
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return { isValid: false, error: 'Invalid email format' };
+        }
+
+        return { isValid: true };
+    };
+
+    const validateLicenseKey = (key: string): { isValid: boolean; error?: string } => {
+        if (!key || key.trim() === '') {
+            return { isValid: false, error: 'License key is required' };
+        }
+
+        // License keys should be at least 20 characters
+        if (key.length < 20) {
+            return { isValid: false, error: 'License key appears to be too short' };
+        }
+
+        return { isValid: true };
+    };
+
+    // Validation state
+    const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+
+    // Validate input and update error state
+    const validateInput = (field: string, value: string) => {
+        let validation: { isValid: boolean; error?: string } = { isValid: true };
+
+        switch (field) {
+            case 'geminiApiKey':
+                validation = validateApiKey(value, 'gemini');
+                break;
+            case 'pexelsApiKey':
+                validation = validateApiKey(value, 'pexels');
+                break;
+            case 'unsplashApiKey':
+                validation = validateApiKey(value, 'unsplash');
+                break;
+            case 'pixabayApiKey':
+                validation = validateApiKey(value, 'pixabay');
+                break;
+            case 'googleCloudProjectId':
+                validation = validateGoogleCloudProjectId(value);
+                break;
+            case 'licenseKey':
+                validation = validateLicenseKey(value);
+                break;
+        }
+
+        setValidationErrors(prev => ({
+            ...prev,
+            [field]: validation.error || ''
+        }));
+
+        return validation.isValid;
+    };
+
+    // Enhanced input change handler with validation
+    const handleInputChange = (field: string, value: string) => {
+        setCurrentSettings(prev => ({
+            ...prev,
+            [field]: value
+        }));
+
+        // Validate on change (debounced)
+        setTimeout(() => {
+            validateInput(field, value);
+        }, 300);
     };
 
     // IntegrationCard component (restored from working v2.3.0)
@@ -261,12 +386,71 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
         </div>
     );
 
-    // Save functionality
+    // Save functionality with debouncing to prevent race conditions
     const isDirty = JSON.stringify(currentSettings) !== JSON.stringify(settings);
+    const [saveTimeout, setSaveTimeout] = useState<NodeJS.Timeout | null>(null);
+    const [isAutoSaving, setIsAutoSaving] = useState(false);
+
+    // Debounced auto-save function
+    const debouncedSave = useCallback(async (settingsToSave: AppSettings) => {
+        // Clear existing timeout
+        if (saveTimeout) {
+            clearTimeout(saveTimeout);
+        }
+
+        // Set new timeout for auto-save
+        const newTimeout = setTimeout(async () => {
+            setIsAutoSaving(true);
+            try {
+                await onSaveSettings(settingsToSave);
+                onShowToast?.('Settings auto-saved', 'success');
+            } catch (error) {
+                console.error('Auto-save failed:', error);
+                onShowToast?.('Auto-save failed. Please save manually.', 'warning');
+            } finally {
+                setIsAutoSaving(false);
+            }
+        }, 2000); // 2 second delay
+
+        setSaveTimeout(newTimeout);
+    }, [saveTimeout, onSaveSettings, onShowToast]);
+
+    // Effect to trigger auto-save when settings change
+    useEffect(() => {
+        if (isDirty && !isSaving) {
+            debouncedSave(currentSettings);
+        }
+
+        // Cleanup timeout on unmount
+        return () => {
+            if (saveTimeout) {
+                clearTimeout(saveTimeout);
+            }
+        };
+    }, [currentSettings, isDirty, isSaving, debouncedSave, saveTimeout]);
 
     const handleSave = async () => {
+        // Prevent multiple simultaneous save operations
+        if (isSaving || isAutoSaving) {
+            onShowToast?.('Save already in progress...', 'info');
+            return;
+        }
+
+        // Clear auto-save timeout since we're doing manual save
+        if (saveTimeout) {
+            clearTimeout(saveTimeout);
+            setSaveTimeout(null);
+        }
+
         setIsSaving(true);
         try {
+            // Validate all inputs before saving
+            const hasErrors = Object.values(validationErrors).some(error => error !== '');
+            if (hasErrors) {
+                onShowToast?.('Please fix validation errors before saving', 'error');
+                return;
+            }
+
             await onSaveSettings(currentSettings);
             onShowToast?.('Settings saved successfully!', 'success');
         } catch (error) {
@@ -508,7 +692,6 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
     useEffect(() => {
         const loadInitialData = async () => {
             await Promise.all([
-                loadLicenseStatus(),
                 loadGscAuthStatus(),
                 fetchSeoPlugins()
             ]);
@@ -588,9 +771,15 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                         type="text" 
                         placeholder="Enter your license key" 
                         value={licenseKey} 
-                        onChange={e => setLicenseKey(e.target.value)} 
+                        onChange={e => {
+                            setLicenseKey(e.target.value);
+                            validateInput('licenseKey', e.target.value);
+                        }} 
                         className="aca-input"
                     />
+                    {validationErrors.licenseKey && (
+                        <p style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{validationErrors.licenseKey}</p>
+                    )}
                     <button 
                         onClick={handleLicenseVerification} 
                         disabled={isVerifyingLicense || !licenseKey.trim()} 
@@ -822,9 +1011,12 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                         type="password" 
                         placeholder="Enter Google AI API Key" 
                         value={currentSettings.geminiApiKey} 
-                        onChange={e => handleSettingChange('geminiApiKey', e.target.value)} 
+                        onChange={e => handleInputChange('geminiApiKey', e.target.value)} 
                         className="aca-input"
                     />
+                    {validationErrors.geminiApiKey && (
+                        <p style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{validationErrors.geminiApiKey}</p>
+                    )}
                     <a 
                         href="https://aistudio.google.com/app/apikey" 
                         target="_blank" 
@@ -886,9 +1078,12 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                             type="password" 
                             placeholder="Enter Pexels API Key" 
                             value={currentSettings.pexelsApiKey} 
-                            onChange={e => handleSettingChange('pexelsApiKey', e.target.value)} 
+                            onChange={e => handleInputChange('pexelsApiKey', e.target.value)} 
                             className="aca-input"
                         />
+                        {validationErrors.pexelsApiKey && (
+                            <p style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{validationErrors.pexelsApiKey}</p>
+                        )}
                         <p 
                             className="aca-page-description"
                             style={{ marginTop: '8px', fontSize: '13px' }}
@@ -907,9 +1102,12 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                             type="password" 
                             placeholder="Enter Unsplash Access Key" 
                             value={currentSettings.unsplashApiKey} 
-                            onChange={e => handleSettingChange('unsplashApiKey', e.target.value)} 
+                            onChange={e => handleInputChange('unsplashApiKey', e.target.value)} 
                             className="aca-input"
                         />
+                        {validationErrors.unsplashApiKey && (
+                            <p style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{validationErrors.unsplashApiKey}</p>
+                        )}
                         <p 
                             className="aca-page-description"
                             style={{ marginTop: '8px', fontSize: '13px' }}
@@ -928,9 +1126,12 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                             type="password" 
                             placeholder="Enter Pixabay API Key" 
                             value={currentSettings.pixabayApiKey} 
-                            onChange={e => handleSettingChange('pixabayApiKey', e.target.value)} 
+                            onChange={e => handleInputChange('pixabayApiKey', e.target.value)} 
                             className="aca-input"
                         />
+                        {validationErrors.pixabayApiKey && (
+                            <p style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{validationErrors.pixabayApiKey}</p>
+                        )}
                         <p 
                             className="aca-page-description"
                             style={{ marginTop: '8px', fontSize: '13px' }}
@@ -963,9 +1164,12 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                                 type="text" 
                                 placeholder="your-project-id" 
                                 value={currentSettings.googleCloudProjectId || ''} 
-                                onChange={e => handleSettingChange('googleCloudProjectId', e.target.value)} 
+                                onChange={e => handleInputChange('googleCloudProjectId', e.target.value)} 
                                 className="aca-input"
                             />
+                            {validationErrors.googleCloudProjectId && (
+                                <p style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{validationErrors.googleCloudProjectId}</p>
+                            )}
                             <p className="aca-page-description" style={{ marginTop: '8px', fontSize: '13px' }}>
                                 Required for AI image generation. Get this from your Google Cloud Console.
                             </p>
@@ -1243,11 +1447,14 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                             <input
                                 type="text"
                                 value={currentSettings.gscClientId}
-                                onChange={(e) => handleSettingChange('gscClientId', e.target.value)}
+                                onChange={e => handleInputChange('gscClientId', e.target.value)}
                                 placeholder="Your Google OAuth2 Client ID"
                                 className="aca-input"
                                 style={{ width: '100%' }}
                             />
+                            {validationErrors.gscClientId && (
+                                <p style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{validationErrors.gscClientId}</p>
+                            )}
                         </div>
                         
                         <div>
@@ -1255,11 +1462,14 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                             <input
                                 type="password"
                                 value={currentSettings.gscClientSecret}
-                                onChange={(e) => handleSettingChange('gscClientSecret', e.target.value)}
+                                onChange={e => handleInputChange('gscClientSecret', e.target.value)}
                                 placeholder="Your Google OAuth2 Client Secret"
                                 className="aca-input"
                                 style={{ width: '100%' }}
                             />
+                            {validationErrors.gscClientSecret && (
+                                <p style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{validationErrors.gscClientSecret}</p>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -1630,16 +1840,16 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                 <div style={{ marginLeft: 'auto' }}>
                     <button
                         onClick={handleSave}
-                        disabled={!isDirty || isSaving}
+                        disabled={!isDirty || isSaving || isAutoSaving}
                         style={{
                             padding: '12px 24px',
-                            backgroundColor: (!isDirty || isSaving) ? '#e5e7eb' : '#0073aa',
-                            color: (!isDirty || isSaving) ? '#9ca3af' : 'white',
+                            backgroundColor: (!isDirty || isSaving || isAutoSaving) ? '#e5e7eb' : '#0073aa',
+                            color: (!isDirty || isSaving || isAutoSaving) ? '#9ca3af' : 'white',
                             border: 'none',
                             borderRadius: '8px',
                             fontSize: '14px',
                             fontWeight: '600',
-                            cursor: (!isDirty || isSaving) ? 'not-allowed' : 'pointer',
+                            cursor: (!isDirty || isSaving || isAutoSaving) ? 'not-allowed' : 'pointer',
                             display: 'flex',
                             alignItems: 'center',
                             gap: '8px',
@@ -1647,7 +1857,7 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                         }}
                     >
                         {isSaving && <Spinner style={{ width: '16px', height: '16px' }} />}
-                        {isSaving ? 'Saving...' : 'Save Settings'}
+                        {isAutoSaving ? 'Auto-saving...' : isSaving ? 'Saving...' : 'Save Settings'}
                     </button>
                 </div>
             </div>

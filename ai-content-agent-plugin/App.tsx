@@ -17,6 +17,7 @@ import { Menu } from './components/Icons';
 import { ContentCalendar } from './components/ContentCalendar';
 import { ContentFreshnessManager } from './components/ContentFreshnessManager';
 import ErrorBoundary from './components/ErrorBoundary';
+import logger from './utils/logger';
 
 declare global {
   interface Window {
@@ -199,7 +200,7 @@ const App: React.FC = () => {
             return;
         }
 
-        console.log('Creating draft for idea:', idea);
+        logger.log('Creating draft for idea:', idea);
         setIsLoading(prev => ({ ...prev, [`draft_${ideaId}`]: true }));
         
         // Show loading toast
@@ -209,9 +210,9 @@ const App: React.FC = () => {
         });
         
         try {
-            console.log('Calling draftsApi.createFromIdea with ideaId:', ideaId);
+            logger.log('Calling draftsApi.createFromIdea with ideaId:', ideaId);
             const draft = await draftsApi.createFromIdea(ideaId);
-            console.log('Draft created successfully:', draft);
+            logger.log('Draft created successfully:', draft);
             
             setPosts(prev => [draft, ...prev]);
             
@@ -226,7 +227,7 @@ const App: React.FC = () => {
             });
             addLogEntry('draft_created', `Created draft: "${draft.title}" with full WordPress integration`, 'FileText');
         } catch (error) {
-            console.error('Error creating draft:', error);
+            logger.error('Error creating draft:', error);
             
             // Parse error message for better user feedback
             let errorMessage = 'Failed to create draft. Please try again.';
@@ -313,7 +314,7 @@ const App: React.FC = () => {
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Failed to schedule draft';
             addToast({ message: errorMessage, type: 'error' });
-            console.error('Error scheduling draft:', error);
+            logger.error('Error scheduling draft:', error);
         }
     }, [addToast, addLogEntry]);
 
@@ -422,7 +423,7 @@ const App: React.FC = () => {
                 aiImageStyle: 'photographic'
             });
         } catch (error) {
-            console.error('Failed to refresh settings:', error);
+            logger.error('Failed to refresh settings:', error);
             refreshErrors.push('settings');
         }
         
@@ -431,7 +432,7 @@ const App: React.FC = () => {
             const ideasData = await ideasApi.get();
             setIdeas(ideasData || []);
         } catch (error) {
-            console.error('Failed to refresh ideas:', error);
+            logger.error('Failed to refresh ideas:', error);
             refreshErrors.push('ideas');
         }
         
@@ -442,14 +443,14 @@ const App: React.FC = () => {
         try {
             draftsData = await draftsApi.get();
         } catch (error) {
-            console.error('Failed to refresh drafts:', error);
+            logger.error('Failed to refresh drafts:', error);
             refreshErrors.push('drafts');
         }
         
         try {
             publishedData = await publishedApi.get();
         } catch (error) {
-            console.error('Failed to refresh published posts:', error);
+            logger.error('Failed to refresh published posts:', error);
             refreshErrors.push('published');
         }
         
@@ -460,7 +461,7 @@ const App: React.FC = () => {
             const activityData = await activityApi.get();
             setActivityLogs(activityData || []);
         } catch (error) {
-            console.error('Failed to refresh activity logs:', error);
+            logger.error('Failed to refresh activity logs:', error);
             refreshErrors.push('activity');
         }
         
@@ -469,7 +470,7 @@ const App: React.FC = () => {
             addToast({ message: 'Failed to refresh app settings', type: 'error' });
         } else if (refreshErrors.length > 0) {
             // Non-critical errors, just log them
-            console.log('Some non-critical data failed to refresh:', refreshErrors);
+            logger.log('Some non-critical data failed to refresh:', refreshErrors);
         }
         
         // Don't show success toast to reduce notification spam
@@ -574,7 +575,7 @@ const App: React.FC = () => {
     useEffect(() => {
         // Check if WordPress localized data is available
         if (!window.acaData) {
-            console.error('ACA Error: WordPress localized data not available');
+            logger.error('ACA Error: WordPress localized data not available');
             showToast('Plugin not properly loaded. Please refresh the page.', 'error');
             return;
         }
@@ -622,7 +623,7 @@ const App: React.FC = () => {
                     }
                 } catch (error) {
                     // Content freshness is a Pro feature, don't show error if not available
-                    console.log('Content freshness not available (Pro feature)');
+                    logger.log('Content freshness not available (Pro feature)');
                 }
                 
                 if (!isMounted) return;
@@ -658,7 +659,7 @@ const App: React.FC = () => {
                 }
             } catch (error) {
                 if (isMounted) {
-                    console.error('Failed to load initial data:', error);
+                    logger.error('Failed to load initial data:', error);
                     addToast({ message: 'Failed to load plugin data', type: 'error' });
                 }
             }

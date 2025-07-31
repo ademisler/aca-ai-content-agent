@@ -1,0 +1,33 @@
+{
+  "name": "ai-content-agent-aca",
+  "version": "2.3.8",
+  "description": "AI Content Agent (ACA) - Enterprise-grade AI-powered WordPress content creation plugin with Pro licensing",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "build:wp": "vite build && rm -f admin/assets/index-*.js && rm -f admin/js/index.js && cp dist/assets/index-*.js admin/assets/ && cp dist/assets/index-*.js admin/js/index.js",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.4",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^22.14.0",
+    "@types/react": "^18.3.23",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^4.7.0",
+    "jest": "^30.0.5",
+    "jest-environment-jsdom": "^30.0.5",
+    "terser": "^5.43.1",
+    "typescript": "^5.7.3",
+    "vite": "^6.3.5"
+  }
+}

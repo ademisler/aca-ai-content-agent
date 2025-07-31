@@ -42,6 +42,8 @@ require_once ACA_PLUGIN_DIR . 'includes/class-aca-deactivator.php';
 require_once ACA_PLUGIN_DIR . 'includes/class-aca-rest-api.php';
 require_once ACA_PLUGIN_DIR . 'includes/class-aca-cron.php';
 require_once ACA_PLUGIN_DIR . 'includes/class-aca-content-freshness.php';
+require_once ACA_PLUGIN_DIR . 'includes/class-aca-rate-limiter.php';
+require_once ACA_PLUGIN_DIR . 'includes/class-aca-performance-monitor.php';
 
 // Activation and deactivation hooks
 register_activation_hook(__FILE__, array('ACA_Activator', 'activate'));

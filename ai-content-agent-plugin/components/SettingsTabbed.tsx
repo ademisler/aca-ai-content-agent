@@ -37,8 +37,17 @@ const RadioCard: React.FC<{
     description: string;
     currentSelection: AutomationMode;
     onChange: (mode: AutomationMode) => void;
-}> = ({ id, title, description, currentSelection, onChange }) => {
+    disabled?: boolean;
+    proBadge?: boolean;
+}> = ({ id, title, description, currentSelection, onChange, disabled = false, proBadge = false }) => {
     const isChecked = currentSelection === id;
+    
+    const handleClick = () => {
+        if (!disabled) {
+            onChange(id);
+        }
+    };
+    
     return (
         <label 
             htmlFor={id} 
@@ -46,19 +55,37 @@ const RadioCard: React.FC<{
             style={{
                 margin: 0,
                 border: '2px solid',
-                borderColor: isChecked ? '#0073aa' : '#ccd0d4',
-                background: isChecked ? '#f0f6fc' : '#ffffff',
-                boxShadow: isChecked ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none',
-                cursor: 'pointer'
+                borderColor: isChecked ? '#0073aa' : (disabled ? '#e5e7eb' : '#ccd0d4'),
+                background: disabled ? '#f9fafb' : (isChecked ? '#f0f6fc' : '#ffffff'),
+                boxShadow: isChecked && !disabled ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none',
+                cursor: disabled ? 'not-allowed' : 'pointer',
+                opacity: disabled ? 0.6 : 1,
+                position: 'relative'
             }}
         >
+            {proBadge && (
+                <div style={{
+                    position: 'absolute',
+                    top: '12px',
+                    right: '12px',
+                    backgroundColor: '#f59e0b',
+                    color: 'white',
+                    padding: '4px 8px',
+                    borderRadius: '4px',
+                    fontSize: '11px',
+                    fontWeight: 'bold'
+                }}>
+                    PRO
+                </div>
+            )}
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
                 <input
                     type="radio"
                     id={id}
                     name="automation-mode"
                     checked={isChecked}
-                    onChange={() => onChange(id)}
+                    onChange={handleClick}
+                    disabled={disabled}
                     style={{
                         marginTop: '2px',
                         width: '18px',
@@ -68,10 +95,16 @@ const RadioCard: React.FC<{
                     }}
                 />
                 <div>
-                    <h4 className="aca-card-title" style={{ marginBottom: '8px' }}>
+                    <h4 className="aca-card-title" style={{ 
+                        marginBottom: '8px',
+                        color: disabled ? '#9ca3af' : '#374151'
+                    }}>
                         {title}
                     </h4>
-                    <p className="aca-page-description" style={{ margin: 0 }}>
+                    <p className="aca-page-description" style={{ 
+                        margin: 0,
+                        color: disabled ? '#9ca3af' : '#6b7280'
+                    }}>
                         {description}
                     </p>
                 </div>
@@ -650,6 +683,8 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                             description="Generate ideas automatically, but you review and approve each draft before publishing. Perfect balance of automation and control."
                             currentSelection={currentSettings.automationMode}
                             onChange={(mode) => handleModeChange(mode as AutomationMode)}
+                            disabled={!isProActive()}
+                            proBadge={!isProActive()}
                         />
                         <RadioCard
                             id="full-automatic"
@@ -657,6 +692,8 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                             description="Complete automation - generates ideas, creates content, and publishes automatically based on your schedule. Maximum efficiency."
                             currentSelection={currentSettings.automationMode}
                             onChange={(mode) => handleModeChange(mode as AutomationMode)}
+                            disabled={!isProActive()}
+                            proBadge={!isProActive()}
                         />
                     </div>
 

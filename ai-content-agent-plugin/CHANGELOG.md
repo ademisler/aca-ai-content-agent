@@ -1,5 +1,30 @@
 # Changelog
 
+## [2.3.7] - 2024-12-19
+
+### 🚨 CRITICAL UX FIX - Toast Notifications Restored
+
+#### Major Fix:
+- **handleModeChange Toast Notifications**: Fixed missing user feedback for Pro license validation
+  - **Problem**: When users tried to select Semi-Automatic or Full-Automatic modes without Pro license, the selection failed silently with no user feedback
+  - **Solution**: Restored v2.3.0 toast notification system with proper warning messages
+  - **Impact**: Users now receive clear feedback explaining why advanced modes require Pro license
+  - **Fallback**: Added alert() fallback for environments without toast system
+
+#### Technical Details:
+- Added proper onShowToast integration to handleModeChange function
+- Restored exact v2.3.0 warning message text
+- Maintains existing Pro license validation logic
+- Improves overall user experience and reduces confusion
+
+#### User Experience:
+- ✅ Clear feedback when Pro features are attempted without license
+- ✅ Professional warning messages guide users to upgrade
+- ✅ No more silent failures that confuse users
+- ✅ Consistent behavior with v2.3.0 expectations
+
+---
+
 ## [2.3.5] - 2025-01-30
 
 ### Major Overhaul - HYBRID TAB SYSTEM WITH PERFECT ORGANIZATION

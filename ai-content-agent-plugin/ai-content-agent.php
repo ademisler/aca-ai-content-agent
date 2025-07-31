@@ -26,6 +26,7 @@ define('ACA_VERSION', '2.3.8');
 define('ACA_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('ACA_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('ACA_PLUGIN_FILE', __FILE__);
+define('ACA_PLUGIN_PATH', plugin_dir_path(__FILE__)); // CRITICAL FIX: Missing constant
 
 /**
  * Check if ACA Pro is active

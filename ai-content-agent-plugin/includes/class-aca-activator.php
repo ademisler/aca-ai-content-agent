@@ -180,7 +180,7 @@ class ACA_Activator {
             $index_exists = $wpdb->get_var($wpdb->prepare(
                 "SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS 
                  WHERE table_schema = %s AND table_name = %s AND index_name = %s",
-                DB_NAME, $table, $index_name
+                $wpdb->dbname, $table, $index_name
             ));
             
             if (!$index_exists) {
@@ -228,6 +228,21 @@ class ACA_Activator {
      * Schedule WP-Cron jobs
      */
     private static function schedule_cron_jobs() {
+        // Add custom cron schedules first
+        add_filter('cron_schedules', function($schedules) {
+            $schedules['aca_thirty_minutes'] = array(
+                'interval' => 30 * 60, // 30 minutes in seconds
+                'display' => __('Every 30 Minutes', 'ai-content-agent')
+            );
+            
+            $schedules['aca_fifteen_minutes'] = array(
+                'interval' => 15 * 60, // 15 minutes in seconds
+                'display' => __('Every 15 Minutes', 'ai-content-agent')
+            );
+            
+            return $schedules;
+        });
+        
         if (!wp_next_scheduled('aca_thirty_minute_event')) {
             wp_schedule_event(time(), 'aca_thirty_minutes', 'aca_thirty_minute_event');
         }

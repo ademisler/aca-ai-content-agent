@@ -3955,6 +3955,60 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
     }
     
     /**
+     * Get GSC performance data - CRITICAL FIX
+     */
+    public function get_gsc_data($request) {
+        // Check if Google Search Console is configured
+        $settings = get_option('aca_settings', array());
+        if (empty($settings['gscClientId']) || empty($settings['gscClientSecret'])) {
+            return new WP_Error('gsc_not_configured', 'Google Search Console is not configured', array('status' => 400));
+        }
+        
+        // Initialize GSC class
+        require_once ACA_PLUGIN_DIR . 'includes/class-aca-google-search-console.php';
+        $gsc = new ACA_Google_Search_Console();
+        
+        // Check authentication status
+        if (!$gsc->is_authenticated()) {
+            return new WP_Error('gsc_not_authenticated', 'Not authenticated with Google Search Console', array('status' => 401));
+        }
+        
+        try {
+            // Get query parameters
+            $site_url = $request->get_param('site_url') ?: home_url();
+            $start_date = $request->get_param('start_date') ?: date('Y-m-d', strtotime('-30 days'));
+            $end_date = $request->get_param('end_date') ?: date('Y-m-d');
+            $dimensions = $request->get_param('dimensions') ?: ['query'];
+            $row_limit = $request->get_param('row_limit') ?: 100;
+            
+            // Get performance data from GSC
+            $performance_data = $gsc->get_search_analytics_data($site_url, array(
+                'startDate' => $start_date,
+                'endDate' => $end_date,
+                'dimensions' => $dimensions,
+                'rowLimit' => $row_limit
+            ));
+            
+            if (is_wp_error($performance_data)) {
+                return $performance_data;
+            }
+            
+            return rest_ensure_response(array(
+                'success' => true,
+                'data' => $performance_data,
+                'site_url' => $site_url,
+                'date_range' => array(
+                    'start' => $start_date,
+                    'end' => $end_date
+                )
+            ));
+            
+        } catch (Exception $e) {
+            return new WP_Error('gsc_data_error', 'Failed to retrieve GSC data: ' . $e->getMessage(), array('status' => 500));
+        }
+    }
+    
+    /**
      * Log frontend errors from React error boundary
      */
     public function log_frontend_error($request) {

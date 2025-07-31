@@ -58,7 +58,13 @@ if (file_exists(ACA_PLUGIN_DIR . "includes/interfaces/class-aca-performance-inte
     require_once ACA_PLUGIN_DIR . "includes/interfaces/class-aca-performance-interface.php";
 }
 if (file_exists(ACA_PLUGIN_DIR . "includes/interfaces/class-aca-cleanup-interface.php")) {
+if (file_exists(ACA_PLUGIN_DIR . "includes/interfaces/class-aca-container-interface.php")) {
+    require_once ACA_PLUGIN_DIR . "includes/interfaces/class-aca-container-interface.php";
+}
     require_once ACA_PLUGIN_DIR . "includes/interfaces/class-aca-cleanup-interface.php";
+if (file_exists(ACA_PLUGIN_DIR . "includes/interfaces/class-aca-container-interface.php")) {
+    require_once ACA_PLUGIN_DIR . "includes/interfaces/class-aca-container-interface.php";
+}
 }
 
 if (file_exists(ACA_PLUGIN_DIR . 'includes/class-aca-file-manager.php')) {
@@ -287,12 +293,13 @@ class AI_Content_Agent {
     }
     
     /**
-     * Lazy load class instances
+     * Lazy load class instances with dependency injection
      * 
      * @param string $class_name
+     * @param array $dependencies
      * @return object|null
      */
-    private function get_class_instance($class_name) {
+    private function get_class_instance($class_name, $dependencies = []) {
         if (isset(self::$initialized_classes[$class_name])) {
             return self::$initialized_classes[$class_name];
         }
@@ -309,7 +316,14 @@ class AI_Content_Agent {
         }
         
         try {
-            self::$initialized_classes[$class_name] = new $class_name();
+            // Use dependency injection if service container is available
+            if (class_exists('ACA_Service_Container')) {
+                self::$initialized_classes[$class_name] = ACA_Service_Container::make($class_name, $dependencies);
+            } else {
+                // Fallback to simple instantiation
+                self::$initialized_classes[$class_name] = new $class_name();
+            }
+            
             return self::$initialized_classes[$class_name];
         } catch (Error $e) {
             error_log("ACA Plugin: Failed to initialize $class_name: " . $e->getMessage());

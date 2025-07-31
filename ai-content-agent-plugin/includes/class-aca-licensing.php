@@ -301,7 +301,7 @@ class ACA_Licensing {
         
         $license_data = json_decode(wp_remote_retrieve_body($response), true);
         
-        if (empty($license_data)) {
+        if (json_last_error() !== JSON_ERROR_NONE || empty($license_data)) {
             return array(
                 'success' => false,
                 'message' => 'Invalid response from license server'

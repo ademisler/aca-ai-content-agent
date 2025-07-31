@@ -272,7 +272,8 @@ class ACA_WooCommerce_Compatibility {
     }
     
     public function add_woocommerce_fields($fields) {
-        if (is_admin() && isset($_GET['post_type']) && $_GET['post_type'] === 'product') {
+        $post_type = isset($_GET['post_type']) ? sanitize_text_field($_GET['post_type']) : '';
+        if (is_admin() && $post_type === 'product') {
             $fields['woocommerce'] = [
                 'product_highlights' => 'Product Highlights',
                 'technical_specs' => 'Technical Specifications',

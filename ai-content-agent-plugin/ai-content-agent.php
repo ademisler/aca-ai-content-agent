@@ -28,6 +28,15 @@ define('ACA_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('ACA_PLUGIN_FILE', __FILE__);
 define('ACA_PLUGIN_PATH', plugin_dir_path(__FILE__)); // CRITICAL FIX: Missing constant
 
+// CRITICAL FIX: Load Composer autoloader to prevent fatal errors
+$autoloader_path = ACA_PLUGIN_DIR . 'vendor/autoload.php';
+if (file_exists($autoloader_path)) {
+    require_once $autoloader_path;
+} else {
+    // Log missing autoloader for debugging
+    error_log('ACA Plugin Warning: Composer autoloader not found at ' . $autoloader_path);
+}
+
 /**
  * Check if ACA Pro is active - FIXED VERSION
  * 
@@ -70,9 +79,22 @@ foreach ($required_files as $file) {
     }
 }
 
-// Activation and deactivation hooks
-register_activation_hook(__FILE__, array('ACA_Activator', 'activate'));
-register_deactivation_hook(__FILE__, array('ACA_Deactivator', 'deactivate'));
+// Activation and deactivation hooks with class existence checks
+register_activation_hook(__FILE__, function() {
+    if (class_exists('ACA_Activator')) {
+        ACA_Activator::activate();
+    } else {
+        error_log('ACA Plugin: ACA_Activator class not found during activation');
+    }
+});
+
+register_deactivation_hook(__FILE__, function() {
+    if (class_exists('ACA_Deactivator')) {
+        ACA_Deactivator::deactivate();
+    } else {
+        error_log('ACA Plugin: ACA_Deactivator class not found during deactivation');
+    }
+});
 
 // Migration hook for demo mode transition
 register_activation_hook(__FILE__, 'aca_migrate_from_demo_mode');
@@ -163,15 +185,19 @@ class AI_Content_Agent {
             isset($_GET['code'])) {
             
             // Use hybrid version that doesn't require vendor dependencies
-            $gsc = new ACA_Google_Search_Console_Hybrid();
-            $result = $gsc->handle_oauth_callback($_GET['code']);
-            
-            if (is_wp_error($result)) {
-                wp_die('Google Search Console authentication failed: ' . $result->get_error_message());
+            if (class_exists('ACA_Google_Search_Console_Hybrid')) {
+                $gsc = new ACA_Google_Search_Console_Hybrid();
+                $result = $gsc->handle_oauth_callback($_GET['code']);
+                
+                if (is_wp_error($result)) {
+                    wp_die('Google Search Console authentication failed: ' . $result->get_error_message());
+                } else {
+                    // Redirect back to settings page
+                    wp_redirect(admin_url('admin.php?page=ai-content-agent&view=settings&gsc_connected=1'));
+                    exit;
+                }
             } else {
-                // Redirect back to settings page
-                wp_redirect(admin_url('admin.php?page=ai-content-agent&view=settings&gsc_connected=1'));
-                exit;
+                wp_die('Google Search Console authentication failed: Required class not found');
             }
         }
     }
@@ -317,16 +343,20 @@ if (function_exists('add_action')) {
     // WordPress is loaded, initialize immediately
     new AI_Content_Agent();
     
-    // Hook cron events
-    add_action('aca_thirty_minute_event', array('ACA_Cron', 'thirty_minute_task'));
-    add_action('aca_fifteen_minute_event', array('ACA_Cron', 'fifteen_minute_task'));
+    // Hook cron events with class existence checks
+    if (class_exists('ACA_Cron')) {
+        add_action('aca_thirty_minute_event', array('ACA_Cron', 'thirty_minute_task'));
+        add_action('aca_fifteen_minute_event', array('ACA_Cron', 'fifteen_minute_task'));
+    }
 } else {
     // WordPress not loaded yet, wait for it
     add_action('plugins_loaded', function() {
         new AI_Content_Agent();
         
-        // Hook cron events
-        add_action('aca_thirty_minute_event', array('ACA_Cron', 'thirty_minute_task'));
-        add_action('aca_fifteen_minute_event', array('ACA_Cron', 'fifteen_minute_task'));
+        // Hook cron events with class existence checks
+        if (class_exists('ACA_Cron')) {
+            add_action('aca_thirty_minute_event', array('ACA_Cron', 'thirty_minute_task'));
+            add_action('aca_fifteen_minute_event', array('ACA_Cron', 'fifteen_minute_task'));
+        }
     });
 }

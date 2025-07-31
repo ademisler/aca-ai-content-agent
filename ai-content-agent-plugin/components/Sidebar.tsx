@@ -1,7 +1,7 @@
 
 import React from 'react';
 import type { View } from '../types';
-import { Lightbulb, BookOpen, Settings, LayoutDashboard, FileText, Send, Calendar, Sparkles, Brain, Shield, Zap, Image } from './Icons';
+import { Lightbulb, BookOpen, Settings, LayoutDashboard, FileText, Send, Calendar, Sparkles, Brain, Shield, Zap, Globe, Target } from './Icons';
 
 interface SidebarProps {
     currentView: View;
@@ -299,14 +299,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, isOpen, 
                     onClick={() => handleNavigation('settings_automation')} 
                 />
                 <NavItem 
-                    icon={<Settings />} 
+                    icon={<Globe />} 
                     label="Integrations" 
                     view="settings_integrations" 
                     currentView={currentView} 
                     onClick={() => handleNavigation('settings_integrations')} 
                 />
                 <NavItem 
-                    icon={<Image />} 
+                    icon={<Target />} 
                     label="Content & SEO" 
                     view="settings_content" 
                     currentView={currentView} 

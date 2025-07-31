@@ -12,6 +12,7 @@ import { DraftsList } from './components/DraftsList';
 import { Settings } from './components/Settings';
 import { SettingsLicense } from './components/SettingsLicense';
 import { SettingsAutomation } from './components/SettingsAutomation';
+import { SettingsIntegrations } from './components/SettingsIntegrations';
 import { SettingsContent } from './components/SettingsContent';
 import { SettingsAdvanced } from './components/SettingsAdvanced';
 import { DraftModal } from './components/DraftModal';
@@ -553,18 +554,18 @@ const App: React.FC = () => {
                      isProActive={settings.is_pro}
                  />;
             case 'settings_integrations':
-                return <Settings 
+                return <SettingsIntegrations 
                     settings={settings} 
                     onSaveSettings={handleSaveSettings} 
-                    onRefreshApp={handleRefreshApp} 
                     onShowToast={showToast} 
-                    openSection="integrations"
+                    isProActive={settings.is_pro}
                 />;
                          case 'settings_content':
                  return <SettingsContent 
                      settings={settings} 
                      onSaveSettings={handleSaveSettings} 
                      onShowToast={showToast} 
+                     isProActive={settings.is_pro}
                  />;
              case 'settings_advanced':
                  return <SettingsAdvanced 

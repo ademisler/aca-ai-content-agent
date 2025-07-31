@@ -49,9 +49,12 @@ if (file_exists($autoloader_path)) {
 
 // Note: is_aca_pro_active() function is defined in includes/class-aca-licensing.php
 
-// Load file manager first for optimized file operations
+// Load optimization managers for better performance
 if (file_exists(ACA_PLUGIN_DIR . 'includes/class-aca-file-manager.php')) {
     require_once ACA_PLUGIN_DIR . 'includes/class-aca-file-manager.php';
+}
+if (file_exists(ACA_PLUGIN_DIR . 'includes/class-aca-hook-manager.php')) {
+    require_once ACA_PLUGIN_DIR . 'includes/class-aca-hook-manager.php';
 }
 
 // Include required files with optimized file handling

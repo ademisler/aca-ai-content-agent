@@ -110,12 +110,25 @@ class ACA_Google_Search_Console_Hybrid {
         if ($response_code !== 200) {
             $body = wp_remote_retrieve_body($response);
             $error_data = json_decode($body, true);
-            $error_message = isset($error_data['error']['message']) ? $error_data['error']['message'] : 'HTTP ' . $response_code;
+            
+            // Check for JSON decode errors in error response
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                error_log('GSC API: JSON decode error in error response - ' . json_last_error_msg());
+                $error_message = 'HTTP ' . $response_code;
+            } else {
+                $error_message = isset($error_data['error']['message']) ? $error_data['error']['message'] : 'HTTP ' . $response_code;
+            }
             throw new Exception('GSC API error: ' . $error_message);
         }
         
         $body = wp_remote_retrieve_body($response);
         $data = json_decode($body, true);
+        
+        // Check for JSON decode errors in success response
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            error_log('GSC API: JSON decode error in success response - ' . json_last_error_msg());
+            throw new Exception('GSC API response parsing failed: ' . json_last_error_msg());
+        }
         
         if (empty($data['rows'])) {
             // No data is not necessarily an error
@@ -244,6 +257,12 @@ class ACA_Google_Search_Console_Hybrid {
         $body = wp_remote_retrieve_body($response);
         $data = json_decode($body, true);
         
+        // Check for JSON decode errors
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            error_log('GSC token refresh: JSON decode error - ' . json_last_error_msg());
+            return false;
+        }
+        
         if (empty($data['access_token'])) {
             error_log('GSC token refresh: No access token in response');
             return false;
@@ -341,6 +360,12 @@ class ACA_Google_Search_Console_Hybrid {
         
         $body = wp_remote_retrieve_body($response);
         $data = json_decode($body, true);
+        
+        // Check for JSON decode errors
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            error_log('GSC OAuth: JSON decode error - ' . json_last_error_msg());
+            return new WP_Error('oauth_json_error', 'Failed to parse OAuth response: ' . json_last_error_msg());
+        }
         
         if (empty($data['access_token'])) {
             return new WP_Error('oauth_failed', 'Failed to get access token');

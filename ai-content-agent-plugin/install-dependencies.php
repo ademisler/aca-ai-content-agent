@@ -83,12 +83,14 @@ class ACA_Dependencies_Installer {
     public function install_dependencies() {
         // Check permissions
         if (!current_user_can('manage_options')) {
-            wp_die('Insufficient permissions');
+            wp_send_json_error(array('message' => 'Insufficient permissions to install dependencies'), 403);
+            return;
         }
         
         // Verify nonce
         if (!wp_verify_nonce($_POST['nonce'], 'aca_install_dependencies')) {
-            wp_die('Security check failed');
+            wp_send_json_error(array('message' => 'Security check failed'), 403);
+            return;
         }
         
         $result = $this->run_composer_install();

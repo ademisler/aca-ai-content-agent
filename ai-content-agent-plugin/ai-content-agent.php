@@ -58,13 +58,10 @@ if (file_exists(ACA_PLUGIN_DIR . "includes/interfaces/class-aca-performance-inte
     require_once ACA_PLUGIN_DIR . "includes/interfaces/class-aca-performance-interface.php";
 }
 if (file_exists(ACA_PLUGIN_DIR . "includes/interfaces/class-aca-cleanup-interface.php")) {
-if (file_exists(ACA_PLUGIN_DIR . "includes/interfaces/class-aca-container-interface.php")) {
-    require_once ACA_PLUGIN_DIR . "includes/interfaces/class-aca-container-interface.php";
-}
     require_once ACA_PLUGIN_DIR . "includes/interfaces/class-aca-cleanup-interface.php";
+}
 if (file_exists(ACA_PLUGIN_DIR . "includes/interfaces/class-aca-container-interface.php")) {
     require_once ACA_PLUGIN_DIR . "includes/interfaces/class-aca-container-interface.php";
-}
 }
 
 if (file_exists(ACA_PLUGIN_DIR . 'includes/class-aca-file-manager.php')) {
@@ -385,9 +382,24 @@ class AI_Content_Agent {
             return;
         }
         
-        if (!$this->check_memory_availability()) {
-            wp_die('Insufficient memory to handle OAuth callback');
+        // Sanitize and validate OAuth parameters
+        $code = sanitize_text_field($_GET['code']);
+        $state = sanitize_text_field($_GET['state']);
+        
+        if (empty($code) || empty($state)) {
+            error_log('ACA Plugin: Invalid OAuth callback parameters');
             return;
+        }
+        
+        if (!$this->check_memory_availability()) {
+            error_log('ACA Plugin: Insufficient memory to handle OAuth callback');
+            if (is_admin()) {
+                add_action('admin_notices', function() {
+                    echo '<div class="notice notice-error"><p>AI Content Agent: Insufficient memory to complete OAuth authentication. Please increase PHP memory limit.</p></div>';
+                });
+            }
+            wp_safe_redirect(admin_url('admin.php?page=ai-content-agent&oauth_error=memory'));
+            exit;
         }
         
         try {
@@ -397,7 +409,13 @@ class AI_Content_Agent {
             }
         } catch (Error $e) {
             error_log('ACA Plugin GSC OAuth Error: ' . $e->getMessage());
-            wp_die('OAuth callback failed. Please try again.');
+            if (is_admin()) {
+                add_action('admin_notices', function() use ($e) {
+                    echo '<div class="notice notice-error"><p>AI Content Agent: OAuth authentication failed. Please try again. Error: ' . esc_html($e->getMessage()) . '</p></div>';
+                });
+            }
+            wp_safe_redirect(admin_url('admin.php?page=ai-content-agent&oauth_error=callback_failed'));
+            exit;
         }
     }
     

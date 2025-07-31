@@ -729,7 +729,8 @@ add_action('wp_ajax_nopriv_aca_log_core_web_vitals', 'aca_log_core_web_vitals');
 if (!function_exists('aca_log_core_web_vitals')) {
     function aca_log_core_web_vitals() {
     if (!wp_verify_nonce($_POST['nonce'], 'aca_cwv_nonce')) {
-        wp_die('Security check failed');
+        wp_send_json_error(array('message' => 'Security check failed'), 403);
+        return;
     }
     
     global $wpdb;
@@ -745,17 +746,17 @@ if (!function_exists('aca_log_core_web_vitals')) {
         value decimal(10,2) NOT NULL,
         url varchar(255) NOT NULL,
         user_agent text,
-        timestamp datetime DEFAULT CURRENT_TIMESTAMP,
+        recorded_at datetime DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (id),
         KEY post_metric (post_id, metric),
-        KEY timestamp (timestamp)
+        KEY recorded_at (recorded_at)
     ) $charset_collate;";
     
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     dbDelta($sql);
     
-    // Insert the metric
-    $wpdb->insert(
+    // Insert the data
+    $result = $wpdb->insert(
         $table_name,
         [
             'post_id' => intval(sanitize_text_field($_POST['post_id'])),
@@ -766,7 +767,11 @@ if (!function_exists('aca_log_core_web_vitals')) {
         ]
     );
     
-    wp_die();
+    if ($result === false) {
+        wp_send_json_error(array('message' => 'Failed to save Core Web Vitals data'), 500);
+    } else {
+        wp_send_json_success(array('message' => 'Core Web Vitals data saved successfully'));
+    }
     }
 }
 

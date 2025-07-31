@@ -2811,7 +2811,8 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             
             // Check if this is an OAuth callback
             if (isset($_GET['code'])) {
-                $result = $gsc->handle_oauth_callback($_GET['code']);
+                $code = sanitize_text_field($_GET['code']);
+                $result = $gsc->handle_oauth_callback($code);
                 
                 if (is_wp_error($result)) {
                     return $result;

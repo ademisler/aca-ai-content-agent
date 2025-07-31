@@ -173,14 +173,16 @@ class AI_Content_Agent {
      * Handle Google Search Console OAuth callback
      */
     public function handle_gsc_oauth_callback() {
-        if (isset($_GET['page']) && $_GET['page'] === 'ai-content-agent' && 
-            isset($_GET['gsc_auth']) && $_GET['gsc_auth'] === 'callback' && 
-            isset($_GET['code'])) {
+        $page = isset($_GET['page']) ? sanitize_text_field($_GET['page']) : '';
+        $gsc_auth = isset($_GET['gsc_auth']) ? sanitize_text_field($_GET['gsc_auth']) : '';
+        $code = isset($_GET['code']) ? sanitize_text_field($_GET['code']) : '';
+        
+        if ($page === 'ai-content-agent' && $gsc_auth === 'callback' && !empty($code)) {
             
             // Use hybrid version that doesn't require vendor dependencies
             if (class_exists('ACA_Google_Search_Console_Hybrid')) {
                 $gsc = new ACA_Google_Search_Console_Hybrid();
-                $result = $gsc->handle_oauth_callback($_GET['code']);
+                $result = $gsc->handle_oauth_callback($code);
                 
                 if (is_wp_error($result)) {
                     wp_die('Google Search Console authentication failed: ' . $result->get_error_message());

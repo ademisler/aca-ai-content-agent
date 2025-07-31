@@ -1,23 +1,59 @@
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, lazy, Suspense } from 'react';
 import { settingsApi, styleGuideApi, ideasApi, draftsApi, publishedApi, activityApi, contentFreshnessApi } from './services/wordpressApi';
 import { setGeminiApiKey } from './services/geminiService';
 import type { StyleGuide, ContentIdea, Draft, View, AppSettings, ActivityLog, ActivityLogType, IconName } from './types';
 import { GeminiApiWarning } from './components/GeminiApiWarning';
 import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './components/Dashboard';
-import { StyleGuideManager } from './components/StyleGuideManager';
-import { IdeaBoard } from './components/IdeaBoard';
-import { DraftsList } from './components/DraftsList';
-import { SettingsTabbed } from './components/SettingsTabbed';
-import { DraftModal } from './components/DraftModal';
 import { Toast, ToastData } from './components/Toast';
-import { PublishedList } from './components/PublishedList';
 import { Menu } from './components/Icons';
-import { ContentCalendar } from './components/ContentCalendar';
-import { ContentFreshnessManager } from './components/ContentFreshnessManager';
 import ErrorBoundary from './components/ErrorBoundary';
 import logger from './utils/logger';
+
+// Lazy load heavy components for better performance
+const StyleGuideManager = lazy(() => import('./components/StyleGuideManager').then(module => ({ default: module.StyleGuideManager })));
+const IdeaBoard = lazy(() => import('./components/IdeaBoard').then(module => ({ default: module.IdeaBoard })));
+const DraftsList = lazy(() => import('./components/DraftsList').then(module => ({ default: module.DraftsList })));
+const SettingsTabbed = lazy(() => import('./components/SettingsTabbed').then(module => ({ default: module.SettingsTabbed })));
+const DraftModal = lazy(() => import('./components/DraftModal').then(module => ({ default: module.DraftModal })));
+const PublishedList = lazy(() => import('./components/PublishedList').then(module => ({ default: module.PublishedList })));
+const ContentCalendar = lazy(() => import('./components/ContentCalendar').then(module => ({ default: module.ContentCalendar })));
+const ContentFreshnessManager = lazy(() => import('./components/ContentFreshnessManager').then(module => ({ default: module.ContentFreshnessManager })));
+
+// Loading component for lazy loaded components
+const ComponentLoader = () => (
+    <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '200px',
+        fontSize: '14px',
+        color: '#666'
+    }}>
+        <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+        }}>
+            <div style={{
+                width: '20px',
+                height: '20px',
+                border: '2px solid #f3f3f3',
+                borderTop: '2px solid #0073aa',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite'
+            }}></div>
+            Loading...
+        </div>
+        <style>{`
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        `}</style>
+    </div>
+);
 
 declare global {
   interface Window {
@@ -524,57 +560,85 @@ const App: React.FC = () => {
     const renderView = () => {
         switch (view) {
             case 'style-guide':
-                return <StyleGuideManager styleGuide={styleGuide} onAnalyze={() => handleAnalyzeStyle(false)} onSaveStyleGuide={handleSaveStyleGuide} isLoading={isLoading['style']} />;
+                return (
+                    <Suspense fallback={<ComponentLoader />}>
+                        <StyleGuideManager styleGuide={styleGuide} onAnalyze={() => handleAnalyzeStyle(false)} onSaveStyleGuide={handleSaveStyleGuide} isLoading={isLoading['style']} />
+                    </Suspense>
+                );
             case 'ideas':
-                return <IdeaBoard 
-                    ideas={ideas} 
-                    onGenerate={() => handleGenerateIdeas(false, 5)} 
-                    onCreateDraft={(idea) => handleCreateDraft(idea.id)} 
-                    onArchive={handleArchiveIdea}
-                    onDeleteIdea={handleDeleteIdea}
+                return (
+                    <Suspense fallback={<ComponentLoader />}>
+                        <IdeaBoard 
+                            ideas={ideas} 
+                            onGenerate={() => handleGenerateIdeas(false, 5)} 
+                            onCreateDraft={(idea) => handleCreateDraft(idea.id)} 
+                            onArchive={handleArchiveIdea}
+                            onDeleteIdea={handleDeleteIdea}
                     onRestoreIdea={handleRestoreIdea}
                     isLoading={isLoading['ideas']} 
                     isLoadingDraft={isLoading} 
                     onUpdateTitle={handleUpdateIdeaTitle} 
                     onGenerateSimilar={handleGenerateSimilarIdeas} 
-                    onAddIdea={handleAddIdea} 
-                />;
+                            onAddIdea={handleAddIdea} 
+                        />
+                    </Suspense>
+                );
             case 'drafts':
-                return <DraftsList 
-                    drafts={drafts} 
-                    onSelectDraft={setSelectedDraft} 
-                    onPublish={handlePublishPost} 
-                    publishingId={publishingId}
-                    onNavigateToIdeas={() => setView('ideas')}
-                />;
+                return (
+                    <Suspense fallback={<ComponentLoader />}>
+                        <DraftsList 
+                            drafts={drafts} 
+                            onSelectDraft={setSelectedDraft} 
+                            onPublish={handlePublishPost} 
+                            publishingId={publishingId}
+                            onNavigateToIdeas={() => setView('ideas')}
+                        />
+                    </Suspense>
+                );
             case 'published':
-                return <PublishedList 
-                    posts={publishedPosts} 
-                    onSelectPost={setSelectedDraft}
-                    onNavigateToDrafts={() => setView('drafts')}
-                />;
+                return (
+                    <Suspense fallback={<ComponentLoader />}>
+                        <PublishedList 
+                            posts={publishedPosts} 
+                            onSelectPost={setSelectedDraft}
+                            onNavigateToDrafts={() => setView('drafts')}
+                        />
+                    </Suspense>
+                );
             case 'settings':
-                return <SettingsTabbed 
-            settings={settings} 
-            onSaveSettings={handleSaveSettings} 
-            onRefreshApp={handleRefreshApp} 
-            onShowToast={showToast} 
-            openSection={settingsOpenSection}
-        />;
+                return (
+                    <Suspense fallback={<ComponentLoader />}>
+                        <SettingsTabbed 
+                            settings={settings} 
+                            onSaveSettings={handleSaveSettings} 
+                            onRefreshApp={handleRefreshApp} 
+                            onShowToast={showToast} 
+                            openSection={settingsOpenSection}
+                        />
+                    </Suspense>
+                );
             case 'calendar':
-                return <ContentCalendar 
-                    drafts={drafts} 
-                    publishedPosts={publishedPosts} 
-                    onScheduleDraft={handleScheduleDraft} 
-                    onSelectPost={setSelectedDraft}
-                    onPublishDraft={handlePublishPost}
-                    onUpdatePostDate={handleUpdatePostDate}
-                />;
+                return (
+                    <Suspense fallback={<ComponentLoader />}>
+                        <ContentCalendar 
+                            drafts={drafts} 
+                            publishedPosts={publishedPosts} 
+                            onScheduleDraft={handleScheduleDraft} 
+                            onSelectPost={setSelectedDraft}
+                            onPublishDraft={handlePublishPost}
+                            onUpdatePostDate={handleUpdatePostDate}
+                        />
+                    </Suspense>
+                );
             case 'content-freshness':
-                return <ContentFreshnessManager 
-                    onShowToast={showToast}
-                    settings={settings}
-                />;
+                return (
+                    <Suspense fallback={<ComponentLoader />}>
+                        <ContentFreshnessManager 
+                            onShowToast={showToast}
+                            settings={settings}
+                        />
+                    </Suspense>
+                );
             case 'dashboard':
             default:
                 return <Dashboard
@@ -745,12 +809,14 @@ const App: React.FC = () => {
             
             {/* Draft modal */}
             {selectedDraft && (
-                <DraftModal
-                    draft={selectedDraft}
-                    onClose={() => setSelectedDraft(null)}
-                    onSave={handleUpdateDraft}
-                    settings={settings}
-                />
+                <Suspense fallback={<ComponentLoader />}>
+                    <DraftModal
+                        draft={selectedDraft}
+                        onClose={() => setSelectedDraft(null)}
+                        onSave={handleUpdateDraft}
+                        settings={settings}
+                    />
+                </Suspense>
             )}
             
             {/* Toast notifications */}

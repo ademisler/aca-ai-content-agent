@@ -1366,3 +1366,323 @@ body.toplevel_page_ai-content-agent #footer-upgrade,
 body.toplevel_page_ai-content-agent #wpfooter {
   display: none !important;
 }
+
+/* MOBILE RESPONSIVE STYLES */
+/* ======================== */
+
+/* Base mobile styles for screens smaller than 768px */
+@media screen and (max-width: 767px) {
+    /* Container adjustments */
+    .aca-container {
+        flex-direction: column;
+        padding: 0;
+    }
+
+    /* Sidebar mobile behavior */
+    .aca-sidebar {
+        width: 100%;
+        height: auto;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 10000;
+        transform: translateY(-100%);
+        transition: transform 0.3s ease;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .aca-sidebar.open {
+        transform: translateY(0);
+    }
+
+    /* Main content mobile adjustments */
+    .aca-main-content {
+        margin-left: 0 !important;
+        padding: 10px !important;
+        width: 100% !important;
+    }
+
+    /* Header mobile */
+    .aca-header {
+        padding: 10px 15px !important;
+        flex-wrap: wrap;
+    }
+
+    .aca-menu-toggle {
+        display: block !important;
+        order: -1;
+        margin-right: 10px;
+    }
+
+    /* Cards and components */
+    .aca-card {
+        margin: 10px 0 !important;
+        padding: 15px !important;
+        border-radius: 8px !important;
+    }
+
+    .aca-card-grid {
+        grid-template-columns: 1fr !important;
+        gap: 15px !important;
+    }
+
+    /* Form elements */
+    .aca-input,
+    .aca-textarea,
+    .aca-select {
+        width: 100% !important;
+        font-size: 16px !important; /* Prevent zoom on iOS */
+        padding: 12px !important;
+    }
+
+    .aca-button {
+        width: 100% !important;
+        padding: 12px 20px !important;
+        font-size: 16px !important;
+        margin: 5px 0 !important;
+    }
+
+    /* Settings tabs mobile */
+    .aca-settings-tabs {
+        flex-direction: column !important;
+        gap: 5px !important;
+    }
+
+    .aca-settings-tab {
+        width: 100% !important;
+        text-align: center !important;
+        padding: 12px !important;
+    }
+
+    /* Modal mobile */
+    .aca-modal {
+        width: 95% !important;
+        height: 90% !important;
+        margin: 5% auto !important;
+        padding: 15px !important;
+    }
+
+    .aca-modal-content {
+        max-height: calc(90vh - 100px) !important;
+        overflow-y: auto !important;
+    }
+
+    /* Toast notifications mobile */
+    .aca-toast-container {
+        bottom: 20px !important;
+        left: 10px !important;
+        right: 10px !important;
+        width: auto !important;
+    }
+
+    .aca-toast {
+        width: 100% !important;
+        margin: 5px 0 !important;
+    }
+
+    /* Table responsive */
+    .aca-table {
+        display: block !important;
+        overflow-x: auto !important;
+        white-space: nowrap !important;
+    }
+
+    /* Stats grid mobile */
+    .aca-stats-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 10px !important;
+    }
+
+    /* Idea board mobile */
+    .aca-idea-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Draft list mobile */
+    .aca-draft-item {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+    }
+
+    .aca-draft-actions {
+        width: 100% !important;
+        justify-content: space-between !important;
+    }
+
+    /* Content calendar mobile */
+    .aca-calendar-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        font-size: 12px !important;
+    }
+
+    /* Settings form mobile */
+    .aca-form-row {
+        flex-direction: column !important;
+        gap: 10px !important;
+    }
+
+    .aca-form-col {
+        width: 100% !important;
+    }
+
+    /* Navigation mobile */
+    .aca-nav-item {
+        padding: 15px 20px !important;
+        font-size: 16px !important;
+    }
+
+    /* Hide desktop-only elements */
+    .desktop-only {
+        display: none !important;
+    }
+
+    /* Show mobile-only elements */
+    .mobile-only {
+        display: block !important;
+    }
+}
+
+/* Tablet styles (768px - 1024px) */
+@media screen and (min-width: 768px) and (max-width: 1024px) {
+    .aca-sidebar {
+        width: 200px;
+    }
+
+    .aca-main-content {
+        margin-left: 200px;
+        padding: 20px;
+    }
+
+    .aca-card-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .aca-stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .aca-idea-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Touch-friendly interactions */
+@media (hover: none) and (pointer: coarse) {
+    /* Increase touch targets */
+    .aca-button,
+    .aca-nav-item,
+    .aca-tab-button {
+        min-height: 44px !important;
+        min-width: 44px !important;
+    }
+
+    /* Remove hover effects on touch devices */
+    .aca-button:hover,
+    .aca-nav-item:hover,
+    .aca-card:hover {
+        transform: none !important;
+        box-shadow: inherit !important;
+    }
+
+    /* Add touch feedback */
+    .aca-button:active,
+    .aca-nav-item:active {
+        transform: scale(0.98) !important;
+        opacity: 0.8 !important;
+    }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .aca-icon {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    }
+}
+
+/* Landscape mobile orientation */
+@media screen and (max-width: 767px) and (orientation: landscape) {
+    .aca-modal {
+        width: 90% !important;
+        height: 80% !important;
+        margin: 10% auto !important;
+    }
+
+    .aca-sidebar {
+        height: 100vh !important;
+    }
+}
+
+/* Accessibility - Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .aca-sidebar,
+    .aca-modal,
+    .aca-toast,
+    .aca-button {
+        transition: none !important;
+        animation: none !important;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .aca-container {
+        background: #1a1a1a !important;
+    }
+
+    .aca-card {
+        background: #2a2a2a !important;
+        border-color: #404040 !important;
+        color: #ffffff !important;
+    }
+
+    .aca-input,
+    .aca-textarea,
+    .aca-select {
+        background: #2a2a2a !important;
+        border-color: #404040 !important;
+        color: #ffffff !important;
+    }
+}
+
+/* Utility classes for responsive design */
+.mobile-hide {
+    display: block;
+}
+
+.mobile-show {
+    display: none;
+}
+
+@media screen and (max-width: 767px) {
+    .mobile-hide {
+        display: none !important;
+    }
+
+    .mobile-show {
+        display: block !important;
+    }
+}
+
+/* Print styles */
+@media print {
+    .aca-sidebar,
+    .aca-header,
+    .aca-toast-container,
+    .aca-modal {
+        display: none !important;
+    }
+
+    .aca-main-content {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+    }
+
+    .aca-card {
+        break-inside: avoid !important;
+        margin: 10px 0 !important;
+    }
+}

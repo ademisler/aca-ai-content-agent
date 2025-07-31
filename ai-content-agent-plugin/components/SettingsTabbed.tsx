@@ -146,6 +146,29 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
         setCurrentSettings(prev => ({ ...prev, [field]: value }));
     };
 
+    // CRITICAL FIX #3: Add missing handleModeChange function with Pro validation (RESTORED from v2.3.0)
+    const handleModeChange = (newMode: AutomationMode) => {
+        // Pro license validation for advanced modes
+        if ((newMode === 'semi-automatic' || newMode === 'full-automatic') && !isProActive()) {
+            // Don't change mode if not Pro - could show upgrade prompt here
+            return;
+        }
+
+        // Auto-publish reset logic when changing modes (critical v2.3.0 behavior)
+        if (newMode !== 'full-automatic') {
+            setCurrentSettings(prev => ({ 
+                ...prev, 
+                automationMode: newMode,
+                autoPublish: false // Reset auto-publish when leaving full-automatic
+            }));
+        } else {
+            setCurrentSettings(prev => ({ 
+                ...prev, 
+                automationMode: newMode 
+            }));
+        }
+    };
+
     // Helper function to check if Pro features are available
     const isProActive = () => {
         return currentSettings.is_pro || licenseStatus.is_active;
@@ -618,80 +641,113 @@ export const SettingsTabbed: React.FC<SettingsProps> = ({ settings, onSaveSettin
                             id="manual"
                             title="Manual Mode"
                             description="Create content ideas and drafts manually when you need them. Full control over every piece of content."
-                            currentSelection={currentSettings.mode}
-                            onChange={(mode) => handleSettingChange('mode', mode)}
+                            currentSelection={currentSettings.automationMode}
+                            onChange={(mode) => handleModeChange(mode as AutomationMode)}
                         />
                         <RadioCard
                             id="semi-automatic"
                             title="Semi-Automatic Mode"
                             description="Generate ideas automatically, but you review and approve each draft before publishing. Perfect balance of automation and control."
-                            currentSelection={currentSettings.mode}
-                            onChange={(mode) => handleSettingChange('mode', mode)}
+                            currentSelection={currentSettings.automationMode}
+                            onChange={(mode) => handleModeChange(mode as AutomationMode)}
                         />
                         <RadioCard
                             id="full-automatic"
                             title="Full-Automatic Mode"
                             description="Complete automation - generates ideas, creates content, and publishes automatically based on your schedule. Maximum efficiency."
-                            currentSelection={currentSettings.mode}
-                            onChange={(mode) => handleSettingChange('mode', mode)}
+                            currentSelection={currentSettings.automationMode}
+                            onChange={(mode) => handleModeChange(mode as AutomationMode)}
                         />
                     </div>
 
-                    {(currentSettings.mode === 'semi-automatic' || currentSettings.mode === 'full-automatic') && (
-                        <div style={{ display: 'grid', gap: '20px' }}>
+                    {/* CRITICAL FIX #4: Add semiAutoIdeaFrequency setting for Semi-Automatic mode */}
+                    {currentSettings.automationMode === 'semi-automatic' && (
+                        <div style={{ display: 'grid', gap: '20px', marginTop: '25px' }}>
+                            <h4 style={{ margin: '0 0 15px 0', fontSize: '16px', fontWeight: '600', color: '#374151' }}>
+                                Semi-Automatic Mode Settings
+                            </h4>
                             <div className="aca-form-group">
-                                <label className="aca-label">Content Generation Frequency</label>
+                                <label className="aca-label">Idea Generation Frequency</label>
                                 <select 
-                                    value={currentSettings.frequency || 'daily'} 
-                                    onChange={(e) => handleSettingChange('frequency', e.target.value)}
+                                    value={currentSettings.semiAutoIdeaFrequency || 'daily'} 
+                                    onChange={(e) => handleSettingChange('semiAutoIdeaFrequency', e.target.value)}
                                     className="aca-input"
                                 >
-                                    <option value="hourly">Every Hour</option>
-                                    <option value="daily">Daily</option>
-                                    <option value="weekly">Weekly</option>
+                                    <option value="daily">Daily - Generate ideas every day</option>
+                                    <option value="weekly">Weekly - Generate ideas once per week</option>
+                                    <option value="monthly">Monthly - Generate ideas once per month</option>
                                 </select>
+                                <p className="aca-page-description" style={{ marginTop: '8px' }}>
+                                    Choose how frequently the AI should automatically generate new content ideas for you to review and create.
+                                </p>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Full-Automatic Mode Settings */}
+                    {currentSettings.automationMode === 'full-automatic' && (
+                        <div style={{ display: 'grid', gap: '20px', marginTop: '25px' }}>
+                            <h4 style={{ margin: '0 0 15px 0', fontSize: '16px', fontWeight: '600', color: '#374151' }}>
+                                Full-Automatic Mode Settings
+                            </h4>
+
+                            {/* CRITICAL FIX #5: Change daily post count from number input to dropdown (1,2,3,5) */}
+                            <div className="aca-form-group">
+                                <label className="aca-label">Daily Post Count</label>
+                                <select 
+                                    value={currentSettings.fullAutoDailyPostCount || 1} 
+                                    onChange={(e) => handleSettingChange('fullAutoDailyPostCount', parseInt(e.target.value))}
+                                    className="aca-input"
+                                >
+                                    <option value={1}>1 post per day - Consistent daily content</option>
+                                    <option value={2}>2 posts per day - Moderate content volume</option>
+                                    <option value={3}>3 posts per day - High content volume</option>
+                                    <option value={5}>5 posts per day - Maximum content volume</option>
+                                </select>
+                                <p className="aca-page-description" style={{ marginTop: '8px' }}>
+                                    How many posts should be created and published automatically each day?
+                                </p>
                             </div>
 
-                            {currentSettings.mode === 'full-automatic' && (
-                                <>
-                                    <div className="aca-form-group">
-                                        <label className="aca-label">Publishing Frequency</label>
-                                        <select 
-                                            value={currentSettings.fullAutoPublishFrequency || 'daily'} 
-                                            onChange={(e) => handleSettingChange('fullAutoPublishFrequency', e.target.value)}
-                                            className="aca-input"
-                                        >
-                                            <option value="daily">Daily</option>
-                                            <option value="weekly">Weekly</option>
-                                            <option value="monthly">Monthly</option>
-                                        </select>
-                                    </div>
+                            {/* CRITICAL FIX #6: Add hourly option to publishing frequency */}
+                            <div className="aca-form-group">
+                                <label className="aca-label">Publishing Frequency</label>
+                                <select 
+                                    value={currentSettings.fullAutoPublishFrequency || 'daily'} 
+                                    onChange={(e) => handleSettingChange('fullAutoPublishFrequency', e.target.value)}
+                                    className="aca-input"
+                                >
+                                    <option value="hourly">Every hour - Publish posts throughout the day</option>
+                                    <option value="daily">Daily - Publish once per day</option>
+                                    <option value="weekly">Weekly - Publish once per week</option>
+                                </select>
+                                <p className="aca-page-description" style={{ marginTop: '8px' }}>
+                                    How often should created drafts be published automatically?
+                                </p>
+                            </div>
 
-                                    <div className="aca-form-group">
-                                        <label className="aca-label">Daily Post Count</label>
-                                        <input 
-                                            type="number" 
-                                            min="1" 
-                                            max="10" 
-                                            value={currentSettings.fullAutoDailyPostCount || 1} 
-                                            onChange={(e) => handleSettingChange('fullAutoDailyPostCount', parseInt(e.target.value))}
-                                            className="aca-input"
-                                        />
+                            <div className="aca-form-group">
+                                <label style={{ display: 'flex', alignItems: 'flex-start', cursor: 'pointer', gap: '12px' }}>
+                                    <input 
+                                        type="checkbox" 
+                                        id="auto-publish" 
+                                        checked={currentSettings.autoPublish} 
+                                        onChange={(e) => handleSettingChange('autoPublish', e.target.checked)} 
+                                        style={{
+                                            marginTop: '2px',
+                                            width: '16px',
+                                            height: '16px',
+                                            accentColor: '#0073aa'
+                                        }}
+                                    />
+                                    <div>
+                                        <span className="aca-label">Enable Auto-Publish</span>
+                                        <p className="aca-page-description" style={{ marginTop: '5px', margin: '5px 0 0 0' }}>
+                                            When enabled, the AI will automatically publish posts according to the frequency settings above.
+                                        </p>
                                     </div>
-
-                                    <div className="aca-form-group">
-                                        <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            <input
-                                                type="checkbox"
-                                                checked={currentSettings.autoPublish || false}
-                                                onChange={(e) => handleSettingChange('autoPublish', e.target.checked)}
-                                                style={{ width: '18px', height: '18px', accentColor: '#0073aa' }}
-                                            />
-                                            <span className="aca-label" style={{ margin: 0 }}>Auto-publish generated content</span>
-                                        </label>
-                                    </div>
-                                </>
-                            )}
+                                </label>
+                            </div>
                         </div>
                     )}
                 </div>

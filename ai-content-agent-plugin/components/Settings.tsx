@@ -535,23 +535,32 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
     const toggleSection = (sectionKey: string) => {
         const wasCollapsed = collapsedSections[sectionKey] ?? true;
         
+        // Store current scroll position before state change
+        const mainContainer = document.querySelector('.aca-main') || 
+                             document.querySelector('.aca-container') || 
+                             document.documentElement;
+        const currentScrollTop = mainContainer.scrollTop;
+        
         setCollapsedSections(prev => ({
             ...prev,
             [sectionKey]: !prev[sectionKey]
         }));
 
-        // If opening a section, prevent scroll jumping
+        // If opening a section, prevent scroll jumping with more robust approach
         if (wasCollapsed) {
-            // Maintain current scroll position
+            // Use multiple animation frames to ensure DOM updates are complete
             requestAnimationFrame(() => {
-                const mainContainer = document.querySelector('.aca-main');
-                if (mainContainer) {
-                    const currentScrollTop = mainContainer.scrollTop;
-                    // Small timeout to let the animation start
+                requestAnimationFrame(() => {
+                    // Restore scroll position after animation starts
+                    mainContainer.scrollTop = currentScrollTop;
+                    
+                    // Additional backup with timeout for slower systems
                     setTimeout(() => {
-                        mainContainer.scrollTop = currentScrollTop;
-                    }, 10);
-                }
+                        if (Math.abs(mainContainer.scrollTop - currentScrollTop) > 50) {
+                            mainContainer.scrollTop = currentScrollTop;
+                        }
+                    }, 100);
+                });
             });
         }
     };
@@ -643,10 +652,10 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
                 <div 
                     id={`section-content-${id}`}
                     style={{ 
-                        maxHeight: isCollapsed ? '0' : '500px',
+                        maxHeight: isCollapsed ? '0' : '1000px',
                         opacity: isCollapsed ? 0 : 1,
                         overflow: isCollapsed ? 'hidden' : 'auto',
-                        transition: 'max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease, padding 0.3s ease',
+                        transition: 'max-height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.3s ease, padding 0.4s ease',
                         padding: isCollapsed ? '0 0 0 0' : '20px 0 0 0'
                     }}
                     aria-hidden={isCollapsed}

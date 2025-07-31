@@ -12252,19 +12252,22 @@ body.toplevel_page_ai-content-agent #wpfooter {
     };
     const toggleSection = (sectionKey) => {
       const wasCollapsed = collapsedSections[sectionKey] ?? true;
+      const mainContainer = document.querySelector(".aca-main") || document.querySelector(".aca-container") || document.documentElement;
+      const currentScrollTop = mainContainer.scrollTop;
       setCollapsedSections((prev) => ({
         ...prev,
         [sectionKey]: !prev[sectionKey]
       }));
       if (wasCollapsed) {
         requestAnimationFrame(() => {
-          const mainContainer = document.querySelector(".aca-main");
-          if (mainContainer) {
-            const currentScrollTop = mainContainer.scrollTop;
+          requestAnimationFrame(() => {
+            mainContainer.scrollTop = currentScrollTop;
             setTimeout(() => {
-              mainContainer.scrollTop = currentScrollTop;
-            }, 10);
-          }
+              if (Math.abs(mainContainer.scrollTop - currentScrollTop) > 50) {
+                mainContainer.scrollTop = currentScrollTop;
+              }
+            }, 100);
+          });
         });
       }
     };
@@ -12355,10 +12358,10 @@ body.toplevel_page_ai-content-agent #wpfooter {
           {
             id: `section-content-${id}`,
             style: {
-              maxHeight: isCollapsed ? "0" : "500px",
+              maxHeight: isCollapsed ? "0" : "1000px",
               opacity: isCollapsed ? 0 : 1,
               overflow: isCollapsed ? "hidden" : "auto",
-              transition: "max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease, padding 0.3s ease",
+              transition: "max-height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.3s ease, padding 0.4s ease",
               padding: isCollapsed ? "0 0 0 0" : "20px 0 0 0"
             },
             "aria-hidden": isCollapsed,
@@ -15522,62 +15525,108 @@ body.toplevel_page_ai-content-agent #wpfooter {
     }, [settings.geminiApiKey, showToast]);
     reactExports.useEffect(() => {
       const loadInitialData = async () => {
+        const results = await Promise.allSettled([
+          settingsApi.get(),
+          styleGuideApi.get(),
+          ideasApi.get(),
+          draftsApi.get(),
+          publishedApi.get(),
+          activityApi.get()
+        ]);
+        const [settingsResult, styleGuideResult, ideasResult, draftsResult, publishedResult, activityResult] = results;
+        let settingsData = null;
+        let styleGuideData = null;
+        let ideasData = null;
+        let draftsData = null;
+        let publishedData = null;
+        let activityData = null;
+        const failedLoads = [];
+        if (settingsResult.status === "fulfilled") {
+          settingsData = settingsResult.value;
+        } else {
+          console.error("Failed to load settings:", settingsResult.reason);
+          failedLoads.push("Settings");
+        }
+        if (styleGuideResult.status === "fulfilled") {
+          styleGuideData = styleGuideResult.value;
+        } else {
+          console.error("Failed to load style guide:", styleGuideResult.reason);
+          failedLoads.push("Style Guide");
+        }
+        if (ideasResult.status === "fulfilled") {
+          ideasData = ideasResult.value;
+        } else {
+          console.error("Failed to load ideas:", ideasResult.reason);
+          failedLoads.push("Ideas");
+        }
+        if (draftsResult.status === "fulfilled") {
+          draftsData = draftsResult.value;
+        } else {
+          console.error("Failed to load drafts:", draftsResult.reason);
+          failedLoads.push("Drafts");
+        }
+        if (publishedResult.status === "fulfilled") {
+          publishedData = publishedResult.value;
+        } else {
+          console.error("Failed to load published posts:", publishedResult.reason);
+          failedLoads.push("Published Posts");
+        }
+        if (activityResult.status === "fulfilled") {
+          activityData = activityResult.value;
+        } else {
+          console.error("Failed to load activity logs:", activityResult.reason);
+          failedLoads.push("Activity Logs");
+        }
         try {
-          const [settingsData, styleGuideData, ideasData, draftsData, publishedData, activityData] = await Promise.all([
-            settingsApi.get(),
-            styleGuideApi.get(),
-            ideasApi.get(),
-            draftsApi.get(),
-            publishedApi.get(),
-            activityApi.get()
-          ]);
-          try {
-            const freshnessResponse = await contentFreshnessApi.getPosts(50, "all");
-            if (freshnessResponse && freshnessResponse.success && freshnessResponse.posts) {
-              const posts2 = freshnessResponse.posts;
-              const needsUpdate = posts2.filter((post) => post.needs_update).length;
-              const postsWithScores = posts2.filter((post) => post.freshness_score !== null);
-              const averageScore = postsWithScores.length > 0 ? Math.round(postsWithScores.reduce((sum, post) => sum + (post.freshness_score || 0), 0) / postsWithScores.length) : 0;
-              const analyzed = postsWithScores.filter((post) => post.freshness_score !== null).length;
-              setContentFreshness({
-                total: posts2.length,
-                analyzed,
-                needsUpdate,
-                averageScore
-              });
-            }
-          } catch (error) {
-            console.log("Content freshness not available (Pro feature)");
+          const freshnessResponse = await contentFreshnessApi.getPosts(50, "all");
+          if (freshnessResponse && freshnessResponse.success && freshnessResponse.posts) {
+            const posts2 = freshnessResponse.posts;
+            const needsUpdate = posts2.filter((post) => post.needs_update).length;
+            const postsWithScores = posts2.filter((post) => post.freshness_score !== null);
+            const averageScore = postsWithScores.length > 0 ? Math.round(postsWithScores.reduce((sum, post) => sum + (post.freshness_score || 0), 0) / postsWithScores.length) : 0;
+            const analyzed = postsWithScores.filter((post) => post.freshness_score !== null).length;
+            setContentFreshness({
+              total: posts2.length,
+              analyzed,
+              needsUpdate,
+              averageScore
+            });
           }
-          setSettings(settingsData || {
-            mode: "manual",
-            autoPublish: false,
-            searchConsoleUser: null,
-            gscClientId: "",
-            gscClientSecret: "",
-            imageSourceProvider: "pexels",
-            aiImageStyle: "photorealistic",
-            pexelsApiKey: "",
-            unsplashApiKey: "",
-            pixabayApiKey: "",
-            seoPlugin: "none",
-            // Auto-detected, kept for backward compatibility
-            geminiApiKey: "",
-            // Automation frequency settings with defaults
-            semiAutoIdeaFrequency: "weekly",
-            fullAutoDailyPostCount: 1,
-            fullAutoPublishFrequency: "daily",
-            analyzeContentFrequency: "manual"
-          });
-          if (styleGuideData) {
-            setStyleGuide(styleGuideData);
-          }
-          setIdeas(ideasData || []);
-          setPosts([...draftsData || [], ...publishedData || []]);
-          setActivityLogs(activityData || []);
         } catch (error) {
-          console.error("Failed to load initial data:", error);
-          addToast({ message: "Failed to load plugin data", type: "error" });
+          console.log("Content freshness not available (Pro feature)");
+        }
+        setSettings(settingsData || {
+          mode: "manual",
+          autoPublish: false,
+          searchConsoleUser: null,
+          gscClientId: "",
+          gscClientSecret: "",
+          imageSourceProvider: "pexels",
+          aiImageStyle: "photorealistic",
+          pexelsApiKey: "",
+          unsplashApiKey: "",
+          pixabayApiKey: "",
+          seoPlugin: "none",
+          // Auto-detected, kept for backward compatibility
+          geminiApiKey: "",
+          // Automation frequency settings with defaults
+          semiAutoIdeaFrequency: "weekly",
+          fullAutoDailyPostCount: 1,
+          fullAutoPublishFrequency: "daily",
+          analyzeContentFrequency: "manual"
+        });
+        if (styleGuideData) {
+          setStyleGuide(styleGuideData);
+        }
+        setIdeas(ideasData || []);
+        setPosts([...draftsData || [], ...publishedData || []]);
+        setActivityLogs(activityData || []);
+        if (failedLoads.length > 0) {
+          const failedItems = failedLoads.join(", ");
+          addToast({
+            message: `Some data could not be loaded: ${failedItems}. Plugin will work with available data.`,
+            type: "warning"
+          });
         }
       };
       loadInitialData();

@@ -2,22 +2,28 @@
 
 ## 📦 Current Release
 
-### v2.2.6 - Settings Scroll Jumping Fix (Latest Stable)
-- **File**: `ai-content-agent-v2.2.6-settings-scroll-jumping-fix.zip`
-- **Release Date**: January 2025
+### v2.3.1 - Critical Bug Fixes (Latest Stable)
+- **File**: `ai-content-agent-v2.3.1-critical-bug-fixes.zip`
+- **Release Date**: January 31, 2025
 - **Status**: ✅ Production Ready
-- **Size**: ~429KB
-- **Features**: Complete resolution of settings page scroll jumping issue
+- **Size**: ~529KB
+- **Features**: Critical bug fixes for settings page, OAuth tokens, and data loading
+
+#### 🐛 Critical Fixes:
+- **Settings Scroll Jumping**: Enhanced JavaScript-based solution with multiple fallbacks
+- **GSC OAuth Token Management**: Robust token preservation during refresh
+- **Initial Data Loading**: Fail-safe loading with Promise.allSettled
+- **Network Resilience**: Plugin works even with partial API failures
 
 ---
 
-## 🚧 Development Release
+## 📋 Previous Stable Release
 
-### v2.3.0 - Multilingual Support & Intelligent Categorization (In Development)
-- **File**: Not yet released
-- **Expected**: When development is complete
-- **Status**: 🔨 In Development
-- **Size**: TBD
+### v2.3.0 - Multilingual Support & Intelligent Categorization (Stable)
+- **File**: `ai-content-agent-v2.3.0-multilingual-support-and-intelligent-categorization.zip` (Archived)
+- **Release Date**: January 30, 2025
+- **Status**: ✅ Stable (Archived)
+- **Size**: ~463KB
 
 #### 🚀 Major Features:
 - **Automatic Language Detection**: AI generates content in website's detected language (50+ languages)

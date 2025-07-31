@@ -584,71 +584,130 @@ const App: React.FC = () => {
     // Load initial data from WordPress
     useEffect(() => {
         const loadInitialData = async () => {
+            const results = await Promise.allSettled([
+                settingsApi.get(),
+                styleGuideApi.get(),
+                ideasApi.get(),
+                draftsApi.get(),
+                publishedApi.get(),
+                activityApi.get()
+            ]);
+            
+            // Extract successful results and log failed ones
+            const [settingsResult, styleGuideResult, ideasResult, draftsResult, publishedResult, activityResult] = results;
+            
+            let settingsData = null;
+            let styleGuideData = null;
+            let ideasData = null;
+            let draftsData = null;
+            let publishedData = null;
+            let activityData = null;
+            
+            const failedLoads: string[] = [];
+            
+            if (settingsResult.status === 'fulfilled') {
+                settingsData = settingsResult.value;
+            } else {
+                console.error('Failed to load settings:', settingsResult.reason);
+                failedLoads.push('Settings');
+            }
+            
+            if (styleGuideResult.status === 'fulfilled') {
+                styleGuideData = styleGuideResult.value;
+            } else {
+                console.error('Failed to load style guide:', styleGuideResult.reason);
+                failedLoads.push('Style Guide');
+            }
+            
+            if (ideasResult.status === 'fulfilled') {
+                ideasData = ideasResult.value;
+            } else {
+                console.error('Failed to load ideas:', ideasResult.reason);
+                failedLoads.push('Ideas');
+            }
+            
+            if (draftsResult.status === 'fulfilled') {
+                draftsData = draftsResult.value;
+            } else {
+                console.error('Failed to load drafts:', draftsResult.reason);
+                failedLoads.push('Drafts');
+            }
+            
+            if (publishedResult.status === 'fulfilled') {
+                publishedData = publishedResult.value;
+            } else {
+                console.error('Failed to load published posts:', publishedResult.reason);
+                failedLoads.push('Published Posts');
+            }
+            
+            if (activityResult.status === 'fulfilled') {
+                activityData = activityResult.value;
+            } else {
+                console.error('Failed to load activity logs:', activityResult.reason);
+                failedLoads.push('Activity Logs');
+            }
+            
+            // Load content freshness data if Pro is active
             try {
-                const [settingsData, styleGuideData, ideasData, draftsData, publishedData, activityData] = await Promise.all([
-                    settingsApi.get(),
-                    styleGuideApi.get(),
-                    ideasApi.get(),
-                    draftsApi.get(),
-                    publishedApi.get(),
-                    activityApi.get()
-                ]);
-                
-                // Load content freshness data if Pro is active
-                try {
-                    const freshnessResponse = await contentFreshnessApi.getPosts(50, 'all');
-                    if (freshnessResponse && freshnessResponse.success && freshnessResponse.posts) {
-                        const posts = freshnessResponse.posts;
-                        const needsUpdate = posts.filter(post => post.needs_update).length;
-                        const postsWithScores = posts.filter(post => post.freshness_score !== null);
-                        const averageScore = postsWithScores.length > 0 
-                            ? Math.round(postsWithScores.reduce((sum, post) => sum + (post.freshness_score || 0), 0) / postsWithScores.length)
-                            : 0;
-                        
-                        const analyzed = postsWithScores.filter(post => post.freshness_score !== null).length;
-                        
-                        setContentFreshness({
-                            total: posts.length,
-                            analyzed,
-                            needsUpdate,
-                            averageScore
-                        });
-                    }
-                } catch (error) {
-                    // Content freshness is a Pro feature, don't show error if not available
-                    console.log('Content freshness not available (Pro feature)');
+                const freshnessResponse = await contentFreshnessApi.getPosts(50, 'all');
+                if (freshnessResponse && freshnessResponse.success && freshnessResponse.posts) {
+                    const posts = freshnessResponse.posts;
+                    const needsUpdate = posts.filter(post => post.needs_update).length;
+                    const postsWithScores = posts.filter(post => post.freshness_score !== null);
+                    const averageScore = postsWithScores.length > 0 
+                        ? Math.round(postsWithScores.reduce((sum, post) => sum + (post.freshness_score || 0), 0) / postsWithScores.length)
+                        : 0;
+                    
+                    const analyzed = postsWithScores.filter(post => post.freshness_score !== null).length;
+                    
+                    setContentFreshness({
+                        total: posts.length,
+                        analyzed,
+                        needsUpdate,
+                        averageScore
+                    });
                 }
-                
-                setSettings(settingsData || {
-                    mode: 'manual',
-                    autoPublish: false,
-                    searchConsoleUser: null,
-                    gscClientId: '',
-                    gscClientSecret: '',
-                    imageSourceProvider: 'pexels',
-                    aiImageStyle: 'photorealistic',
-                    pexelsApiKey: '',
-                    unsplashApiKey: '',
-                    pixabayApiKey: '',
-                    seoPlugin: 'none', // Auto-detected, kept for backward compatibility
-                    geminiApiKey: '',
-                    // Automation frequency settings with defaults
-                    semiAutoIdeaFrequency: 'weekly',
-                    fullAutoDailyPostCount: 1,
-                    fullAutoPublishFrequency: 'daily',
-                    analyzeContentFrequency: 'manual',
-                });
-                
-                if (styleGuideData) {
-                    setStyleGuide(styleGuideData);
-                }
-                
-                setIdeas(ideasData || []);
-                setPosts([...(draftsData || []), ...(publishedData || [])]);
-                setActivityLogs(activityData || []);
             } catch (error) {
-                console.error('Failed to load initial data:', error);
-                addToast({ message: 'Failed to load plugin data', type: 'error' });
+                // Content freshness is a Pro feature, don't show error if not available
+                console.log('Content freshness not available (Pro feature)');
+            }
+            
+            // Set data with fallbacks for failed loads
+            setSettings(settingsData || {
+                mode: 'manual',
+                autoPublish: false,
+                searchConsoleUser: null,
+                gscClientId: '',
+                gscClientSecret: '',
+                imageSourceProvider: 'pexels',
+                aiImageStyle: 'photorealistic',
+                pexelsApiKey: '',
+                unsplashApiKey: '',
+                pixabayApiKey: '',
+                seoPlugin: 'none', // Auto-detected, kept for backward compatibility
+                geminiApiKey: '',
+                // Automation frequency settings with defaults
+                semiAutoIdeaFrequency: 'weekly',
+                fullAutoDailyPostCount: 1,
+                fullAutoPublishFrequency: 'daily',
+                analyzeContentFrequency: 'manual',
+            });
+            
+            if (styleGuideData) {
+                setStyleGuide(styleGuideData);
+            }
+            
+            setIdeas(ideasData || []);
+            setPosts([...(draftsData || []), ...(publishedData || [])]);
+            setActivityLogs(activityData || []);
+            
+            // Show warning if some data failed to load
+            if (failedLoads.length > 0) {
+                const failedItems = failedLoads.join(', ');
+                addToast({ 
+                    message: `Some data could not be loaded: ${failedItems}. Plugin will work with available data.`, 
+                    type: 'warning' 
+                });
             }
         };
         

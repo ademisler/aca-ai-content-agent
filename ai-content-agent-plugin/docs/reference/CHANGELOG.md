@@ -2,6 +2,55 @@
 
 All notable changes to AI Content Agent (ACA) will be documented in this file.
 
+## [2.3.1] - 2025-01-31
+
+### 🐛 CRITICAL BUG FIXES
+
+#### ✅ Settings Page Scroll Jumping Fix (ENHANCED)
+- **Problem**: CollapsibleSection animations caused page to jump to top when sections were opened
+- **Root Cause**: max-height CSS animations were changing document height abruptly
+- **Solution**: Enhanced JavaScript-based scroll position preservation with multiple fallbacks
+- **Implementation**: 
+  - Double requestAnimationFrame for better timing
+  - Multiple container detection (`.aca-main`, `.aca-container`, `documentElement`)
+  - Backup timeout mechanism for slower systems
+  - Increased max-height from 500px to 1000px for larger content sections
+- **Result**: Smooth, stable settings page experience across all browsers
+
+#### ✅ Google Search Console OAuth Token Management (ROBUST)
+- **Problem**: Refresh tokens were lost during token renewal, causing hourly re-authentication
+- **Root Cause**: OAuth2 refresh responses don't always include refresh_token
+- **Solution**: Comprehensive token preservation system
+- **Implementation**:
+  - Fallback to stored refresh token when client doesn't have it
+  - Merge strategy preserving all existing token data
+  - Error handling for malformed token responses
+  - Detailed logging for debugging token issues
+- **Result**: Persistent GSC connection without hourly interruptions
+
+#### ✅ Initial Data Loading Resilience (FAIL-SAFE)
+- **Problem**: Single API failure crashed entire plugin initialization
+- **Root Cause**: Promise.all fails completely if any promise rejects
+- **Solution**: Promise.allSettled with individual error handling
+- **Implementation**:
+  - Individual success/failure handling for each API call
+  - Graceful degradation with default values for failed loads
+  - User-friendly warning messages for partial failures
+  - Plugin remains functional even with some data unavailable
+- **Result**: Robust plugin initialization that works even with network issues
+
+### 🔧 Technical Improvements
+- **Enhanced Error Handling**: Better error messages and logging throughout
+- **Improved User Experience**: Settings page now completely stable
+- **Network Resilience**: Plugin works even with intermittent connectivity
+- **Token Security**: More secure and reliable OAuth token management
+
+### 📦 Build & Deployment
+- **Build Version**: 2.3.1
+- **Asset Hash**: ClpkWZNi (cache-busted)
+- **Bundle Size**: 635KB unminified (116KB gzipped)
+- **Compatibility**: WordPress 5.0+, PHP 7.4+
+
 ## [2.3.0] - 2025-01-30
 
 ### 🌍 MAJOR FEATURE: AUTOMATIC LANGUAGE DETECTION & MULTILINGUAL SUPPORT

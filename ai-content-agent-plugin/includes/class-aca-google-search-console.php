@@ -132,19 +132,40 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
      */
     private function refresh_token() {
         try {
+            // Get current stored tokens to preserve all data
+            $current_tokens = get_option('aca_gsc_tokens', array());
             $refresh_token = $this->client->getRefreshToken();
+            
+            if (!$refresh_token && isset($current_tokens['refresh_token'])) {
+                // Fallback to stored refresh token if client doesn't have it
+                $refresh_token = $current_tokens['refresh_token'];
+                $this->client->setAccessToken($current_tokens);
+            }
+            
             if ($refresh_token) {
                 $new_tokens = $this->client->fetchAccessTokenWithRefreshToken($refresh_token);
                 
-                // Preserve refresh token if not returned in new token response
-                if (!isset($new_tokens['refresh_token']) && $refresh_token) {
-                    $new_tokens['refresh_token'] = $refresh_token;
+                if (isset($new_tokens['error'])) {
+                    error_log('ACA GSC Token Refresh Error: ' . $new_tokens['error_description']);
+                    return;
                 }
                 
-                update_option('aca_gsc_tokens', $new_tokens);
+                // Always preserve refresh token from either new response or current tokens
+                if (!isset($new_tokens['refresh_token'])) {
+                    if ($refresh_token) {
+                        $new_tokens['refresh_token'] = $refresh_token;
+                    } elseif (isset($current_tokens['refresh_token'])) {
+                        $new_tokens['refresh_token'] = $current_tokens['refresh_token'];
+                    }
+                }
+                
+                // Preserve other token data that might exist
+                $merged_tokens = array_merge($current_tokens, $new_tokens);
+                
+                update_option('aca_gsc_tokens', $merged_tokens);
                 error_log('ACA GSC: Successfully refreshed access token');
             } else {
-                error_log('ACA GSC: No refresh token available');
+                error_log('ACA GSC: No refresh token available in client or stored tokens');
             }
         } catch (Exception $e) {
             error_log('ACA GSC Token Refresh Error: ' . $e->getMessage());

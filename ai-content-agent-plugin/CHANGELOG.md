@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.3.12] - 2025-01-31 🔧
+
+### 🛠️ **JAVASCRIPT ERROR FIX**
+
+#### **Fixed**
+- **FATAL JS ERROR**: Fixed "Cannot access 'showToast' before initialization" ReferenceError
+- **PLUGIN LOADING**: Resolved plugin interface loading failure in WordPress admin
+- **HOISTING ISSUE**: Corrected JavaScript function declaration order in React components
+- **ASSET BUNDLE**: Rebuilt JavaScript assets with proper function initialization
+- **ERROR BOUNDARY**: Enhanced error catching and display for initialization failures
+
+#### **Optimized**
+- **PACKAGE SIZE**: Maintained lightweight 1.2MB package size
+- **BUILD SYSTEM**: Updated Vite build process for better code organization
+- **ASSET ID**: New build hash `index-0GgE-q3-.js` (replaces `index-BrI5Hh8r.js`)
+- **COMPATIBILITY**: Preserved all working features from previous versions
+
+#### **Technical Details**
+- Fixed React component initialization sequence
+- Improved error recovery mechanisms
+- Maintained all critical bug fixes from v2.3.11
+- No breaking changes, pure JavaScript error fix
+
+---
+
 ## [2.3.11] - 2025-01-31 🚨
 
 ### 🛠️ **CRITICAL ACTIVATION FIXES**

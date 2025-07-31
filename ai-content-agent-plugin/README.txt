@@ -5,7 +5,7 @@ Tags: ai, content, automation, gemini, seo, enterprise, security, performance, n
 Requires at least: 5.0
 Tested up to: 6.4
 Requires PHP: 7.4
-Stable tag: 2.3.11
+Stable tag: 2.3.12
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -53,6 +53,22 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 6. Start creating amazing content!
 
 == Changelog ==
+
+= 2.3.12 - 2025-01-31 =
+🔧 **JAVASCRIPT ERROR FIX**
+
+**CRITICAL JS ERROR FIXED:**
+* Fixed "Cannot access 'showToast' before initialization" ReferenceError
+* Fixed plugin interface loading failure in WordPress admin
+* Fixed JavaScript hoisting issue in React components
+* Rebuilt assets with corrected JavaScript bundle (index-0GgE-q3-.js)
+* Enhanced error boundary for better initialization error handling
+
+**OPTIMIZATION:**
+* Maintained lightweight 1.2MB package size for optimal WordPress deployment
+* Preserved all critical bug fixes from v2.3.11
+* No breaking changes - pure JavaScript error fix
+* Compatible with all existing features and configurations
 
 = 2.3.11 - 2025-01-31 =
 🚨 **CRITICAL BUG FIX RELEASE**

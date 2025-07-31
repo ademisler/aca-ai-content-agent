@@ -691,53 +691,21 @@ const handleSave = () => {
 - Verification against v2.3.5: ✅ COMPLETE
 - **CRITICAL ISSUES FOUND: 8 HIGH PRIORITY + 4 MEDIUM PRIORITY**
 
-## ⚠️ CRITICAL SEO DETECTION FIX APPLIED
+## ⚠️ CRITICAL FIXES APPLIED
 
-### 🚨 NEW CRITICAL ISSUE FOUND AND FIXED:
-**SEO Plugin Auto-Detection Completely Broken in v2.3.5**
+### 🚨 CRITICAL ISSUE #1: SEO Plugin Auto-Detection ✅ FIXED
+**Problem**: SEO plugins not detected in v2.3.5
+**Status**: ✅ FIXED - Commit `ba7423ea`
 
-#### Problem:
-- v2.3.0: SEO plugins automatically detected and configured ✅
-- v2.3.5: SEO plugins NOT detected, auto-configuration missing ❌
+### 🚨 CRITICAL ISSUE #2: Google Search Console Integration ✅ FIXED  
+**Problem**: GSC integration broken in v2.3.5
+**Root Causes Fixed**:
+1. **Wrong API endpoints**: Extra slashes removed from all GSC endpoints
+2. **Missing credential validation**: Added Client ID/Secret validation
+3. **Wrong OAuth flow**: Changed from popup to redirect (v2.3.0 behavior)
+4. **Poor error handling**: Enhanced with toast notifications and fallbacks
+5. **Incomplete disconnect**: Now properly clears user settings
 
-#### Root Causes:
-1. **Wrong API endpoint**: `${api_url}/seo-plugins` (extra slash) vs `${api_url}seo-plugins`
-2. **Wrong data field**: `data.plugins` vs `data.detected_plugins`
-3. **Missing auto-configuration**: No automatic settings update when plugins detected
-4. **Missing debug logging**: No console logs for troubleshooting
+**Status**: ✅ FIXED - Commit `4647d737`
 
-#### Fix Applied:
-```typescript
-// BEFORE (v2.3.5 - BROKEN):
-const response = await fetch(`${window.acaData.api_url}/seo-plugins`, {
-    method: 'GET',
-    headers: {
-        'X-WP-Nonce': window.acaData.nonce,
-        'Content-Type': 'application/json',
-    },
-});
-setDetectedSeoPlugins(data.plugins || []);
-// No auto-configuration logic!
-
-// AFTER (FIXED - v2.3.0 functionality restored):
-const response = await fetch(`${window.acaData.api_url}seo-plugins`, {
-    headers: {
-        'X-WP-Nonce': window.acaData.nonce
-    }
-});
-setDetectedSeoPlugins(data.detected_plugins || []);
-
-// CRITICAL: Auto-update settings based on detected plugins
-if (data.detected_plugins && data.detected_plugins.length > 0) {
-    const firstPlugin = data.detected_plugins[0];
-    if (currentSettings.seoPlugin === 'none') {
-        handleSettingChange('seoPlugin', firstPlugin.plugin);
-    }
-}
-```
-
-#### Status: ✅ FIXED
-- API endpoint corrected
-- Data field corrected  
-- Auto-configuration logic restored
-- Debug logging restored
+---

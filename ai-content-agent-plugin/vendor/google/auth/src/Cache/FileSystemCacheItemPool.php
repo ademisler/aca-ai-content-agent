@@ -74,7 +74,15 @@ class FileSystemCacheItemPool implements CacheItemPoolInterface
             return $item;
         }
 
-        $item->set(unserialize($serializedItem));
+        // Safe unserialize with allowed classes to prevent object injection attacks
+        try {
+            $unserializedData = unserialize($serializedItem, ['allowed_classes' => ['stdClass']]);
+            if ($unserializedData !== false) {
+                $item->set($unserializedData);
+            }
+        } catch (Exception $e) {
+            error_log('Google Auth Cache: Unsafe unserialize attempt blocked - ' . $e->getMessage());
+        }
 
         return $item;
     }

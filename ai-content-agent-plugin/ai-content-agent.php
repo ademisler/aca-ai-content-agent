@@ -29,16 +29,27 @@ define('ACA_PLUGIN_FILE', __FILE__);
 define('ACA_PLUGIN_PATH', plugin_dir_path(__FILE__)); // CRITICAL FIX: Missing constant
 
 /**
- * Check if ACA Pro is active
+ * Check if ACA Pro is active - FIXED VERSION
  * 
  * @return bool True if pro license is active, false otherwise
  */
 function is_aca_pro_active() {
-    return get_option('aca_license_status') === 'active';
+    // Use proper licensing system if available
+    if (class_exists('ACA_Licensing')) {
+        $licensing = new ACA_Licensing();
+        return $licensing->is_pro_active();
+    }
+    
+    // Fallback: require both status and license key (no more demo mode)
+    $status = get_option('aca_license_status', 'inactive');
+    $license_key = get_option('aca_license_key', '');
+    
+    return ($status === 'active' && !empty($license_key));
 }
 
 // Include required files with error handling
 $required_files = [
+    'includes/class-aca-licensing.php',
     'includes/class-aca-activator.php',
     'includes/class-aca-deactivator.php',
     'includes/class-aca-rest-api.php',
@@ -46,6 +57,7 @@ $required_files = [
     'includes/class-aca-content-freshness.php',
     'includes/class-aca-rate-limiter.php',
     'includes/class-aca-performance-monitor.php',
+    'includes/class-aca-google-search-console-hybrid.php',
     'includes/gsc-data-fix.php'
 ];
 
@@ -61,6 +73,32 @@ foreach ($required_files as $file) {
 // Activation and deactivation hooks
 register_activation_hook(__FILE__, array('ACA_Activator', 'activate'));
 register_deactivation_hook(__FILE__, array('ACA_Deactivator', 'deactivate'));
+
+// Migration hook for demo mode transition
+register_activation_hook(__FILE__, 'aca_migrate_from_demo_mode');
+
+/**
+ * Migrate from demo mode to proper licensing
+ */
+function aca_migrate_from_demo_mode() {
+    $current_status = get_option('aca_license_status');
+    $license_key = get_option('aca_license_key');
+    
+    // If in demo mode (active status but no license key), reset
+    if ($current_status === 'active' && empty($license_key)) {
+        update_option('aca_license_status', 'inactive');
+        
+        // Add migration notice
+        add_option('aca_demo_migration_notice', array(
+            'message' => 'AI Content Agent has been migrated from demo mode. Please enter a valid Pro license key to access premium features.',
+            'timestamp' => current_time('mysql'),
+            'dismissed' => false
+        ));
+        
+        // Log migration
+        error_log('ACA: Plugin migrated from demo mode to proper licensing system on activation');
+    }
+}
 
 /**
  * Main plugin class

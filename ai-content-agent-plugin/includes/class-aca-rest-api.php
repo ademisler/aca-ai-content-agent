@@ -292,61 +292,71 @@ class ACA_Rest_Api {
             'permission_callback' => array($this, 'check_admin_permissions')
         ));
         
-        // Content Freshness endpoints (Demo mode - admin access)
+        // Content Freshness endpoints (Pro license required)
         register_rest_route('aca/v1', '/content-freshness/analyze', array(
             'methods' => 'POST',
             'callback' => array($this, 'analyze_content_freshness'),
-            'permission_callback' => array($this, 'check_admin_permissions')
+            'permission_callback' => array($this, 'check_pro_permissions')
         ));
         
         register_rest_route('aca/v1', '/content-freshness/analyze/(?P<id>\d+)', array(
             'methods' => 'POST',
             'callback' => array($this, 'analyze_single_post_freshness'),
-            'permission_callback' => array($this, 'check_admin_permissions')
+            'permission_callback' => array($this, 'check_pro_permissions')
         ));
         
         register_rest_route('aca/v1', '/content-freshness/update/(?P<id>\d+)', array(
             'methods' => 'POST', 
             'callback' => array($this, 'update_content_with_ai'),
-            'permission_callback' => array($this, 'check_admin_permissions')
+            'permission_callback' => array($this, 'check_pro_permissions')
         ));
         
         register_rest_route('aca/v1', '/content-freshness/settings', array(
             'methods' => 'GET,POST',
             'callback' => array($this, 'manage_freshness_settings'),
-            'permission_callback' => array($this, 'check_admin_permissions')
+            'permission_callback' => array($this, 'check_pro_permissions')
         ));
         
         register_rest_route('aca/v1', '/content-freshness/posts', array(
             'methods' => 'GET',
             'callback' => array($this, 'get_posts_freshness_data'),
-            'permission_callback' => array($this, 'check_admin_permissions')
+            'permission_callback' => array($this, 'check_pro_permissions')
         ));
         
         register_rest_route('aca/v1', '/content-freshness/posts/needing-updates', array(
             'methods' => 'GET',
             'callback' => array($this, 'get_posts_needing_updates'),
-            'permission_callback' => array($this, 'check_admin_permissions')
+            'permission_callback' => array($this, 'check_pro_permissions')
         ));
 
-        // License verification endpoint
-        register_rest_route('aca/v1', '/license/verify', array(
-            'methods' => 'POST',
-            'callback' => array($this, 'verify_license_key'),
-            'permission_callback' => array($this, 'check_admin_permissions')
-        ));
-        
-        // License status endpoint
+        // License management endpoints
         register_rest_route('aca/v1', '/license/status', array(
             'methods' => 'GET',
             'callback' => array($this, 'get_license_status'),
             'permission_callback' => array($this, 'check_admin_permissions')
         ));
         
-        // License deactivation endpoint
+        register_rest_route('aca/v1', '/license/activate', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'activate_license'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
+        
         register_rest_route('aca/v1', '/license/deactivate', array(
             'methods' => 'POST',
             'callback' => array($this, 'deactivate_license'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
+        
+        register_rest_route('aca/v1', '/license/check', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'check_license'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
+        
+        register_rest_route('aca/v1', '/license/dismiss-migration-notice', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'dismiss_migration_notice'),
             'permission_callback' => array($this, 'check_admin_permissions')
         ));
     }
@@ -4156,5 +4166,146 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
      */
     public function generate_ideas_monitored($request) {
         return $this->monitor_endpoint_performance('generate_ideas', [$this, 'generate_ideas'], $request);
+    }
+    
+    /**
+     * Check Pro permissions for API endpoints - RESTORED FROM v2.3.0
+     * 
+     * @param WP_REST_Request $request The REST request object
+     * @return bool|WP_Error True if user has Pro license, WP_Error otherwise
+     */
+    public function check_pro_permissions($request) {
+        // Use licensing system if available
+        if (class_exists('ACA_Licensing')) {
+            $licensing = new ACA_Licensing();
+            return $licensing->check_pro_permissions($request);
+        }
+        
+        // Fallback check
+        if (!is_aca_pro_active()) {
+            return new WP_Error(
+                'license_required',
+                'Pro license required for this feature. Please activate your license to access premium features.',
+                array('status' => 403)
+            );
+        }
+        
+        if (!current_user_can('manage_options')) {
+            return new WP_Error(
+                'insufficient_permissions',
+                'Insufficient permissions',
+                array('status' => 403)
+            );
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Get license status - AJAX endpoint
+     */
+    public function get_license_status($request) {
+        if (class_exists('ACA_Licensing')) {
+            $licensing = new ACA_Licensing();
+            return rest_ensure_response(array(
+                'success' => true,
+                'data' => $licensing->get_license_status()
+            ));
+        }
+        
+        return new WP_Error('licensing_unavailable', 'Licensing system not available', array('status' => 500));
+    }
+    
+    /**
+     * Activate license - AJAX endpoint
+     */
+    public function activate_license($request) {
+        if (class_exists('ACA_Licensing')) {
+            $licensing = new ACA_Licensing();
+            
+            // Set up $_POST for the licensing class
+            $_POST['license_key'] = $request->get_param('license_key');
+            $_POST['nonce'] = wp_create_nonce('aca_nonce');
+            
+            // Call the licensing method directly
+            ob_start();
+            $licensing->activate_license();
+            $output = ob_get_clean();
+            
+            // The licensing method uses wp_send_json_*, so we need to handle that
+            return rest_ensure_response(array(
+                'success' => true,
+                'message' => 'License activation processed'
+            ));
+        }
+        
+        return new WP_Error('licensing_unavailable', 'Licensing system not available', array('status' => 500));
+    }
+    
+    /**
+     * Deactivate license - AJAX endpoint
+     */
+    public function deactivate_license($request) {
+        if (class_exists('ACA_Licensing')) {
+            $licensing = new ACA_Licensing();
+            
+            // Set up $_POST for the licensing class
+            $_POST['nonce'] = wp_create_nonce('aca_nonce');
+            
+            ob_start();
+            $licensing->deactivate_license();
+            $output = ob_get_clean();
+            
+            return rest_ensure_response(array(
+                'success' => true,
+                'message' => 'License deactivation processed'
+            ));
+        }
+        
+        return new WP_Error('licensing_unavailable', 'Licensing system not available', array('status' => 500));
+    }
+    
+    /**
+     * Check license - AJAX endpoint
+     */
+    public function check_license($request) {
+        if (class_exists('ACA_Licensing')) {
+            $licensing = new ACA_Licensing();
+            
+            $_POST['nonce'] = wp_create_nonce('aca_nonce');
+            
+            ob_start();
+            $licensing->check_license();
+            $output = ob_get_clean();
+            
+            return rest_ensure_response(array(
+                'success' => true,
+                'message' => 'License check processed'
+            ));
+        }
+        
+        return new WP_Error('licensing_unavailable', 'Licensing system not available', array('status' => 500));
+    }
+    
+    /**
+     * Dismiss migration notice - AJAX endpoint
+     */
+    public function dismiss_migration_notice($request) {
+        if (class_exists('ACA_Licensing')) {
+            $licensing = new ACA_Licensing();
+            
+            $_POST['nonce'] = wp_create_nonce('aca_nonce');
+            
+            ob_start();
+            $licensing->dismiss_migration_notice();
+            $output = ob_get_clean();
+            
+            return rest_ensure_response(array(
+                'success' => true,
+                'message' => 'Migration notice dismissed'
+            ));
+        }
+        
+        return new WP_Error('licensing_unavailable', 'Licensing system not available', array('status' => 500));
     }
 }

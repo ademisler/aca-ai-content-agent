@@ -1,17 +1,18 @@
-# Google Search Console Integration Setup Guide - v2.0.5
+# Google Search Console Integration Setup Guide - v2.3.0
 
 This guide will walk you through setting up Google Search Console integration with the AI Content Agent (ACA) plugin to access real search performance data for your content creation.
 
-## 🚨 Latest Updates - v2.0.3
+## 🚨 Latest Updates - v2.3.0
 
-**COMPREHENSIVE FEATURE ENHANCEMENTS & IMPROVEMENTS**
-- **Author Updates**: Updated plugin author to Adem Isler with website integration (ademisler.com/en)
-- Enhanced error handling for GSC API calls with intelligent retry logic
-- Improved user feedback when GSC integration encounters issues
-- Better error messages and recovery instructions for GSC connection problems
-- Enhanced stability when using GSC data for AI content generation
-- Automatic retry mechanism for GSC API timeouts and temporary failures
-- **Feature Verification**: Confirmed all GSC integration features are working correctly
+**MULTILINGUAL GSC INTEGRATION & ENHANCED FEATURES**
+- **Language-Aware Analysis**: GSC data analysis now considers website language for better insights
+- **Multilingual Keyword Analysis**: Enhanced keyword analysis for non-English websites
+- **Cultural Search Context**: Better understanding of language-specific search patterns
+- **Smart Category Integration**: GSC data integrated with intelligent category hierarchy system
+- **Enhanced error handling**: Continued improvements for GSC API calls with intelligent retry logic
+- **Improved user feedback**: Better feedback when GSC integration encounters issues
+- **Better error messages**: Clear recovery instructions for GSC connection problems
+- **Enhanced stability**: Improved stability when using GSC data for multilingual AI content generation
 
 ## 🎯 Overview
 

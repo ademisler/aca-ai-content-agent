@@ -120,13 +120,120 @@ function aca_migrate_from_demo_mode() {
  */
 class AI_Content_Agent {
     
+    private static $instance = null;
+    private static $initialized_classes = [];
+    private static $memory_threshold = 0.8; // 80% of memory limit
+    private static $performance_tracker = null;
+    
     public function __construct() {
+        // Memory check before initialization
+        if (!$this->check_memory_availability()) {
+            error_log('ACA Plugin: Insufficient memory available for initialization');
+            return;
+        }
+        
+        // Start performance tracking
+        if (class_exists('ACA_Performance_Monitor')) {
+            self::$performance_tracker = ACA_Performance_Monitor::start('plugin_initialization');
+        }
+        
+        $this->init_hooks();
+        $this->init();
+    }
+    
+    /**
+     * Initialize WordPress hooks
+     */
+    private function init_hooks() {
         // Ensure WordPress is loaded before initializing
         if (function_exists('add_action')) {
-            add_action('init', array($this, 'init'));
+            // WordPress is already loaded, proceed immediately
+            return;
         } else {
             // WordPress not loaded yet, try later
             add_action('wp_loaded', array($this, 'init'));
+        }
+    }
+    
+    /**
+     * Check if sufficient memory is available
+     * 
+     * @return bool
+     */
+    private function check_memory_availability() {
+        $memory_limit = $this->get_memory_limit_bytes();
+        if ($memory_limit === false) {
+            return true; // Can't determine limit, proceed
+        }
+        
+        $current_usage = memory_get_usage(true);
+        $usage_ratio = $current_usage / $memory_limit;
+        
+        if ($usage_ratio > self::$memory_threshold) {
+            error_log("ACA Plugin: Memory usage too high: " . round($usage_ratio * 100, 2) . "%");
+            return false;
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Get memory limit in bytes
+     * 
+     * @return int|false
+     */
+    private function get_memory_limit_bytes() {
+        $memory_limit = ini_get('memory_limit');
+        if ($memory_limit === '-1') {
+            return false; // Unlimited
+        }
+        
+        $value = (int) $memory_limit;
+        $unit = strtolower(substr($memory_limit, -1));
+        
+        switch ($unit) {
+            case 'g':
+                $value *= 1024 * 1024 * 1024;
+                break;
+            case 'm':
+                $value *= 1024 * 1024;
+                break;
+            case 'k':
+                $value *= 1024;
+                break;
+        }
+        
+        return $value;
+    }
+    
+    /**
+     * Lazy load class instances
+     * 
+     * @param string $class_name
+     * @return object|null
+     */
+    private function get_class_instance($class_name) {
+        if (isset(self::$initialized_classes[$class_name])) {
+            return self::$initialized_classes[$class_name];
+        }
+        
+        if (!class_exists($class_name)) {
+            error_log("ACA Plugin: Class $class_name not found");
+            return null;
+        }
+        
+        // Check memory before instantiation
+        if (!$this->check_memory_availability()) {
+            error_log("ACA Plugin: Skipping $class_name initialization due to memory constraints");
+            return null;
+        }
+        
+        try {
+            self::$initialized_classes[$class_name] = new $class_name();
+            return self::$initialized_classes[$class_name];
+        } catch (Error $e) {
+            error_log("ACA Plugin: Failed to initialize $class_name: " . $e->getMessage());
+            return null;
         }
     }
     
@@ -137,15 +244,11 @@ class AI_Content_Agent {
                 require_once ACA_PLUGIN_DIR . 'install-dependencies.php';
             }
             
-            // Initialize REST API with error handling
-            if (class_exists('ACA_Rest_Api')) {
-                new ACA_Rest_Api();
-            }
+            // Initialize REST API with lazy loading
+            $rest_api = $this->get_class_instance('ACA_Rest_Api');
             
-            // Initialize Cron jobs with error handling
-            if (class_exists('ACA_Cron')) {
-                new ACA_Cron();
-            }
+            // Initialize Cron jobs with lazy loading
+            $cron = $this->get_class_instance('ACA_Cron');
             
             // Handle Google Search Console OAuth callback
             add_action('admin_init', array($this, 'handle_gsc_oauth_callback'));
@@ -153,19 +256,22 @@ class AI_Content_Agent {
             // Add admin menu
             add_action('admin_menu', array($this, 'add_admin_menu'));
             
-            // Enqueue admin scripts
+            // Enqueue admin scripts (only when needed)
             add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
+            
+            // End performance tracking
+            if (self::$performance_tracker) {
+                $metrics = ACA_Performance_Monitor::end(self::$performance_tracker);
+                if ($metrics && isset($metrics['memory_used_mb']) && $metrics['memory_used_mb'] > 10) {
+                    error_log("ACA Plugin: High memory usage during initialization: " . $metrics['memory_used_mb'] . "MB");
+                }
+            }
             
         } catch (Error $e) {
             error_log('ACA Plugin Init Error: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
-            add_action('admin_notices', function() use ($e) {
-                echo '<div class="notice notice-error"><p><strong>AI Content Agent Error:</strong> ' . esc_html($e->getMessage()) . '</p></div>';
-            });
-        } catch (Exception $e) {
-            error_log('ACA Plugin Init Exception: ' . $e->getMessage());
-            add_action('admin_notices', function() use ($e) {
-                echo '<div class="notice notice-error"><p><strong>AI Content Agent Exception:</strong> ' . esc_html($e->getMessage()) . '</p></div>';
-            });
+            if (self::$performance_tracker) {
+                ACA_Performance_Monitor::end(self::$performance_tracker, ['error' => $e->getMessage()]);
+            }
         }
     }
     
@@ -173,27 +279,24 @@ class AI_Content_Agent {
      * Handle Google Search Console OAuth callback
      */
     public function handle_gsc_oauth_callback() {
-        $page = isset($_GET['page']) ? sanitize_text_field($_GET['page']) : '';
-        $gsc_auth = isset($_GET['gsc_auth']) ? sanitize_text_field($_GET['gsc_auth']) : '';
-        $code = isset($_GET['code']) ? sanitize_text_field($_GET['code']) : '';
+        // Only initialize GSC when actually needed
+        if (!isset($_GET['code']) || !isset($_GET['state'])) {
+            return;
+        }
         
-        if ($page === 'ai-content-agent' && $gsc_auth === 'callback' && !empty($code)) {
-            
-            // Use hybrid version that doesn't require vendor dependencies
-            if (class_exists('ACA_Google_Search_Console_Hybrid')) {
-                $gsc = new ACA_Google_Search_Console_Hybrid();
-                $result = $gsc->handle_oauth_callback($code);
-                
-                if (is_wp_error($result)) {
-                    wp_die('Google Search Console authentication failed: ' . $result->get_error_message());
-                } else {
-                    // Redirect back to settings page
-                    wp_redirect(admin_url('admin.php?page=ai-content-agent&view=settings&gsc_connected=1'));
-                    exit;
-                }
-            } else {
-                wp_die('Google Search Console authentication failed: Required class not found');
+        if (!$this->check_memory_availability()) {
+            wp_die('Insufficient memory to handle OAuth callback');
+            return;
+        }
+        
+        try {
+            $gsc = $this->get_class_instance('ACA_Google_Search_Console_Hybrid');
+            if ($gsc && method_exists($gsc, 'handle_oauth_callback')) {
+                $gsc->handle_oauth_callback();
             }
+        } catch (Error $e) {
+            error_log('ACA Plugin GSC OAuth Error: ' . $e->getMessage());
+            wp_die('OAuth callback failed. Please try again.');
         }
     }
     

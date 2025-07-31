@@ -4197,4 +4197,106 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
     public function generate_ideas_monitored($request) {
         return $this->monitor_endpoint_performance('generate_ideas', [$this, 'generate_ideas'], $request);
     }
+
+    /**
+     * Execute optimized database query with caching and performance monitoring
+     * 
+     * @param string $query
+     * @param array $args
+     * @param bool $use_cache
+     * @param int $cache_ttl
+     * @return mixed
+     */
+    private function execute_optimized_query($query, $args = [], $use_cache = true, $cache_ttl = 300) {
+        global $wpdb;
+        
+        // Generate cache key
+        $query_hash = null;
+        if ($use_cache && class_exists('ACA_Performance_Monitor')) {
+            $query_hash = ACA_Performance_Monitor::generate_query_hash($query, $args);
+            $cached_result = ACA_Performance_Monitor::get_cached_query_result($query_hash);
+            if ($cached_result !== null) {
+                return $cached_result;
+            }
+        }
+        
+        // Start performance monitoring
+        $start_time = microtime(true);
+        
+        // Execute query
+        if (!empty($args)) {
+            $prepared_query = $wpdb->prepare($query, $args);
+            $result = $wpdb->get_results($prepared_query);
+        } else {
+            $result = $wpdb->get_results($query);
+        }
+        
+        // Calculate execution time
+        $execution_time = microtime(true) - $start_time;
+        
+        // Log performance if monitoring is available
+        if (class_exists('ACA_Performance_Monitor')) {
+            ACA_Performance_Monitor::log_query_performance($query, $execution_time, $result);
+            
+            // Cache successful results
+            if ($use_cache && $result !== false && !is_wp_error($result)) {
+                ACA_Performance_Monitor::cache_query_result($query_hash, $result, $cache_ttl);
+            }
+        }
+        
+        // Log slow queries
+        if ($execution_time > 0.1) {
+            error_log("ACA Plugin: Slow query in REST API (" . round($execution_time * 1000, 2) . "ms)");
+        }
+        
+        return $result;
+    }
+
+    public function get_content_ideas($request) {
+        try {
+            $per_page = $request->get_param('per_page') ?: 10;
+            $page = $request->get_param('page') ?: 1;
+            $status_filter = $request->get_param('status') ?: 'active';
+            $search = $request->get_param('search') ?: '';
+            
+            $offset = ($page - 1) * $per_page;
+            
+            // Build optimized query
+            $where_conditions = ["status = %s"];
+            $query_args = [$status_filter];
+            
+            if (!empty($search)) {
+                $where_conditions[] = "(title LIKE %s OR description LIKE %s)";
+                $query_args[] = '%' . $wpdb->esc_like($search) . '%';
+                $query_args[] = '%' . $wpdb->esc_like($search) . '%';
+            }
+            
+            $where_clause = implode(' AND ', $where_conditions);
+            
+            // Use optimized query execution
+            $query = "SELECT * FROM {$this->ideas_table} WHERE {$where_clause} ORDER BY created_at DESC LIMIT %d OFFSET %d";
+            $query_args[] = $per_page;
+            $query_args[] = $offset;
+            
+            $ideas = $this->execute_optimized_query($query, $query_args, true, 300);
+            
+            // Get total count with caching
+            $count_query = "SELECT COUNT(*) FROM {$this->ideas_table} WHERE {$where_clause}";
+            $count_args = array_slice($query_args, 0, -2); // Remove limit and offset
+            $total_results = $this->execute_optimized_query($count_query, $count_args, true, 600);
+            $total_count = is_array($total_results) && !empty($total_results) ? (int)$total_results[0]->{'COUNT(*)'} : 0;
+
+            return rest_ensure_response(array(
+                'success' => true,
+                'ideas' => $ideas,
+                'total_count' => $total_count,
+                'per_page' => $per_page,
+                'page' => $page,
+                'status' => $status_filter,
+                'search' => $search
+            ));
+        } catch (Exception $e) {
+            return new WP_Error('get_ideas_error', 'Failed to retrieve content ideas: ' . $e->getMessage(), array('status' => 500));
+        }
+    }
 }

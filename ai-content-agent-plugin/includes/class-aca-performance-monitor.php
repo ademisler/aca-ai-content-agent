@@ -35,6 +35,23 @@ class ACA_Performance_Monitor {
     ];
     
     /**
+     * Query cache storage
+     */
+    private static $query_cache = [];
+    private static $cache_enabled = true;
+    private static $cache_ttl = 300; // 5 minutes
+    private static $max_cache_size = 100;
+    
+    /**
+     * Database query optimization
+     */
+    private static $query_stats = [
+        'total_queries' => 0,
+        'cached_queries' => 0,
+        'slow_queries' => []
+    ];
+    
+    /**
      * Start performance monitoring for a specific operation
      * 
      * @param string $operation_name
@@ -453,6 +470,125 @@ class ACA_Performance_Monitor {
         ));
         
         return $result !== false ? $result : 0;
+    }
+
+    /**
+     * Cache database query result
+     * 
+     * @param string $query_hash
+     * @param mixed $result
+     * @param int $ttl
+     */
+    public static function cache_query_result($query_hash, $result, $ttl = null) {
+        if (!self::$cache_enabled) {
+            return;
+        }
+        
+        $ttl = $ttl ?: self::$cache_ttl;
+        
+        // Prevent cache from growing too large
+        if (count(self::$query_cache) >= self::$max_cache_size) {
+            // Remove oldest entries
+            $oldest_keys = array_slice(array_keys(self::$query_cache), 0, 10);
+            foreach ($oldest_keys as $key) {
+                unset(self::$query_cache[$key]);
+            }
+        }
+        
+        self::$query_cache[$query_hash] = [
+            'result' => $result,
+            'timestamp' => time(),
+            'ttl' => $ttl
+        ];
+    }
+    
+    /**
+     * Get cached query result
+     * 
+     * @param string $query_hash
+     * @return mixed|null
+     */
+    public static function get_cached_query_result($query_hash) {
+        if (!self::$cache_enabled || !isset(self::$query_cache[$query_hash])) {
+            return null;
+        }
+        
+        $cache_entry = self::$query_cache[$query_hash];
+        
+        // Check if cache entry is expired
+        if (time() - $cache_entry['timestamp'] > $cache_entry['ttl']) {
+            unset(self::$query_cache[$query_hash]);
+            return null;
+        }
+        
+        self::$query_stats['cached_queries']++;
+        return $cache_entry['result'];
+    }
+    
+    /**
+     * Generate query hash for caching
+     * 
+     * @param string $query
+     * @param array $args
+     * @return string
+     */
+    public static function generate_query_hash($query, $args = []) {
+        return md5($query . serialize($args));
+    }
+    
+    /**
+     * Monitor database query performance
+     * 
+     * @param string $query
+     * @param float $execution_time
+     * @param mixed $result
+     */
+    public static function log_query_performance($query, $execution_time, $result = null) {
+        self::$query_stats['total_queries']++;
+        
+        // Log slow queries (over 100ms)
+        if ($execution_time > 0.1) {
+            self::$query_stats['slow_queries'][] = [
+                'query' => substr($query, 0, 200) . (strlen($query) > 200 ? '...' : ''),
+                'execution_time' => round($execution_time * 1000, 2),
+                'timestamp' => time()
+            ];
+            
+            // Keep only last 20 slow queries
+            if (count(self::$query_stats['slow_queries']) > 20) {
+                array_shift(self::$query_stats['slow_queries']);
+            }
+            
+            // Log to error log if very slow (over 500ms)
+            if ($execution_time > 0.5) {
+                error_log("ACA Plugin: Slow query detected (" . round($execution_time * 1000, 2) . "ms): " . substr($query, 0, 100));
+            }
+        }
+    }
+    
+    /**
+     * Get database query statistics
+     * 
+     * @return array
+     */
+    public static function get_query_stats() {
+        return self::$query_stats;
+    }
+    
+    /**
+     * Clear query cache
+     */
+    public static function clear_query_cache() {
+        self::$query_cache = [];
+    }
+    
+    /**
+     * Enable/disable query caching
+     * 
+     * @param bool $enabled
+     */
+    public static function set_cache_enabled($enabled) {
+        self::$cache_enabled = (bool) $enabled;
     }
 }
 

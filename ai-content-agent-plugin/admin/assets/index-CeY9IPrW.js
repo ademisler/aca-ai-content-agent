@@ -10328,6 +10328,7 @@ body.toplevel_page_ai-content-agent #wpfooter {
     if (key && key.trim() !== "") {
       try {
         genAI = new GoogleGenerativeAI(key);
+        testApiHealth();
       } catch (error) {
         console.error("Failed to initialize GoogleGenerativeAI:", error);
         genAI = null;
@@ -10335,6 +10336,44 @@ body.toplevel_page_ai-content-agent #wpfooter {
     } else {
       genAI = null;
     }
+  };
+  let apiHealthStatus = {
+    isHealthy: true,
+    lastCheck: /* @__PURE__ */ new Date(),
+    errors: [],
+    responseTime: 0
+  };
+  const testApiHealth = async () => {
+    if (!genAI) return;
+    const startTime = Date.now();
+    try {
+      const model = genAI.getGenerativeModel({ model: modelConfig.fallback });
+      await model.generateContent({
+        contents: [{ role: "user", parts: [{ text: "Hello" }] }],
+        generationConfig: { maxOutputTokens: 1 }
+      });
+      apiHealthStatus = {
+        isHealthy: true,
+        lastCheck: /* @__PURE__ */ new Date(),
+        errors: [],
+        responseTime: Date.now() - startTime
+      };
+    } catch (error) {
+      apiHealthStatus = {
+        isHealthy: false,
+        lastCheck: /* @__PURE__ */ new Date(),
+        errors: [error.message || "Unknown error"],
+        responseTime: Date.now() - startTime
+      };
+    }
+  };
+  const getApiHealth = () => apiHealthStatus;
+  const modelConfig = {
+    primary: "gemini-2.0-flash",
+    fallback: "gemini-1.5-pro",
+    maxRetries: 3,
+    retryDelay: 2e3
+    // 2 seconds
   };
   const Lightbulb = ({ className, style }) => /* @__PURE__ */ jsxRuntimeExports.jsxs("svg", { xmlns: "http://www.w3.org/2000/svg", width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", className, style, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5" }),
@@ -10471,6 +10510,28 @@ body.toplevel_page_ai-content-agent #wpfooter {
     /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M18 17V9" }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M13 17V5" }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M8 17v-3" })
+  ] });
+  const Server = ({ className, style }) => /* @__PURE__ */ jsxRuntimeExports.jsxs("svg", { xmlns: "http://www.w3.org/2000/svg", width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", className, style, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "20", height: "8", x: "2", y: "2", rx: "2", ry: "2" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("rect", { width: "20", height: "8", x: "2", y: "14", rx: "2", ry: "2" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "6", x2: "6.01", y1: "6", y2: "6" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "6", x2: "6.01", y1: "18", y2: "18" })
+  ] });
+  const Database = ({ className, style }) => /* @__PURE__ */ jsxRuntimeExports.jsxs("svg", { xmlns: "http://www.w3.org/2000/svg", width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", className, style, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("ellipse", { cx: "12", cy: "5", rx: "9", ry: "3" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "m3 5 0 14c0 1.66 4.03 3 9 3s9-1.34 9-3V5" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "m3 12c0 1.66 4.03 3 9 3s9-1.34 9-3" })
+  ] });
+  const Download = ({ className, style }) => /* @__PURE__ */ jsxRuntimeExports.jsxs("svg", { xmlns: "http://www.w3.org/2000/svg", width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", className, style, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "7,10 12,15 17,10" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("line", { x1: "12", x2: "12", y1: "15", y2: "3" })
+  ] });
+  const Trash2 = ({ className, style }) => /* @__PURE__ */ jsxRuntimeExports.jsxs("svg", { xmlns: "http://www.w3.org/2000/svg", width: "24", height: "24", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", className, style, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "m3 6 3 0" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "m21 6-3 0" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "m6 6 .934 13.071A2 2 0 0 0 8.929 21h6.142a2 2 0 0 0 1.995-1.929L18 6" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "m14 6-.5-3A1.5 1.5 0 0 0 12 2h0a1.5 1.5 0 0 0-1.5 1.5L10 6" })
   ] });
   const GeminiApiWarning = ({ onNavigateToSettings }) => {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -12720,10 +12781,14 @@ body.toplevel_page_ai-content-agent #wpfooter {
     onUpdateTitle,
     onGenerateSimilar,
     onAddIdea,
+    onBulkCreateDrafts,
+    onBulkArchive,
     isLoading,
     isLoadingDraft
   }) => {
     const [newIdeaTitle, setNewIdeaTitle] = reactExports.useState("");
+    const [selectedIdeas, setSelectedIdeas] = reactExports.useState(/* @__PURE__ */ new Set());
+    const [bulkMode, setBulkMode] = reactExports.useState(false);
     const handleAddIdeaSubmit = (e) => {
       e.preventDefault();
       if (newIdeaTitle.trim()) {
@@ -13324,6 +13389,557 @@ body.toplevel_page_ai-content-agent #wpfooter {
         fontSize: "12px",
         color: "#a67c00"
       }, children: "💡 One-time purchase • Lifetime updates" })
+    ] });
+  };
+  const DebugPanel = ({ onShowToast }) => {
+    const [activeTab, setActiveTab] = reactExports.useState("system");
+    const [isLoading, setIsLoading] = reactExports.useState(false);
+    const [systemStatus, setSystemStatus] = reactExports.useState(null);
+    const [apiCalls, setApiCalls] = reactExports.useState([]);
+    const [errorLogs, setErrorLogs] = reactExports.useState([]);
+    const [performanceMetrics, setPerformanceMetrics] = reactExports.useState([]);
+    const [autoRefresh, setAutoRefresh] = reactExports.useState(false);
+    const tabs = [
+      { id: "system", title: "System Status", icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Server, { style: { width: "16px", height: "16px" } }) },
+      { id: "api", title: "API Calls", icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { style: { width: "16px", height: "16px" } }) },
+      { id: "errors", title: "Error Logs", icon: /* @__PURE__ */ jsxRuntimeExports.jsx(AlertTriangle, { style: { width: "16px", height: "16px" } }) },
+      { id: "performance", title: "Performance", icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Database, { style: { width: "16px", height: "16px" } }) }
+    ];
+    const fetchSystemStatus = async () => {
+      try {
+        const response = await fetch(`${window.acaData.api_url}debug/system-status`, {
+          headers: { "X-WP-Nonce": window.acaData.nonce }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setSystemStatus(data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch system status:", error);
+      }
+    };
+    const fetchApiCalls = async () => {
+      try {
+        const response = await fetch(`${window.acaData.api_url}debug/api-calls`, {
+          headers: { "X-WP-Nonce": window.acaData.nonce }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setApiCalls(data.calls || []);
+        }
+      } catch (error) {
+        console.error("Failed to fetch API calls:", error);
+      }
+    };
+    const fetchErrorLogs = async () => {
+      try {
+        const response = await fetch(`${window.acaData.api_url}debug/error-logs`, {
+          headers: { "X-WP-Nonce": window.acaData.nonce }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setErrorLogs(data.logs || []);
+        }
+      } catch (error) {
+        console.error("Failed to fetch error logs:", error);
+      }
+    };
+    const fetchPerformanceMetrics = async () => {
+      try {
+        const response = await fetch(`${window.acaData.api_url}debug/performance`, {
+          headers: { "X-WP-Nonce": window.acaData.nonce }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setPerformanceMetrics(data.metrics || []);
+        }
+      } catch (error) {
+        console.error("Failed to fetch performance metrics:", error);
+      }
+    };
+    const clearLogs = async (type) => {
+      if (!confirm(`Are you sure you want to clear all ${type}?`)) return;
+      try {
+        const response = await fetch(`${window.acaData.api_url}debug/clear-logs`, {
+          method: "POST",
+          headers: {
+            "X-WP-Nonce": window.acaData.nonce,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ type })
+        });
+        if (response.ok) {
+          onShowToast(`${type} cleared successfully`, "success");
+          if (type === "api") setApiCalls([]);
+          if (type === "errors") setErrorLogs([]);
+        }
+      } catch (error) {
+        console.error("Failed to clear logs:", error);
+        onShowToast("Failed to clear logs", "error");
+      }
+    };
+    const exportLogs = async (type) => {
+      try {
+        const response = await fetch(`${window.acaData.api_url}debug/export-logs`, {
+          method: "POST",
+          headers: {
+            "X-WP-Nonce": window.acaData.nonce,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ type })
+        });
+        if (response.ok) {
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `aca-${type}-logs-${(/* @__PURE__ */ new Date()).toISOString().split("T")[0]}.json`;
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+          onShowToast("Logs exported successfully", "success");
+        }
+      } catch (error) {
+        console.error("Failed to export logs:", error);
+        onShowToast("Failed to export logs", "error");
+      }
+    };
+    const refreshAll = async () => {
+      setIsLoading(true);
+      try {
+        await Promise.all([
+          fetchSystemStatus(),
+          fetchApiCalls(),
+          fetchErrorLogs(),
+          fetchPerformanceMetrics()
+        ]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    reactExports.useEffect(() => {
+      let interval;
+      if (autoRefresh) {
+        interval = setInterval(refreshAll, 3e4);
+      }
+      return () => {
+        if (interval) clearInterval(interval);
+      };
+    }, [autoRefresh]);
+    reactExports.useEffect(() => {
+      refreshAll();
+    }, []);
+    const getStatusColor = (status) => {
+      switch (status) {
+        case "healthy":
+        case "good":
+          return "#28a745";
+        case "warning":
+          return "#ffc107";
+        case "error":
+        case "critical":
+          return "#dc3545";
+        default:
+          return "#6c757d";
+      }
+    };
+    const getStatusIcon = (status) => {
+      switch (status) {
+        case "healthy":
+        case "good":
+          return /* @__PURE__ */ jsxRuntimeExports.jsx(CheckCircle, { style: { width: "16px", height: "16px", color: "#28a745" } });
+        case "warning":
+          return /* @__PURE__ */ jsxRuntimeExports.jsx(AlertTriangle, { style: { width: "16px", height: "16px", color: "#ffc107" } });
+        case "error":
+        case "critical":
+          return /* @__PURE__ */ jsxRuntimeExports.jsx(AlertTriangle, { style: { width: "16px", height: "16px", color: "#dc3545" } });
+        default:
+          return /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { style: { width: "16px", height: "16px", color: "#6c757d" } });
+      }
+    };
+    const formatBytes = (bytes) => {
+      if (bytes === 0) return "0 Bytes";
+      const k = 1024;
+      const sizes = ["Bytes", "KB", "MB", "GB"];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+    };
+    const formatDuration = (ms) => {
+      if (ms < 1e3) return `${ms}ms`;
+      return `${(ms / 1e3).toFixed(2)}s`;
+    };
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-fade-in", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+        background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
+        borderRadius: "12px",
+        padding: "30px",
+        marginBottom: "30px",
+        color: "white",
+        position: "relative",
+        overflow: "hidden"
+      }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { position: "relative", zIndex: 2 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { style: { fontSize: "28px", fontWeight: "700", margin: "0 0 8px 0" }, children: "Debug Panel" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "16px", opacity: 0.9, margin: 0 }, children: "System monitoring and debugging tools" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "12px", alignItems: "center" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { style: { display: "flex", alignItems: "center", gap: "8px", fontSize: "14px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "checkbox",
+                checked: autoRefresh,
+                onChange: (e) => setAutoRefresh(e.target.checked),
+                style: { accentColor: "white" }
+              }
+            ),
+            "Auto Refresh"
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              onClick: refreshAll,
+              disabled: isLoading,
+              style: {
+                background: "rgba(255,255,255,0.2)",
+                border: "1px solid rgba(255,255,255,0.3)",
+                borderRadius: "8px",
+                padding: "8px 16px",
+                color: "white",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px"
+              },
+              children: [
+                isLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { style: { width: "16px", height: "16px" } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { style: { width: "16px", height: "16px" } }),
+                "Refresh"
+              ]
+            }
+          )
+        ] })
+      ] }) }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", borderBottom: "1px solid #e1e5e9", marginBottom: "30px" }, children: tabs.map((tab) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "button",
+        {
+          onClick: () => setActiveTab(tab.id),
+          style: {
+            padding: "12px 24px",
+            border: "none",
+            background: "none",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            borderBottom: activeTab === tab.id ? "2px solid #0073aa" : "2px solid transparent",
+            color: activeTab === tab.id ? "#0073aa" : "#666",
+            fontWeight: activeTab === tab.id ? "600" : "400"
+          },
+          children: [
+            tab.icon,
+            tab.title
+          ]
+        },
+        tab.id
+      )) }),
+      activeTab === "system" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { style: { marginBottom: "20px", display: "flex", alignItems: "center", gap: "8px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Server, { style: { width: "20px", height: "20px" } }),
+          "System Status"
+        ] }),
+        systemStatus ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "20px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { children: "Environment" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "8px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "PHP Version:" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: systemStatus.php_version })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "WordPress:" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: systemStatus.wordpress_version })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Plugin Version:" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: systemStatus.plugin_version })
+              ] })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { children: "Resources" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "8px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Memory Limit:" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: systemStatus.memory_limit })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Memory Usage:" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: systemStatus.memory_usage })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Max Execution:" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("strong", { children: [
+                  systemStatus.max_execution_time,
+                  "s"
+                ] })
+              ] })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { children: "Services" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "8px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "WP Cron:" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "4px" }, children: [
+                  getStatusIcon(systemStatus.wp_cron_enabled ? "healthy" : "error"),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: systemStatus.wp_cron_enabled ? "Enabled" : "Disabled" })
+                ] })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Database:" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "4px" }, children: [
+                  getStatusIcon(systemStatus.database_status),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { style: { textTransform: "capitalize" }, children: systemStatus.database_status })
+                ] })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "API Endpoints:" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "4px" }, children: [
+                  getStatusIcon(systemStatus.api_endpoints_status),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { style: { textTransform: "capitalize" }, children: systemStatus.api_endpoints_status })
+                ] })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Gemini API:" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", alignItems: "center", gap: "4px" }, children: (() => {
+                  const apiHealth = getApiHealth();
+                  const status = apiHealth.isHealthy ? "healthy" : "error";
+                  return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                    getStatusIcon(status),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { style: { textTransform: "capitalize" }, children: apiHealth.isHealthy ? "Healthy" : "Unhealthy" }),
+                    apiHealth.responseTime > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { fontSize: "11px", color: "#666", marginLeft: "4px" }, children: [
+                      "(",
+                      apiHealth.responseTime,
+                      "ms)"
+                    ] })
+                  ] });
+                })() })
+              ] })
+            ] })
+          ] })
+        ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { textAlign: "center", padding: "40px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { style: { width: "32px", height: "32px" } }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Loading system status..." })
+        ] })
+      ] }),
+      activeTab === "api" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { style: { margin: 0, display: "flex", alignItems: "center", gap: "8px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { style: { width: "20px", height: "20px" } }),
+            "API Call Logs (",
+            apiCalls.length,
+            ")"
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "8px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                onClick: () => exportLogs("api"),
+                style: {
+                  padding: "6px 12px",
+                  border: "1px solid #0073aa",
+                  background: "white",
+                  color: "#0073aa",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "4px",
+                  fontSize: "12px"
+                },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { style: { width: "12px", height: "12px" } }),
+                  "Export"
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                onClick: () => clearLogs("api"),
+                style: {
+                  padding: "6px 12px",
+                  border: "1px solid #dc3545",
+                  background: "white",
+                  color: "#dc3545",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "4px",
+                  fontSize: "12px"
+                },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { style: { width: "12px", height: "12px" } }),
+                  "Clear"
+                ]
+              }
+            )
+          ] })
+        ] }),
+        apiCalls.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { overflowX: "auto" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { style: { width: "100%", borderCollapse: "collapse" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { style: { borderBottom: "1px solid #e1e5e9" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { padding: "8px", textAlign: "left", fontSize: "12px", fontWeight: "600" }, children: "Time" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { padding: "8px", textAlign: "left", fontSize: "12px", fontWeight: "600" }, children: "Endpoint" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { padding: "8px", textAlign: "left", fontSize: "12px", fontWeight: "600" }, children: "Method" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { padding: "8px", textAlign: "left", fontSize: "12px", fontWeight: "600" }, children: "Duration" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { padding: "8px", textAlign: "left", fontSize: "12px", fontWeight: "600" }, children: "Status" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { padding: "8px", textAlign: "left", fontSize: "12px", fontWeight: "600" }, children: "Size" })
+          ] }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: apiCalls.slice(0, 50).map((call) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { style: { borderBottom: "1px solid #f1f3f4" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { padding: "8px", fontSize: "11px", color: "#666" }, children: new Date(call.timestamp).toLocaleTimeString() }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { padding: "8px", fontSize: "11px", fontFamily: "monospace" }, children: call.endpoint }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { padding: "8px", fontSize: "11px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: {
+              padding: "2px 6px",
+              borderRadius: "3px",
+              background: call.method === "GET" ? "#e3f2fd" : "#fff3e0",
+              color: call.method === "GET" ? "#1976d2" : "#f57c00",
+              fontSize: "10px"
+            }, children: call.method }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { padding: "8px", fontSize: "11px" }, children: formatDuration(call.duration) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { padding: "8px", fontSize: "11px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: {
+              color: call.status >= 400 ? "#dc3545" : call.status >= 300 ? "#ffc107" : "#28a745"
+            }, children: call.status }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { padding: "8px", fontSize: "11px" }, children: formatBytes(call.response_size) })
+          ] }, call.id)) })
+        ] }) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { textAlign: "center", padding: "40px", color: "#666" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { style: { width: "48px", height: "48px", opacity: 0.3, margin: "0 auto 16px" } }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "No API calls recorded yet" })
+        ] })
+      ] }),
+      activeTab === "errors" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { style: { margin: 0, display: "flex", alignItems: "center", gap: "8px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(AlertTriangle, { style: { width: "20px", height: "20px" } }),
+            "Error Logs (",
+            errorLogs.length,
+            ")"
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "8px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                onClick: () => exportLogs("errors"),
+                style: {
+                  padding: "6px 12px",
+                  border: "1px solid #0073aa",
+                  background: "white",
+                  color: "#0073aa",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "4px",
+                  fontSize: "12px"
+                },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { style: { width: "12px", height: "12px" } }),
+                  "Export"
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                onClick: () => clearLogs("errors"),
+                style: {
+                  padding: "6px 12px",
+                  border: "1px solid #dc3545",
+                  background: "white",
+                  color: "#dc3545",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "4px",
+                  fontSize: "12px"
+                },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { style: { width: "12px", height: "12px" } }),
+                  "Clear"
+                ]
+              }
+            )
+          ] })
+        ] }),
+        errorLogs.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", flexDirection: "column", gap: "12px" }, children: errorLogs.slice(0, 20).map((log) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "div",
+          {
+            style: {
+              padding: "12px",
+              border: `1px solid ${getStatusColor(log.level)}40`,
+              borderRadius: "6px",
+              background: `${getStatusColor(log.level)}10`
+            },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "8px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
+                  getStatusIcon(log.level),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: {
+                    fontSize: "11px",
+                    fontWeight: "600",
+                    textTransform: "uppercase",
+                    color: getStatusColor(log.level)
+                  }, children: log.level })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "11px", color: "#666" }, children: new Date(log.timestamp).toLocaleString() })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: "0 0 8px 0", fontSize: "13px", lineHeight: "1.4" }, children: log.message }),
+              log.file && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: "11px", color: "#666", fontFamily: "monospace" }, children: [
+                log.file,
+                log.line && `:${log.line}`
+              ] })
+            ]
+          },
+          log.id
+        )) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { textAlign: "center", padding: "40px", color: "#666" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(CheckCircle, { style: { width: "48px", height: "48px", opacity: 0.3, margin: "0 auto 16px", color: "#28a745" } }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "No errors recorded - System running smoothly!" })
+        ] })
+      ] }),
+      activeTab === "performance" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-card", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { style: { marginBottom: "20px", display: "flex", alignItems: "center", gap: "8px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Database, { style: { width: "20px", height: "20px" } }),
+          "Performance Metrics"
+        ] }),
+        performanceMetrics.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "16px" }, children: performanceMetrics.map((metric, index) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "div",
+          {
+            style: {
+              padding: "16px",
+              border: `1px solid ${getStatusColor(metric.status)}40`,
+              borderRadius: "8px",
+              background: `${getStatusColor(metric.status)}10`
+            },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { margin: 0, fontSize: "14px" }, children: metric.name }),
+                getStatusIcon(metric.status)
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: "24px", fontWeight: "bold", color: getStatusColor(metric.status), marginBottom: "4px" }, children: [
+                metric.value,
+                metric.unit
+              ] }),
+              metric.description && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: 0, fontSize: "12px", color: "#666" }, children: metric.description })
+            ]
+          },
+          index
+        )) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { textAlign: "center", padding: "40px", color: "#666" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Database, { style: { width: "48px", height: "48px", opacity: 0.3, margin: "0 auto 16px" } }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "No performance metrics available" })
+        ] })
+      ] })
     ] });
   };
   const RadioCard = ({ id, title, description, currentSelection, onChange, disabled = false, proBadge = false }) => {
@@ -14641,100 +15257,132 @@ body.toplevel_page_ai-content-agent #wpfooter {
           /* @__PURE__ */ jsxRuntimeExports.jsx(Settings, { style: { width: "20px", height: "20px", color: "#8b5cf6" } }),
           "Content Analysis Frequency"
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
           padding: "20px",
           backgroundColor: "#f8fafc",
           borderRadius: "8px",
           border: "1px solid #e2e8f0"
-        }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: {
-            display: "block",
-            fontSize: "14px",
-            fontWeight: "500",
-            color: "#374151",
-            marginBottom: "8px"
-          }, children: "Analysis Frequency" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "select",
-            {
-              value: currentSettings.analyzeContentFrequency || "manual",
-              onChange: (e) => handleSettingChange("analyzeContentFrequency", e.target.value),
-              className: "aca-input",
-              style: { width: "100%" },
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "manual", children: "Manual - Analyze only when requested" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "daily", children: "Daily - Analyze content every day" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "weekly", children: "Weekly - Analyze content every week" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "monthly", children: "Monthly - Analyze content every month" })
-              ]
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: {
-            color: "#64748b",
-            fontSize: "12px",
-            margin: "8px 0 0 0",
-            lineHeight: "1.4"
-          }, children: "How often should the AI analyze your content for improvements and SEO optimization?" })
-        ] })
-      ] })
-    ] });
-    const renderAdvancedContent = () => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "#64748b", fontSize: "16px", margin: "0 0 30px 0", lineHeight: "1.5" }, children: "Advanced debugging tools and developer information." }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
-        padding: "16px",
-        backgroundColor: "#fff3cd",
-        border: "1px solid #ffeaa7",
-        borderRadius: "8px",
-        marginBottom: "30px"
-      }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { margin: "0 0 8px 0", color: "#856404" }, children: "🔧 Developer Information" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: "0", fontSize: "14px", color: "#856404" }, children: "These tools are for debugging and testing purposes. Use with caution in production environments." })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gap: "16px" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "button",
-          {
-            onClick: () => {
-              console.log("Checking automation status...");
-              onShowToast?.("Automation status checked - see console for details", "info");
-            },
-            style: {
-              padding: "12px 16px",
-              backgroundColor: "#6366f1",
-              color: "white",
-              border: "none",
-              borderRadius: "6px",
+        }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "1fr 200px", gap: "20px", alignItems: "start" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: {
+              display: "block",
               fontSize: "14px",
               fontWeight: "500",
-              cursor: "pointer",
-              textAlign: "left"
-            },
-            children: "🔍 Check Automation Status"
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "button",
-          {
-            onClick: () => {
-              console.log("Testing semi-auto cron...");
-              onShowToast?.("Semi-auto cron test initiated - see console for details", "info");
-            },
-            style: {
-              padding: "12px 16px",
-              backgroundColor: "#059669",
-              color: "white",
-              border: "none",
-              borderRadius: "6px",
+              color: "#374151",
+              marginBottom: "8px"
+            }, children: "Analysis Frequency" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "select",
+              {
+                value: currentSettings.analyzeContentFrequency || "manual",
+                onChange: (e) => handleSettingChange("analyzeContentFrequency", e.target.value),
+                className: "aca-input",
+                style: { width: "100%" },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "manual", children: "Manual - Analyze only when requested" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "daily", children: "Daily - Analyze content every day" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "weekly", children: "Weekly - Analyze content every week" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "monthly", children: "Monthly - Analyze content every month" })
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: {
+              color: "#64748b",
+              fontSize: "12px",
+              margin: "8px 0 0 0",
+              lineHeight: "1.4"
+            }, children: "How often should the AI analyze your content for improvements and SEO optimization?" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: {
+              display: "block",
               fontSize: "14px",
               fontWeight: "500",
-              cursor: "pointer",
-              textAlign: "left"
-            },
-            children: "⚡ Test Semi-Auto Cron"
-          }
-        )
+              color: "#374151",
+              marginBottom: "8px"
+            }, children: "Manual Actions" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "8px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "button",
+                {
+                  onClick: async () => {
+                    if (!isProActive()) {
+                      onShowToast?.("Content analysis requires a Pro license", "warning");
+                      return;
+                    }
+                    try {
+                      const response = await fetch(`${window.acaData.api_url}content-freshness/analyze-all`, {
+                        method: "POST",
+                        headers: { "X-WP-Nonce": window.acaData.nonce }
+                      });
+                      if (response.ok) {
+                        onShowToast?.("Content analysis started successfully", "success");
+                      } else {
+                        throw new Error("Analysis failed");
+                      }
+                    } catch (error) {
+                      onShowToast?.("Failed to start content analysis", "error");
+                    }
+                  },
+                  style: {
+                    padding: "8px 12px",
+                    backgroundColor: "#0073aa",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "4px",
+                    fontSize: "12px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "4px"
+                  },
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { style: { width: "12px", height: "12px" } }),
+                    "Analyze Now"
+                  ]
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "button",
+                {
+                  onClick: async () => {
+                    try {
+                      const response = await fetch(`${window.acaData.api_url}debug/cron-status`, {
+                        headers: { "X-WP-Nonce": window.acaData.nonce }
+                      });
+                      if (response.ok) {
+                        const data = await response.json();
+                        onShowToast?.(`Last analysis: ${data.last_run || "Never"}`, "info");
+                      }
+                    } catch (error) {
+                      onShowToast?.("Failed to get analysis status", "error");
+                    }
+                  },
+                  style: {
+                    padding: "8px 12px",
+                    backgroundColor: "#6b7280",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "4px",
+                    fontSize: "12px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "4px"
+                  },
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { style: { width: "12px", height: "12px" } }),
+                    "Check Status"
+                  ]
+                }
+              )
+            ] })
+          ] })
+        ] }) })
       ] })
     ] });
+    const renderAdvancedContent = () => /* @__PURE__ */ jsxRuntimeExports.jsx(DebugPanel, { onShowToast: onShowToast || (() => {
+    }) });
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "0", maxWidth: "100%" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
         marginBottom: "30px",

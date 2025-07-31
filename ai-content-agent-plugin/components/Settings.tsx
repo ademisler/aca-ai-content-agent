@@ -132,13 +132,8 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
     }>({status: 'inactive', is_active: false});
     const [isVerifyingLicense, setIsVerifyingLicense] = useState(false);
     const [isLoadingLicenseStatus, setIsLoadingLicenseStatus] = useState(true);
-    const [collapsedSections, setCollapsedSections] = useState<{[key: string]: boolean}>({
-        license: false, // License section always open by default
-        automation: true,
-        integrations: true,
-        content: true,
-        advanced: true
-    });
+    // Active tab state for vertical tab navigation
+    const [activeTab, setActiveTab] = useState<string>('license');
 
     // Load license status on component mount
     useEffect(() => {
@@ -164,30 +159,7 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
     // Open specific section if requested
     useEffect(() => {
         if (openSection) {
-            setCollapsedSections(prev => ({
-                ...prev,
-                [openSection]: false
-            }));
-            
-            // Scroll to the section after a short delay to ensure it's rendered
-            setTimeout(() => {
-                const sectionElement = document.getElementById(`section-content-${openSection}`);
-                if (sectionElement) {
-                    // Scroll to the parent card for better visibility
-                    const parentCard = sectionElement.closest('.aca-card');
-                    if (parentCard) {
-                        parentCard.scrollIntoView({ 
-                            behavior: 'smooth', 
-                            block: 'start' 
-                        });
-                    } else {
-                        sectionElement.scrollIntoView({ 
-                            behavior: 'smooth', 
-                            block: 'start' 
-                        });
-                    }
-                }
-            }, 300);
+            setActiveTab(openSection);
         }
     }, [openSection]);
 
@@ -532,166 +504,50 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
         }, 700);
     };
 
-    const toggleSection = (sectionKey: string) => {
-        const mainContainer = document.getElementById('root');
-        if (!mainContainer) {
-            // Fallback: Eğer #root bulunamazsa eski mantığı dene
-            const fallbackContainer = document.querySelector('.aca-main');
-            if (fallbackContainer) {
-                setCollapsedSections(prev => ({
-                    ...prev,
-                    [sectionKey]: !prev[sectionKey]
-                }));
-            }
-            return;
+    // Tab definitions with icons and descriptions
+    const tabs = [
+        {
+            id: 'license',
+            title: 'License & Pro Features',
+            description: 'Manage your Pro license and unlock advanced features',
+            icon: <Shield style={{ width: '18px', height: '18px', color: 'white' }} />
+        },
+        {
+            id: 'automation',
+            title: 'Automation Mode',
+            description: 'Configure content generation and publishing automation',
+            icon: <Zap style={{ width: '18px', height: '18px', color: 'white' }} />
+        },
+        {
+            id: 'integrations',
+            title: 'Integrations & Services',
+            description: 'Connect external services and APIs',
+            icon: <Settings as SettingsIcon style={{ width: '18px', height: '18px', color: 'white' }} />
+        },
+        {
+            id: 'content',
+            title: 'Content & SEO Settings',
+            description: 'Configure content generation and SEO optimization',
+            icon: <Image style={{ width: '18px', height: '18px', color: 'white' }} />
+        },
+        {
+            id: 'advanced',
+            title: 'Advanced Settings',
+            description: 'Developer tools and advanced configuration',
+            icon: <Settings as SettingsIcon style={{ width: '18px', height: '18px', color: 'white' }} />
         }
+    ];
 
-        const wasCollapsed = collapsedSections[sectionKey] ?? true;
-        
-        // Açma işlemi sırasında kaymayı önlemek için
-        if (wasCollapsed) {
-            // Mevcut scroll pozisyonunu sakla
-            const currentScrollTop = mainContainer.scrollTop;
-
-            // Animasyon sırasında smooth scroll'u devre dışı bırak
-            mainContainer.classList.add('no-smooth-scroll');
-
-            // State'i güncelle ve bölümün açılmasını tetikle
-            setCollapsedSections(prev => ({
-                ...prev,
-                [sectionKey]: false
-            }));
-
-            // Agresif scroll pozisyon koruması - transition süresi boyunca
-            const preserveScrollPosition = () => {
-                mainContainer.scrollTop = currentScrollTop;
-            };
-
-            // Hemen pozisyonu koru
-            preserveScrollPosition();
-
-            // Transition süresi boyunca (400ms) pozisyonu koru
-            const intervals = [];
-            for (let i = 0; i <= 20; i++) {
-                intervals.push(setTimeout(preserveScrollPosition, i * 20));
-            }
-
-            // Transition bitince temizle
-            setTimeout(() => {
-                intervals.forEach(clearTimeout);
-                mainContainer.classList.remove('no-smooth-scroll');
-            }, 450);
-
-        } else {
-            // Kapatma işleminde animasyon normal çalışır
-            setCollapsedSections(prev => ({
-                ...prev,
-                [sectionKey]: true
-            }));
+    // Get gradient color for each tab
+    const getGradientColor = (tabId: string) => {
+        switch (tabId) {
+            case 'license': return 'linear-gradient(135deg, #3b82f6, #1d4ed8)'; // Blue
+            case 'automation': return 'linear-gradient(135deg, #f59e0b, #d97706)'; // Orange
+            case 'integrations': return 'linear-gradient(135deg, #10b981, #059669)'; // Green
+            case 'content': return 'linear-gradient(135deg, #8b5cf6, #7c3aed)'; // Purple
+            case 'advanced': return 'linear-gradient(135deg, #ef4444, #dc2626)'; // Red
+            default: return 'linear-gradient(135deg, #6b7280, #4b5563)'; // Gray
         }
-    };
-
-    const CollapsibleSection: React.FC<{
-        id: string;
-        title: string;
-        description: string;
-        icon: React.ReactNode;
-        children: React.ReactNode;
-        defaultOpen?: boolean;
-    }> = ({ id, title, description, icon, children, defaultOpen = false }) => {
-        const isCollapsed = collapsedSections[id] ?? !defaultOpen;
-        
-        // Different gradient colors for each section
-        const getGradientColor = (sectionId: string) => {
-            switch (sectionId) {
-                case 'license': return 'linear-gradient(135deg, #3b82f6, #1d4ed8)'; // Blue
-                case 'automation': return 'linear-gradient(135deg, #f59e0b, #d97706)'; // Orange
-                case 'integrations': return 'linear-gradient(135deg, #10b981, #059669)'; // Green
-                case 'content': return 'linear-gradient(135deg, #8b5cf6, #7c3aed)'; // Purple
-                case 'advanced': return 'linear-gradient(135deg, #ef4444, #dc2626)'; // Red
-                default: return 'linear-gradient(135deg, #6b7280, #4b5563)'; // Gray
-            }
-        };
-        
-        return (
-            <div className="aca-card" style={{ 
-                background: 'linear-gradient(145deg, #fefefe 0%, #f8f9fa 100%)',
-                border: '1px solid #e2e8f0',
-                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                marginBottom: '20px'
-            }}>
-                <div 
-                    className="aca-card-header" 
-                    style={{ 
-                        borderBottom: isCollapsed ? 'none' : '1px solid #e2e8f0', 
-                        paddingBottom: '15px',
-                        cursor: 'pointer',
-                        userSelect: 'none'
-                    }}
-                    onClick={() => toggleSection(id)}
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            toggleSection(id);
-                        }
-                    }}
-                    tabIndex={0}
-                    role="button"
-                    aria-expanded={!isCollapsed}
-                    aria-controls={`section-content-${id}`}
-                    aria-label={`Toggle ${title} section`}
-                >
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <h2 className="aca-card-title" style={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            gap: '8px',
-                            color: '#1e293b',
-                            margin: 0
-                        }}>
-                            <div style={{ 
-                                width: '32px', 
-                                height: '32px', 
-                                background: getGradientColor(id),
-                                borderRadius: '8px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center'
-                            }}>
-                                {icon}
-                            </div>
-                            {title}
-                        </h2>
-                        <div style={{
-                            transform: isCollapsed ? 'rotate(0deg)' : 'rotate(180deg)',
-                            transition: 'transform 0.2s ease',
-                            fontSize: '20px',
-                            color: '#64748b'
-                        }}>
-                            ▼
-                        </div>
-                    </div>
-                    <p style={{ margin: '8px 0 0 0', color: '#64748b', fontSize: '14px' }}>
-                        {description}
-                    </p>
-                </div>
-                <div 
-                    id={`section-content-${id}`}
-                    style={{ 
-                        maxHeight: isCollapsed ? '0' : '1000px',
-                        opacity: isCollapsed ? 0 : 1,
-                        overflow: isCollapsed ? 'hidden' : 'auto',
-                        transition: 'max-height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.3s ease, padding 0.4s ease',
-                        padding: isCollapsed ? '0 0 0 0' : '20px 0 0 0'
-                    }}
-                    aria-hidden={isCollapsed}
-                >
-                    <div style={{ padding: isCollapsed ? '0' : '0' }}>
-                        {children}
-                    </div>
-                </div>
-            </div>
-        );
     };
     
     const isImageSourceConfigured = currentSettings.imageSourceProvider === 'ai' ||

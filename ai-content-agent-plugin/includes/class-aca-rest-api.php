@@ -4253,6 +4253,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
     }
 
     public function get_content_ideas($request) {
+        global $wpdb;
         try {
             $per_page = $request->get_param('per_page') ?: 10;
             $page = $request->get_param('page') ?: 1;

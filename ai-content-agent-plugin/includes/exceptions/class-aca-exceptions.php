@@ -593,7 +593,10 @@ class ACA_Exception_Handler {
         ];
         
         foreach ($tables as $table) {
-            $wpdb->query("REPAIR TABLE {$table}");
+            $result = $wpdb->query("REPAIR TABLE {$table}");
+            if ($result === false) {
+                error_log("ACA Plugin: Failed to repair table $table. Error: " . $wpdb->last_error);
+            }
         }
     }
     

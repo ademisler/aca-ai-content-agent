@@ -123,11 +123,22 @@ class ACA_Activator {
             error_log('ACA Plugin: WordPress upgrade.php not found at ' . $upgrade_file);
             return;
         }
-        dbDelta($sql_ideas);
-        dbDelta($sql_logs);
-        dbDelta($sql_content_updates);
-        dbDelta($sql_content_freshness);
-        dbDelta($sql_error_logs);
+        $tables = [
+            'aca_ideas' => $sql_ideas,
+            'aca_activity_logs' => $sql_logs,
+            'aca_content_updates' => $sql_content_updates,
+            'aca_content_freshness' => $sql_content_freshness,
+            'aca_error_logs' => $sql_error_logs
+        ];
+        
+        foreach ($tables as $table_name => $sql) {
+            $result = dbDelta($sql);
+            if (empty($result)) {
+                error_log("ACA Plugin: Failed to create/update table $table_name");
+            } else {
+                error_log("ACA Plugin: Successfully created/updated table $table_name");
+            }
+        }
         
         // Create additional indexes if they don't exist
         self::ensure_database_indexes();
@@ -191,7 +202,10 @@ class ACA_Activator {
             
             if (!$index_exists) {
                 $sql = "ALTER TABLE `$table` ADD $type `$index_name` ($columns)";
-                $wpdb->query($sql);
+                $result = $wpdb->query($sql);
+                if ($result === false) {
+                    error_log("ACA Plugin: Failed to add index $index_name to table $table. Error: " . $wpdb->last_error);
+                }
             }
         }
     }

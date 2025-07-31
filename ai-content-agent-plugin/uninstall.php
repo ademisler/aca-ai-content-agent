@@ -39,7 +39,10 @@ foreach ($tables_to_drop as $table) {
     // Validate table name format for security (WordPress doesn't support table name placeholders)
     $table_name = sanitize_text_field($table);
     if (preg_match('/^[a-zA-Z0-9_]+$/', $table_name) && strpos($table_name, $wpdb->prefix . 'aca_') === 0) {
-        $wpdb->query("DROP TABLE IF EXISTS `{$table_name}`");
+        $result = $wpdb->query("DROP TABLE IF EXISTS `{$table_name}`");
+        if ($result === false) {
+            error_log("ACA Plugin: Failed to drop table $table_name during uninstall. Error: " . $wpdb->last_error);
+        }
     }
 }
 
@@ -53,6 +56,9 @@ $wpdb->delete(
 );
 
 // Clean up any remaining plugin data using prepared statement
-$wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->options} WHERE option_name LIKE %s", 'aca_%'));
+$result = $wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->options} WHERE option_name LIKE %s", 'aca_%'));
+if ($result === false) {
+    error_log("ACA Plugin: Failed to clean up options during uninstall. Error: " . $wpdb->last_error);
+}
 
 error_log('ACA: Plugin completely uninstalled and all data removed');

@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [2.3.8-enterprise] - 2024-12-31 🚀
+## [2.3.8-enterprise] - 2025-07-31 🚀
 
 ### 🎉 **MAJOR MILESTONE - ENTERPRISE EDITION RELEASE**
 

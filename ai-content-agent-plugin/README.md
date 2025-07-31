@@ -154,12 +154,27 @@ releases/archive/ai-content-agent-v2.1.x-*.zip
 
 ## 📚 Documentation
 
-- **AI Image Setup**: `AI_IMAGE_GENERATION_SETUP.md` - Complete guide for Google Imagen 3.0 integration
-- **GSC Setup Guide**: `GOOGLE_SEARCH_CONSOLE_SETUP.md` - Complete GSC integration guide
-- **Developer Guide**: `DEVELOPER_GUIDE.md` - Comprehensive development and deployment guide
-- **SEO Integration**: `SEO_INTEGRATION_GUIDE.md` - Complete SEO plugin integration guide
-- **Release Management**: `RELEASES.md` - Release organization and management
-- **Changelog**: `CHANGELOG.md` - Detailed version history
+Comprehensive documentation is now organized in the [`docs/`](docs/) directory:
+
+### 🎯 User Guides
+- **[Content Creation Guide](docs/user-guides/content-creation.md)** - Complete content creation workflow
+- **[Multilingual Features](docs/user-guides/multilingual.md)** - Language detection and multilingual content
+
+### 🛠️ Setup & Configuration
+- **[Google Search Console Setup](docs/setup/google-search-console.md)** - Complete GSC integration guide
+- **[AI Image Generation Setup](docs/setup/ai-image-generation.md)** - Google Imagen 3.0 integration
+- **[SEO Integration Setup](docs/setup/seo-integration.md)** - SEO plugin integration guide
+
+### 🔧 Developer Documentation
+- **[Development Guide](docs/developer/development-guide.md)** - Comprehensive development guide
+- **[Build Process](docs/developer/build-process.md)** - Build and deployment instructions
+
+### 📖 Reference
+- **[Changelog](docs/reference/CHANGELOG.md)** - Detailed version history
+- **[Release Notes](docs/reference/RELEASES.md)** - Release management and notes
+- **[Plugin Improvement Ideas](docs/reference/improvement-ideas.md)** - Future development roadmap
+
+**📋 [Complete Documentation Index](docs/README.md)** - Browse all available documentation
 
 ## 🐛 Troubleshooting
 

@@ -23,12 +23,17 @@ class ACA_SEO_Optimizer {
      * Initialize SEO optimization
      */
     public function __construct() {
-        add_action('wp_head', [$this, 'add_structured_data']);
-        add_action('wp_head', [$this, 'add_meta_tags']);
-        add_action('wp_head', [$this, 'add_core_web_vitals_monitoring']);
-        add_filter('wp_title', [$this, 'optimize_title'], 10, 2);
-        add_filter('the_content', [$this, 'optimize_content']);
-        add_action('wp_footer', [$this, 'add_schema_markup']);
+        // Only load frontend hooks if not in admin
+        if (!is_admin()) {
+            add_action('wp_head', [$this, 'add_structured_data']);
+            add_action('wp_head', [$this, 'add_meta_tags']);
+            add_action('wp_head', [$this, 'add_core_web_vitals_monitoring']);
+            add_filter('wp_title', [$this, 'optimize_title'], 10, 2);
+            add_filter('the_content', [$this, 'optimize_content']);
+            add_action('wp_footer', [$this, 'add_schema_markup']);
+        }
+        
+        // Sitemap generation only when needed
         add_action('init', [$this, 'generate_sitemap']);
     }
     

@@ -17,7 +17,7 @@ if (!defined('ABSPATH')) {
 /**
  * Optimized File Manager
  */
-class ACA_File_Manager {
+class ACA_File_Manager implements ACA_Cleanup_Interface {
     
     /**
      * File cache storage
@@ -316,6 +316,21 @@ class ACA_File_Manager {
             'slow_operations_count' => count(self::$file_stats['slow_operations']),
             'cache_entries' => count(self::$file_cache),
             'cache_enabled' => self::$cache_enabled
+        ];
+    }
+
+    /**
+     * Get cleanup status
+     * 
+     * @return array
+     */
+    public static function get_cleanup_status() {
+        return [
+            "cache_entries" => count(self::$file_cache),
+            "total_reads" => self::$file_stats["total_reads"],
+            "cached_reads" => self::$file_stats["cached_reads"],
+            "slow_operations" => count(self::$file_stats["slow_operations"]),
+            "cache_enabled" => self::$cache_enabled
         ];
     }
 }

@@ -50,6 +50,17 @@ if (file_exists($autoloader_path)) {
 // Note: is_aca_pro_active() function is defined in includes/class-aca-licensing.php
 
 // Load optimization managers for better performance
+// Load interfaces first
+if (file_exists(ACA_PLUGIN_DIR . "includes/interfaces/class-aca-cache-interface.php")) {
+    require_once ACA_PLUGIN_DIR . "includes/interfaces/class-aca-cache-interface.php";
+}
+if (file_exists(ACA_PLUGIN_DIR . "includes/interfaces/class-aca-performance-interface.php")) {
+    require_once ACA_PLUGIN_DIR . "includes/interfaces/class-aca-performance-interface.php";
+}
+if (file_exists(ACA_PLUGIN_DIR . "includes/interfaces/class-aca-cleanup-interface.php")) {
+    require_once ACA_PLUGIN_DIR . "includes/interfaces/class-aca-cleanup-interface.php";
+}
+
 if (file_exists(ACA_PLUGIN_DIR . 'includes/class-aca-file-manager.php')) {
     require_once ACA_PLUGIN_DIR . 'includes/class-aca-file-manager.php';
 }

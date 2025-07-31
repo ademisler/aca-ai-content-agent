@@ -10,6 +10,11 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Ensure ACA_PLUGIN_PATH is defined
+if (!defined('ACA_PLUGIN_PATH')) {
+    define('ACA_PLUGIN_PATH', plugin_dir_path(__FILE__));
+}
+
 class ACA_Dependencies_Installer {
     
     public function __construct() {

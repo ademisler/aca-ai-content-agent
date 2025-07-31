@@ -721,7 +721,8 @@ class ACA_SEO_Optimizer {
 add_action('wp_ajax_aca_log_core_web_vitals', 'aca_log_core_web_vitals');
 add_action('wp_ajax_nopriv_aca_log_core_web_vitals', 'aca_log_core_web_vitals');
 
-function aca_log_core_web_vitals() {
+if (!function_exists('aca_log_core_web_vitals')) {
+    function aca_log_core_web_vitals() {
     if (!wp_verify_nonce($_POST['nonce'], 'aca_cwv_nonce')) {
         wp_die('Security check failed');
     }
@@ -761,6 +762,7 @@ function aca_log_core_web_vitals() {
     );
     
     wp_die();
+    }
 }
 
 // Initialize SEO optimizer when WordPress is ready

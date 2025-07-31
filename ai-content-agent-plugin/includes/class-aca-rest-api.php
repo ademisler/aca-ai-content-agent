@@ -23,6 +23,11 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Ensure ACA_PLUGIN_PATH is defined
+if (!defined('ACA_PLUGIN_PATH')) {
+    define('ACA_PLUGIN_PATH', plugin_dir_path(dirname(__FILE__)));
+}
+
 /**
  * Main REST API class for AI Content Agent
  * 

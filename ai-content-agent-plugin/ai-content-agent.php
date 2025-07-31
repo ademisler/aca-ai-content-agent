@@ -21,12 +21,22 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Define plugin constants
-define('ACA_VERSION', '2.3.14');
-define('ACA_PLUGIN_DIR', plugin_dir_path(__FILE__));
-define('ACA_PLUGIN_URL', plugin_dir_url(__FILE__));
-define('ACA_PLUGIN_FILE', __FILE__);
-define('ACA_PLUGIN_PATH', plugin_dir_path(__FILE__)); // CRITICAL FIX: Missing constant
+// Define plugin constants with safety checks
+if (!defined('ACA_VERSION')) {
+    define('ACA_VERSION', '2.3.14');
+}
+if (!defined('ACA_PLUGIN_DIR')) {
+    define('ACA_PLUGIN_DIR', plugin_dir_path(__FILE__));
+}
+if (!defined('ACA_PLUGIN_URL')) {
+    define('ACA_PLUGIN_URL', plugin_dir_url(__FILE__));
+}
+if (!defined('ACA_PLUGIN_FILE')) {
+    define('ACA_PLUGIN_FILE', __FILE__);
+}
+if (!defined('ACA_PLUGIN_PATH')) {
+    define('ACA_PLUGIN_PATH', plugin_dir_path(__FILE__));
+}
 
 // CRITICAL FIX: Load Composer autoloader to prevent fatal errors
 $autoloader_path = ACA_PLUGIN_DIR . 'vendor/autoload.php';

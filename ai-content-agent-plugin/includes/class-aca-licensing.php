@@ -398,25 +398,29 @@ new ACA_Licensing();
 /**
  * Global function to check Pro status (backward compatibility)
  */
-function is_aca_pro_active() {
-    static $licensing = null;
-    
-    if ($licensing === null) {
-        $licensing = new ACA_Licensing();
+if (!function_exists('is_aca_pro_active')) {
+    function is_aca_pro_active() {
+        static $licensing = null;
+        
+        if ($licensing === null) {
+            $licensing = new ACA_Licensing();
+        }
+        
+        return $licensing->is_pro_active();
     }
-    
-    return $licensing->is_pro_active();
 }
 
 /**
  * Get licensing instance
  */
-function aca_get_licensing() {
-    static $licensing = null;
-    
-    if ($licensing === null) {
-        $licensing = new ACA_Licensing();
+if (!function_exists('aca_get_licensing')) {
+    function aca_get_licensing() {
+        static $licensing = null;
+        
+        if ($licensing === null) {
+            $licensing = new ACA_Licensing();
+        }
+        
+        return $licensing;
     }
-    
-    return $licensing;
 }

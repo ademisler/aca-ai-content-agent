@@ -100,7 +100,8 @@ class ACA_Service_Container {
         
         // Check if service is registered
         if (!isset(self::$definitions[$name])) {
-            throw new Exception("Service '{$name}' not found in container");
+            error_log("ACA Service Container: Service '{$name}' not found");
+            return null;
         }
         
         $definition = self::$definitions[$name];

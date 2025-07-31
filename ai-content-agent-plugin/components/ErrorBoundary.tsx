@@ -31,12 +31,18 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    // Log error details
+    // Enhanced error logging - MEDIUM PRIORITY FIX
     console.error('AI Content Agent Error Boundary caught an error:', error, errorInfo);
     
-    // Log to WordPress if available
+    // Update state with error info
+    this.setState({
+      error,
+      errorInfo
+    });
+    
+    // Enhanced WordPress error logging
     if (window.acaData) {
-      // Send error to WordPress error log via REST API
+      // Send comprehensive error data to WordPress
       fetch(`${window.acaData.api_url}debug/error`, {
         method: 'POST',
         headers: {
@@ -46,8 +52,17 @@ class ErrorBoundary extends Component<Props, State> {
         body: JSON.stringify({
           error: error.message,
           stack: error.stack,
-          componentStack: errorInfo.componentStack
-        })
+          componentStack: errorInfo.componentStack,
+          // Enhanced error context
+          timestamp: new Date().toISOString(),
+          userAgent: navigator.userAgent,
+          url: window.location.href,
+          viewport: `${window.innerWidth}x${window.innerHeight}`,
+          errorBoundary: true,
+          severity: 'critical',
+          // React-specific context
+          reactVersion: React.version || 'unknown',
+          componentName: this.constructor.name
       }).catch(e => {
         console.error('Failed to log error to WordPress:', e);
       });
@@ -66,22 +81,40 @@ class ErrorBoundary extends Component<Props, State> {
         return this.props.fallback;
       }
 
-      // Default error UI
+      // Enhanced default error UI - MEDIUM PRIORITY FIX
       return (
         <div className="aca-error-boundary" style={{
-          padding: '20px',
+          padding: '24px',
           margin: '20px',
           border: '2px solid #dc3545',
-          borderRadius: '8px',
+          borderRadius: '12px',
           backgroundColor: '#f8d7da',
-          color: '#721c24'
+          color: '#721c24',
+          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
         }}>
-          <h2 style={{ marginTop: 0, color: '#721c24' }}>
-            🚨 Something went wrong
-          </h2>
-          <p>
-            The AI Content Agent encountered an unexpected error. Please try refreshing the page.
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
+            <span style={{ fontSize: '24px', marginRight: '12px' }}>🚨</span>
+            <h2 style={{ margin: 0, color: '#721c24', fontSize: '20px', fontWeight: '600' }}>
+              Something went wrong
+            </h2>
+          </div>
+          
+          <p style={{ marginBottom: '16px', lineHeight: '1.5' }}>
+            The AI Content Agent encountered an unexpected error. The error has been automatically logged for investigation.
           </p>
+          
+          <div style={{ 
+            backgroundColor: '#fff3cd', 
+            border: '1px solid #ffeaa7', 
+            borderRadius: '6px', 
+            padding: '12px', 
+            marginBottom: '16px',
+            fontSize: '14px'
+          }}>
+            <strong>Error ID:</strong> ACA-{Date.now()}<br/>
+            <strong>Time:</strong> {new Date().toLocaleString()}<br/>
+            <strong>Component:</strong> {this.state.error?.name || 'Unknown'}
+          </div>
           
           {process.env.NODE_ENV === 'development' && this.state.error && (
             <details style={{ marginTop: '10px' }}>

@@ -10,10 +10,14 @@ if (!defined('ABSPATH')) {
 class ACA_Rest_Api {
     
     public function __construct() {
+        error_log('ACA: REST API constructor called');
+        
         add_action('rest_api_init', array($this, 'register_routes'));
+        error_log('ACA: rest_api_init hook added');
         
         // Ensure proper charset handling for special characters
         add_action('init', array($this, 'setup_charset_handling'));
+        error_log('ACA: REST API constructor completed');
     }
     
     /**
@@ -302,6 +306,13 @@ class ACA_Rest_Api {
             'methods' => 'GET',
             'callback' => array($this, 'test_endpoint_callback'),
             'permission_callback' => '__return_true'
+        ));
+        
+        // WordPress REST API routes list endpoint
+        register_rest_route('aca/v1', '/debug/routes', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'debug_routes_callback'),
+            'permission_callback' => array($this, 'check_admin_permissions')
         ));
 
         // License verification endpoint
@@ -4430,6 +4441,42 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             'success' => true,
             'message' => 'Test endpoint working',
             'timestamp' => current_time('mysql')
+        );
+    }
+    
+    /**
+     * Debug routes callback - shows all registered routes
+     */
+    public function debug_routes_callback($request) {
+        $server = rest_get_server();
+        $routes = array();
+        
+        foreach ($server->get_routes() as $route => $handlers) {
+            if (strpos($route, '/aca/v1') === 0) {
+                $routes[$route] = array(
+                    'methods' => array(),
+                    'callbacks' => array()
+                );
+                
+                foreach ($handlers as $handler) {
+                    if (isset($handler['methods'])) {
+                        $routes[$route]['methods'] = array_merge($routes[$route]['methods'], array_keys($handler['methods']));
+                    }
+                    if (isset($handler['callback'])) {
+                        if (is_array($handler['callback']) && count($handler['callback']) == 2) {
+                            $routes[$route]['callbacks'][] = get_class($handler['callback'][0]) . '::' . $handler['callback'][1];
+                        } else {
+                            $routes[$route]['callbacks'][] = 'Unknown callback';
+                        }
+                    }
+                }
+            }
+        }
+        
+        return array(
+            'success' => true,
+            'routes' => $routes,
+            'total_routes' => count($routes)
         );
     }
 }

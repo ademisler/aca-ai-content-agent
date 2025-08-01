@@ -74,11 +74,19 @@ class AI_Content_Agent {
     }
     
     public function init() {
+        error_log('ACA: Plugin init() method called');
+        
         // Initialize dependency installer
         require_once ACA_PLUGIN_PATH . 'install-dependencies.php';
         
         // Initialize REST API
-        new ACA_Rest_Api();
+        error_log('ACA: About to initialize REST API class');
+        try {
+            new ACA_Rest_Api();
+            error_log('ACA: REST API class initialized successfully');
+        } catch (Exception $e) {
+            error_log('ACA: Error initializing REST API class: ' . $e->getMessage());
+        }
         
         // Initialize Cron jobs
         new ACA_Cron();

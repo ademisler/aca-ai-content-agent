@@ -38,11 +38,6 @@ function is_aca_pro_active() {
     $license_verified = get_option('aca_license_verified');
     $license_timestamp = get_option('aca_license_timestamp', 0);
     
-    // Debug logging for troubleshooting
-    if (defined('WP_DEBUG') && WP_DEBUG) {
-        error_log('ACA Pro Check - Status: ' . $license_status . ', Key: ' . (!empty($license_key) ? 'EXISTS' : 'EMPTY') . ', Timestamp: ' . $license_timestamp);
-    }
-    
     $checks = array(
         $license_status === 'active',
         $license_verified === wp_hash('verified'),

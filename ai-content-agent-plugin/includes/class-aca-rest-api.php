@@ -1138,9 +1138,6 @@ class ACA_Rest_Api {
     public function create_draft_from_idea($idea_id, $is_auto = false) {
         global $wpdb;
         
-        // Enable error reporting for debugging
-        error_log('ACA DEBUG: Starting create_draft_from_idea for ID: ' . $idea_id);
-        
         // Get the idea
         $idea = $wpdb->get_row($wpdb->prepare(
             "SELECT * FROM {$wpdb->prefix}aca_ideas WHERE id = %d",
@@ -1148,17 +1145,11 @@ class ACA_Rest_Api {
         ));
         
         if (!$idea) {
-            error_log('ACA DEBUG: Idea not found for ID: ' . $idea_id);
             return new WP_Error('idea_not_found', 'Idea not found', array('status' => 404));
         }
         
-        error_log('ACA DEBUG: Idea found: ' . $idea->title);
-        
         $settings = get_option('aca_settings', array());
         $style_guide = get_option('aca_style_guide');
-        
-        error_log('ACA DEBUG: Settings loaded, API key present: ' . (!empty($settings['geminiApiKey']) ? 'YES' : 'NO'));
-        error_log('ACA DEBUG: Style guide present: ' . (!empty($style_guide) ? 'YES' : 'NO'));
         
         if (empty($settings['geminiApiKey'])) {
             return new WP_Error('no_api_key', 'Google AI API Key is not set', array('status' => 400));
@@ -1169,10 +1160,7 @@ class ACA_Rest_Api {
         }
         
         try {
-            error_log('ACA DEBUG: Starting try block');
-            
             // Get existing published posts for internal linking
-            error_log('ACA DEBUG: Getting published posts');
             $published_posts = get_posts(array(
                 'post_type' => 'post',
                 'post_status' => 'publish',
@@ -1180,8 +1168,6 @@ class ACA_Rest_Api {
                 'orderby' => 'date',
                 'order' => 'DESC'
             ));
-            
-            error_log('ACA DEBUG: Found ' . count($published_posts) . ' published posts');
             
             $existing_posts_context = array();
             foreach ($published_posts as $post) {
@@ -1196,10 +1182,8 @@ class ACA_Rest_Api {
             // Get site language for content generation
             $site_locale = get_locale();
             $site_language = $this->get_language_from_locale($site_locale);
-            error_log('ACA DEBUG: Site locale: ' . $site_locale . ', Language: ' . $site_language);
             
             // Get existing categories with hierarchy for AI to choose from
-            error_log('ACA DEBUG: Getting existing categories with hierarchy');
             $existing_categories = get_categories(array(
                 'hide_empty' => false,
                 'number' => 50, // Increased to get more categories
@@ -1228,10 +1212,7 @@ class ACA_Rest_Api {
                 );
             }
             
-            error_log('ACA DEBUG: Found ' . count($categories_context) . ' existing categories');
-            
             // Generate content using AI
-            error_log('ACA DEBUG: Starting AI content generation');
             try {
                 $draft_content = $this->call_gemini_create_draft(
                     $settings['geminiApiKey'],
@@ -1240,8 +1221,6 @@ class ACA_Rest_Api {
                     $existing_posts_context,
                     $categories_context
                 );
-                
-                error_log('ACA DEBUG: AI content generated, length: ' . strlen($draft_content));
                 
                 if (empty($draft_content)) {
                     throw new Exception('Empty response from AI service');
@@ -4465,5 +4444,29 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             'routes' => $routes,
             'total_routes' => count($routes)
         );
+    }
+
+    public function create_draft_from_idea($request) {
+        $idea_id = $request->get_param('ideaId');
+        
+        if (!$idea_id) {
+            return new WP_Error('missing_idea_id', 'Idea ID is required', array('status' => 400));
+        }
+
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'aca_ideas';
+        
+        $idea = $wpdb->get_row($wpdb->prepare("SELECT * FROM $table_name WHERE id = %d", $idea_id));
+        
+        if (!$idea) {
+            return new WP_Error('idea_not_found', 'Idea not found', array('status' => 404));
+        }
+
+        $settings = get_option('aca_settings', array());
+        $style_guide = get_option('aca_style_guide', '');
+        
+        if (empty($settings['geminiApiKey'])) {
+            return new WP_Error('no_api_key', 'Gemini API key not configured', array('status' => 400));
+        }
     }
 }

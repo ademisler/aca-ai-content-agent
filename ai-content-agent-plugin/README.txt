@@ -3,9 +3,9 @@ Contributors: ademisler
 Donate link: https://ademisler.gumroad.com/l/ai-content-agent-pro
 Tags: ai, content, automation, gemini, seo, pro, license
 Requires at least: 5.0
-Tested up to: 6.4
+Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 2.4.0
+Stable tag: 2.4.1
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -15,8 +15,12 @@ AI Content Agent (ACA) - AI-powered WordPress plugin with Pro licensing for auto
 
 AI Content Agent (ACA) transforms your WordPress site into an intelligent content creation powerhouse using Google's Gemini AI technology.
 
-**🚀 Latest v2.4.0 Features:**
-* **CRITICAL FIXES**: All major production issues resolved
+**🚀 Latest v2.4.1 Features:**
+* **UPDATED BUILD**: Enhanced build system and documentation
+* **Version Consistency**: All files updated to v2.4.1
+* **Documentation Enhanced**: Complete review and updates
+* **Archive Management**: Previous versions properly archived
+* **CRITICAL FIXES**: All major production issues resolved (from v2.4.0)
 * PHP Fatal Error Fixed - Automation system now fully functional
 * Image Processing Restored - Automatic featured images for all providers
 * Content Freshness Enhanced - Accurate scoring with view count tracking
@@ -208,6 +212,14 @@ Critical JavaScript initialization error fix. Essential update for users experie
 * Google Search Console data is only accessed with explicit user authorization
 
 == Changelog ==
+
+= 2.4.1 =
+* Updated: Version consistency across all plugin files
+* Enhanced: Build system with latest Vite 6.3.5 configuration
+* Improved: Documentation structure and completeness
+* Fixed: WordPress compatibility version updated to 6.7
+* Enhanced: Archive management for previous releases
+* Updated: All documentation files with current version information
 
 = 2.4.0 =
 * CRITICAL: Fixed PHP Fatal Error in automation system (static method context)

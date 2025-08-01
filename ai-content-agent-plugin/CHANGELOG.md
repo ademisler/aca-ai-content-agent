@@ -1,5 +1,24 @@
 # AI Content Agent - Changelog
 
+## [2.4.1-updated-build] - 2025-08-01
+
+### 🔧 Version Update & Documentation Enhancement
+- **Version Bump**: Updated to v2.4.1 with consistent versioning across all files
+- **Build System**: Maintained Vite 6.3.5 with optimized compilation
+- **Asset Management**: Verified dual-asset system working correctly
+- **Documentation**: Comprehensive review and updates of all documentation files
+- **Archive Management**: Properly archived previous v2.4.0 releases
+- **Release Package**: `ai-content-agent-v2.4.1-updated-build-20250801.zip`
+
+### 🏗️ Build & Deployment Consistency
+- **Package.json**: Updated version to 2.4.1
+- **Plugin Header**: Updated WordPress plugin header to 2.4.1
+- **Constants**: Updated ACA_VERSION constant to 2.4.1
+- **Dependencies**: All dependencies verified and up-to-date
+- **Assets**: Frontend assets rebuilt with latest configuration
+
+---
+
 ## [2.4.0-production-ready] - 2025-08-01
 
 ### 🏗️ Build & Deployment Updates

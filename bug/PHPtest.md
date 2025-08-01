@@ -248,3 +248,256 @@ ai-content-agent-plugin/includes/class-aca-rest-api.php:                unlink($
 ---
 **Test Tamamlanma:** Fri Aug  1 01:36:35 PM UTC 2025
 **Test Süresi:** Fri Aug  1 01:36:35 PM UTC 2025
+
+## 10. EXTENDED FILE ANALYSIS
+
+### JavaScript/TypeScript Files Analysis
+
+**App.tsx**:
+🟡 Console logging (production'da kaldırılmalı)
+
+**Icons.tsx**:
+🟡 Development URLs
+🟠 Browser dialogs kullanımı
+
+**GeminiApiWarning.tsx**:
+🟠 Browser dialogs kullanımı
+
+**Sidebar.tsx**:
+
+**ActivityLog.tsx**:
+
+**Dashboard.tsx**:
+🟠 Browser dialogs kullanımı
+
+**SettingsLicense.tsx**:
+🟡 Console logging (production'da kaldırılmalı)
+🟠 Browser dialogs kullanımı
+
+**ContentCalendar.tsx**:
+🟡 Console logging (production'da kaldırılmalı)
+🟠 Browser dialogs kullanımı
+
+**SettingsAdvanced.tsx**:
+🟡 Console logging (production'da kaldırılmalı)
+🟠 Browser dialogs kullanımı
+
+**UpgradePrompt.tsx**:
+🟠 Browser dialogs kullanımı
+
+**PublishedList.tsx**:
+
+**ContentFreshnessManager.tsx**:
+🟡 Console logging (production'da kaldırılmalı)
+🟠 Browser dialogs kullanımı
+
+**SettingsAutomation.tsx**:
+🟡 Console logging (production'da kaldırılmalı)
+🟠 Browser dialogs kullanımı
+
+**StyleGuideManager.tsx**:
+🟠 Browser dialogs kullanımı
+
+**SettingsContent.tsx**:
+🟡 Console logging (production'da kaldırılmalı)
+🟠 Browser dialogs kullanımı
+
+**SettingsIntegrations.tsx**:
+🟠 Browser dialogs kullanımı
+
+**DraftsList.tsx**:
+🟡 Console logging (production'da kaldırılmalı)
+🟠 Browser dialogs kullanımı
+
+**SettingsNew.tsx**:
+🟠 Browser dialogs kullanımı
+
+**Toast.tsx**:
+🟠 Browser dialogs kullanımı
+
+**Settings.tsx**:
+🟡 Console logging (production'da kaldırılmalı)
+🟠 Browser dialogs kullanımı
+⚠️ Büyük dosya boyutu: 98599 bytes
+
+### CSS Files Analysis
+
+**index.css**:
+
+**index.css**:
+
+### Configuration Files Analysis
+
+**composer.json**:
+
+**package-lock.json**:
+🔴 Potansiyel sensitive data
+🟡 Debug mode enabled
+
+**package.json**:
+
+**tsconfig.json**:
+
+**composer.json**:
+
+
+## 11. ADVANCED SECURITY SCAN
+
+### Sensitive Files Check
+🔴 **Backup dosyaları bulundu:**
+```
+/workspace/ai-content-agent-plugin/admin/css/index.css.bak
+```
+🟡 **Log dosyaları:**
+```
+/workspace/ai-content-agent-plugin/node_modules/nwsapi/dist/lint.log
+```
+
+### File Permissions Check
+
+## 12. CODE COMPLEXITY ANALYSIS
+
+### Code Metrics
+- **Toplam PHP dosyası:** 10
+- **Toplam kod satırı:** 7162
+- **Ortalama dosya boyutu:** 716 satır
+- **En büyük dosya:** class-aca-rest-api.php (180854 bytes)
+
+### Function Complexity
+- **Toplam fonksiyon sayısı:** 161
+- **Toplam class sayısı:** 6
+
+## 13. DEPENDENCY SECURITY SCAN
+
+### Composer Dependencies
+- **Toplam dependency:** 13
+
+### Node.js Dependencies
+- **Toplam Node.js dependency:** 29
+
+## 14. FINAL EXTENDED SUMMARY
+
+### 📊 Extended Test Results
+- **JavaScript/TypeScript issues:** 0
+- **CSS issues:** 0
+- **Configuration issues:** 1
+- **Extended risk score:** 5
+
+### 🎯 Overall Security Assessment
+🟡 **HIGH RISK** - Security improvements needed
+
+### 🛡️ Security Recommendations
+1. **Immediate**: Fix all syntax errors and critical security issues
+2. **High Priority**: Implement input sanitization and validation
+3. **Medium Priority**: Update deprecated functions and improve error handling
+4. **Low Priority**: Code style improvements and optimization
+5. **Ongoing**: Regular security audits and dependency updates
+
+---
+**Extended Test Completed:** Fri Aug  1 01:38:04 PM UTC 2025
+
+## 15. PERFORMANCE & MEMORY ANALYSIS
+
+### PHP Execution Performance
+
+**class-aca-activator.php**:
+✅ Execution time: 26ms
+🟡 Database operations present
+
+**class-aca-content-freshness.php**:
+✅ Execution time: 20ms
+🟡 Potansiyel memory intensive operations
+🟡 Database operations present
+🟡 External API calls (timeout gerekli)
+
+**class-aca-cron.php**:
+✅ Execution time: 18ms
+🟡 Database operations present
+
+**class-aca-deactivator.php**:
+✅ Execution time: 17ms
+🟡 Database operations present
+
+**class-aca-google-search-console.php**:
+✅ Execution time: 17ms
+🟡 Potansiyel memory intensive operations
+🟡 Database operations present
+🟡 External API calls (timeout gerekli)
+
+**class-aca-migration-manager.php**:
+✅ Execution time: 16ms
+🟡 Database operations present
+
+**class-aca-rest-api.php**:
+✅ Execution time: 20ms
+🟡 Potansiyel memory intensive operations
+🟡 Database operations present
+🟡 External API calls (timeout gerekli)
+
+**ai-content-agent.php**:
+✅ Execution time: 16ms
+🟡 Database operations present
+
+**install-dependencies.php**:
+✅ Execution time: 16ms
+
+**uninstall.php**:
+✅ Execution time: 16ms
+🟡 Database operations present
+
+## 16. LOAD TESTING SIMULATION
+
+### Concurrent Load Simulation
+- **10x concurrent syntax check:** 297ms
+✅ Load performance OK
+
+## 17. RESOURCE USAGE ANALYSIS
+
+### Project Size Analysis
+- **Total project size:** 126MB
+- **PHP files:** 11
+- **JS/TS files:** 33
+- **CSS files:** 2
+- **Image files:** 0
+- **Node modules size:** 123MB
+
+## 18. OPTIMIZATION RECOMMENDATIONS
+
+### Performance Optimization
+🟡 **Nested loops detected:** 25 (optimize edilmeli)
+🔴 **Database queries in loops:** 15 (kritik performans sorunu)
+
+### Caching Opportunities
+✅ **Caching implemented:** 44 instances
+🟡 **External API calls:** 3 (caching önerilir)
+
+## 19. FINAL COMPREHENSIVE SUMMARY
+
+### 📊 Complete Test Results
+- **Performance issues:** 0
+- **Optimization needed:** 5
+- **Performance score:** 15
+- **Project size:** 126MB
+
+### 🏆 Overall Quality Score
+🟡 **Overall Grade: C** - AVERAGE - Some improvements needed
+**Quality Score: 45/100**
+
+### 🎯 Priority Action Items
+1. **CRITICAL**: Fix syntax errors immediately
+2. **HIGH**: Address security vulnerabilities
+3. **MEDIUM**: Optimize performance bottlenecks
+4. **LOW**: Improve code style and documentation
+
+### 📈 Long-term Improvements
+- Implement comprehensive caching strategy
+- Add automated testing suite
+- Set up continuous integration
+- Regular security audits
+- Performance monitoring
+- Code review process
+
+---
+**COMPREHENSIVE TEST COMPLETED:** Fri Aug  1 01:38:59 PM UTC 2025
+**Total Analysis Time:** Fri Aug  1 01:38:59 PM UTC 2025
+**Tools Used:** PHP Lint, PHPStan, PHPCS, PHPMD, Custom Security Scanner

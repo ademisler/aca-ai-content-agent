@@ -7,11 +7,6 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-use Google\Client as Google_Client;
-use Google\Service\Webmasters as Google_Service_Webmasters;
-use Google\Service\Webmasters\SearchAnalyticsQueryRequest as Google_Service_Webmasters_SearchAnalyticsQueryRequest;
-use Google\Service\Oauth2;
-
 // Check if vendor directory exists
 if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
     require_once ACA_PLUGIN_PATH . 'vendor/autoload.php';
@@ -30,7 +25,7 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
          */
         private function init_google_client() {
             try {
-                $this->client = new Google_Client();
+                $this->client = new \Google\Client();
                 $this->client->setApplicationName('AI Content Agent (ACA)');
                 $this->client->setScopes([
                     'https://www.googleapis.com/auth/webmasters.readonly',
@@ -64,7 +59,7 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
                     
                     // Initialize Search Console service
                     if ($this->client->getAccessToken()) {
-                        $this->service = new Google_Service_Webmasters($this->client);
+                        $this->service = new \Google\Service\Webmasters($this->client);
                     }
                 }
             } catch (Exception $e) {
@@ -111,7 +106,7 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
                 update_option('aca_gsc_tokens', $token);
                 
                 // Initialize service
-                $this->service = new Google_Service_Webmasters($this->client);
+                $this->service = new \Google\Service\Webmasters($this->client);
                 
                 // Get user info
                 $user_info = $this->get_user_info();
@@ -260,7 +255,7 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
             
             try {
                 // Use OAuth2 service to get user info
-                $oauth2 = new Oauth2($this->client);
+                $oauth2 = new \Google\Service\Oauth2($this->client);
                 $user_info = $oauth2->userinfo->get();
                 
                 return array(
@@ -321,7 +316,7 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
             
             try {
                 // Create search analytics query
-                $request = new Google_Service_Webmasters_SearchAnalyticsQueryRequest();
+                $request = new \Google\Service\Webmasters\SearchAnalyticsQueryRequest();
                 $request->setStartDate($start_date);
                 $request->setEndDate($end_date);
                 $request->setDimensions($dimensions);
@@ -818,6 +813,10 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
         
         public function get_data_for_ai() {
             return false;
+        }
+        
+        public function get_page_performance($page_url) {
+            return new WP_Error('gsc_error', 'Google API client library not installed.');
         }
     }
 }

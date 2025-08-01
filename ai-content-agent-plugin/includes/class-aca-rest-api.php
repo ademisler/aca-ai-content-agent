@@ -388,6 +388,9 @@ class ACA_Rest_Api {
             update_option('aca_google_cloud_location', sanitize_text_field($settings['googleCloudLocation']));
         }
         
+        // Clear Google access token cache when settings change (especially API keys)
+        delete_transient('aca_google_access_token');
+        
         $this->add_activity_log('settings_updated', 'Application settings were updated.', 'Settings');
         
         return rest_ensure_response(array('success' => true));
@@ -1196,9 +1199,13 @@ class ACA_Rest_Api {
                 $draft_data = json_decode($draft_content, true);
                                         if (json_last_error() !== JSON_ERROR_NONE) {
                             error_log('ACA JSON Decode Error: ' . json_last_error_msg());
-                            error_log('ACA Raw Response Length: ' . strlen($draft_content));
-                            error_log('ACA Raw Response First 1000 chars: ' . substr($draft_content, 0, 1000));
-                            error_log('ACA Raw Response Last 500 chars: ' . substr($draft_content, -500));
+                                    // Only log content details in debug mode
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('ACA Raw Response Length (DEBUG): ' . strlen($draft_content));
+            error_log('ACA Raw Response First 200 chars (DEBUG): ' . substr($draft_content, 0, 200));
+        } else {
+            error_log('ACA Raw Response Length: ' . strlen($draft_content));
+        }
                             
                             // Try to clean and fix common JSON issues
                             $cleaned_content = $this->clean_ai_json_response($draft_content);
@@ -2319,14 +2326,30 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             throw new Exception('Unsupported stock photo provider');
         }
         
-        $response = wp_remote_get($url, array('headers' => $headers));
+        $response = wp_remote_get($url, array(
+            'headers' => $headers,
+            'timeout' => 15,
+            'user-agent' => 'AI Content Agent/2.4.0'
+        ));
         
         if (is_wp_error($response)) {
             throw new Exception('Failed to fetch from ' . $provider . ': ' . $response->get_error_message());
         }
         
+        $status_code = wp_remote_retrieve_response_code($response);
+        if ($status_code !== 200) {
+            throw new Exception('API request failed with status ' . $status_code . ' for provider: ' . $provider);
+        }
+        
         $body = wp_remote_retrieve_body($response);
+        if (empty($body)) {
+            throw new Exception('Empty response from ' . $provider . ' API');
+        }
+        
         $data = json_decode($body, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new Exception('Invalid JSON response from ' . $provider . ': ' . json_last_error_msg());
+        }
         
         $image_url = '';
         switch ($provider) {
@@ -2459,7 +2482,10 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             throw new Exception('Empty response from Gemini API');
         }
         
-        error_log('ACA Gemini API Response: ' . substr($response_body, 0, 500));
+        // Only log response in debug mode to prevent sensitive data exposure
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('ACA Gemini API Response (DEBUG): ' . substr($response_body, 0, 200));
+        }
         
         $data = json_decode($response_body, true);
         
@@ -3585,7 +3611,10 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         }
         
         // Log the full response for debugging
-        error_log('ACA: Gumroad API response: ' . print_r($data, true));
+        // Only log detailed response in debug mode to prevent sensitive data exposure
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('ACA: Gumroad API response (DEBUG): ' . print_r($data, true));
+        }
         error_log('ACA: Response analysis - success field: ' . (isset($data['success']) ? ($data['success'] ? 'true' : 'false') : 'missing'));
         error_log('ACA: Response analysis - success type: ' . (isset($data['success']) ? gettype($data['success']) : 'N/A'));
         

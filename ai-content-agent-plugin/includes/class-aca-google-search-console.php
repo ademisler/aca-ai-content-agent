@@ -540,16 +540,30 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
             $expires_at = $current_tokens['created'] + $current_tokens['expires_in'] - 600; // 10 min buffer
             
             if (time() >= $expires_at) {
-                // Force refresh by temporarily clearing the created timestamp
-                $temp_tokens = $current_tokens;
-                unset($temp_tokens['created']);
-                update_option('aca_gsc_tokens', $temp_tokens);
+                // Use a lock mechanism to prevent race conditions during token refresh
+                $lock_key = 'aca_token_refresh_lock';
+                $lock_timeout = 30; // 30 seconds max lock
                 
-                $this->refresh_token();
+                if (get_transient($lock_key)) {
+                    // Another process is already refreshing, wait and return current status
+                    sleep(1);
+                    $updated_tokens = get_option('aca_gsc_tokens');
+                    return isset($updated_tokens['access_token']) && !empty($updated_tokens['access_token']);
+                }
                 
-                // Check if refresh was successful
-                $updated_tokens = get_option('aca_gsc_tokens');
-                return isset($updated_tokens['access_token']) && !empty($updated_tokens['access_token']);
+                // Set lock before refresh
+                set_transient($lock_key, time(), $lock_timeout);
+                
+                try {
+                    $this->refresh_token();
+                    
+                    // Check if refresh was successful
+                    $updated_tokens = get_option('aca_gsc_tokens');
+                    return isset($updated_tokens['access_token']) && !empty($updated_tokens['access_token']);
+                } finally {
+                    // Always release lock
+                    delete_transient($lock_key);
+                }
             }
         }
         
@@ -592,8 +606,20 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
                 return new WP_Error('scope_check_failed', 'Failed to validate token scopes: ' . $response->get_error_message());
             }
             
+            $status_code = wp_remote_retrieve_response_code($response);
+            if ($status_code !== 200) {
+                return new WP_Error('token_validation_failed', 'Token validation API returned status: ' . $status_code);
+            }
+            
             $body = wp_remote_retrieve_body($response);
+            if (empty($body)) {
+                return new WP_Error('empty_response', 'Empty response from token validation API');
+            }
+            
             $token_data = json_decode($body, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                return new WP_Error('json_error', 'Invalid JSON in token validation response: ' . json_last_error_msg());
+            }
             
             if (!$token_data || isset($token_data['error'])) {
                 return new WP_Error('invalid_token', 'Token validation failed: ' . ($token_data['error_description'] ?? 'Unknown error'));

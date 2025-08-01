@@ -38,6 +38,9 @@ class ACA_Deactivator {
         delete_transient('aca_gsc_reauth_required');
         delete_transient('aca_gsc_scope_reauth_required');
         delete_transient('aca_google_access_token');
+        delete_transient('aca_token_refresh_lock');
+        delete_transient('aca_thirty_minute_task_lock');
+        delete_transient('aca_fifteen_minute_task_lock');
         
         // Clear GSC token validation cache (dynamic transients)
         global $wpdb;

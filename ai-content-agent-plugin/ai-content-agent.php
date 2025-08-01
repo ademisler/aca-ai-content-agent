@@ -73,8 +73,10 @@ class AI_Content_Agent {
         // Initialize Cron jobs
         new ACA_Cron();
         
-        // Handle Google Search Console OAuth callback
-        add_action('admin_init', array($this, 'handle_gsc_oauth_callback'));
+        // Handle Google Search Console OAuth callback - only when needed
+        if (isset($_GET['code']) && isset($_GET['state']) && $_GET['state'] === 'aca_gsc_auth') {
+            add_action('admin_init', array($this, 'handle_gsc_oauth_callback'));
+        }
         
         // Add admin menu
         add_action('admin_menu', array($this, 'add_admin_menu'));
@@ -207,6 +209,13 @@ new AI_Content_Agent();
 add_action('aca_thirty_minute_event', array('ACA_Cron', 'thirty_minute_task'));
 add_action('aca_fifteen_minute_event', array('ACA_Cron', 'fifteen_minute_task'));
 
+// Consolidated admin initialization to avoid multiple hook calls
+add_action('admin_init', 'aca_admin_init_handler');
+
+// Admin notices
+add_action('admin_notices', 'aca_show_gsc_reauth_notice');
+add_action('admin_notices', 'aca_show_gsc_scope_reauth_notice');
+
 // Post view count tracking for content freshness analysis
 function aca_track_post_views() {
     if (is_single() && !is_admin() && !current_user_can('edit_posts')) {
@@ -218,3 +227,128 @@ function aca_track_post_views() {
     }
 }
 add_action('wp_head', 'aca_track_post_views');
+
+// Consolidated admin initialization handler
+function aca_admin_init_handler() {
+    // Handle database updates (has its own frequency control)
+    aca_check_database_updates();
+    
+    // Handle GSC reauth dismissals (only process if relevant GET parameters exist)
+    if (isset($_GET['dismiss_gsc_reauth']) || isset($_GET['dismiss_gsc_scope_reauth'])) {
+        aca_handle_gsc_reauth_dismissal();
+        aca_handle_gsc_scope_reauth_dismissal();
+    }
+}
+
+function aca_check_database_updates() {
+    // Only run for admins and not during plugin activation or AJAX
+    if (!is_admin() || !current_user_can('activate_plugins') || wp_doing_ajax() || defined('DOING_AUTOSAVE')) {
+        return;
+    }
+    
+    // Don't run on every admin page load - use transient to limit checks
+    if (get_transient('aca_migration_check_done')) {
+        return;
+    }
+    
+    // Include migration manager
+    $migration_file = ACA_PLUGIN_PATH . 'includes/class-aca-migration-manager.php';
+    if (file_exists($migration_file)) {
+        require_once $migration_file;
+        
+        $migration_manager = new ACA_Migration_Manager();
+        $result = $migration_manager->run_migrations();
+        
+        if (is_wp_error($result)) {
+            add_action('admin_notices', function() use ($result) {
+                echo '<div class="notice notice-error"><p>ACA Database Update Failed: ' . 
+                     esc_html($result->get_error_message()) . '</p></div>';
+            });
+        }
+    }
+    
+    // Set transient to prevent running again for 1 hour
+    set_transient('aca_migration_check_done', true, HOUR_IN_SECONDS);
+}
+
+function aca_show_gsc_reauth_notice() {
+    $reauth_data = get_transient('aca_gsc_reauth_required');
+    
+    if (!$reauth_data || !current_user_can('manage_options')) {
+        return;
+    }
+    
+    // Only show on ACA pages to avoid annoying users
+    $screen = get_current_screen();
+    if (!$screen || strpos($screen->id, 'aca') === false) {
+        return;
+    }
+    
+    echo '<div class="notice notice-error">';
+    echo '<p><strong>ACA Google Search Console - Re-authentication Required</strong></p>';
+    echo '<p>Your Google Search Console connection has been lost. Please re-authenticate to continue using GSC features.</p>';
+    
+    if (!empty($reauth_data['error_message'])) {
+        echo '<p><small>Error: ' . esc_html($reauth_data['error_message']) . '</small></p>';
+    }
+    
+    echo '<p>';
+    echo '<a href="' . esc_url(admin_url('admin.php?page=aca-settings')) . '" class="button button-primary">Go to Settings</a> ';
+    echo '<a href="' . esc_url(wp_nonce_url(add_query_arg('dismiss_gsc_reauth', '1'), 'aca_dismiss_gsc_reauth')) . '" class="button">Dismiss</a>';
+    echo '</p>';
+    echo '</div>';
+}
+
+function aca_handle_gsc_reauth_dismissal() {
+    if (isset($_GET['dismiss_gsc_reauth']) && $_GET['dismiss_gsc_reauth'] == '1' && current_user_can('manage_options')) {
+        // Add nonce verification for security
+        if (!isset($_GET['_wpnonce']) || !wp_verify_nonce($_GET['_wpnonce'], 'aca_dismiss_gsc_reauth')) {
+            wp_die(__('Security check failed. Please try again.', 'ai-content-agent'));
+        }
+        
+        delete_transient('aca_gsc_reauth_required');
+        wp_redirect(remove_query_arg(array('dismiss_gsc_reauth', '_wpnonce')));
+        exit;
+    }
+}
+
+function aca_show_gsc_scope_reauth_notice() {
+    $scope_reauth_data = get_transient('aca_gsc_scope_reauth_required');
+    
+    if (!$scope_reauth_data || !current_user_can('manage_options')) {
+        return;
+    }
+    
+    // Only show on ACA pages to avoid annoying users
+    $screen = get_current_screen();
+    if (!$screen || strpos($screen->id, 'aca') === false) {
+        return;
+    }
+    
+    echo '<div class="notice notice-warning">';
+    echo '<p><strong>ACA Google Search Console - Additional Permissions Required</strong></p>';
+    echo '<p>Your Google Search Console connection needs additional permissions to access all features. Please re-authenticate to grant the required scopes.</p>';
+    
+    if (!empty($scope_reauth_data['missing_scopes'])) {
+        echo '<p><small>Missing permissions: ' . esc_html(implode(', ', $scope_reauth_data['missing_scopes'])) . '</small></p>';
+    }
+    
+    echo '<p>';
+    echo '<a href="' . esc_url(admin_url('admin.php?page=aca-settings')) . '" class="button button-primary">Update Permissions</a> ';
+    echo '<a href="' . esc_url(wp_nonce_url(add_query_arg('dismiss_gsc_scope_reauth', '1'), 'aca_dismiss_gsc_scope_reauth')) . '" class="button">Dismiss</a>';
+    echo '</p>';
+    echo '</div>';
+}
+
+function aca_handle_gsc_scope_reauth_dismissal() {
+    if (isset($_GET['dismiss_gsc_scope_reauth']) && $_GET['dismiss_gsc_scope_reauth'] == '1' && current_user_can('manage_options')) {
+        // Add nonce verification for security
+        if (!isset($_GET['_wpnonce']) || !wp_verify_nonce($_GET['_wpnonce'], 'aca_dismiss_gsc_scope_reauth')) {
+            wp_die(__('Security check failed. Please try again.', 'ai-content-agent'));
+        }
+        
+        delete_transient('aca_gsc_scope_reauth_required');
+        wp_redirect(remove_query_arg(array('dismiss_gsc_scope_reauth', '_wpnonce')));
+        exit;
+    }
+}

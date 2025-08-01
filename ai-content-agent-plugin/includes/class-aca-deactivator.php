@@ -28,6 +28,24 @@ class ACA_Deactivator {
         
         // Clear all plugin settings to ensure fresh start
         delete_option('aca_settings');
+        
+        // Clear migration system data
+        delete_option('aca_db_version');
+        delete_option('aca_migration_log');
+        delete_transient('aca_migration_check_done');
+        
+        // Clear all ACA transients
+        delete_transient('aca_gsc_reauth_required');
+        delete_transient('aca_gsc_scope_reauth_required');
+        delete_transient('aca_google_access_token');
+        delete_transient('aca_token_refresh_lock');
+        delete_transient('aca_thirty_minute_task_lock');
+        delete_transient('aca_fifteen_minute_task_lock');
+        
+        // Clear GSC token validation cache (dynamic transients)
+        global $wpdb;
+        $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_aca_gsc_scope_validation_%'");
+        $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_timeout_aca_gsc_scope_validation_%'");
         delete_option('aca_style_guide');
         delete_option('aca_google_auth_token');
         delete_option('aca_gsc_site_url');

@@ -16,6 +16,9 @@ class ACA_Activator {
         self::create_tables();
         self::set_default_options();
         self::schedule_cron_jobs();
+        
+        // Initialize migration system for future updates (safe addition)
+        self::initialize_migration_system();
     }
     
     /**
@@ -125,6 +128,25 @@ class ACA_Activator {
         
         if (!wp_next_scheduled('aca_fifteen_minute_event')) {
             wp_schedule_event(time(), 'aca_fifteen_minutes', 'aca_fifteen_minute_event');
+        }
+    }
+    
+    /**
+     * Initialize migration system (new method - add at the end of class)
+     */
+    private static function initialize_migration_system() {
+        $migration_file = plugin_dir_path(__FILE__) . 'class-aca-migration-manager.php';
+        
+        if (file_exists($migration_file)) {
+            require_once $migration_file;
+            
+            $migration_manager = new ACA_Migration_Manager();
+            $result = $migration_manager->run_migrations();
+            
+            if (is_wp_error($result)) {
+                error_log('ACA Migration initialization failed: ' . $result->get_error_message());
+                // Don't fail activation - just log the error
+            }
         }
     }
 }

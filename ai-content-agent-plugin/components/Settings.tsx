@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import type { AppSettings, AutomationMode, ImageSourceProvider, AiImageStyle, SeoPlugin } from '../types';
 import { 
     Spinner, 
@@ -212,6 +212,34 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
     const [isLoadingLicenseStatus, setIsLoadingLicenseStatus] = useState(true);
     // Active tab state for vertical tab navigation
     const [activeTab, setActiveTab] = useState<string>('license');
+
+    // Race condition protection - track active async operations
+    const mountedRef = useRef(true);
+    const activeRequestsRef = useRef(new Set<string>());
+    
+    // Cleanup on unmount
+    useEffect(() => {
+        return () => {
+            mountedRef.current = false;
+            activeRequestsRef.current.clear();
+        };
+    }, []);
+
+    // Safe async state updater to prevent race conditions
+    const safeAsyncUpdate = useCallback((requestId: string, updateFunction: () => void) => {
+        if (mountedRef.current && !activeRequestsRef.current.has(requestId)) {
+            updateFunction();
+        }
+    }, []);
+
+    // Track async operations to prevent overlapping requests
+    const startAsyncOperation = useCallback((requestId: string) => {
+        activeRequestsRef.current.add(requestId);
+    }, []);
+
+    const endAsyncOperation = useCallback((requestId: string) => {
+        activeRequestsRef.current.delete(requestId);
+    }, []);
 
     // Load license status on component mount
     useEffect(() => {
@@ -444,9 +472,19 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
         }
     };
 
-    const fetchSeoPlugins = async () => {
+    const fetchSeoPlugins = useCallback(async () => {
+        const requestId = 'fetchSeoPlugins';
+        
+        // Prevent overlapping requests
+        if (activeRequestsRef.current.has(requestId)) {
+            console.log('ACA: SEO plugins fetch already in progress, skipping...');
+            return;
+        }
+        
+        startAsyncOperation(requestId);
+        
         try {
-            setSeoPluginsLoading(true);
+            safeAsyncUpdate(requestId, () => setSeoPluginsLoading(true));
             console.log('ACA: Fetching SEO plugins...');
             
             if (!window.acaData) {
@@ -465,16 +503,20 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
             if (response.ok) {
                 const data = await response.json();
                 console.log('ACA: SEO plugins data:', data);
-                setDetectedSeoPlugins(data.detected_plugins || []);
                 
-                // Auto-update settings based on detected plugins
-                if (data.detected_plugins && data.detected_plugins.length > 0) {
-                    // Use the first detected plugin as the active one
-                    const firstPlugin = data.detected_plugins[0];
-                    if (currentSettings.seoPlugin === 'none') {
-                        handleSettingChange('seoPlugin', firstPlugin.plugin);
+                // Safe state updates to prevent race conditions
+                safeAsyncUpdate(requestId, () => {
+                    setDetectedSeoPlugins(data.detected_plugins || []);
+                    
+                    // Auto-update settings based on detected plugins
+                    if (data.detected_plugins && data.detected_plugins.length > 0) {
+                        // Use the first detected plugin as the active one
+                        const firstPlugin = data.detected_plugins[0];
+                        if (currentSettings.seoPlugin === 'none') {
+                            handleSettingChange('seoPlugin', firstPlugin.plugin);
+                        }
                     }
-                }
+                });
             } else {
                 const errorText = await response.text();
                 console.error('ACA: Failed to fetch SEO plugins:', response.status, errorText);
@@ -482,9 +524,10 @@ export const Settings: React.FC<SettingsProps> = ({ settings, onSaveSettings, on
         } catch (error) {
             console.error('ACA: Error fetching SEO plugins:', error);
         } finally {
-            setSeoPluginsLoading(false);
+            safeAsyncUpdate(requestId, () => setSeoPluginsLoading(false));
+            endAsyncOperation(requestId);
         }
-    };
+    }, [safeAsyncUpdate, startAsyncOperation, endAsyncOperation, currentSettings.seoPlugin]);
 
     const handleAutoDetectSeo = () => {
         setIsDetectingSeo(true);

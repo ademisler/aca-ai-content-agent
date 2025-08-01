@@ -11,6 +11,9 @@ class ACA_Rest_Api {
     
     public function __construct() {
         add_action('rest_api_init', array($this, 'register_routes'));
+        
+        // Ensure proper charset handling for special characters
+        add_action('init', array($this, 'setup_charset_handling'));
     }
     
     /**
@@ -384,6 +387,9 @@ class ACA_Rest_Api {
         if (isset($settings['googleCloudLocation'])) {
             update_option('aca_google_cloud_location', sanitize_text_field($settings['googleCloudLocation']));
         }
+        
+        // Clear Google access token cache when settings change (especially API keys)
+        delete_transient('aca_google_access_token');
         
         $this->add_activity_log('settings_updated', 'Application settings were updated.', 'Settings');
         
@@ -1193,9 +1199,13 @@ class ACA_Rest_Api {
                 $draft_data = json_decode($draft_content, true);
                                         if (json_last_error() !== JSON_ERROR_NONE) {
                             error_log('ACA JSON Decode Error: ' . json_last_error_msg());
-                            error_log('ACA Raw Response Length: ' . strlen($draft_content));
-                            error_log('ACA Raw Response First 1000 chars: ' . substr($draft_content, 0, 1000));
-                            error_log('ACA Raw Response Last 500 chars: ' . substr($draft_content, -500));
+                                    // Only log content details in debug mode
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('ACA Raw Response Length (DEBUG): ' . strlen($draft_content));
+            error_log('ACA Raw Response First 200 chars (DEBUG): ' . substr($draft_content, 0, 200));
+        } else {
+            error_log('ACA Raw Response Length: ' . strlen($draft_content));
+        }
                             
                             // Try to clean and fix common JSON issues
                             $cleaned_content = $this->clean_ai_json_response($draft_content);
@@ -2316,14 +2326,30 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             throw new Exception('Unsupported stock photo provider');
         }
         
-        $response = wp_remote_get($url, array('headers' => $headers));
+        $response = wp_remote_get($url, array(
+            'headers' => $headers,
+            'timeout' => 15,
+            'user-agent' => 'AI Content Agent/2.4.0'
+        ));
         
         if (is_wp_error($response)) {
             throw new Exception('Failed to fetch from ' . $provider . ': ' . $response->get_error_message());
         }
         
+        $status_code = wp_remote_retrieve_response_code($response);
+        if ($status_code !== 200) {
+            throw new Exception('API request failed with status ' . $status_code . ' for provider: ' . $provider);
+        }
+        
         $body = wp_remote_retrieve_body($response);
+        if (empty($body)) {
+            throw new Exception('Empty response from ' . $provider . ' API');
+        }
+        
         $data = json_decode($body, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new Exception('Invalid JSON response from ' . $provider . ': ' . json_last_error_msg());
+        }
         
         $image_url = '';
         switch ($provider) {
@@ -2456,7 +2482,10 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             throw new Exception('Empty response from Gemini API');
         }
         
-        error_log('ACA Gemini API Response: ' . substr($response_body, 0, 500));
+        // Only log response in debug mode to prevent sensitive data exposure
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('ACA Gemini API Response (DEBUG): ' . substr($response_body, 0, 200));
+        }
         
         $data = json_decode($response_body, true);
         
@@ -2843,14 +2872,101 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
     }
     
     /**
-     * Send SEO data to detected SEO plugins
+     * Send SEO data to detected SEO plugins with conflict prevention
      */
     private function send_seo_data_to_plugins($post_id, $meta_title, $meta_description, $focus_keywords) {
+        // Get user's preferred SEO plugin from settings
+        $settings = get_option('aca_settings', array());
+        $preferred_plugin = isset($settings['seoPlugin']) ? $settings['seoPlugin'] : 'none';
+        
         $detected_plugins = $this->detect_seo_plugin();
         $results = array();
         
-        foreach ($detected_plugins as $plugin_info) {
-            switch ($plugin_info['plugin']) {
+        // Prevent meta data conflicts by only writing to user's selected plugin
+        if ($preferred_plugin !== 'none') {
+            // Check if preferred plugin is actually installed and active
+            $preferred_plugin_active = false;
+            foreach ($detected_plugins as $plugin_info) {
+                if ($plugin_info['plugin'] === $preferred_plugin && $plugin_info['active']) {
+                    $preferred_plugin_active = true;
+                    break;
+                }
+            }
+            
+            if ($preferred_plugin_active) {
+                // Only send to the preferred plugin to prevent conflicts
+                switch ($preferred_plugin) {
+                    case 'rank_math':
+                        $result = $this->send_to_rankmath($post_id, $meta_title, $meta_description, $focus_keywords);
+                        $results['rank_math'] = $result;
+                        error_log("ACA: Meta data sent only to preferred plugin: RankMath");
+                        break;
+                        
+                    case 'yoast':
+                        $result = $this->send_to_yoast($post_id, $meta_title, $meta_description, $focus_keywords);
+                        $results['yoast'] = $result;
+                        error_log("ACA: Meta data sent only to preferred plugin: Yoast");
+                        break;
+                        
+                    case 'aioseo':
+                        $result = $this->send_to_aioseo($post_id, $meta_title, $meta_description, $focus_keywords);
+                        $results['aioseo'] = $result;
+                        error_log("ACA: Meta data sent only to preferred plugin: AIOSEO");
+                        break;
+                }
+                
+                // Log conflict prevention
+                $this->log_meta_conflict_prevention($post_id, $preferred_plugin, $detected_plugins);
+                
+            } else {
+                error_log("ACA: Preferred SEO plugin ($preferred_plugin) not active, falling back to auto-detection");
+                $results = $this->send_to_auto_detected_plugins($post_id, $meta_title, $meta_description, $focus_keywords, $detected_plugins);
+            }
+        } else {
+            // No preference set, use auto-detection but prevent conflicts
+            $results = $this->send_to_auto_detected_plugins($post_id, $meta_title, $meta_description, $focus_keywords, $detected_plugins);
+        }
+        
+        return $results;
+    }
+    
+    /**
+     * Send to auto-detected plugins with priority-based conflict prevention
+     */
+    private function send_to_auto_detected_plugins($post_id, $meta_title, $meta_description, $focus_keywords, $detected_plugins) {
+        $results = array();
+        
+        if (empty($detected_plugins)) {
+            error_log("ACA: No SEO plugins detected, skipping meta data writing");
+            return $results;
+        }
+        
+        // Priority order: RankMath > Yoast > AIOSEO (based on market usage and reliability)
+        $priority_order = array('rank_math', 'yoast', 'aioseo');
+        $selected_plugin = null;
+        
+        // Find the highest priority active plugin
+        foreach ($priority_order as $plugin_name) {
+            foreach ($detected_plugins as $plugin_info) {
+                if ($plugin_info['plugin'] === $plugin_name && $plugin_info['active']) {
+                    $selected_plugin = $plugin_info;
+                    break 2; // Break both loops
+                }
+            }
+        }
+        
+        // If no priority plugin found, use the first active one
+        if (!$selected_plugin) {
+            foreach ($detected_plugins as $plugin_info) {
+                if ($plugin_info['active']) {
+                    $selected_plugin = $plugin_info;
+                    break;
+                }
+            }
+        }
+        
+        if ($selected_plugin) {
+            switch ($selected_plugin['plugin']) {
                 case 'rank_math':
                     $result = $this->send_to_rankmath($post_id, $meta_title, $meta_description, $focus_keywords);
                     $results['rank_math'] = $result;
@@ -2866,9 +2982,40 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                     $results['aioseo'] = $result;
                     break;
             }
+            
+            error_log("ACA: Meta data sent to auto-selected plugin: " . $selected_plugin['plugin']);
+            $this->log_meta_conflict_prevention($post_id, $selected_plugin['plugin'], $detected_plugins);
         }
         
         return $results;
+    }
+    
+    /**
+     * Log meta data conflict prevention for debugging and transparency
+     */
+    private function log_meta_conflict_prevention($post_id, $selected_plugin, $all_detected_plugins) {
+        $skipped_plugins = array();
+        
+        foreach ($all_detected_plugins as $plugin_info) {
+            if ($plugin_info['plugin'] !== $selected_plugin && $plugin_info['active']) {
+                $skipped_plugins[] = $plugin_info['plugin'];
+            }
+        }
+        
+        if (!empty($skipped_plugins)) {
+            $skipped_list = implode(', ', $skipped_plugins);
+            error_log("ACA: Meta conflict prevention - Post ID: $post_id, Used: $selected_plugin, Skipped: $skipped_list");
+            
+            // Store conflict prevention log in post meta for transparency
+            $conflict_log = array(
+                'timestamp' => current_time('mysql'),
+                'selected_plugin' => $selected_plugin,
+                'skipped_plugins' => $skipped_plugins,
+                'reason' => 'conflict_prevention'
+            );
+            
+            update_post_meta($post_id, '_aca_seo_conflict_log', $conflict_log);
+        }
     }
     
     /**
@@ -2878,11 +3025,11 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         try {
             // RankMath stores data in post meta with specific keys
             if (!empty($meta_title)) {
-                update_post_meta($post_id, 'rank_math_title', sanitize_text_field($meta_title));
+                update_post_meta($post_id, 'rank_math_title', $this->sanitize_unicode_text($meta_title));
             }
             
             if (!empty($meta_description)) {
-                update_post_meta($post_id, 'rank_math_description', sanitize_textarea_field($meta_description));
+                update_post_meta($post_id, 'rank_math_description', $this->sanitize_unicode_textarea($meta_description));
             }
             
             if (!empty($focus_keywords) && is_array($focus_keywords)) {
@@ -2925,13 +3072,13 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             
             // Social Media Integration
             if (!empty($meta_title)) {
-                update_post_meta($post_id, 'rank_math_facebook_title', sanitize_text_field($meta_title));
-                update_post_meta($post_id, 'rank_math_twitter_title', sanitize_text_field($meta_title));
+                update_post_meta($post_id, 'rank_math_facebook_title', $this->sanitize_unicode_text($meta_title));
+                update_post_meta($post_id, 'rank_math_twitter_title', $this->sanitize_unicode_text($meta_title));
             }
             
             if (!empty($meta_description)) {
-                update_post_meta($post_id, 'rank_math_facebook_description', sanitize_textarea_field($meta_description));
-                update_post_meta($post_id, 'rank_math_twitter_description', sanitize_textarea_field($meta_description));
+                update_post_meta($post_id, 'rank_math_facebook_description', $this->sanitize_unicode_textarea($meta_description));
+                update_post_meta($post_id, 'rank_math_twitter_description', $this->sanitize_unicode_textarea($meta_description));
             }
             
             // Set featured image for social media if available
@@ -2988,14 +3135,14 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
      */
     private function send_to_yoast($post_id, $meta_title, $meta_description, $focus_keywords) {
         try {
-            // Yoast stores data in post meta with _yoast_wpseo_ prefix
-            if (!empty($meta_title)) {
-                update_post_meta($post_id, '_yoast_wpseo_title', sanitize_text_field($meta_title));
-            }
-            
-            if (!empty($meta_description)) {
-                update_post_meta($post_id, '_yoast_wpseo_metadesc', sanitize_textarea_field($meta_description));
-            }
+                    // Yoast stores data in post meta with _yoast_wpseo_ prefix
+        if (!empty($meta_title)) {
+            update_post_meta($post_id, '_yoast_wpseo_title', $this->sanitize_unicode_text($meta_title));
+        }
+        
+        if (!empty($meta_description)) {
+            update_post_meta($post_id, '_yoast_wpseo_metadesc', $this->sanitize_unicode_textarea($meta_description));
+        }
             
             if (!empty($focus_keywords) && is_array($focus_keywords)) {
                 // Yoast stores the primary focus keyword
@@ -3055,13 +3202,13 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             
             // Social Media Integration - OpenGraph
             if (!empty($meta_title)) {
-                update_post_meta($post_id, '_yoast_wpseo_opengraph-title', sanitize_text_field($meta_title));
-                update_post_meta($post_id, '_yoast_wpseo_twitter-title', sanitize_text_field($meta_title));
+                update_post_meta($post_id, '_yoast_wpseo_opengraph-title', $this->sanitize_unicode_text($meta_title));
+                update_post_meta($post_id, '_yoast_wpseo_twitter-title', $this->sanitize_unicode_text($meta_title));
             }
             
             if (!empty($meta_description)) {
-                update_post_meta($post_id, '_yoast_wpseo_opengraph-description', sanitize_textarea_field($meta_description));
-                update_post_meta($post_id, '_yoast_wpseo_twitter-description', sanitize_textarea_field($meta_description));
+                update_post_meta($post_id, '_yoast_wpseo_opengraph-description', $this->sanitize_unicode_textarea($meta_description));
+                update_post_meta($post_id, '_yoast_wpseo_twitter-description', $this->sanitize_unicode_textarea($meta_description));
             }
             
             // Set featured image for social media if available
@@ -3140,14 +3287,14 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
      */
     private function send_to_aioseo($post_id, $meta_title, $meta_description, $focus_keywords) {
         try {
-            // AIOSEO stores data in post meta with _aioseo_ prefix
-            if (!empty($meta_title)) {
-                update_post_meta($post_id, '_aioseo_title', sanitize_text_field($meta_title));
-            }
-            
-            if (!empty($meta_description)) {
-                update_post_meta($post_id, '_aioseo_description', sanitize_textarea_field($meta_description));
-            }
+                    // AIOSEO stores data in post meta with _aioseo_ prefix
+        if (!empty($meta_title)) {
+            update_post_meta($post_id, '_aioseo_title', $this->sanitize_unicode_text($meta_title));
+        }
+        
+        if (!empty($meta_description)) {
+            update_post_meta($post_id, '_aioseo_description', $this->sanitize_unicode_textarea($meta_description));
+        }
             
             if (!empty($focus_keywords) && is_array($focus_keywords)) {
                 // AIOSEO stores keywords as comma-separated string
@@ -3170,13 +3317,13 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             
             // Social Media Integration - OpenGraph
             if (!empty($meta_title)) {
-                update_post_meta($post_id, '_aioseo_og_title', sanitize_text_field($meta_title));
-                update_post_meta($post_id, '_aioseo_twitter_title', sanitize_text_field($meta_title));
+                update_post_meta($post_id, '_aioseo_og_title', $this->sanitize_unicode_text($meta_title));
+                update_post_meta($post_id, '_aioseo_twitter_title', $this->sanitize_unicode_text($meta_title));
             }
             
             if (!empty($meta_description)) {
-                update_post_meta($post_id, '_aioseo_og_description', sanitize_textarea_field($meta_description));
-                update_post_meta($post_id, '_aioseo_twitter_description', sanitize_textarea_field($meta_description));
+                update_post_meta($post_id, '_aioseo_og_description', $this->sanitize_unicode_textarea($meta_description));
+                update_post_meta($post_id, '_aioseo_twitter_description', $this->sanitize_unicode_textarea($meta_description));
             }
             
             // Set featured image for social media if available
@@ -3464,7 +3611,10 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         }
         
         // Log the full response for debugging
-        error_log('ACA: Gumroad API response: ' . print_r($data, true));
+        // Only log detailed response in debug mode to prevent sensitive data exposure
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('ACA: Gumroad API response (DEBUG): ' . print_r($data, true));
+        }
         error_log('ACA: Response analysis - success field: ' . (isset($data['success']) ? ($data['success'] ? 'true' : 'false') : 'missing'));
         error_log('ACA: Response analysis - success type: ' . (isset($data['success']) ? gettype($data['success']) : 'N/A'));
         
@@ -3912,5 +4062,109 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         }
         
         return implode(' > ', $path);
+    }
+    
+    /**
+     * Setup proper charset handling for Unicode and special characters
+     */
+    public function setup_charset_handling() {
+        // Ensure UTF-8 encoding is used throughout
+        if (function_exists('mb_internal_encoding')) {
+            mb_internal_encoding('UTF-8');
+        }
+        
+        // Set proper headers for Unicode support
+        if (!headers_sent()) {
+            header('Content-Type: text/html; charset=UTF-8');
+        }
+    }
+    
+    /**
+     * Unicode-safe text sanitization
+     */
+    private function sanitize_unicode_text($text) {
+        if (empty($text)) {
+            return '';
+        }
+        
+        // Convert to UTF-8 if not already
+        if (function_exists('mb_convert_encoding')) {
+            $text = mb_convert_encoding($text, 'UTF-8', 'auto');
+        }
+        
+        // Remove control characters but preserve Unicode
+        $text = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $text);
+        
+        // Normalize Unicode characters
+        if (class_exists('Normalizer')) {
+            $text = Normalizer::normalize($text, Normalizer::FORM_C);
+        }
+        
+        // Standard WordPress sanitization that preserves Unicode
+        return sanitize_text_field($text);
+    }
+    
+    /**
+     * Unicode-safe textarea sanitization
+     */
+    private function sanitize_unicode_textarea($text) {
+        if (empty($text)) {
+            return '';
+        }
+        
+        // Convert to UTF-8 if not already
+        if (function_exists('mb_convert_encoding')) {
+            $text = mb_convert_encoding($text, 'UTF-8', 'auto');
+        }
+        
+        // Remove dangerous control characters but preserve line breaks
+        $text = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $text);
+        
+        // Normalize Unicode characters
+        if (class_exists('Normalizer')) {
+            $text = Normalizer::normalize($text, Normalizer::FORM_C);
+        }
+        
+        // Standard WordPress sanitization that preserves Unicode
+        return sanitize_textarea_field($text);
+    }
+    
+    /**
+     * Safe JSON encoding with Unicode support
+     */
+    private function safe_json_encode($data) {
+        // Use JSON_UNESCAPED_UNICODE to preserve Unicode characters
+        $json = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            error_log('ACA: JSON encoding error: ' . json_last_error_msg());
+            
+            // Fallback: try with escaped Unicode
+            $json = json_encode($data);
+            
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                return false;
+            }
+        }
+        
+        return $json;
+    }
+    
+    /**
+     * Safe JSON decoding with Unicode support
+     */
+    private function safe_json_decode($json, $assoc = true) {
+        if (empty($json)) {
+            return $assoc ? array() : null;
+        }
+        
+        $data = json_decode($json, $assoc);
+        
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            error_log('ACA: JSON decoding error: ' . json_last_error_msg());
+            return $assoc ? array() : null;
+        }
+        
+        return $data;
     }
 }

@@ -749,13 +749,59 @@ const App: React.FC = () => {
         loadInitialData();
     }, []);
 
+    // Handle mobile sidebar body scroll lock and window resize
+    useEffect(() => {
+        const handleResize = () => {
+            // Close sidebar when switching to desktop
+            if (window.innerWidth > 782 && isSidebarOpen) {
+                setIsSidebarOpen(false);
+            }
+            
+            // Update body class based on current state
+            if (isSidebarOpen && window.innerWidth <= 782) {
+                document.body.classList.add('aca-sidebar-open');
+            } else {
+                document.body.classList.remove('aca-sidebar-open');
+            }
+        };
+        
+        // Initial check
+        handleResize();
+        
+        // Add resize listener
+        window.addEventListener('resize', handleResize);
+        
+        // Cleanup on unmount
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            document.body.classList.remove('aca-sidebar-open');
+        };
+    }, [isSidebarOpen]);
+
     return (
         <>
             <div className="aca-container">
+                {/* Mobile hamburger menu button */}
+                <button 
+                    className="aca-mobile-hamburger"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setIsSidebarOpen(!isSidebarOpen);
+                    }}
+                    aria-label="Toggle navigation menu"
+                    style={{ display: window.innerWidth <= 782 ? 'block' : 'none' }}
+                >
+                    ☰
+                </button>
+                
                 {/* Mobile overlay */}
                 <div 
-                    className={`aca-overlay ${isSidebarOpen ? 'show' : ''}`}
-                    onClick={() => setIsSidebarOpen(false)}
+                    className={`aca-mobile-overlay ${isSidebarOpen ? 'active' : ''}`}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        setIsSidebarOpen(false);
+                    }}
                 />
                 
                 {/* Sidebar */}

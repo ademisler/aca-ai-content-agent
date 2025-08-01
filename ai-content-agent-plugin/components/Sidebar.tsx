@@ -91,8 +91,28 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, isOpen, 
     
     const handleNavigation = (view: View) => {
         setView(view);
-        closeSidebar();
-    }
+        // Close sidebar on mobile after navigation
+        if (window.innerWidth <= 782) {
+            closeSidebar();
+        }
+    };
+    
+    // Handle ESC key for mobile
+    React.useEffect(() => {
+        const handleEscKey = (event: KeyboardEvent) => {
+            if (event.key === 'Escape' && isOpen && window.innerWidth <= 782) {
+                closeSidebar();
+            }
+        };
+        
+        if (isOpen) {
+            document.addEventListener('keydown', handleEscKey);
+        }
+        
+        return () => {
+            document.removeEventListener('keydown', handleEscKey);
+        };
+    }, [isOpen, closeSidebar]);
 
     return (
         <aside className={`aca-sidebar ${isOpen ? 'open' : ''}`}>

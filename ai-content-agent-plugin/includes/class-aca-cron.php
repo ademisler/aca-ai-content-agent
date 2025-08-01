@@ -42,9 +42,40 @@ class ACA_Cron {
      * Handles full-automatic mode operations
      */
     public static function thirty_minute_task() {
+        // Prevent overlapping executions
+        $lock_key = 'aca_thirty_minute_task_lock';
+        if (get_transient($lock_key)) {
+            error_log('ACA Cron: 30-minute task already running, skipping this execution');
+            return;
+        }
+        
+        // Set lock for maximum expected execution time
+        set_transient($lock_key, time(), 600); // 10 minutes lock
+        
+        try {
+            // Cron context detection and resource optimization
+            $is_cron = defined('DOING_CRON') && DOING_CRON;
+            $is_manual_trigger = !$is_cron && (defined('WP_CLI') && WP_CLI) || is_admin();
+            
+            // Store original limits for restoration
+            $original_memory_limit = ini_get('memory_limit');
+            $original_time_limit = ini_get('max_execution_time');
+            
+            if ($is_cron) {
+                // Optimize for cron environment
+                ini_set('memory_limit', '512M');
+                set_time_limit(300); // 5 minutes max execution
+                error_log('ACA Cron: 30-minute task started in CRON context (Memory: 512M, Time: 300s)');
+            } else if ($is_manual_trigger) {
+                error_log('ACA Cron: 30-minute task started manually');
+            }
+        
         $settings = get_option('aca_settings', array());
         
         if (empty($settings['geminiApiKey'])) {
+            if ($is_cron) {
+                error_log('ACA Cron: Skipping 30-minute task - no Gemini API key');
+            }
             return;
         }
         
@@ -66,6 +97,20 @@ class ACA_Cron {
                 error_log('ACA: Full-automatic mode requires Pro license');
             }
         }
+        
+        } finally {
+            // Restore original resource limits
+            if (isset($original_memory_limit)) {
+                ini_set('memory_limit', $original_memory_limit);
+            }
+            if (isset($original_time_limit)) {
+                set_time_limit($original_time_limit);
+            }
+            
+            // Always release the lock
+            delete_transient($lock_key);
+            error_log('ACA Cron: 30-minute task completed, lock released, limits restored');
+        }
     }
     
     /**
@@ -73,9 +118,40 @@ class ACA_Cron {
      * Handles semi-automatic mode operations
      */
     public static function fifteen_minute_task() {
+        // Prevent overlapping executions
+        $lock_key = 'aca_fifteen_minute_task_lock';
+        if (get_transient($lock_key)) {
+            error_log('ACA Cron: 15-minute task already running, skipping this execution');
+            return;
+        }
+        
+        // Set lock for maximum expected execution time
+        set_transient($lock_key, time(), 300); // 5 minutes lock
+        
+        try {
+            // Cron context detection and resource optimization
+            $is_cron = defined('DOING_CRON') && DOING_CRON;
+            $is_manual_trigger = !$is_cron && (defined('WP_CLI') && WP_CLI) || is_admin();
+            
+            // Store original limits for restoration
+            $original_memory_limit = ini_get('memory_limit');
+            $original_time_limit = ini_get('max_execution_time');
+        
+        if ($is_cron) {
+            // Optimize for cron environment - lighter resource usage for 15min task
+            ini_set('memory_limit', '256M');
+            set_time_limit(180); // 3 minutes max execution
+            error_log('ACA Cron: 15-minute task started in CRON context (Memory: 256M, Time: 180s)');
+        } else if ($is_manual_trigger) {
+            error_log('ACA Cron: 15-minute task started manually');
+        }
+        
         $settings = get_option('aca_settings', array());
         
         if (empty($settings['geminiApiKey'])) {
+            if ($is_cron) {
+                error_log('ACA Cron: Skipping 15-minute task - no Gemini API key');
+            }
             return;
         }
         
@@ -90,6 +166,20 @@ class ACA_Cron {
             } else {
                 error_log('ACA: Semi-automatic mode requires Pro license');
             }
+        }
+        
+        } finally {
+            // Restore original resource limits
+            if (isset($original_memory_limit)) {
+                ini_set('memory_limit', $original_memory_limit);
+            }
+            if (isset($original_time_limit)) {
+                set_time_limit($original_time_limit);
+            }
+            
+            // Always release the lock
+            delete_transient($lock_key);
+            error_log('ACA Cron: 15-minute task completed, lock released, limits restored');
         }
     }
     

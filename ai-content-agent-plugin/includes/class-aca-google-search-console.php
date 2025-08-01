@@ -33,7 +33,10 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
             $this->client = new Google_Client();
             $this->client->setApplicationName('AI Content Agent (ACA)');
             $this->client->setScopes([
-                'https://www.googleapis.com/auth/webmasters.readonly'
+                'https://www.googleapis.com/auth/webmasters.readonly',
+                'https://www.googleapis.com/auth/webmasters',
+                'https://www.googleapis.com/auth/siteverification.verify_only',
+                'https://www.googleapis.com/auth/siteverification'
             ]);
             $this->client->setAccessType('offline');
             $this->client->setPrompt('select_account consent'); // Force consent screen for proper refresh token
@@ -128,12 +131,23 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
     }
     
     /**
-     * Refresh access token
+     * Enhanced token refresh with retry mechanism
+     * Note: Maintains original method signature (no parameters, no return value)
      */
     private function refresh_token() {
         try {
             // Get current stored tokens to preserve all data
             $current_tokens = get_option('aca_gsc_tokens', array());
+            
+            // Check if proactive refresh is needed (only if forced or near expiry)
+            if (isset($current_tokens['expires_in'], $current_tokens['created'])) {
+                $expires_at = $current_tokens['created'] + $current_tokens['expires_in'] - 300; // 5 min buffer
+                if (time() < $expires_at) {
+                    // Token still valid, no need to refresh
+                    return;
+                }
+            }
+            
             $refresh_token = $this->client->getRefreshToken();
             
             if (!$refresh_token && isset($current_tokens['refresh_token'])) {
@@ -143,33 +157,91 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
             }
             
             if ($refresh_token) {
-                $new_tokens = $this->client->fetchAccessTokenWithRefreshToken($refresh_token);
+                // Retry mechanism with exponential backoff
+                $max_retries = 3;
+                $retry_delay = 1;
+                $last_error = null;
                 
-                if (isset($new_tokens['error'])) {
-                    error_log('ACA GSC Token Refresh Error: ' . $new_tokens['error_description']);
-                    return;
-                }
-                
-                // Always preserve refresh token from either new response or current tokens
-                if (!isset($new_tokens['refresh_token'])) {
-                    if ($refresh_token) {
-                        $new_tokens['refresh_token'] = $refresh_token;
-                    } elseif (isset($current_tokens['refresh_token'])) {
-                        $new_tokens['refresh_token'] = $current_tokens['refresh_token'];
+                for ($attempt = 1; $attempt <= $max_retries; $attempt++) {
+                    try {
+                        $new_tokens = $this->client->fetchAccessTokenWithRefreshToken($refresh_token);
+                        
+                        if (isset($new_tokens['error'])) {
+                            throw new Exception($new_tokens['error_description'] ?? $new_tokens['error']);
+                        }
+                        
+                        // Success - preserve refresh token and add metadata
+                        if (!isset($new_tokens['refresh_token'])) {
+                            $new_tokens['refresh_token'] = $refresh_token;
+                        }
+                        
+                        $new_tokens['created'] = time();
+                        $new_tokens['last_refresh'] = time();
+                        
+                        // Preserve other token data that might exist
+                        $merged_tokens = array_merge($current_tokens, $new_tokens);
+                        
+                        update_option('aca_gsc_tokens', $merged_tokens);
+                        
+                        // Reset failure count on success
+                        delete_option('aca_gsc_refresh_failures');
+                        
+                        // Clear validation cache since we have new tokens
+                        $this->clear_validation_cache();
+                        
+                        error_log("ACA GSC: Successfully refreshed access token on attempt $attempt");
+                        return; // Success - exit method
+                        
+                    } catch (Exception $e) {
+                        $last_error = $e->getMessage();
+                        error_log("ACA GSC: Token refresh attempt $attempt failed: " . $last_error);
+                        
+                        if ($attempt < $max_retries) {
+                            sleep($retry_delay);
+                            $retry_delay *= 2;
+                        }
                     }
                 }
                 
-                // Preserve other token data that might exist
-                $merged_tokens = array_merge($current_tokens, $new_tokens);
+                // All retries failed
+                $this->handle_refresh_failure($last_error);
                 
-                update_option('aca_gsc_tokens', $merged_tokens);
-                error_log('ACA GSC: Successfully refreshed access token');
             } else {
                 error_log('ACA GSC: No refresh token available in client or stored tokens');
+                $this->handle_refresh_failure('No refresh token available');
             }
+            
         } catch (Exception $e) {
             error_log('ACA GSC Token Refresh Error: ' . $e->getMessage());
+            $this->handle_refresh_failure($e->getMessage());
         }
+    }
+    
+    /**
+     * Handle token refresh failures (new method - add after refresh_token method)
+     */
+    private function handle_refresh_failure($error_message) {
+        $failure_count = get_option('aca_gsc_refresh_failures', 0) + 1;
+        update_option('aca_gsc_refresh_failures', $failure_count);
+        
+        error_log("ACA GSC: Token refresh failure #$failure_count - $error_message");
+        
+        // After 3 consecutive failures, trigger re-authentication notice
+        if ($failure_count >= 3) {
+            $this->trigger_reauth_notice($error_message);
+        }
+    }
+    
+    /**
+     * Trigger re-authentication notice (new method - add after handle_refresh_failure)
+     */
+    private function trigger_reauth_notice($error_message) {
+        set_transient('aca_gsc_reauth_required', array(
+            'error_message' => $error_message,
+            'timestamp' => time()
+        ), DAY_IN_SECONDS);
+        
+        error_log("ACA GSC: Re-authentication notice set due to: $error_message");
     }
     
     /**
@@ -178,6 +250,12 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
     private function get_user_info() {
         if (!$this->client || !$this->client->getAccessToken()) {
             return new WP_Error('not_authenticated', 'Not authenticated');
+        }
+        
+        // Ensure token is valid before making API calls
+        $token_check = $this->ensure_valid_token();
+        if (is_wp_error($token_check) || $token_check === false) {
+            return is_wp_error($token_check) ? $token_check : new WP_Error('token_invalid', 'Token validation failed');
         }
         
         try {
@@ -282,6 +360,12 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
             return new WP_Error('not_authenticated', 'Not authenticated with Google Search Console');
         }
         
+        // Ensure token is valid before making API calls
+        $token_check = $this->ensure_valid_token();
+        if (is_wp_error($token_check) || $token_check === false) {
+            return is_wp_error($token_check) ? $token_check : new WP_Error('token_invalid', 'Token validation failed');
+        }
+        
         try {
             $sites_list = $this->service->sites->listSites();
             $sites = array();
@@ -372,6 +456,14 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
             return false;
         }
         
+        // Ensure token is valid before making API calls
+        $token_check = $this->ensure_valid_token();
+        if (is_wp_error($token_check) || $token_check === false) {
+            $error_msg = is_wp_error($token_check) ? $token_check->get_error_message() : 'Token validation failed';
+            error_log('ACA GSC: Token validation failed for AI data: ' . $error_msg);
+            return false;
+        }
+        
         $site_url = home_url();
         // Add trailing slash if not present (GSC requirement)
         if (substr($site_url, -1) !== '/') {
@@ -430,5 +522,200 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
         public function get_data_for_ai() {
             return false;
         }
+    }
+    
+    /**
+     * Proactive token refresh - call before API requests
+     * This is a new method that returns boolean for success/failure
+     */
+    public function ensure_valid_token() {
+        $current_tokens = get_option('aca_gsc_tokens');
+        
+        if (!$current_tokens) {
+            return false;
+        }
+        
+        // Check if token expires within next 10 minutes
+        if (isset($current_tokens['expires_in'], $current_tokens['created'])) {
+            $expires_at = $current_tokens['created'] + $current_tokens['expires_in'] - 600; // 10 min buffer
+            
+            if (time() >= $expires_at) {
+                // Use a lock mechanism to prevent race conditions during token refresh
+                $lock_key = 'aca_token_refresh_lock';
+                $lock_timeout = 30; // 30 seconds max lock
+                
+                if (get_transient($lock_key)) {
+                    // Another process is already refreshing, wait and return current status
+                    sleep(1);
+                    $updated_tokens = get_option('aca_gsc_tokens');
+                    return isset($updated_tokens['access_token']) && !empty($updated_tokens['access_token']);
+                }
+                
+                // Set lock before refresh
+                set_transient($lock_key, time(), $lock_timeout);
+                
+                try {
+                    $this->refresh_token();
+                    
+                    // Check if refresh was successful
+                    $updated_tokens = get_option('aca_gsc_tokens');
+                    return isset($updated_tokens['access_token']) && !empty($updated_tokens['access_token']);
+                } finally {
+                    // Always release lock
+                    delete_transient($lock_key);
+                }
+            }
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Validate OAuth scopes for current token with caching
+     */
+    public function validate_token_scopes() {
+        $current_tokens = get_option('aca_gsc_tokens');
+        
+        if (!$current_tokens || !isset($current_tokens['access_token'])) {
+            return new WP_Error('no_token', 'No access token available');
+        }
+        
+        // Check cache first to avoid excessive HTTP requests
+        $cache_key = 'aca_gsc_scope_validation_' . md5($current_tokens['access_token']);
+        $cached_result = get_transient($cache_key);
+        
+        if ($cached_result !== false) {
+            return $cached_result === 'valid' ? true : new WP_Error('cached_invalid', 'Token validation failed (cached)');
+        }
+        
+        try {
+            // Set the access token
+            $this->client->setAccessToken($current_tokens);
+            
+            // Try to get token info to check scopes
+            $token_info_url = 'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=' . $current_tokens['access_token'];
+            
+            $response = wp_remote_get($token_info_url, array(
+                'timeout' => 10, // Reduced timeout for better performance
+                'headers' => array(
+                    'User-Agent' => 'AI Content Agent (ACA)'
+                )
+            ));
+            
+            if (is_wp_error($response)) {
+                return new WP_Error('scope_check_failed', 'Failed to validate token scopes: ' . $response->get_error_message());
+            }
+            
+            $status_code = wp_remote_retrieve_response_code($response);
+            if ($status_code !== 200) {
+                return new WP_Error('token_validation_failed', 'Token validation API returned status: ' . $status_code);
+            }
+            
+            $body = wp_remote_retrieve_body($response);
+            if (empty($body)) {
+                return new WP_Error('empty_response', 'Empty response from token validation API');
+            }
+            
+            $token_data = json_decode($body, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                return new WP_Error('json_error', 'Invalid JSON in token validation response: ' . json_last_error_msg());
+            }
+            
+            if (!$token_data || isset($token_data['error'])) {
+                return new WP_Error('invalid_token', 'Token validation failed: ' . ($token_data['error_description'] ?? 'Unknown error'));
+            }
+            
+            // Check if we have the required scopes
+            $required_scopes = array(
+                'https://www.googleapis.com/auth/webmasters.readonly',
+                'https://www.googleapis.com/auth/webmasters'
+            );
+            
+            $granted_scopes = isset($token_data['scope']) ? explode(' ', $token_data['scope']) : array();
+            $missing_scopes = array();
+            
+            foreach ($required_scopes as $required_scope) {
+                if (!in_array($required_scope, $granted_scopes)) {
+                    $missing_scopes[] = $required_scope;
+                }
+            }
+            
+            if (!empty($missing_scopes)) {
+                error_log('ACA GSC: Missing OAuth scopes: ' . implode(', ', $missing_scopes));
+                
+                // Trigger re-authentication with expanded scopes
+                $this->trigger_scope_reauth_notice($missing_scopes);
+                
+                return new WP_Error('insufficient_scopes', 'Token missing required scopes', array(
+                    'missing_scopes' => $missing_scopes,
+                    'granted_scopes' => $granted_scopes
+                ));
+            }
+            
+            error_log('ACA GSC: Token scope validation successful');
+            
+            // Cache successful validation for 10 minutes
+            set_transient($cache_key, 'valid', 600);
+            
+            return true;
+            
+        } catch (Exception $e) {
+            error_log('ACA GSC: Scope validation error: ' . $e->getMessage());
+            
+            // Cache failed validation for 1 minute to prevent spam
+            set_transient($cache_key, 'invalid', 60);
+            
+            return new WP_Error('scope_validation_error', $e->getMessage());
+        }
+    }
+    
+    /**
+     * Trigger re-authentication notice for insufficient scopes
+     */
+    private function trigger_scope_reauth_notice($missing_scopes) {
+        set_transient('aca_gsc_scope_reauth_required', array(
+            'missing_scopes' => $missing_scopes,
+            'timestamp' => time(),
+            'reason' => 'insufficient_oauth_scopes'
+        ), DAY_IN_SECONDS);
+        
+        error_log("ACA GSC: Scope re-authentication notice set for missing scopes: " . implode(', ', $missing_scopes));
+    }
+    
+    /**
+     * Check if operation requires specific scopes
+     */
+    public function check_operation_permissions($operation) {
+        $scope_requirements = array(
+            'read_data' => array('https://www.googleapis.com/auth/webmasters.readonly'),
+            'submit_sitemap' => array('https://www.googleapis.com/auth/webmasters'),
+            'site_verification' => array('https://www.googleapis.com/auth/siteverification'),
+            'manage_sites' => array('https://www.googleapis.com/auth/webmasters')
+        );
+        
+        if (!isset($scope_requirements[$operation])) {
+            return true; // Unknown operation, assume it's allowed
+        }
+        
+        $validation_result = $this->validate_token_scopes();
+        
+        if (is_wp_error($validation_result)) {
+            return $validation_result;
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Clear validation cache when tokens are refreshed
+     */
+    private function clear_validation_cache() {
+        global $wpdb;
+        
+        // Clear all validation cache transients
+        $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_aca_gsc_scope_validation_%'");
+        $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_timeout_aca_gsc_scope_validation_%'");
+        
+        error_log('ACA GSC: Cleared validation cache after token refresh');
     }
 }

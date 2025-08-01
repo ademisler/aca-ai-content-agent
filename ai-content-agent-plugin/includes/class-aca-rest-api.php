@@ -20,6 +20,7 @@ class ACA_Rest_Api {
      * Register REST API routes
      */
     public function register_routes() {
+        error_log('ACA: Starting REST API route registration');
         // Settings endpoints
         register_rest_route('aca/v1', '/settings', array(
             'methods' => 'GET',
@@ -252,6 +253,7 @@ class ACA_Rest_Api {
         ));
         
         // Content Freshness endpoints (Pro feature)
+        error_log('ACA: Registering content-freshness endpoints');
         register_rest_route('aca/v1', '/content-freshness/analyze', array(
             'methods' => 'POST',
             'callback' => array($this, 'analyze_content_freshness'),
@@ -286,6 +288,15 @@ class ACA_Rest_Api {
             'methods' => 'GET',
             'callback' => array($this, 'get_posts_needing_updates'),
             'permission_callback' => array($this, 'check_pro_permissions')
+        ));
+        
+        error_log('ACA: Content-freshness endpoints registration completed');
+        
+        // Test endpoint to verify registration works
+        register_rest_route('aca/v1', '/test-endpoint', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'test_endpoint_callback'),
+            'permission_callback' => '__return_true'
         ));
 
         // License verification endpoint
@@ -4121,6 +4132,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
      * Get posts with freshness data
      */
     public function get_posts_freshness_data($request) {
+        error_log('ACA: get_posts_freshness_data method called');
         require_once ACA_PLUGIN_PATH . 'includes/class-aca-content-freshness.php';
         
         $freshness_manager = new ACA_Content_Freshness();
@@ -4384,5 +4396,16 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         }
         
         return $data;
+    }
+    
+    /**
+     * Test endpoint callback
+     */
+    public function test_endpoint_callback($request) {
+        return array(
+            'success' => true,
+            'message' => 'Test endpoint working',
+            'timestamp' => current_time('mysql')
+        );
     }
 }

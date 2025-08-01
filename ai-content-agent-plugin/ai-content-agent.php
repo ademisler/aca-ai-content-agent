@@ -73,8 +73,10 @@ class AI_Content_Agent {
         // Initialize Cron jobs
         new ACA_Cron();
         
-        // Handle Google Search Console OAuth callback
-        add_action('admin_init', array($this, 'handle_gsc_oauth_callback'));
+        // Handle Google Search Console OAuth callback - only when needed
+        if (isset($_GET['code']) && isset($_GET['state']) && $_GET['state'] === 'aca_gsc_auth') {
+            add_action('admin_init', array($this, 'handle_gsc_oauth_callback'));
+        }
         
         // Add admin menu
         add_action('admin_menu', array($this, 'add_admin_menu'));

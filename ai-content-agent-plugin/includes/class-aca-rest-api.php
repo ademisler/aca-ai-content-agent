@@ -1228,24 +1228,11 @@ class ACA_Rest_Api {
                 
                 $draft_data = json_decode($draft_content, true);
                                         if (json_last_error() !== JSON_ERROR_NONE) {
-                            error_log('ACA JSON Decode Error: ' . json_last_error_msg());
-                                    // Only log content details in debug mode
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('ACA Raw Response Length (DEBUG): ' . strlen($draft_content));
-            error_log('ACA Raw Response First 200 chars (DEBUG): ' . substr($draft_content, 0, 200));
-        } else {
-            error_log('ACA Raw Response Length: ' . strlen($draft_content));
-        }
-                            
                             // Try to clean and fix common JSON issues
                             $cleaned_content = $this->clean_ai_json_response($draft_content);
                             if ($cleaned_content !== $draft_content) {
-                                error_log('ACA Attempting to parse cleaned JSON');
                                 $draft_data = json_decode($cleaned_content, true);
-                                if (json_last_error() === JSON_ERROR_NONE) {
-                                    error_log('ACA Successfully parsed cleaned JSON');
-                                } else {
-                                    error_log('ACA Cleaned JSON still invalid: ' . json_last_error_msg());
+                                if (json_last_error() !== JSON_ERROR_NONE) {
                                     throw new Exception('Invalid JSON response from AI service after cleaning: ' . json_last_error_msg());
                                 }
                             } else {
@@ -1253,15 +1240,13 @@ class ACA_Rest_Api {
                             }
                         }
                 
-                // Validate required fields with detailed logging
+                // Validate required fields
                 $missing_fields = array();
                 if (empty($draft_data['content'])) $missing_fields[] = 'content';
                 if (empty($draft_data['metaTitle'])) $missing_fields[] = 'metaTitle';
                 if (empty($draft_data['metaDescription'])) $missing_fields[] = 'metaDescription';
                 
                 if (!empty($missing_fields)) {
-                    error_log('ACA Missing Fields: ' . implode(', ', $missing_fields));
-                    error_log('ACA Response Keys: ' . implode(', ', array_keys($draft_data)));
                     throw new Exception('AI response missing required fields: ' . implode(', ', $missing_fields));
                 }
                 

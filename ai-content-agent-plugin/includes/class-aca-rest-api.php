@@ -245,6 +245,12 @@ class ACA_Rest_Api {
             'permission_callback' => array($this, 'check_admin_permissions')
         ));
         
+        register_rest_route('aca/v1', '/gsc/status', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_gsc_status'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
+        
         // Content Freshness endpoints (Pro feature)
         register_rest_route('aca/v1', '/content-freshness/analyze', array(
             'methods' => 'POST',
@@ -2779,6 +2785,38 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
     }
     
     /**
+     * Get Google Search Console connection status
+     */
+    public function get_gsc_status($request) {
+        try {
+            // Check if GSC is configured
+            $settings = get_option('aca_settings', array());
+            $gsc_tokens = get_option('aca_gsc_tokens', array());
+            
+            $is_configured = !empty($settings['gscClientId']) && !empty($settings['gscClientSecret']);
+            $is_connected = !empty($gsc_tokens['access_token']) && !empty($gsc_tokens['refresh_token']);
+            
+            // Get selected site if connected
+            $selected_site = '';
+            if ($is_connected) {
+                $selected_site = isset($settings['gscSiteUrl']) ? $settings['gscSiteUrl'] : '';
+            }
+            
+            return rest_ensure_response(array(
+                'configured' => $is_configured,
+                'connected' => $is_connected,
+                'selected_site' => $selected_site,
+                'last_sync' => get_option('aca_gsc_last_sync', null),
+                'status' => $is_connected ? 'connected' : ($is_configured ? 'configured' : 'not_configured')
+            ));
+            
+        } catch (Exception $e) {
+            error_log('ACA GSC Status Error: ' . $e->getMessage());
+            return new WP_Error('gsc_status_error', 'Failed to get GSC status', array('status' => 500));
+        }
+    }
+    
+    /**
      * Get SEO plugins status endpoint
      */
     public function get_seo_plugins($request) {
@@ -3570,6 +3608,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 // Additional security fields for multi-point validation
                 update_option('aca_license_verified', wp_hash('verified'));
                 update_option('aca_license_timestamp', time());
+                update_option('aca_license_key', $license_key);
                 
                 // Add success message to response
                 $verification_result['message'] = 'License verified successfully! Pro features are now active.';
@@ -3578,6 +3617,9 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 delete_option('aca_license_status');
                 delete_option('aca_license_data');
                 delete_option('aca_license_site_hash');
+                delete_option('aca_license_key');
+                delete_option('aca_license_verified');
+                delete_option('aca_license_timestamp');
                 
                 // Add failure message to response
                 $verification_result['message'] = 'License verification failed. Please check your license key and try again.';
@@ -3631,6 +3673,9 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             delete_option('aca_license_status');
             delete_option('aca_license_data');
             delete_option('aca_license_site_hash');
+            delete_option('aca_license_key');
+            delete_option('aca_license_verified');
+            delete_option('aca_license_timestamp');
             
             error_log('ACA: License deactivated successfully');
             

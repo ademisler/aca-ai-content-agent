@@ -128,12 +128,23 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
     }
     
     /**
-     * Refresh access token
+     * Enhanced token refresh with retry mechanism
+     * Note: Maintains original method signature (no parameters, no return value)
      */
     private function refresh_token() {
         try {
             // Get current stored tokens to preserve all data
             $current_tokens = get_option('aca_gsc_tokens', array());
+            
+            // Check if proactive refresh is needed (only if forced or near expiry)
+            if (isset($current_tokens['expires_in'], $current_tokens['created'])) {
+                $expires_at = $current_tokens['created'] + $current_tokens['expires_in'] - 300; // 5 min buffer
+                if (time() < $expires_at) {
+                    // Token still valid, no need to refresh
+                    return;
+                }
+            }
+            
             $refresh_token = $this->client->getRefreshToken();
             
             if (!$refresh_token && isset($current_tokens['refresh_token'])) {
@@ -143,33 +154,88 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
             }
             
             if ($refresh_token) {
-                $new_tokens = $this->client->fetchAccessTokenWithRefreshToken($refresh_token);
+                // Retry mechanism with exponential backoff
+                $max_retries = 3;
+                $retry_delay = 1;
+                $last_error = null;
                 
-                if (isset($new_tokens['error'])) {
-                    error_log('ACA GSC Token Refresh Error: ' . $new_tokens['error_description']);
-                    return;
-                }
-                
-                // Always preserve refresh token from either new response or current tokens
-                if (!isset($new_tokens['refresh_token'])) {
-                    if ($refresh_token) {
-                        $new_tokens['refresh_token'] = $refresh_token;
-                    } elseif (isset($current_tokens['refresh_token'])) {
-                        $new_tokens['refresh_token'] = $current_tokens['refresh_token'];
+                for ($attempt = 1; $attempt <= $max_retries; $attempt++) {
+                    try {
+                        $new_tokens = $this->client->fetchAccessTokenWithRefreshToken($refresh_token);
+                        
+                        if (isset($new_tokens['error'])) {
+                            throw new Exception($new_tokens['error_description'] ?? $new_tokens['error']);
+                        }
+                        
+                        // Success - preserve refresh token and add metadata
+                        if (!isset($new_tokens['refresh_token'])) {
+                            $new_tokens['refresh_token'] = $refresh_token;
+                        }
+                        
+                        $new_tokens['created'] = time();
+                        $new_tokens['last_refresh'] = time();
+                        
+                        // Preserve other token data that might exist
+                        $merged_tokens = array_merge($current_tokens, $new_tokens);
+                        
+                        update_option('aca_gsc_tokens', $merged_tokens);
+                        
+                        // Reset failure count on success
+                        delete_option('aca_gsc_refresh_failures');
+                        
+                        error_log("ACA GSC: Successfully refreshed access token on attempt $attempt");
+                        return; // Success - exit method
+                        
+                    } catch (Exception $e) {
+                        $last_error = $e->getMessage();
+                        error_log("ACA GSC: Token refresh attempt $attempt failed: " . $last_error);
+                        
+                        if ($attempt < $max_retries) {
+                            sleep($retry_delay);
+                            $retry_delay *= 2;
+                        }
                     }
                 }
                 
-                // Preserve other token data that might exist
-                $merged_tokens = array_merge($current_tokens, $new_tokens);
+                // All retries failed
+                $this->handle_refresh_failure($last_error);
                 
-                update_option('aca_gsc_tokens', $merged_tokens);
-                error_log('ACA GSC: Successfully refreshed access token');
             } else {
                 error_log('ACA GSC: No refresh token available in client or stored tokens');
+                $this->handle_refresh_failure('No refresh token available');
             }
+            
         } catch (Exception $e) {
             error_log('ACA GSC Token Refresh Error: ' . $e->getMessage());
+            $this->handle_refresh_failure($e->getMessage());
         }
+    }
+    
+    /**
+     * Handle token refresh failures (new method - add after refresh_token method)
+     */
+    private function handle_refresh_failure($error_message) {
+        $failure_count = get_option('aca_gsc_refresh_failures', 0) + 1;
+        update_option('aca_gsc_refresh_failures', $failure_count);
+        
+        error_log("ACA GSC: Token refresh failure #$failure_count - $error_message");
+        
+        // After 3 consecutive failures, trigger re-authentication notice
+        if ($failure_count >= 3) {
+            $this->trigger_reauth_notice($error_message);
+        }
+    }
+    
+    /**
+     * Trigger re-authentication notice (new method - add after handle_refresh_failure)
+     */
+    private function trigger_reauth_notice($error_message) {
+        set_transient('aca_gsc_reauth_required', array(
+            'error_message' => $error_message,
+            'timestamp' => time()
+        ), DAY_IN_SECONDS);
+        
+        error_log("ACA GSC: Re-authentication notice set due to: $error_message");
     }
     
     /**
@@ -430,5 +496,37 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
         public function get_data_for_ai() {
             return false;
         }
+    }
+    
+    /**
+     * Proactive token refresh - call before API requests
+     * This is a new method that returns boolean for success/failure
+     */
+    public function ensure_valid_token() {
+        $current_tokens = get_option('aca_gsc_tokens');
+        
+        if (!$current_tokens) {
+            return false;
+        }
+        
+        // Check if token expires within next 10 minutes
+        if (isset($current_tokens['expires_in'], $current_tokens['created'])) {
+            $expires_at = $current_tokens['created'] + $current_tokens['expires_in'] - 600; // 10 min buffer
+            
+            if (time() >= $expires_at) {
+                // Force refresh by temporarily clearing the created timestamp
+                $temp_tokens = $current_tokens;
+                unset($temp_tokens['created']);
+                update_option('aca_gsc_tokens', $temp_tokens);
+                
+                $this->refresh_token();
+                
+                // Check if refresh was successful
+                $updated_tokens = get_option('aca_gsc_tokens');
+                return isset($updated_tokens['access_token']) && !empty($updated_tokens['access_token']);
+            }
+        }
+        
+        return true;
     }
 }

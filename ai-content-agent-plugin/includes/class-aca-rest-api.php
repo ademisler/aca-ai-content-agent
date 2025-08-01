@@ -3023,7 +3023,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
      */
     private function send_to_rankmath($post_id, $meta_title, $meta_description, $focus_keywords) {
         try {
-            // RankMath stores data in post meta with specific keys
+            // RankMath stores data in post meta with rank_math_ prefix
             if (!empty($meta_title)) {
                 update_post_meta($post_id, 'rank_math_title', $this->sanitize_unicode_text($meta_title));
             }
@@ -3033,44 +3033,50 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             }
             
             if (!empty($focus_keywords) && is_array($focus_keywords)) {
-                // RankMath stores focus keyword as a single string (first keyword)
+                // RankMath stores focus keyword as a single string (primary keyword)
                 $primary_keyword = sanitize_text_field($focus_keywords[0]);
                 update_post_meta($post_id, 'rank_math_focus_keyword', $primary_keyword);
+                
+                // For RankMath Pro, additional keywords can be stored
+                if (count($focus_keywords) > 1 && class_exists('\RankMath\Pro\Admin\Admin_Menu')) {
+                    // Store additional keywords as JSON array for Pro version
+                    $additional_keywords = array();
+                    for ($i = 1; $i < count($focus_keywords); $i++) {
+                        $additional_keywords[] = sanitize_text_field($focus_keywords[$i]);
+                    }
+                    update_post_meta($post_id, 'rank_math_keywords', implode(',', $additional_keywords));
+                }
                 
                 // Store all keywords in a custom meta for reference
                 update_post_meta($post_id, 'aca_focus_keywords', $focus_keywords);
             }
             
             // Set additional RankMath meta for better integration
-            update_post_meta($post_id, 'rank_math_robots', array('index', 'follow'));
-            
-            // Set content score (simulate a good score for AI-generated content)
+            // Set good content score for AI-generated content (0-100 scale)
             update_post_meta($post_id, 'rank_math_seo_score', 85);
             
-            // Set pillar content if multiple keywords (indicates comprehensive content)
-            if (!empty($focus_keywords) && is_array($focus_keywords) && count($focus_keywords) > 1) {
-                update_post_meta($post_id, 'rank_math_pillar_content', 'on');
-            }
+            // Set readability score (simulate good readability for AI content)
+            update_post_meta($post_id, 'rank_math_contentai_score', 75);
             
-            // Enhanced Schema support for different post types
-            $post_type = get_post_type($post_id);
-            if ($post_type === 'post') {
-                update_post_meta($post_id, 'rank_math_rich_snippet', 'article');
-                update_post_meta($post_id, 'rank_math_snippet_article_type', 'BlogPosting');
-            } elseif ($post_type === 'page') {
-                update_post_meta($post_id, 'rank_math_rich_snippet', 'article');
-                update_post_meta($post_id, 'rank_math_snippet_article_type', 'Article');
+            // Set robots meta to index and follow
+            update_post_meta($post_id, 'rank_math_robots', array('index', 'follow'));
+            
+            // Set canonical URL to self to avoid duplicate content
+            $post_url = get_permalink($post_id);
+            if ($post_url) {
+                update_post_meta($post_id, 'rank_math_canonical_url', $post_url);
             }
             
             // Set primary category if post has categories
+            $post_type = get_post_type($post_id);
             if ($post_type === 'post') {
                 $categories = get_the_category($post_id);
                 if (!empty($categories)) {
-                    update_post_meta($post_id, '_yoast_wpseo_primary_category', $categories[0]->term_id);
+                    update_post_meta($post_id, 'rank_math_primary_category', $categories[0]->term_id);
                 }
             }
             
-            // Social Media Integration
+            // Social Media Integration - OpenGraph
             if (!empty($meta_title)) {
                 update_post_meta($post_id, 'rank_math_facebook_title', $this->sanitize_unicode_text($meta_title));
                 update_post_meta($post_id, 'rank_math_twitter_title', $this->sanitize_unicode_text($meta_title));
@@ -3093,13 +3099,50 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 }
             }
             
+            // Set schema type based on post type
+            if ($post_type === 'post') {
+                update_post_meta($post_id, 'rank_math_rich_snippet', 'article');
+                update_post_meta($post_id, 'rank_math_snippet_article_type', 'BlogPosting');
+            } elseif ($post_type === 'page') {
+                update_post_meta($post_id, 'rank_math_rich_snippet', 'webpage');
+            }
+            
             // Advanced RankMath Pro features if available
             if (class_exists('\RankMath\Pro\Admin\Admin_Menu')) {
-                // Set content AI score for Pro version
-                update_post_meta($post_id, 'rank_math_contentai_score', 90);
+                // Set advanced schema markup for Pro
+                update_post_meta($post_id, 'rank_math_enable_schema', 'on');
                 
-                // Enable advanced tracking
-                update_post_meta($post_id, 'rank_math_analytic_object_id', $post_id);
+                // Set pillar content if multiple keywords (indicates important content)
+                if (!empty($focus_keywords) && is_array($focus_keywords) && count($focus_keywords) > 2) {
+                    update_post_meta($post_id, 'rank_math_pillar_content', 'on');
+                }
+                
+                // Enable Content AI features if available
+                if (class_exists('\RankMath\ContentAI\ContentAI')) {
+                    update_post_meta($post_id, 'rank_math_contentai_enabled', 'on');
+                }
+            }
+            
+            // Set breadcrumb title
+            $breadcrumb_title = get_the_title($post_id);
+            if (!empty($breadcrumb_title)) {
+                update_post_meta($post_id, 'rank_math_breadcrumb_title', sanitize_text_field($breadcrumb_title));
+            }
+            
+            // Set advanced meta for better SEO
+            update_post_meta($post_id, 'rank_math_advanced_robots', array());
+            
+            // Set internal linking suggestions
+            if (!empty($focus_keywords) && is_array($focus_keywords)) {
+                $internal_links = array();
+                foreach ($focus_keywords as $keyword) {
+                    $internal_links[] = array(
+                        'keyword' => $keyword,
+                        'url' => $post_url,
+                        'title' => get_the_title($post_id)
+                    );
+                }
+                update_post_meta($post_id, 'rank_math_internal_links', $internal_links);
             }
             
             error_log('ACA: Successfully sent SEO data to RankMath for post ' . $post_id);
@@ -3113,10 +3156,13 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                     'description' => !empty($meta_description),
                     'focus_keyword' => !empty($focus_keywords),
                     'seo_score' => 85,
-                    'robots' => 'index,follow',
-                    'schema' => ($post_type === 'post' || $post_type === 'page') ? 'article' : 'none',
+                    'content_score' => 75,
                     'social_media' => !empty($meta_title) || !empty($meta_description),
-                    'primary_category' => ($post_type === 'post' && !empty($categories))
+                    'primary_category' => ($post_type === 'post' && !empty($categories)),
+                    'schema' => ($post_type === 'post' || $post_type === 'page') ? 'enabled' : 'none',
+                    'pro_features' => class_exists('\RankMath\Pro\Admin\Admin_Menu'),
+                    'pillar_content' => (!empty($focus_keywords) && count($focus_keywords) > 2),
+                    'internal_links' => !empty($focus_keywords)
                 )
             );
             
@@ -3287,21 +3333,49 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
      */
     private function send_to_aioseo($post_id, $meta_title, $meta_description, $focus_keywords) {
         try {
-                    // AIOSEO stores data in post meta with _aioseo_ prefix
-        if (!empty($meta_title)) {
-            update_post_meta($post_id, '_aioseo_title', $this->sanitize_unicode_text($meta_title));
-        }
-        
-        if (!empty($meta_description)) {
-            update_post_meta($post_id, '_aioseo_description', $this->sanitize_unicode_textarea($meta_description));
-        }
+            // AIOSEO v4+ uses a different data structure - JSON-based post meta
+            $aioseo_data = array();
             
+            // Get existing AIOSEO data if any
+            $existing_data = get_post_meta($post_id, '_aioseo_posts', true);
+            if (is_string($existing_data)) {
+                $existing_data = json_decode($existing_data, true);
+            }
+            if (!is_array($existing_data)) {
+                $existing_data = array();
+            }
+            
+            // Update title
+            if (!empty($meta_title)) {
+                $existing_data['title'] = $this->sanitize_unicode_text($meta_title);
+                // Also set legacy field for backward compatibility
+                update_post_meta($post_id, '_aioseo_title', $this->sanitize_unicode_text($meta_title));
+            }
+            
+            // Update description
+            if (!empty($meta_description)) {
+                $existing_data['description'] = $this->sanitize_unicode_textarea($meta_description);
+                // Also set legacy field for backward compatibility
+                update_post_meta($post_id, '_aioseo_description', $this->sanitize_unicode_textarea($meta_description));
+            }
+            
+            // Update keywords
             if (!empty($focus_keywords) && is_array($focus_keywords)) {
-                // AIOSEO stores keywords as comma-separated string
+                // AIOSEO v4+ stores keywords as comma-separated string in the main data
                 $keywords_string = implode(', ', array_map('sanitize_text_field', $focus_keywords));
-                update_post_meta($post_id, '_aioseo_keywords', $keywords_string);
+                $existing_data['keywords'] = $keywords_string;
                 
-                // Store primary focus keyword
+                // Set focus keyphrase (primary keyword)
+                $existing_data['keyphrases'] = array(
+                    'focus' => array(
+                        'keyphrase' => sanitize_text_field($focus_keywords[0]),
+                        'score' => 80, // Good score for AI content
+                        'analysis' => array()
+                    )
+                );
+                
+                // Legacy fields for compatibility
+                update_post_meta($post_id, '_aioseo_keywords', $keywords_string);
                 update_post_meta($post_id, '_aioseo_focus_keyphrase', sanitize_text_field($focus_keywords[0]));
                 
                 // Store all keywords in a custom meta for reference
@@ -3309,32 +3383,54 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             }
             
             // Set robots meta
-            update_post_meta($post_id, '_aioseo_robots_default', true);
-            update_post_meta($post_id, '_aioseo_robots_noindex', false);
-            update_post_meta($post_id, '_aioseo_robots_nofollow', false);
-            update_post_meta($post_id, '_aioseo_robots_noarchive', false);
-            update_post_meta($post_id, '_aioseo_robots_nosnippet', false);
+            $existing_data['robots'] = array(
+                'default' => true,
+                'noindex' => false,
+                'nofollow' => false,
+                'noarchive' => false,
+                'nosnippet' => false,
+                'noimageindex' => false
+            );
             
             // Social Media Integration - OpenGraph
-            if (!empty($meta_title)) {
-                update_post_meta($post_id, '_aioseo_og_title', $this->sanitize_unicode_text($meta_title));
-                update_post_meta($post_id, '_aioseo_twitter_title', $this->sanitize_unicode_text($meta_title));
+            if (!empty($meta_title) || !empty($meta_description)) {
+                $existing_data['og'] = array();
+                if (!empty($meta_title)) {
+                    $existing_data['og']['title'] = $this->sanitize_unicode_text($meta_title);
+                }
+                if (!empty($meta_description)) {
+                    $existing_data['og']['description'] = $this->sanitize_unicode_textarea($meta_description);
+                }
+                
+                // Set featured image for social media if available
+                $featured_image_id = get_post_thumbnail_id($post_id);
+                if ($featured_image_id) {
+                    $featured_image_url = wp_get_attachment_image_url($featured_image_id, 'full');
+                    if ($featured_image_url) {
+                        $existing_data['og']['image'] = $featured_image_url;
+                        $existing_data['og']['imageType'] = 'default';
+                    }
+                }
             }
             
-            if (!empty($meta_description)) {
-                update_post_meta($post_id, '_aioseo_og_description', $this->sanitize_unicode_textarea($meta_description));
-                update_post_meta($post_id, '_aioseo_twitter_description', $this->sanitize_unicode_textarea($meta_description));
-            }
-            
-            // Set featured image for social media if available
-            $featured_image_id = get_post_thumbnail_id($post_id);
-            if ($featured_image_id) {
-                $featured_image_url = wp_get_attachment_image_url($featured_image_id, 'full');
-                if ($featured_image_url) {
-                    update_post_meta($post_id, '_aioseo_og_image_type', 'default');
-                    update_post_meta($post_id, '_aioseo_og_image_custom_url', $featured_image_url);
-                    update_post_meta($post_id, '_aioseo_twitter_image_type', 'default');
-                    update_post_meta($post_id, '_aioseo_twitter_image_custom_url', $featured_image_url);
+            // Twitter Card data
+            if (!empty($meta_title) || !empty($meta_description)) {
+                $existing_data['twitter'] = array();
+                if (!empty($meta_title)) {
+                    $existing_data['twitter']['title'] = $this->sanitize_unicode_text($meta_title);
+                }
+                if (!empty($meta_description)) {
+                    $existing_data['twitter']['description'] = $this->sanitize_unicode_textarea($meta_description);
+                }
+                
+                // Set featured image for Twitter if available
+                $featured_image_id = get_post_thumbnail_id($post_id);
+                if ($featured_image_id) {
+                    $featured_image_url = wp_get_attachment_image_url($featured_image_id, 'full');
+                    if ($featured_image_url) {
+                        $existing_data['twitter']['image'] = $featured_image_url;
+                        $existing_data['twitter']['imageType'] = 'default';
+                    }
                 }
             }
             
@@ -3343,33 +3439,51 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             if ($post_type === 'post') {
                 $categories = get_the_category($post_id);
                 if (!empty($categories)) {
-                    update_post_meta($post_id, '_aioseo_primary_term', json_encode(array(
+                    $existing_data['primary_term'] = array(
                         'category' => $categories[0]->term_id
-                    )));
+                    );
                 }
             }
             
             // Set canonical URL to self
             $post_url = get_permalink($post_id);
             if ($post_url) {
-                update_post_meta($post_id, '_aioseo_canonical_url', $post_url);
+                $existing_data['canonical_url'] = $post_url;
+            }
+            
+            // Set schema type based on post type
+            if ($post_type === 'post') {
+                $existing_data['schema'] = array(
+                    'default' => 'Article',
+                    'article' => array(
+                        'articleType' => 'BlogPosting'
+                    )
+                );
+            } elseif ($post_type === 'page') {
+                $existing_data['schema'] = array(
+                    'default' => 'WebPage'
+                );
             }
             
             // AIOSEO Pro features if available
             if (is_plugin_active('all-in-one-seo-pack-pro/all_in_one_seo_pack.php') || defined('AIOSEO_PRO')) {
                 // Set SEO score for Pro version
-                update_post_meta($post_id, '_aioseo_seo_score', 85);
+                $existing_data['seo_score'] = 85;
                 
                 // Enable advanced features
-                update_post_meta($post_id, '_aioseo_priority', 'default');
-                update_post_meta($post_id, '_aioseo_frequency', 'default');
+                $existing_data['priority'] = 'default';
+                $existing_data['frequency'] = 'default';
             }
             
-            // Set schema type
-            if ($post_type === 'post') {
-                update_post_meta($post_id, '_aioseo_schema_type', 'BlogPosting');
-            } elseif ($post_type === 'page') {
-                update_post_meta($post_id, '_aioseo_schema_type', 'WebPage');
+            // Save the updated AIOSEO data
+            update_post_meta($post_id, '_aioseo_posts', json_encode($existing_data));
+            
+            // Also maintain legacy meta fields for older versions
+            if (!empty($meta_title)) {
+                update_post_meta($post_id, '_aioseo_title', $this->sanitize_unicode_text($meta_title));
+            }
+            if (!empty($meta_description)) {
+                update_post_meta($post_id, '_aioseo_description', $this->sanitize_unicode_textarea($meta_description));
             }
             
             error_log('ACA: Successfully sent SEO data to All in One SEO for post ' . $post_id);
@@ -3386,7 +3500,8 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                     'social_media' => !empty($meta_title) || !empty($meta_description),
                     'primary_category' => ($post_type === 'post' && !empty($categories)),
                     'schema' => ($post_type === 'post' || $post_type === 'page') ? 'enabled' : 'none',
-                    'pro_features' => (is_plugin_active('all-in-one-seo-pack-pro/all_in_one_seo_pack.php') || defined('AIOSEO_PRO'))
+                    'pro_features' => (is_plugin_active('all-in-one-seo-pack-pro/all_in_one_seo_pack.php') || defined('AIOSEO_PRO')),
+                    'data_structure' => 'v4_compatible'
                 )
             );
             

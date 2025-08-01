@@ -81,24 +81,58 @@ export const SettingsAutomation: React.FC<SettingsAutomationProps> = ({
     useEffect(() => {
         const loadLicenseStatus = async () => {
             try {
-                const status = await licenseApi.getStatus();
-                setLicenseStatus({
-                    status: status.status || 'inactive',
-                    is_active: status.is_active || false,
-                    verified_at: status.verified_at
+                const response = await fetch('/wp-admin/admin-ajax.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        action: 'aca_get_license_status',
+                        nonce: (window as any).acaAjax?.nonce || ''
+                    })
                 });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        setLicenseStatus(data.data);
+                        // Update isProActive based on license status
+                        setIsProActive(data.data.is_active || false);
+                    }
+                }
             } catch (error) {
                 console.error('Failed to load license status:', error);
-            } finally {
-                setIsLoadingLicenseStatus(false);
             }
         };
         
         loadLicenseStatus();
     }, []);
+    
+    // Sync license status with current settings
+    useEffect(() => {
+        if (licenseStatus && licenseStatus.is_active !== undefined) {
+            setIsProActive(licenseStatus.is_active);
+        }
+    }, [licenseStatus]);
 
     const checkIsProActive = () => {
-        return isProActive !== undefined ? isProActive : licenseStatus.is_active;
+        // First check if we have a definitive answer from isProActive state
+        if (isProActive !== undefined) {
+            return isProActive;
+        }
+        
+        // Then check licenseStatus.is_active
+        if (licenseStatus && licenseStatus.is_active !== undefined) {
+            return licenseStatus.is_active;
+        }
+        
+        // Finally check currentSettings.is_pro as fallback
+        if (currentSettings && currentSettings.is_pro !== undefined) {
+            return currentSettings.is_pro;
+        }
+        
+        // Default to false if no license info is available
+        return false;
     };
 
     const handleModeChange = (mode: AutomationMode) => {

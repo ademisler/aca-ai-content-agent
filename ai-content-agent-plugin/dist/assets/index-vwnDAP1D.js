@@ -12560,22 +12560,45 @@ body.toplevel_page_ai-content-agent #wpfooter {
     reactExports.useEffect(() => {
       const loadLicenseStatus = async () => {
         try {
-          const status = await licenseApi.getStatus();
-          setLicenseStatus({
-            status: status.status || "inactive",
-            is_active: status.is_active || false,
-            verified_at: status.verified_at
+          const response = await fetch("/wp-admin/admin-ajax.php", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: new URLSearchParams({
+              action: "aca_get_license_status",
+              nonce: window.acaAjax?.nonce || ""
+            })
           });
+          if (response.ok) {
+            const data = await response.json();
+            if (data.success) {
+              setLicenseStatus(data.data);
+              setIsProActive(data.data.is_active || false);
+            }
+          }
         } catch (error) {
           console.error("Failed to load license status:", error);
-        } finally {
-          setIsLoadingLicenseStatus(false);
         }
       };
       loadLicenseStatus();
     }, []);
+    reactExports.useEffect(() => {
+      if (licenseStatus && licenseStatus.is_active !== void 0) {
+        setIsProActive(licenseStatus.is_active);
+      }
+    }, [licenseStatus]);
     const checkIsProActive = () => {
-      return isProActive !== void 0 ? isProActive : licenseStatus.is_active;
+      if (isProActive !== void 0) {
+        return isProActive;
+      }
+      if (licenseStatus && licenseStatus.is_active !== void 0) {
+        return licenseStatus.is_active;
+      }
+      if (currentSettings && currentSettings.is_pro !== void 0) {
+        return currentSettings.is_pro;
+      }
+      return false;
     };
     const handleModeChange = (mode) => {
       const updatedSettings = { ...currentSettings, mode };
@@ -14052,13 +14075,28 @@ body.toplevel_page_ai-content-agent #wpfooter {
     const [isVisible, setIsVisible] = React.useState(false);
     const [isExiting, setIsExiting] = React.useState(false);
     reactExports.useEffect(() => {
+      if (!document.querySelector("#aca-toast-styles")) {
+        const style = document.createElement("style");
+        style.id = "aca-toast-styles";
+        style.textContent = `
+                @keyframes aca-toast-progress {
+                    from { transform: scaleX(1); }
+                    to { transform: scaleX(0); }
+                }
+            `;
+        document.head.appendChild(style);
+      }
       setTimeout(() => setIsVisible(true), 50);
       const timer = setTimeout(() => {
         handleDismiss();
       }, 5e3);
       return () => clearTimeout(timer);
     }, [id]);
-    const handleDismiss = () => {
+    const handleDismiss = (e) => {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
       setIsExiting(true);
       setTimeout(() => onDismiss(id), 300);
     };
@@ -14154,7 +14192,7 @@ body.toplevel_page_ai-content-agent #wpfooter {
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "button",
               {
-                onClick: handleDismiss,
+                onClick: (e) => handleDismiss(e),
                 style: {
                   background: "rgba(255, 255, 255, 0.2)",
                   border: "none",
@@ -14167,7 +14205,9 @@ body.toplevel_page_ai-content-agent #wpfooter {
                   alignItems: "center",
                   justifyContent: "center",
                   transition: "all 0.2s ease",
-                  flexShrink: 0
+                  flexShrink: 0,
+                  minWidth: "28px",
+                  minHeight: "28px"
                 },
                 onMouseEnter: (e) => {
                   e.currentTarget.style.background = "rgba(255, 255, 255, 0.3)";
@@ -14178,6 +14218,7 @@ body.toplevel_page_ai-content-agent #wpfooter {
                   e.currentTarget.style.transform = "scale(1)";
                 },
                 "aria-label": "Dismiss notification",
+                title: "Close notification",
                 children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { style: { width: "14px", height: "14px" } })
               }
             )

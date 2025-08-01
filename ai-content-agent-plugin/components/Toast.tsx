@@ -34,6 +34,19 @@ export const Toast: React.FC<ToastProps> = ({ id, message, type, onDismiss }) =>
     const [isExiting, setIsExiting] = React.useState(false);
 
     useEffect(() => {
+        // Add CSS animation keyframes if not already present
+        if (!document.querySelector('#aca-toast-styles')) {
+            const style = document.createElement('style');
+            style.id = 'aca-toast-styles';
+            style.textContent = `
+                @keyframes aca-toast-progress {
+                    from { transform: scaleX(1); }
+                    to { transform: scaleX(0); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
         // Animate in
         setTimeout(() => setIsVisible(true), 50);
         
@@ -44,7 +57,13 @@ export const Toast: React.FC<ToastProps> = ({ id, message, type, onDismiss }) =>
         return () => clearTimeout(timer);
     }, [id]);
 
-    const handleDismiss = () => {
+    const handleDismiss = (e?: React.MouseEvent) => {
+        // Prevent event propagation to avoid conflicts
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
         setIsExiting(true);
         setTimeout(() => onDismiss(id), 300);
     };
@@ -147,7 +166,7 @@ export const Toast: React.FC<ToastProps> = ({ id, message, type, onDismiss }) =>
                     </span>
                 </div>
                 <button
-                    onClick={handleDismiss}
+                    onClick={(e) => handleDismiss(e)}
                     style={{
                         background: 'rgba(255, 255, 255, 0.2)',
                         border: 'none',
@@ -160,7 +179,9 @@ export const Toast: React.FC<ToastProps> = ({ id, message, type, onDismiss }) =>
                         alignItems: 'center',
                         justifyContent: 'center',
                         transition: 'all 0.2s ease',
-                        flexShrink: 0
+                        flexShrink: 0,
+                        minWidth: '28px',
+                        minHeight: '28px'
                     }}
                     onMouseEnter={(e) => {
                         e.currentTarget.style.background = 'rgba(255, 255, 255, 0.3)';
@@ -171,6 +192,7 @@ export const Toast: React.FC<ToastProps> = ({ id, message, type, onDismiss }) =>
                         e.currentTarget.style.transform = 'scale(1)';
                     }}
                     aria-label="Dismiss notification"
+                    title="Close notification"
                 >
                     <X style={{ width: '14px', height: '14px' }} />
                 </button>

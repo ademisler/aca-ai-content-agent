@@ -33,11 +33,21 @@ define('ACA_PLUGIN_PATH', plugin_dir_path(__FILE__));
  */
 function is_aca_pro_active() {
     // Multi-point validation to prevent bypass attempts
+    $license_status = get_option('aca_license_status');
+    $license_key = get_option('aca_license_key');
+    $license_verified = get_option('aca_license_verified');
+    $license_timestamp = get_option('aca_license_timestamp', 0);
+    
+    // Debug logging for troubleshooting
+    if (defined('WP_DEBUG') && WP_DEBUG) {
+        error_log('ACA Pro Check - Status: ' . $license_status . ', Key: ' . (!empty($license_key) ? 'EXISTS' : 'EMPTY') . ', Timestamp: ' . $license_timestamp);
+    }
+    
     $checks = array(
-        get_option('aca_license_status') === 'active',
-        get_option('aca_license_verified') === wp_hash('verified'),
-        (time() - get_option('aca_license_timestamp', 0)) < 86400, // Daily verification
-        !empty(get_option('aca_license_key'))
+        $license_status === 'active',
+        $license_verified === wp_hash('verified'),
+        (time() - $license_timestamp) < 604800, // Weekly verification (7 days instead of 1 day)
+        !empty($license_key)
     );
     
     return count(array_filter($checks)) === 4;

@@ -270,7 +270,7 @@ class ACA_Cron {
                     ));
                     
                     // Log the auto-publish
-                    $this->add_activity_log('post_published', "Auto-published post: \"{$post[0]->post_title}\"", 'Send');
+                    self::add_activity_log('post_published', "Auto-published post: \"{$post[0]->post_title}\"", 'Send');
                 }
             }
             

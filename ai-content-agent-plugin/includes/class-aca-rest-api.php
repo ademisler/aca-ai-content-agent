@@ -308,6 +308,13 @@ class ACA_Rest_Api {
             'callback' => array($this, 'deactivate_license'),
             'permission_callback' => array($this, 'check_admin_permissions')
         ));
+        
+        // Debug endpoint for Pro license status
+        register_rest_route('aca/v1', '/debug/pro-status', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'debug_pro_status'),
+            'permission_callback' => array($this, 'check_admin_permissions')
+        ));
     }
     
     /**
@@ -341,9 +348,29 @@ class ACA_Rest_Api {
             return false;
         }
         
-        // Check if Pro license is active
+        // Check if Pro license is active with detailed error
         if (!is_aca_pro_active()) {
-            return new WP_Error('pro_required', 'This feature requires an active Pro license', array('status' => 403));
+            $license_status = get_option('aca_license_status', 'not_set');
+            $license_timestamp = get_option('aca_license_timestamp', 0);
+            $age_hours = $license_timestamp > 0 ? round((time() - $license_timestamp) / 3600, 2) : 0;
+            
+            $error_message = 'This feature requires an active Pro license. ';
+            
+            if ($license_status !== 'active') {
+                $error_message .= 'License status: ' . $license_status;
+            } elseif ($age_hours > 168) { // 168 hours = 7 days
+                $error_message .= 'License expired (age: ' . $age_hours . ' hours). Please refresh license.';
+            } else {
+                $error_message .= 'License validation failed.';
+            }
+            
+            error_log('ACA Pro Permission Denied: ' . $error_message);
+            
+            return new WP_Error('pro_required', $error_message, array(
+                'status' => 403,
+                'license_status' => $license_status,
+                'license_age_hours' => $age_hours
+            ));
         }
         
         return true;
@@ -2637,10 +2664,8 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
      * Debug trigger full-automatic cron
      */
     public function debug_trigger_full_auto($request) {
-        $cron = new ACA_Cron();
-        
         try {
-            $cron->thirty_minute_task();
+            ACA_Cron::thirty_minute_task();
             $this->add_activity_log('debug_cron', 'Full-automatic cron manually triggered', 'Settings');
             update_option('aca_last_cron_run', current_time('mysql') . ' (Full-Auto Manual)');
             
@@ -3869,6 +3894,36 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             'purchase_data' => $data['purchase'] ?? null,
             'verified_at' => current_time('mysql')
         );
+    }
+    
+    /**
+     * Debug Pro license status
+     */
+    public function debug_pro_status($request) {
+        $license_status = get_option('aca_license_status', 'not_set');
+        $license_key = get_option('aca_license_key', '');
+        $license_verified = get_option('aca_license_verified', 'not_set');
+        $license_timestamp = get_option('aca_license_timestamp', 0);
+        
+        $debug_info = array(
+            'is_pro_active' => is_aca_pro_active(),
+            'license_status' => $license_status,
+            'license_key_exists' => !empty($license_key),
+            'license_key_length' => strlen($license_key),
+            'license_verified' => $license_verified,
+            'license_verified_expected' => wp_hash('verified'),
+            'license_timestamp' => $license_timestamp,
+            'license_age_hours' => $license_timestamp > 0 ? round((time() - $license_timestamp) / 3600, 2) : 'N/A',
+            'current_time' => time(),
+            'checks' => array(
+                'status_active' => $license_status === 'active',
+                'verified_match' => $license_verified === wp_hash('verified'),
+                'timestamp_valid' => (time() - $license_timestamp) < 604800, // 7 days
+                'key_exists' => !empty($license_key)
+            )
+        );
+        
+        return rest_ensure_response($debug_info);
     }
     
     // ============================================================================

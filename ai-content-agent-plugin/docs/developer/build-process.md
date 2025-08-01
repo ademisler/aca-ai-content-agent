@@ -209,9 +209,10 @@ npm run dev
 After building, verify:
 - [ ] Files exist in `admin/assets/`
 - [ ] Files exist in `admin/js/`
-- [ ] File sizes are reasonable (~320KB)
+- [ ] File sizes are reasonable (~640KB for current build)
 - [ ] No console errors in WordPress admin
 - [ ] Plugin functionality works correctly
+- [ ] Both asset locations have identical files for fallback compatibility
 
 ## 🛡️ Build Security
 

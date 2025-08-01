@@ -749,16 +749,31 @@ const App: React.FC = () => {
         loadInitialData();
     }, []);
 
-    // Handle mobile sidebar body scroll lock
+    // Handle mobile sidebar body scroll lock and window resize
     useEffect(() => {
-        if (isSidebarOpen && window.innerWidth <= 782) {
-            document.body.classList.add('aca-sidebar-open');
-        } else {
-            document.body.classList.remove('aca-sidebar-open');
-        }
+        const handleResize = () => {
+            // Close sidebar when switching to desktop
+            if (window.innerWidth > 782 && isSidebarOpen) {
+                setIsSidebarOpen(false);
+            }
+            
+            // Update body class based on current state
+            if (isSidebarOpen && window.innerWidth <= 782) {
+                document.body.classList.add('aca-sidebar-open');
+            } else {
+                document.body.classList.remove('aca-sidebar-open');
+            }
+        };
+        
+        // Initial check
+        handleResize();
+        
+        // Add resize listener
+        window.addEventListener('resize', handleResize);
         
         // Cleanup on unmount
         return () => {
+            window.removeEventListener('resize', handleResize);
             document.body.classList.remove('aca-sidebar-open');
         };
     }, [isSidebarOpen]);
@@ -769,7 +784,11 @@ const App: React.FC = () => {
                 {/* Mobile hamburger menu button */}
                 <button 
                     className="aca-mobile-hamburger"
-                    onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setIsSidebarOpen(!isSidebarOpen);
+                    }}
                     aria-label="Toggle navigation menu"
                     style={{ display: window.innerWidth <= 782 ? 'block' : 'none' }}
                 >
@@ -779,7 +798,10 @@ const App: React.FC = () => {
                 {/* Mobile overlay */}
                 <div 
                     className={`aca-mobile-overlay ${isSidebarOpen ? 'active' : ''}`}
-                    onClick={() => setIsSidebarOpen(false)}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        setIsSidebarOpen(false);
+                    }}
                 />
                 
                 {/* Sidebar */}

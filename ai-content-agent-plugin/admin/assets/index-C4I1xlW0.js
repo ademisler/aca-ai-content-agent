@@ -32,6 +32,26 @@ body.no-admin-bar {
   --wp-admin-bar-height: 0px;
 }
 
+/* Ensure WordPress admin bar is touch-friendly on mobile */
+
+@media screen and (max-width: 782px) {
+  /* Don't interfere with WordPress admin bar, just ensure our elements don't block it */
+  #wpadminbar {
+    /* WordPress handles this, we just make sure we don't conflict */
+    position: fixed !important;
+    top: 0 !important;
+    z-index: 99999 !important; /* WordPress standard */
+  }
+  
+  /* Ensure our hamburger doesn't conflict with admin bar */
+  .aca-mobile-hamburger {
+    /* Position it safely away from admin bar */
+    top: calc(var(--wp-admin-bar-height, 46px) + 5px) !important;
+    pointer-events: auto !important;
+    touch-action: manipulation !important;
+  }
+}
+
 /* Remove Tailwind CDN import and create custom WordPress-compatible styles */
 
 /* @import 'https://cdn.tailwindcss.com'; */
@@ -1576,6 +1596,10 @@ body.toplevel_page_ai-content-agent #wpfooter {
 /* Enhanced Mobile Navigation Fixes - Use higher specificity instead of !important */
 
 @media screen and (max-width: 782px) {
+  /* Ensure smooth transition at breakpoint */
+  .aca-container .aca-sidebar {
+    will-change: transform; /* Optimize animations */
+  }
   /* Fix sidebar positioning on mobile */
   .aca-container .aca-sidebar {
     position: fixed;
@@ -1585,14 +1609,17 @@ body.toplevel_page_ai-content-agent #wpfooter {
     height: calc(100vh - var(--wp-admin-bar-height, 46px));
     transform: translateX(-100%);
     transition: transform 0.3s ease-in-out;
-    z-index: 99999;
+    z-index: 99998; /* Below WordPress admin bar (99999) */
     box-shadow: 2px 0 20px rgba(0, 0, 0, 0.3);
+    pointer-events: none; /* Prevent click-through when hidden */
+    touch-action: pan-y; /* Allow vertical scrolling */
   }
   
   /* Show sidebar when active - support both open and mobile-active classes */
   .aca-container .aca-sidebar.mobile-active,
   .aca-container .aca-sidebar.open {
     transform: translateX(0);
+    pointer-events: auto; /* Re-enable interactions when visible */
   }
   
   /* Improve mobile navigation items */
@@ -1616,16 +1643,23 @@ body.toplevel_page_ai-content-agent #wpfooter {
     position: fixed !important;
     top: calc(var(--wp-admin-bar-height, 46px) + 10px) !important;
     left: 15px !important;
-    z-index: 100000 !important;
+    z-index: 99997; /* Below sidebar but above content */
     background: #0073aa !important;
     color: white !important;
     border: none !important;
     border-radius: 6px !important;
-    padding: 10px 12px !important;
+    padding: 12px 14px !important; /* Larger touch target */
     cursor: pointer !important;
     font-size: 18px !important;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2) !important;
     transition: all 0.2s ease !important;
+    min-width: 44px !important; /* WCAG minimum touch target */
+    min-height: 44px !important; /* WCAG minimum touch target */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    -webkit-tap-highlight-color: transparent !important; /* Remove iOS highlight */
+    touch-action: manipulation !important; /* Prevent zoom on double-tap */
   }
   
   .aca-mobile-hamburger:hover {
@@ -1653,7 +1687,7 @@ body.toplevel_page_ai-content-agent #wpfooter {
     width: 100% !important;
     height: 100% !important;
     background: rgba(0, 0, 0, 0.6) !important;
-    z-index: 99998 !important;
+    z-index: 99996; /* Below hamburger menu */
     opacity: 0 !important;
     transition: opacity 0.3s ease !important;
   }
@@ -1695,6 +1729,33 @@ body.toplevel_page_ai-content-agent #wpfooter {
   
   .aca-main-content {
     margin-left: 220px !important;
+  }
+}
+
+/* Desktop cleanup - ensure mobile states don't persist */
+
+@media screen and (min-width: 783px) {
+  .aca-container .aca-sidebar {
+    position: relative !important;
+    transform: none !important;
+    z-index: auto !important;
+    pointer-events: auto !important;
+    width: auto !important;
+    height: auto !important;
+    box-shadow: none !important;
+  }
+  
+  .aca-mobile-hamburger {
+    display: none !important;
+  }
+  
+  .aca-mobile-overlay {
+    display: none !important;
+  }
+  
+  /* Remove mobile-specific body classes on desktop */
+  body.aca-sidebar-open {
+    overflow: auto !important;
   }
 }/*$vite$:1*/`;
   document.head.appendChild(__vite_style__);
@@ -15958,12 +16019,20 @@ body.toplevel_page_ai-content-agent #wpfooter {
       loadInitialData();
     }, []);
     reactExports.useEffect(() => {
-      if (isSidebarOpen && window.innerWidth <= 782) {
-        document.body.classList.add("aca-sidebar-open");
-      } else {
-        document.body.classList.remove("aca-sidebar-open");
-      }
+      const handleResize = () => {
+        if (window.innerWidth > 782 && isSidebarOpen) {
+          setIsSidebarOpen(false);
+        }
+        if (isSidebarOpen && window.innerWidth <= 782) {
+          document.body.classList.add("aca-sidebar-open");
+        } else {
+          document.body.classList.remove("aca-sidebar-open");
+        }
+      };
+      handleResize();
+      window.addEventListener("resize", handleResize);
       return () => {
+        window.removeEventListener("resize", handleResize);
         document.body.classList.remove("aca-sidebar-open");
       };
     }, [isSidebarOpen]);
@@ -15973,7 +16042,11 @@ body.toplevel_page_ai-content-agent #wpfooter {
           "button",
           {
             className: "aca-mobile-hamburger",
-            onClick: () => setIsSidebarOpen(!isSidebarOpen),
+            onClick: (e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              setIsSidebarOpen(!isSidebarOpen);
+            },
             "aria-label": "Toggle navigation menu",
             style: { display: window.innerWidth <= 782 ? "block" : "none" },
             children: "☰"
@@ -15983,7 +16056,10 @@ body.toplevel_page_ai-content-agent #wpfooter {
           "div",
           {
             className: `aca-mobile-overlay ${isSidebarOpen ? "active" : ""}`,
-            onClick: () => setIsSidebarOpen(false)
+            onClick: (e) => {
+              e.stopPropagation();
+              setIsSidebarOpen(false);
+            }
           }
         ),
         /* @__PURE__ */ jsxRuntimeExports.jsx(

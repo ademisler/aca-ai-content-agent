@@ -4430,28 +4430,4 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             'total_routes' => count($routes)
         );
     }
-
-    public function create_draft_from_idea($request) {
-        $idea_id = $request->get_param('ideaId');
-        
-        if (!$idea_id) {
-            return new WP_Error('missing_idea_id', 'Idea ID is required', array('status' => 400));
-        }
-
-        global $wpdb;
-        $table_name = $wpdb->prefix . 'aca_ideas';
-        
-        $idea = $wpdb->get_row($wpdb->prepare("SELECT * FROM $table_name WHERE id = %d", $idea_id));
-        
-        if (!$idea) {
-            return new WP_Error('idea_not_found', 'Idea not found', array('status' => 404));
-        }
-
-        $settings = get_option('aca_settings', array());
-        $style_guide = get_option('aca_style_guide', '');
-        
-        if (empty($settings['geminiApiKey'])) {
-            return new WP_Error('no_api_key', 'Gemini API key not configured', array('status' => 400));
-        }
-    }
 }

@@ -12589,16 +12589,7 @@ body.toplevel_page_ai-content-agent #wpfooter {
       }
     }, [licenseStatus]);
     const checkIsProActive = () => {
-      if (isProActive !== void 0) {
-        return isProActive;
-      }
-      if (licenseStatus && licenseStatus.is_active !== void 0) {
-        return licenseStatus.is_active;
-      }
-      if (currentSettings && currentSettings.is_pro !== void 0) {
-        return currentSettings.is_pro;
-      }
-      return false;
+      return currentSettings.is_pro || licenseStatus.is_active;
     };
     const handleModeChange = (mode) => {
       const updatedSettings = { ...currentSettings, mode };

@@ -116,23 +116,8 @@ export const SettingsAutomation: React.FC<SettingsAutomationProps> = ({
     }, [licenseStatus]);
 
     const checkIsProActive = () => {
-        // First check if we have a definitive answer from isProActive state
-        if (isProActive !== undefined) {
-            return isProActive;
-        }
-        
-        // Then check licenseStatus.is_active
-        if (licenseStatus && licenseStatus.is_active !== undefined) {
-            return licenseStatus.is_active;
-        }
-        
-        // Finally check currentSettings.is_pro as fallback
-        if (currentSettings && currentSettings.is_pro !== undefined) {
-            return currentSettings.is_pro;
-        }
-        
-        // Default to false if no license info is available
-        return false;
+        // Keep consistent with Settings.tsx logic
+        return currentSettings.is_pro || licenseStatus.is_active;
     };
 
     const handleModeChange = (mode: AutomationMode) => {

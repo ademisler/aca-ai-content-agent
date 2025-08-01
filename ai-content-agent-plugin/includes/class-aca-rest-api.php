@@ -3069,6 +3069,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             
             // Set primary category if post has categories
             $post_type = get_post_type($post_id);
+            $categories = array(); // Initialize to avoid undefined variable
             if ($post_type === 'post') {
                 $categories = get_the_category($post_id);
                 if (!empty($categories)) {
@@ -3239,6 +3240,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             
             // Set primary category if post has categories
             $post_type = get_post_type($post_id);
+            $categories = array(); // Initialize to avoid undefined variable
             if ($post_type === 'post') {
                 $categories = get_the_category($post_id);
                 if (!empty($categories)) {
@@ -3436,6 +3438,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             
             // Set primary category if post has categories
             $post_type = get_post_type($post_id);
+            $categories = array(); // Initialize to avoid undefined variable
             if ($post_type === 'post') {
                 $categories = get_the_category($post_id);
                 if (!empty($categories)) {

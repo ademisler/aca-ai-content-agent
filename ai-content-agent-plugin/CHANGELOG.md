@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.6] - 2025-02-01
+
+### 🔧 Critical Bug Fixes & REST API Improvements
+
+#### Fixed
+- **JSON Parsing Error**: Fixed critical issue where admin notices were interfering with REST API responses
+- **Full-Auto Cron Testing**: Resolved `SyntaxError: Unexpected token '<'` error in debug cron endpoints
+- **REST API Integrity**: Prevented HTML output during AJAX and REST API requests
+- **Admin Notice Handling**: Improved conditional display of admin notices to avoid API conflicts
+
+#### Enhanced
+- **Error Handling**: Better error isolation between admin interface and API endpoints
+- **Debug Tools**: Improved reliability of automation testing features
+- **API Response Quality**: Ensured clean JSON responses for all REST endpoints
+
+#### Technical Details
+- Added `REST_REQUEST` and `DOING_AJAX` checks to admin notice handlers
+- Prevented admin notices from corrupting JSON responses during API calls
+- Improved separation of concerns between admin UI and API functionality
+
 ## [2.4.5] - 2025-01-30
 
 ### 🚀 Production Stability & Performance Enhancement

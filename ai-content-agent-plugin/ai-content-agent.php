@@ -3,7 +3,7 @@
  * Plugin Name: AI Content Agent (ACA)
  * Plugin URI: https://ademisler.gumroad.com/l/ai-content-agent-pro
  * Description: AI-powered content creation and management plugin that generates blog posts, ideas, and manages your content workflow automatically with Google Search Console integration and Pro features.
- * Version: 2.4.5
+ * Version: 2.4.6
  * Author: Adem Isler
  * Author URI: https://ademisler.com/en
  * License: GPL v2 or later
@@ -22,7 +22,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('ACA_VERSION', '2.4.5');
+define('ACA_VERSION', '2.4.6');
 define('ACA_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('ACA_PLUGIN_PATH', plugin_dir_path(__FILE__));
 
@@ -217,9 +217,28 @@ add_action('aca_fifteen_minute_event', array('ACA_Cron', 'fifteen_minute_task'))
 // Consolidated admin initialization to avoid multiple hook calls
 add_action('admin_init', 'aca_admin_init_handler');
 
-// Admin notices
-add_action('admin_notices', 'aca_show_gsc_reauth_notice');
-add_action('admin_notices', 'aca_show_gsc_scope_reauth_notice');
+// Admin notices - only show on admin pages, not during REST API requests
+add_action('admin_notices', function() {
+    // Don't show notices during REST API requests or AJAX calls
+    if (defined('REST_REQUEST') && REST_REQUEST) {
+        return;
+    }
+    if (defined('DOING_AJAX') && DOING_AJAX) {
+        return;
+    }
+    aca_show_gsc_reauth_notice();
+});
+
+add_action('admin_notices', function() {
+    // Don't show notices during REST API requests or AJAX calls
+    if (defined('REST_REQUEST') && REST_REQUEST) {
+        return;
+    }
+    if (defined('DOING_AJAX') && DOING_AJAX) {
+        return;
+    }
+    aca_show_gsc_scope_reauth_notice();
+});
 
 // Post view count tracking for content freshness analysis
 function aca_track_post_views() {
@@ -266,6 +285,13 @@ function aca_check_database_updates() {
         
         if (is_wp_error($result)) {
             add_action('admin_notices', function() use ($result) {
+                // Don't show notices during REST API requests or AJAX calls
+                if (defined('REST_REQUEST') && REST_REQUEST) {
+                    return;
+                }
+                if (defined('DOING_AJAX') && DOING_AJAX) {
+                    return;
+                }
                 echo '<div class="notice notice-error"><p>ACA Database Update Failed: ' . 
                      esc_html($result->get_error_message()) . '</p></div>';
             });

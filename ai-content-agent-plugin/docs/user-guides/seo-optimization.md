@@ -307,4 +307,4 @@ Create topic clusters for improved SEO authority:
 
 [Get Pro Features](https://ademisler.gumroad.com/l/ai-content-agent-pro) | [SEO Support](mailto:support@example.com)
 
-*Last updated: 2025-01-30 | Version: 2.4.5*
+*Last updated: 2025-02-01 | Version: 2.4.6*

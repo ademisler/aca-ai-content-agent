@@ -1,6 +1,6 @@
 # AI Content Agent (ACA) - WordPress Plugin
 
-**Version:** 2.4.5  
+**Version:** 2.4.6  
 **Requires:** WordPress 5.0+, PHP 7.4+  
 **License:** GPL v2 or later  
 **Author:** Adem Isler  
@@ -65,7 +65,7 @@ AI Content Agent (ACA) is an enterprise-level WordPress plugin that transforms y
 ## 🛠️ Installation
 
 ### Method 1: WordPress Admin (Recommended)
-1. Download the latest release: `ai-content-agent-v2.4.5.zip`
+1. Download the latest release: `ai-content-agent-v2.4.6.zip`
 2. Go to **WordPress Admin → Plugins → Add New → Upload Plugin**
 3. Choose the downloaded zip file and click **"Install Now"**
 4. Activate the plugin
@@ -237,17 +237,17 @@ define('WP_DEBUG_LOG', true);
 
 ## 🔄 Version History
 
-### Current Release: v2.4.5
+### Current Release: v2.4.6
 - **Status**: Production Ready
-- **Release Date**: 2025-01-30
-- **Major Features**: Enterprise-level stability and performance
+- **Release Date**: 2025-02-01
+- **Major Features**: Critical bug fixes for REST API JSON responses
 - **Compatibility**: WordPress 5.0+ to 6.7+
 
 ### Recent Updates
+- **v2.4.6**: Fixed JSON parsing error in REST API responses, improved admin notice handling
+- **v2.4.5**: Enterprise-level stability and performance improvements
 - **v2.4.2**: Critical Pro license fixes, GSC endpoint restoration
 - **v2.4.0**: Production stability, security enhancements
-- **v2.3.7**: SEO detection improvements, UX enhancements
-- **v2.3.0**: Multilingual support, intelligent categorization
 
 See [CHANGELOG.md](CHANGELOG.md) for complete version history.
 

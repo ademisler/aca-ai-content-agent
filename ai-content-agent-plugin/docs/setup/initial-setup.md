@@ -27,7 +27,7 @@ Before installing ACA, ensure your system meets these requirements:
 ### Method 1: WordPress Admin Dashboard (Recommended)
 
 1. **Download the Plugin**
-   - Get the latest version: `ai-content-agent-v2.4.5.zip`
+   - Get the latest version: `ai-content-agent-v2.4.6.zip`
    - Ensure you have the complete zip file (approximately 2-3MB)
 
 2. **Upload and Install**
@@ -46,7 +46,7 @@ Before installing ACA, ensure your system meets these requirements:
 ### Method 2: FTP Installation
 
 1. **Extract Files**
-   - Unzip `ai-content-agent-v2.4.5.zip` on your computer
+   - Unzip `ai-content-agent-v2.4.6.zip` on your computer
    - You should see an `ai-content-agent-plugin` folder
 
 2. **Upload via FTP**
@@ -347,4 +347,4 @@ Once setup is complete:
 
 ---
 
-*Last updated: 2025-01-30 | Version: 2.4.5*
+*Last updated: 2025-02-01 | Version: 2.4.6*

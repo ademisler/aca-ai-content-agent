@@ -217,9 +217,28 @@ add_action('aca_fifteen_minute_event', array('ACA_Cron', 'fifteen_minute_task'))
 // Consolidated admin initialization to avoid multiple hook calls
 add_action('admin_init', 'aca_admin_init_handler');
 
-// Admin notices
-add_action('admin_notices', 'aca_show_gsc_reauth_notice');
-add_action('admin_notices', 'aca_show_gsc_scope_reauth_notice');
+// Admin notices - only show on admin pages, not during REST API requests
+add_action('admin_notices', function() {
+    // Don't show notices during REST API requests or AJAX calls
+    if (defined('REST_REQUEST') && REST_REQUEST) {
+        return;
+    }
+    if (defined('DOING_AJAX') && DOING_AJAX) {
+        return;
+    }
+    aca_show_gsc_reauth_notice();
+});
+
+add_action('admin_notices', function() {
+    // Don't show notices during REST API requests or AJAX calls
+    if (defined('REST_REQUEST') && REST_REQUEST) {
+        return;
+    }
+    if (defined('DOING_AJAX') && DOING_AJAX) {
+        return;
+    }
+    aca_show_gsc_scope_reauth_notice();
+});
 
 // Post view count tracking for content freshness analysis
 function aca_track_post_views() {
@@ -266,6 +285,13 @@ function aca_check_database_updates() {
         
         if (is_wp_error($result)) {
             add_action('admin_notices', function() use ($result) {
+                // Don't show notices during REST API requests or AJAX calls
+                if (defined('REST_REQUEST') && REST_REQUEST) {
+                    return;
+                }
+                if (defined('DOING_AJAX') && DOING_AJAX) {
+                    return;
+                }
                 echo '<div class="notice notice-error"><p>ACA Database Update Failed: ' . 
                      esc_html($result->get_error_message()) . '</p></div>';
             });

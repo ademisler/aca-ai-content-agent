@@ -553,13 +553,21 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
     }
     
     /**
-     * Validate OAuth scopes for current token
+     * Validate OAuth scopes for current token with caching
      */
     public function validate_token_scopes() {
         $current_tokens = get_option('aca_gsc_tokens');
         
         if (!$current_tokens || !isset($current_tokens['access_token'])) {
             return new WP_Error('no_token', 'No access token available');
+        }
+        
+        // Check cache first to avoid excessive HTTP requests
+        $cache_key = 'aca_gsc_scope_validation_' . md5($current_tokens['access_token']);
+        $cached_result = get_transient($cache_key);
+        
+        if ($cached_result !== false) {
+            return $cached_result === 'valid' ? true : new WP_Error('cached_invalid', 'Token validation failed (cached)');
         }
         
         try {
@@ -570,7 +578,7 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
             $token_info_url = 'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=' . $current_tokens['access_token'];
             
             $response = wp_remote_get($token_info_url, array(
-                'timeout' => 30,
+                'timeout' => 10, // Reduced timeout for better performance
                 'headers' => array(
                     'User-Agent' => 'AI Content Agent (ACA)'
                 )
@@ -615,10 +623,18 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
             }
             
             error_log('ACA GSC: Token scope validation successful');
+            
+            // Cache successful validation for 10 minutes
+            set_transient($cache_key, 'valid', 600);
+            
             return true;
             
         } catch (Exception $e) {
             error_log('ACA GSC: Scope validation error: ' . $e->getMessage());
+            
+            // Cache failed validation for 1 minute to prevent spam
+            set_transient($cache_key, 'invalid', 60);
+            
             return new WP_Error('scope_validation_error', $e->getMessage());
         }
     }

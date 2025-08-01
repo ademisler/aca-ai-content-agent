@@ -54,12 +54,43 @@ class ACA_Migration_Manager {
         $tables_exist = $wpdb->get_var("SHOW TABLES LIKE '{$wpdb->prefix}aca_ideas'");
         
         if ($tables_exist) {
-            // Existing installation - mark current version
+            // Existing installation - mark current version and log existing options
+            $this->log_existing_options();
             update_option('aca_db_version', $this->target_version);
             $this->log_migration($this->target_version, 'Initial version marked for existing installation');
         } else {
             // New installation - will be handled by activator, then marked
             update_option('aca_db_version', $this->target_version);
+        }
+    }
+    
+    /**
+     * Log existing options for migration tracking
+     */
+    private function log_existing_options() {
+        $existing_options = array(
+            'aca_settings',
+            'aca_style_guide', 
+            'aca_freshness_settings',
+            'aca_gsc_tokens',
+            'aca_license_status',
+            'aca_license_data',
+            'aca_license_site_hash',
+            'aca_google_cloud_project_id',
+            'aca_google_cloud_location',
+            'aca_last_cron_run',
+            'aca_last_freshness_analysis'
+        );
+        
+        $found_options = array();
+        foreach ($existing_options as $option) {
+            if (get_option($option) !== false) {
+                $found_options[] = $option;
+            }
+        }
+        
+        if (!empty($found_options)) {
+            $this->log_migration('existing_options', 'Found existing options: ' . implode(', ', $found_options));
         }
     }
     

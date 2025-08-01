@@ -207,12 +207,11 @@ new AI_Content_Agent();
 add_action('aca_thirty_minute_event', array('ACA_Cron', 'thirty_minute_task'));
 add_action('aca_fifteen_minute_event', array('ACA_Cron', 'fifteen_minute_task'));
 
-// Check for database updates on admin_init (but not during activation)
-add_action('admin_init', 'aca_check_database_updates');
+// Consolidated admin initialization to avoid multiple hook calls
+add_action('admin_init', 'aca_admin_init_handler');
 
-// Handle GSC re-authentication notices
+// Admin notices
 add_action('admin_notices', 'aca_show_gsc_reauth_notice');
-add_action('admin_init', 'aca_handle_gsc_reauth_dismissal');
 add_action('admin_notices', 'aca_show_gsc_scope_reauth_notice');
 
 // Post view count tracking for content freshness analysis
@@ -226,6 +225,16 @@ function aca_track_post_views() {
     }
 }
 add_action('wp_head', 'aca_track_post_views');
+
+// Consolidated admin initialization handler
+function aca_admin_init_handler() {
+    // Handle database updates
+    aca_check_database_updates();
+    
+    // Handle GSC reauth dismissals
+    aca_handle_gsc_reauth_dismissal();
+    aca_handle_gsc_scope_reauth_dismissal();
+}
 
 function aca_check_database_updates() {
     // Only run for admins and not during plugin activation or AJAX
@@ -281,15 +290,20 @@ function aca_show_gsc_reauth_notice() {
     
     echo '<p>';
     echo '<a href="' . esc_url(admin_url('admin.php?page=aca-settings')) . '" class="button button-primary">Go to Settings</a> ';
-    echo '<a href="' . esc_url(add_query_arg('dismiss_gsc_reauth', '1')) . '" class="button">Dismiss</a>';
+    echo '<a href="' . esc_url(wp_nonce_url(add_query_arg('dismiss_gsc_reauth', '1'), 'aca_dismiss_gsc_reauth')) . '" class="button">Dismiss</a>';
     echo '</p>';
     echo '</div>';
 }
 
 function aca_handle_gsc_reauth_dismissal() {
     if (isset($_GET['dismiss_gsc_reauth']) && $_GET['dismiss_gsc_reauth'] == '1' && current_user_can('manage_options')) {
+        // Add nonce verification for security
+        if (!isset($_GET['_wpnonce']) || !wp_verify_nonce($_GET['_wpnonce'], 'aca_dismiss_gsc_reauth')) {
+            wp_die(__('Security check failed. Please try again.', 'ai-content-agent'));
+        }
+        
         delete_transient('aca_gsc_reauth_required');
-        wp_redirect(remove_query_arg('dismiss_gsc_reauth'));
+        wp_redirect(remove_query_arg(array('dismiss_gsc_reauth', '_wpnonce')));
         exit;
     }
 }
@@ -317,18 +331,20 @@ function aca_show_gsc_scope_reauth_notice() {
     
     echo '<p>';
     echo '<a href="' . esc_url(admin_url('admin.php?page=aca-settings')) . '" class="button button-primary">Update Permissions</a> ';
-    echo '<a href="' . esc_url(add_query_arg('dismiss_gsc_scope_reauth', '1')) . '" class="button">Dismiss</a>';
+    echo '<a href="' . esc_url(wp_nonce_url(add_query_arg('dismiss_gsc_scope_reauth', '1'), 'aca_dismiss_gsc_scope_reauth')) . '" class="button">Dismiss</a>';
     echo '</p>';
     echo '</div>';
 }
 
-// Handle scope reauth dismissal
-add_action('admin_init', 'aca_handle_gsc_scope_reauth_dismissal');
-
 function aca_handle_gsc_scope_reauth_dismissal() {
     if (isset($_GET['dismiss_gsc_scope_reauth']) && $_GET['dismiss_gsc_scope_reauth'] == '1' && current_user_can('manage_options')) {
+        // Add nonce verification for security
+        if (!isset($_GET['_wpnonce']) || !wp_verify_nonce($_GET['_wpnonce'], 'aca_dismiss_gsc_scope_reauth')) {
+            wp_die(__('Security check failed. Please try again.', 'ai-content-agent'));
+        }
+        
         delete_transient('aca_gsc_scope_reauth_required');
-        wp_redirect(remove_query_arg('dismiss_gsc_scope_reauth'));
+        wp_redirect(remove_query_arg(array('dismiss_gsc_scope_reauth', '_wpnonce')));
         exit;
     }
 }

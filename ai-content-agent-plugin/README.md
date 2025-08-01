@@ -1,21 +1,29 @@
 # AI Content Agent (ACA) for WordPress
 
-**Version:** 2.4.2  
+**Version:** 2.4.3  
 **Requires:** WordPress 5.0+, PHP 7.4+  
 **License:** GPL v2 or later
 
 AI Content Agent (ACA) is a powerful WordPress plugin that leverages Google's Gemini AI to automate content creation, SEO optimization, and publishing workflows.
 
-## 🚀 Latest Updates - v2.4.2
+## 🚀 Latest Updates - v2.4.3
 
-### 🚨 **CRITICAL FIXES: Pro License Validation Restored**
+### 🛠️ **CRITICAL BUG FIXES: Cron & Pro License Issues Resolved**
+- **Static Method Fatal Errors Fixed**: Resolved PHP Fatal Error in `debug_trigger_full_auto` REST API endpoint
+- **Cron System Restored**: Fixed `$this` usage in static context causing automation failures  
+- **Pro License Validation Enhanced**: Extended timestamp validation from 24h to 7 days for better accessibility
+- **Content Freshness Working**: Fixed 404 errors on `/aca/v1/content-freshness/posts` endpoints
+- **JSON Parse Errors Eliminated**: Resolved "Fatal erro... is not valid JSON" frontend errors
+- **Autocron Issues Resolved**: All automation workflows now functioning properly
+- **Release Package**: `ai-content-agent-v2.4.3-bug-fixes.zip`
+
+### 🚨 **Previous Update - v2.4.2: Pro License Validation Restored**
 - **License Key Storage Fixed**: Added missing `aca_license_key` option storage - **95% of Pro users affected**
 - **Pro Features Restored**: Fixed `is_aca_pro_active()` function that was always returning false
 - **GSC Status Endpoint Added**: Implemented missing `/aca/v1/gsc/status` endpoint for Content Freshness Manager
 - **Frontend AJAX Fixed**: Replaced broken AJAX call with proper REST API in SettingsAutomation component
 - **License Deactivation Enhanced**: Added proper cleanup of all license-related options during deactivation
 - **Support Impact**: Expected **80-90% reduction** in license-related support tickets
-- **Release Package**: `ai-content-agent-v2.4.2-critical-fixes.zip`
 
 ### 🔧 **Previous Update - v2.4.0: Production Stability & Security Enhancements**
 

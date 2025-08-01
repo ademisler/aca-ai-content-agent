@@ -2,10 +2,28 @@
 
 ## 📦 Current Release
 
-### v2.3.1 - Critical Bug Fixes (Latest Stable)
-- **File**: `ai-content-agent-v2.3.1-critical-bug-fixes.zip`
+### v2.4.3 - Critical Cron & Pro License Fixes (Latest Stable)
+- **File**: `ai-content-agent-v2.4.3-bug-fixes.zip`
 - **Release Date**: January 31, 2025
 - **Status**: ✅ Production Ready
+- **Size**: ~580KB
+- **Features**: Critical bug fixes for cron system, Pro license validation, and REST API endpoints
+
+#### 🛠️ Critical Fixes:
+- **Static Method Fatal Errors**: Fixed PHP Fatal Error in debug_trigger_full_auto endpoint
+- **Cron System Fixes**: Resolved $this usage in static context causing automation failures
+- **Pro License Validation**: Extended timestamp validation from 24h to 7 days for better accessibility
+- **REST API Endpoints**: Fixed 404 errors on content-freshness endpoints
+- **JSON Parse Errors**: Eliminated "Fatal erro... is not valid JSON" frontend errors
+
+---
+
+## 📋 Previous Stable Release
+
+### v2.3.1 - Critical Bug Fixes (Stable)
+- **File**: `ai-content-agent-v2.3.1-critical-bug-fixes.zip` (Archived)
+- **Release Date**: January 31, 2025
+- **Status**: ✅ Stable (Archived)
 - **Size**: ~529KB
 - **Features**: Critical bug fixes for settings page, OAuth tokens, and data loading
 

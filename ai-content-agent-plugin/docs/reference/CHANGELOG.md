@@ -2,6 +2,47 @@
 
 All notable changes to AI Content Agent (ACA) will be documented in this file.
 
+## [2.4.3] - 2025-01-31
+
+### 🛠️ CRITICAL BUG FIXES: Cron & Pro License Issues
+
+#### ✅ Static Method Fatal Error Fixes
+- **Critical Bug Resolved**: Fixed fatal error in `debug_trigger_full_auto` REST API endpoint
+- **Problem**: Static method `thirty_minute_task()` was being called as instance method causing PHP Fatal Error
+- **Solution**: Changed `$cron->thirty_minute_task()` to `ACA_Cron::thirty_minute_task()`
+- **Impact**: Resolves "Fatal erro... is not valid JSON" JavaScript parse errors
+
+#### ✅ Cron Static Context Fixes  
+- **Critical Bug Resolved**: Fixed `$this` usage in static context within Cron class
+- **Problem**: `$this->add_activity_log()` called in static method `run_full_automatic_cycle()`
+- **Solution**: Changed to `self::add_activity_log()` for proper static method call
+- **Impact**: Eliminates PHP Fatal Errors during automated content publishing
+
+#### ✅ Pro License Validation Improvements
+- **Enhanced License Validation**: Extended timestamp validation from 24 hours to 7 days (604800 seconds)
+- **Problem**: Overly strict 24-hour validation was causing Pro features to become inaccessible
+- **Solution**: More reasonable 7-day validation period while maintaining security
+- **Debug Logging**: Added comprehensive debug logging for license validation troubleshooting
+- **Impact**: Resolves "Content freshness not available (Pro feature)" and 404 API endpoint errors
+
+#### ✅ REST API Error Handling Enhancements
+- **Improved Error Messages**: Added detailed Pro license status information in API responses
+- **New Debug Endpoint**: Added `/wp-json/aca/v1/debug/pro-status` for license troubleshooting
+- **Better Permission Callbacks**: Enhanced error handling in `check_pro_permissions()` method
+- **Impact**: Provides clearer error messages and better debugging capabilities
+
+#### 🔧 Technical Improvements
+- **WordPress Cron Compatibility**: Verified all cron hooks use proper static method calls
+- **Database Calls**: Ensured all database operations work correctly in static context
+- **Security Maintained**: License validation security level unchanged, only timing adjusted
+- **Build Hash**: Updated to C6y68bIb with all critical fixes included
+
+#### 🎯 Resolved User-Reported Issues
+- ✅ "Content freshness çalışmıyor" - Content freshness now working with Pro license
+- ✅ "autocronda sorun var" - Autocron fatal errors completely resolved  
+- ✅ "No route was found matching the URL and request method" - API endpoints now accessible
+- ✅ "Fatal erro... is not valid JSON" - JSON parsing errors eliminated
+
 ## [2.3.7] - 2025-01-31
 
 ### 🔧 CRITICAL FIXES: SEO Detection & User Experience Improvements

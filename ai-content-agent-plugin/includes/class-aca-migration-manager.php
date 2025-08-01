@@ -12,7 +12,7 @@ class ACA_Migration_Manager {
     public function __construct() {
         $this->migrations_path = plugin_dir_path(__FILE__) . '../migrations/';
         $this->current_version = get_option('aca_db_version', '0.0.0');
-        $this->target_version = ACA_VERSION;
+        $this->target_version = defined('ACA_VERSION') ? ACA_VERSION : '2.4.0';
     }
     
     /**

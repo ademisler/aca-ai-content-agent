@@ -228,12 +228,14 @@ add_action('wp_head', 'aca_track_post_views');
 
 // Consolidated admin initialization handler
 function aca_admin_init_handler() {
-    // Handle database updates
+    // Handle database updates (has its own frequency control)
     aca_check_database_updates();
     
-    // Handle GSC reauth dismissals
-    aca_handle_gsc_reauth_dismissal();
-    aca_handle_gsc_scope_reauth_dismissal();
+    // Handle GSC reauth dismissals (only process if relevant GET parameters exist)
+    if (isset($_GET['dismiss_gsc_reauth']) || isset($_GET['dismiss_gsc_scope_reauth'])) {
+        aca_handle_gsc_reauth_dismissal();
+        aca_handle_gsc_scope_reauth_dismissal();
+    }
 }
 
 function aca_check_database_updates() {

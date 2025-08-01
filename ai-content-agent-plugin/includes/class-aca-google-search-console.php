@@ -186,6 +186,9 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
                         // Reset failure count on success
                         delete_option('aca_gsc_refresh_failures');
                         
+                        // Clear validation cache since we have new tokens
+                        $this->clear_validation_cache();
+                        
                         error_log("ACA GSC: Successfully refreshed access token on attempt $attempt");
                         return; // Success - exit method
                         
@@ -251,8 +254,8 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
         
         // Ensure token is valid before making API calls
         $token_check = $this->ensure_valid_token();
-        if (is_wp_error($token_check)) {
-            return $token_check;
+        if (is_wp_error($token_check) || $token_check === false) {
+            return is_wp_error($token_check) ? $token_check : new WP_Error('token_invalid', 'Token validation failed');
         }
         
         try {
@@ -359,8 +362,8 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
         
         // Ensure token is valid before making API calls
         $token_check = $this->ensure_valid_token();
-        if (is_wp_error($token_check)) {
-            return $token_check;
+        if (is_wp_error($token_check) || $token_check === false) {
+            return is_wp_error($token_check) ? $token_check : new WP_Error('token_invalid', 'Token validation failed');
         }
         
         try {
@@ -455,8 +458,9 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
         
         // Ensure token is valid before making API calls
         $token_check = $this->ensure_valid_token();
-        if (is_wp_error($token_check)) {
-            error_log('ACA GSC: Token validation failed for AI data: ' . $token_check->get_error_message());
+        if (is_wp_error($token_check) || $token_check === false) {
+            $error_msg = is_wp_error($token_check) ? $token_check->get_error_message() : 'Token validation failed';
+            error_log('ACA GSC: Token validation failed for AI data: ' . $error_msg);
             return false;
         }
         
@@ -674,5 +678,18 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
         }
         
         return true;
+    }
+    
+    /**
+     * Clear validation cache when tokens are refreshed
+     */
+    private function clear_validation_cache() {
+        global $wpdb;
+        
+        // Clear all validation cache transients
+        $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_aca_gsc_scope_validation_%'");
+        $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_timeout_aca_gsc_scope_validation_%'");
+        
+        error_log('ACA GSC: Cleared validation cache after token refresh');
     }
 }

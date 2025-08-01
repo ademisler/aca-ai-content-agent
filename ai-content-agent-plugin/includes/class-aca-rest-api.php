@@ -3046,13 +3046,13 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             
             // Social Media Integration
             if (!empty($meta_title)) {
-                update_post_meta($post_id, 'rank_math_facebook_title', sanitize_text_field($meta_title));
-                update_post_meta($post_id, 'rank_math_twitter_title', sanitize_text_field($meta_title));
+                update_post_meta($post_id, 'rank_math_facebook_title', $this->sanitize_unicode_text($meta_title));
+                update_post_meta($post_id, 'rank_math_twitter_title', $this->sanitize_unicode_text($meta_title));
             }
             
             if (!empty($meta_description)) {
-                update_post_meta($post_id, 'rank_math_facebook_description', sanitize_textarea_field($meta_description));
-                update_post_meta($post_id, 'rank_math_twitter_description', sanitize_textarea_field($meta_description));
+                update_post_meta($post_id, 'rank_math_facebook_description', $this->sanitize_unicode_textarea($meta_description));
+                update_post_meta($post_id, 'rank_math_twitter_description', $this->sanitize_unicode_textarea($meta_description));
             }
             
             // Set featured image for social media if available
@@ -3176,13 +3176,13 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             
             // Social Media Integration - OpenGraph
             if (!empty($meta_title)) {
-                update_post_meta($post_id, '_yoast_wpseo_opengraph-title', sanitize_text_field($meta_title));
-                update_post_meta($post_id, '_yoast_wpseo_twitter-title', sanitize_text_field($meta_title));
+                update_post_meta($post_id, '_yoast_wpseo_opengraph-title', $this->sanitize_unicode_text($meta_title));
+                update_post_meta($post_id, '_yoast_wpseo_twitter-title', $this->sanitize_unicode_text($meta_title));
             }
             
             if (!empty($meta_description)) {
-                update_post_meta($post_id, '_yoast_wpseo_opengraph-description', sanitize_textarea_field($meta_description));
-                update_post_meta($post_id, '_yoast_wpseo_twitter-description', sanitize_textarea_field($meta_description));
+                update_post_meta($post_id, '_yoast_wpseo_opengraph-description', $this->sanitize_unicode_textarea($meta_description));
+                update_post_meta($post_id, '_yoast_wpseo_twitter-description', $this->sanitize_unicode_textarea($meta_description));
             }
             
             // Set featured image for social media if available
@@ -3291,13 +3291,13 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             
             // Social Media Integration - OpenGraph
             if (!empty($meta_title)) {
-                update_post_meta($post_id, '_aioseo_og_title', sanitize_text_field($meta_title));
-                update_post_meta($post_id, '_aioseo_twitter_title', sanitize_text_field($meta_title));
+                update_post_meta($post_id, '_aioseo_og_title', $this->sanitize_unicode_text($meta_title));
+                update_post_meta($post_id, '_aioseo_twitter_title', $this->sanitize_unicode_text($meta_title));
             }
             
             if (!empty($meta_description)) {
-                update_post_meta($post_id, '_aioseo_og_description', sanitize_textarea_field($meta_description));
-                update_post_meta($post_id, '_aioseo_twitter_description', sanitize_textarea_field($meta_description));
+                update_post_meta($post_id, '_aioseo_og_description', $this->sanitize_unicode_textarea($meta_description));
+                update_post_meta($post_id, '_aioseo_twitter_description', $this->sanitize_unicode_textarea($meta_description));
             }
             
             // Set featured image for social media if available

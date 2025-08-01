@@ -328,4 +328,4 @@ Pro features typically pay for themselves through:
 
 [Get Pro License](https://ademisler.gumroad.com/l/ai-content-agent-pro) | [Contact Pro Support](mailto:pro-support@example.com)
 
-*Last updated: 2025-01-30 | Version: 2.4.5*
+*Last updated: 2025-02-01 | Version: 2.4.6*

@@ -10,7 +10,7 @@ AI Content Agent (ACA) is an enterprise-level WordPress plugin that transforms y
 
 ### Step 1: Install the Plugin
 
-1. **Download** the latest version: `ai-content-agent-v2.4.5.zip`
+1. **Download** the latest version: `ai-content-agent-v2.4.6.zip`
 2. Go to **WordPress Admin → Plugins → Add New → Upload Plugin**
 3. Choose the downloaded zip file and click **"Install Now"**
 4. Click **"Activate"** to enable the plugin
@@ -205,4 +205,4 @@ Now that you're set up, explore these guides:
 
 ---
 
-*Last updated: 2025-01-30 | Version: 2.4.5*
+*Last updated: 2025-02-01 | Version: 2.4.6*

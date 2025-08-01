@@ -13,7 +13,7 @@ Before troubleshooting specific issues, run these basic checks:
    ```
    - Ensure plugin is activated
    - Check for any error messages
-   - Verify version is 2.4.5
+   - Verify version is 2.4.6
 
 2. **System Requirements**
    - WordPress 5.0+ (6.7+ recommended)
@@ -312,7 +312,7 @@ Solution: Fix file permissions
    - Try different browser
 
 2. **Check Plugin Version**
-   - Ensure running latest version (2.4.5)
+   - Ensure running latest version (2.4.6)
    - Update plugin if needed
    - Pro features require current version
 
@@ -392,4 +392,4 @@ If ACA is causing site issues:
 
 [Contact Support](mailto:support@example.com) | [Community Forums](https://wordpress.org/support/) | [Pro Support](https://ademisler.gumroad.com/l/ai-content-agent-pro)
 
-*Last updated: 2025-01-30 | Version: 2.4.5*
+*Last updated: 2025-02-01 | Version: 2.4.6*

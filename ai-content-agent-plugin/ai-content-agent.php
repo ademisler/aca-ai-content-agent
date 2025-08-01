@@ -3,7 +3,7 @@
  * Plugin Name: AI Content Agent (ACA)
  * Plugin URI: https://ademisler.gumroad.com/l/ai-content-agent-pro
  * Description: AI-powered content creation and management plugin that generates blog posts, ideas, and manages your content workflow automatically with Google Search Console integration and Pro features.
- * Version: 2.4.5
+ * Version: 2.4.6
  * Author: Adem Isler
  * Author URI: https://ademisler.com/en
  * License: GPL v2 or later
@@ -22,7 +22,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('ACA_VERSION', '2.4.5');
+define('ACA_VERSION', '2.4.6');
 define('ACA_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('ACA_PLUGIN_PATH', plugin_dir_path(__FILE__));
 

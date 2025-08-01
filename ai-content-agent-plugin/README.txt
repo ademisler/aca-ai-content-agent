@@ -5,7 +5,7 @@ Tags: ai, content, automation, gemini, seo, google search console, content creat
 Requires at least: 5.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 2.4.5
+Stable tag: 2.4.6
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -201,6 +201,13 @@ Yes! ACA includes a visual content calendar where you can schedule posts days, w
 7. **Google Search Console Integration** - Real-time SEO data and insights
 
 == Changelog ==
+
+= 2.4.6 - 2025-02-01 =
+* **CRITICAL BUG FIX**: Fixed JSON parsing error in REST API responses
+* **FIXED**: Full-Auto Cron testing now works without SyntaxError
+* **IMPROVED**: Admin notices no longer interfere with API endpoints
+* **ENHANCED**: Better error isolation between admin UI and REST API
+* **TECHNICAL**: Added REST_REQUEST and DOING_AJAX checks to prevent HTML output during API calls
 
 = 2.4.5 - 2025-01-30 =
 * **PRODUCTION STABILITY**: Comprehensive stability improvements and optimizations

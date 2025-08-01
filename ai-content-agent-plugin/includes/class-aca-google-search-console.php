@@ -817,9 +817,17 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
                 return false;
             }
             
-            public function get_page_performance($page_url) {
-                return new WP_Error('gsc_error', 'Google API client library not installed.');
-            }
+                    public function get_page_performance($page_url) {
+            // Return empty performance data instead of WP_Error to maintain compatibility  
+            return array(
+                'url' => $page_url,
+                'clicks' => 0,
+                'impressions' => 0,
+                'ctr' => 0,
+                'position' => 0,
+                'performance_score' => 0
+            );
+        }
         }
     }
 } else {
@@ -854,7 +862,15 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
         }
         
         public function get_page_performance($page_url) {
-            return new WP_Error('gsc_error', 'Google API client library not installed.');
+            // Return empty performance data instead of WP_Error to maintain compatibility
+            return array(
+                'url' => $page_url,
+                'clicks' => 0,
+                'impressions' => 0,
+                'ctr' => 0,
+                'position' => 0,
+                'performance_score' => 0
+            );
         }
     }
 }

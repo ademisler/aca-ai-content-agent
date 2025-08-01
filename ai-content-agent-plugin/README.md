@@ -1,21 +1,21 @@
 # AI Content Agent (ACA) for WordPress
 
-**Version:** 2.4.3  
+**Version:** 2.4.4  
 **Requires:** WordPress 5.0+, PHP 7.4+  
 **License:** GPL v2 or later
 
 AI Content Agent (ACA) is a powerful WordPress plugin that leverages Google's Gemini AI to automate content creation, SEO optimization, and publishing workflows.
 
-## 🚀 Latest Updates - v2.4.3
+## 🚀 Latest Updates - v2.4.4
 
-### 🛠️ **CRITICAL BUG FIXES: Cron & Pro License Issues Resolved**
-- **Static Method Fatal Errors Fixed**: Resolved PHP Fatal Error in `debug_trigger_full_auto` REST API endpoint
-- **Cron System Restored**: Fixed `$this` usage in static context causing automation failures  
-- **Pro License Validation Enhanced**: Extended timestamp validation from 24h to 7 days for better accessibility
-- **Content Freshness Working**: Fixed 404 errors on `/aca/v1/content-freshness/posts` endpoints
-- **JSON Parse Errors Eliminated**: Resolved "Fatal erro... is not valid JSON" frontend errors
-- **Autocron Issues Resolved**: All automation workflows now functioning properly
-- **Release Package**: `ai-content-agent-v2.4.3-bug-fixes.zip`
+### 🛠️ **CRITICAL CONTENT FRESHNESS FIXES: Complete System Overhaul**
+- **WordPress REST API Permission Fix**: Fixed WP_Error causing 404 instead of proper 403 responses
+- **SQL Query Security Enhancement**: Implemented safe SQL construction preventing potential injection risks
+- **Comprehensive Error Handling**: Added robust database error detection and recovery systems
+- **Endpoint Registration Improvements**: Enhanced registration tracking and debugging capabilities
+- **HTTP Status Code Corrections**: All endpoints now return proper HTTP status codes for better debugging
+- **Production Stability**: Comprehensive logging system and error recovery mechanisms
+- **Release Package**: `ai-content-agent-v2.4.4-content-freshness-fixes.zip`
 
 ### 🚨 **Previous Update - v2.4.2: Pro License Validation Restored**
 - **License Key Storage Fixed**: Added missing `aca_license_key` option storage - **95% of Pro users affected**

@@ -108,10 +108,11 @@ npm run build:wp
 - **ES2020 Target**: Modern browser compatibility while maintaining stability
 
 ### Bundle Analysis
-- **Unminified Size**: ~320KB (for stability)
-- **Minified Would Be**: ~95KB (but causes TDZ issues)
-- **Gzipped**: ~85KB (served by web servers)
+- **Unminified Size**: ~640KB (current build, includes all dependencies)
+- **Minified Would Be**: ~117KB (but causes TDZ issues, see gzipped output)
+- **Gzipped**: ~117KB (served by web servers)
 - **Assets Cached**: By WordPress and browsers automatically
+- **Build Tool**: Vite 6.3.5 with optimized compilation
 
 ## 🚀 Development Workflow
 
@@ -209,9 +210,10 @@ npm run dev
 After building, verify:
 - [ ] Files exist in `admin/assets/`
 - [ ] Files exist in `admin/js/`
-- [ ] File sizes are reasonable (~320KB)
+- [ ] File sizes are reasonable (~640KB for current build)
 - [ ] No console errors in WordPress admin
 - [ ] Plugin functionality works correctly
+- [ ] Both asset locations have identical files for fallback compatibility
 
 ## 🛡️ Build Security
 

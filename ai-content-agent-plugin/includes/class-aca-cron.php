@@ -86,7 +86,7 @@ class ACA_Cron {
         if (isset($settings['mode']) && $settings['mode'] === 'semi-automatic') {
             // Check if pro license is active for semi-automatic mode
             if (is_aca_pro_active()) {
-                $this->generate_ideas_semi_auto();
+                self::generate_ideas_semi_auto();
             } else {
                 error_log('ACA: Semi-automatic mode requires Pro license');
             }

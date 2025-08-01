@@ -138,12 +138,12 @@ export default defineConfig({
 ## 📦 Release Management
 
 ### Current Release Information
-- **Current Stable Release**: v2.3.7
-- **Release File**: `ai-content-agent-v2.3.7-seo-detection-fix-and-defaults.zip`
-- **Status**: Production ready with critical SEO detection fixes and enhanced user experience
-- **Major Features**: SEO plugin detection fix, API key validation, improved defaults, settings UI enhancements
-- **Previous Stable**: v2.3.6 (archived) - API validation and UI fixes
-- **Legacy Versions**: v2.3.0-2.3.5 (archived) - multilingual support, settings navigation improvements
+- **Current Stable Release**: v2.4.0
+- **Release File**: `ai-content-agent-v2.4.0-critical-fixes-and-stability.zip`
+- **Status**: Production ready with all critical issues resolved and enhanced security
+- **Major Features**: PHP error fixes, image processing restoration, content freshness enhancements, security hardening
+- **Previous Stable**: v2.3.7 (archived) - SEO detection fixes and user experience improvements
+- **Legacy Versions**: v2.3.0-2.3.6 (archived) - multilingual support, settings navigation improvements
 
 ### Release Process
 
@@ -154,8 +154,8 @@ npm version patch  # or minor/major
 
 # Update WordPress plugin header
 # In ai-content-agent.php:
-# Version: 2.3.7
-# define('ACA_VERSION', '2.3.7');
+# Version: 2.4.0
+# define('ACA_VERSION', '2.4.0');
 ```
 
 #### 2. Build and Test
@@ -189,31 +189,31 @@ npm run test  # if tests are available
 #### 4. Create Release Package
 ```bash
 # Move previous release to archive
-mv releases/ai-content-agent-v2.3.6-*.zip releases/archive/
+mv releases/ai-content-agent-v2.3.7-*.zip releases/archive/
 
 # Create new release zip
-zip -r ai-content-agent-v2.3.7-seo-detection-fix-and-defaults.zip \
+zip -r ai-content-agent-v2.4.0-critical-fixes-and-stability.zip \
   ai-content-agent-plugin/ \
   -x "*/node_modules/*" "*/.git/*" "*/dist/*" \
      "*/package-lock.json" "*/.gitignore" "*/.DS_Store" \
      "*/tsconfig.json" "*/vite.config.ts"
 
 # Move to releases directory
-mv ai-content-agent-v2.3.7-*.zip releases/
+mv ai-content-agent-v2.4.0-*.zip releases/
 ```
 
 #### 5. Git Operations
 ```bash
 # Commit all changes
 git add .
-git commit -m "🚀 RELEASE v2.3.7: SEO DETECTION FIX & DEFAULT IMPROVEMENTS"
+git commit -m "🚀 RELEASE v2.4.0: CRITICAL FIXES & PRODUCTION STABILITY"
 
 # Push to main branch
 git push origin main
 
 # Create and push tag
-git tag v2.3.7
-git push origin v2.3.7
+git tag v2.4.0
+git push origin v2.4.0
 ```
 
 ### Release Naming Convention
@@ -221,10 +221,10 @@ git push origin v2.3.7
 ai-content-agent-v{MAJOR}.{MINOR}.{PATCH}-{DESCRIPTION}.zip
 
 Examples:
+- ai-content-agent-v2.4.0-critical-fixes-and-stability.zip
 - ai-content-agent-v2.3.7-seo-detection-fix-and-defaults.zip
 - ai-content-agent-v2.3.6-api-validation-and-ui-fixes.zip
 - ai-content-agent-v2.3.5-settings-navigation-improvements.zip
-- ai-content-agent-v2.3.4-settings-page-navigation-fix.zip
 ```
 
 ## 📚 Documentation Standards

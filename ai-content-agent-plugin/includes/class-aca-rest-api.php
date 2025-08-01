@@ -1262,8 +1262,8 @@ class ACA_Rest_Api {
                 throw new Exception('AI content generation failed: ' . $ai_error->getMessage());
             }
             
-            // Generate or fetch image (temporarily disabled for debugging)
-            $image_data = null; // $this->get_featured_image($idea->title, $settings);
+            // Generate or fetch image
+            $image_data = $this->get_featured_image($idea->title, $settings);
             
             // Safely prepare meta data
             $focus_keywords = '';
@@ -3297,10 +3297,14 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                     ));
                 }
                 
-                // Store license status and bind to current site
+                // Store license status and bind to current site with enhanced security
                 update_option('aca_license_status', 'active');
                 update_option('aca_license_data', $verification_result);
                 update_option('aca_license_site_hash', $current_site_hash);
+                
+                // Additional security fields for multi-point validation
+                update_option('aca_license_verified', wp_hash('verified'));
+                update_option('aca_license_timestamp', time());
                 
                 // Add success message to response
                 $verification_result['message'] = 'License verified successfully! Pro features are now active.';
@@ -3711,6 +3715,12 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             
             if (empty($settings)) {
                 return new WP_Error('invalid_data', 'No settings data provided', array('status' => 400));
+            }
+            
+            // Key name transformation for frontend/backend compatibility
+            if (isset($settings['analyzeContentFrequency'])) {
+                $settings['analysisFrequency'] = $settings['analyzeContentFrequency'];
+                unset($settings['analyzeContentFrequency']);
             }
             
             // Validate settings

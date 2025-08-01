@@ -3,7 +3,7 @@
  * Plugin Name: AI Content Agent (ACA)
  * Plugin URI: https://ademisler.gumroad.com/l/ai-content-agent-pro
  * Description: AI-powered content creation and management plugin that generates blog posts, ideas, and manages your content workflow automatically with Google Search Console integration and Pro features.
- * Version: 2.3.7
+ * Version: 2.4.0
  * Author: Adem Isler
  * Author URI: https://ademisler.com/en
  * License: GPL v2 or later
@@ -22,17 +22,25 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('ACA_VERSION', '2.3.7');
+define('ACA_VERSION', '2.4.0');
 define('ACA_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('ACA_PLUGIN_PATH', plugin_dir_path(__FILE__));
 
 /**
- * Check if ACA Pro is active
+ * Check if ACA Pro is active with multi-point validation
  * 
  * @return bool True if pro license is active, false otherwise
  */
 function is_aca_pro_active() {
-    return get_option('aca_license_status') === 'active';
+    // Multi-point validation to prevent bypass attempts
+    $checks = array(
+        get_option('aca_license_status') === 'active',
+        get_option('aca_license_verified') === wp_hash('verified'),
+        (time() - get_option('aca_license_timestamp', 0)) < 86400, // Daily verification
+        !empty(get_option('aca_license_key'))
+    );
+    
+    return count(array_filter($checks)) === 4;
 }
 
 // Include required files
@@ -198,3 +206,15 @@ new AI_Content_Agent();
 // Hook cron events
 add_action('aca_thirty_minute_event', array('ACA_Cron', 'thirty_minute_task'));
 add_action('aca_fifteen_minute_event', array('ACA_Cron', 'fifteen_minute_task'));
+
+// Post view count tracking for content freshness analysis
+function aca_track_post_views() {
+    if (is_single() && !is_admin() && !current_user_can('edit_posts')) {
+        global $post;
+        if ($post && $post->post_type === 'post') {
+            $current_views = get_post_meta($post->ID, '_aca_view_count', true) ?: 0;
+            update_post_meta($post->ID, '_aca_view_count', $current_views + 1);
+        }
+    }
+}
+add_action('wp_head', 'aca_track_post_views');

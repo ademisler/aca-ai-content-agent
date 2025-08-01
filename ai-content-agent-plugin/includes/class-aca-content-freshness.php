@@ -88,10 +88,10 @@ class ACA_Content_Freshness {
                     $impressions = $performance_data['impressions'] ?? 0;
                     $ctr = $performance_data['ctr'] ?? 0;
                     
-                    // Simple scoring algorithm
-                    $click_score = min(50, $clicks / 10); // Max 50 points for clicks
-                    $impression_score = min(30, $impressions / 100); // Max 30 points for impressions
-                    $ctr_score = min(20, $ctr * 1000); // Max 20 points for CTR
+                    // Improved scoring algorithm with realistic thresholds
+                    $click_score = min(40, $clicks / 5); // Max 40 points for clicks (more realistic threshold)
+                    $impression_score = min(35, $impressions / 50); // Max 35 points for impressions (balanced threshold)
+                    $ctr_score = min(25, $ctr * 100); // Max 25 points for CTR (correct multiplier: 100x not 1000x)
                     
                     return $click_score + $impression_score + $ctr_score;
                 }

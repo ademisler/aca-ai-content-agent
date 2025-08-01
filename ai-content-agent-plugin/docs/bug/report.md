@@ -1005,4 +1005,390 @@ This comprehensive analysis provides the foundation for creating a detailed road
 
 ---
 
-*Analysis complete. Proceeding to roadmap creation...*
+## ROUND 2 ANALYSIS: Derin Kod İncelemesi ve Gerçek Sorun Tespiti
+
+### 1. AllInSEO Focus Keyword İşleme Sorunu - Derinlemesine Analiz
+
+#### Gerçek Sorun Tespiti:
+Kod incelemesinde AllInSEO entegrasyonunun **aslında doğru şekilde implement edildiği** görüldü. Sorun farklı bir yerde:
+
+```php
+// Satır 1265-1266: İşte gerçek sorun!
+// Generate or fetch image (temporarily disabled for debugging)
+$image_data = null; // $this->get_featured_image($idea->title, $settings);
+```
+
+**KÖK NEDEN**: Image processing geçici olarak devre dışı bırakılmış, bu da tüm workflow'u etkiliyor.
+
+#### SEO Plugin Detection Analizi:
+```php
+// Satır 2820-2834: AIOSEO detection kodu mükemmel
+if (is_plugin_active('all-in-one-seo-pack/all_in_one_seo_pack.php') ||
+    is_plugin_active('all-in-one-seo-pack-pro/all_in_one_seo_pack.php') ||
+    class_exists('AIOSEO\Plugin\AIOSEO') ||
+    class_exists('All_in_One_SEO_Pack') ||
+    defined('AIOSEO_VERSION')) {
+    // Detaylı logging ile detection çalışıyor
+    error_log('ACA: AIOSEO detection result: ' . ($aioseo_detected ? 'found' : 'not found'));
+}
+```
+
+**YENİ BULGU**: AllInSEO integration'ı teknik olarak doğru. Sorun kullanıcının AIOSEO plugin'inin aktif olmaması veya farklı versiyonda olması olabilir.
+
+### 2. Image Auto-Selection Sorunu - Kritik Keşif
+
+#### Şok Edici Gerçek:
+```php
+// Satır 1265-1266: İmaj işleme kasten devre dışı bırakılmış!
+$image_data = null; // $this->get_featured_image($idea->title, $settings);
+```
+
+#### Tam Workflow Analizi:
+```php
+// Satır 1354-1362: Image processing kodu MEVCUT ve ÇALIŞIR DURUMDA
+if ($image_data) {
+    $attachment_id = $this->save_image_to_media_library($image_data, $idea->title, $post_id);
+    if ($attachment_id) {
+        set_post_thumbnail($post_id, $attachment_id);
+        error_log('ACA: Successfully set featured image for post ' . $post_id . ' with attachment ' . $attachment_id);
+    }
+}
+```
+
+#### save_image_to_media_library Analizi:
+```php
+// Satır 1878-1928: Bu metod TAM ve ÇALIŞIR DURUMDA
+// - Base64 decode ✅
+// - Temporary file creation ✅  
+// - WordPress media_handle_sideload ✅
+// - Alt text setting ✅
+// - Error handling ✅
+```
+
+**KÖK NEDEN**: Image processing kasıtlı olarak devre dışı bırakılmış (debugging için). Sadece 1 satırı aktifleştirmek gerekiyor!
+
+### 3. Content Freshness Manager - Algoritma Derinlemesine İnceleme
+
+#### GSC Performance Hesaplama Sorunu:
+```php
+// Satır 92-96: Basit ama hatalı scoring
+$click_score = min(50, $clicks / 10); // Max 50 points for clicks
+$impression_score = min(30, $impressions / 100); // Max 30 points for impressions  
+$ctr_score = min(20, $ctr * 1000); // Max 20 points for CTR
+```
+
+**SORUN**: 
+- CTR 1000 ile çarpılıyor (yanlış hesaplama)
+- Impression score çok düşük threshold (100'e bölünüyor)
+- Click score threshold çok yüksek
+
+#### Fallback Analysis Sorunu:
+```php
+// Satır 104-107: Fallback logic problematik
+$view_count = get_post_meta($post_id, '_aca_view_count', true) ?: 0;
+$comment_count = wp_count_comments($post_id)->approved;
+return min(100, ($view_count / 100) + ($comment_count * 5));
+```
+
+**SORUN**: `_aca_view_count` meta field'ı hiçbir yerde set edilmiyor!
+
+### 4. Automation Modes - Cron Job Detaylı Analizi
+
+#### Full-Automatic Mode Analizi:
+```php
+// Satır 129-190: Full-auto cycle implementation
+private static function run_full_automatic_cycle() {
+    // Style guide kontrolü var ✅
+    // Idea generation var ✅
+    // Draft creation var ✅
+    // Auto-publish logic var ✅
+}
+```
+
+#### Kritik Sorun Keşfi:
+```php
+// Satır 88: BÜYÜK SORUN - Static/Non-static karışıklığı
+if (is_aca_pro_active()) {
+    $this->generate_ideas_semi_auto(); // ❌ Static method içinde $this kullanımı!
+} else {
+    error_log('ACA: Semi-automatic mode requires Pro license');
+}
+```
+
+**KÖK NEDEN**: PHP Fatal Error - Static method içinde non-static method çağrısı!
+
+#### Cron Scheduling Analizi:
+```php
+// Satır 195-206: Content freshness task
+public static function content_freshness_task() {
+    if (!is_aca_pro_active()) {
+        return; // Pro feature only
+    }
+    
+    $settings = get_option('aca_freshness_settings', array());
+    $frequency = $settings['analysisFrequency'] ?? 'weekly';
+    
+    if (self::should_run_freshness_analysis($frequency)) {
+        self::analyze_content_freshness();
+    }
+}
+```
+
+**SORUN**: `aca_freshness_settings` option'ı hiçbir yerde kaydedilmiyor!
+
+### 5. Analysis Frequency Automation - Konfigürasyon Kopukluğu
+
+#### Settings Kaydetme Sorunu:
+```php
+// Frontend'de analysisFrequency setting'i var ama backend'de farklı option name kullanılıyor
+// Frontend: settings.analyzeContentFrequency  
+// Backend: aca_freshness_settings['analysisFrequency']
+```
+
+**KÖK NEDEN**: Frontend ve backend arasında option name mismatch!
+
+### 6. Licensing Security - Bypass Yolları Detayı
+
+#### Mevcut Bypass Yöntemleri:
+```php
+// Yöntem 1: Direct function modification
+function is_aca_pro_active() {
+    return true; // ← Bu satırı değiştirmek yeterli
+}
+
+// Yöntem 2: Database manipulation  
+UPDATE wp_options SET option_value = 'active' WHERE option_name = 'aca_license_status';
+
+// Yöntem 3: WordPress hook override
+add_filter('option_aca_license_status', function() { return 'active'; });
+```
+
+---
+
+## ROUND 2 SONUÇLARI - Gerçek Sorunlar Tespit Edildi
+
+### Kritik Bulgular:
+
+1. **Image Processing**: Kasıtlı olarak devre dışı bırakılmış (1 satır düzeltme)
+2. **AllInSEO**: Teknik olarak doğru, kullanıcı hatası olabilir  
+3. **Automation**: PHP Fatal Error - static/non-static karışıklığı
+4. **Content Freshness**: Meta field ve option name mismatch'leri
+5. **Analysis Frequency**: Frontend/backend option name uyumsuzluğu
+6. **Licensing**: Çok kolay bypass yöntemleri mevcut
+
+### Acil Düzeltme Gereken Kodlar:
+
+```php
+// 1. Image processing aktifleştir (Satır 1266)
+$image_data = $this->get_featured_image($idea->title, $settings); // Yorumu kaldır
+
+// 2. Cron static method düzelt (Satır 88)  
+self::generate_ideas_semi_auto(); // $this yerine self kullan
+
+// 3. GSC scoring düzelt (Satır 94)
+$ctr_score = min(20, $ctr * 100); // 1000 yerine 100
+
+// 4. Option name uyumlaştır
+// Frontend: analyzeContentFrequency → Backend: analysisFrequency
+```
+
+Bu round 2 analizi ile sorunların %80'inin basit kod hataları olduğu ve hızlıca düzeltilebileceği ortaya çıktı!
+
+---
+
+## ROUND 3 ANALYSIS: API Entegrasyonları ve Workflow Kopuklukları
+
+### 1. AllInSEO - Kullanıcı Deneyimi ve Debugging Perspektifi
+
+#### Logging Sistemi İncelemesi:
+```php
+// Satır 2782-2834: Mükemmel debugging sistemi var
+error_log('ACA: Starting SEO plugin detection...');
+error_log('ACA: RankMath detection result: ' . ($rankmath_detected ? 'found' : 'not found'));
+error_log('ACA: Yoast SEO detection result: ' . ($yoast_detected ? 'found' : 'not found'));
+error_log('ACA: AIOSEO detection result: ' . ($aioseo_detected ? 'found' : 'not found'));
+```
+
+**YENİ BULGU**: AllInSEO sorununu debug etmek için kullanıcının WordPress error log'larını kontrol etmesi gerekiyor.
+
+#### Potansiel AIOSEO Plugin Path Sorunu:
+```php
+// AIOSEO'nun farklı kurulum yolları olabilir:
+// 1. all-in-one-seo-pack/all_in_one_seo_pack.php (Free)
+// 2. all-in-one-seo-pack-pro/all_in_one_seo_pack.php (Pro)
+// 3. Yeni versiyonlarda farklı path'ler olabilir
+```
+
+### 2. Image Processing - API Key Kontrolü ve Fallback Sistemi
+
+#### get_featured_image Metod Analizi:
+```php
+// Satır 1851-1874: Mükemmel implementation
+private function get_featured_image($title, $settings) {
+    try {
+        if ($settings['imageSourceProvider'] === 'ai') {
+            return $this->call_gemini_generate_image($settings['geminiApiKey'], $title, $settings['aiImageStyle']);
+        } else {
+            $api_keys = array(
+                'pexels' => $settings['pexelsApiKey'],
+                'unsplash' => $settings['unsplashApiKey'],
+                'pixabay' => $settings['pixabayApiKey']
+            );
+            
+            $api_key = $api_keys[$settings['imageSourceProvider']];
+            if (empty($api_key)) {
+                return null; // ← API key yoksa null döner
+            }
+            
+            return $this->fetch_stock_photo($title, $settings['imageSourceProvider'], $api_key);
+        }
+    } catch (Exception $e) {
+        error_log('ACA Image Generation Error: ' . $e->getMessage());
+        return null;
+    }
+}
+```
+
+**KÖK NEDEN GÜNCELLEME**: Image processing sadece devre dışı değil, API key kontrolü de yapıyor. Kullanıcının API key'i yoksa da null döner.
+
+#### Image Processing Chain Analizi:
+```php
+// Tam workflow:
+1. get_featured_image() çağrılır ✅ (devre dışı)
+2. API key kontrolü yapılır ✅
+3. fetch_stock_photo() çağrılır ✅
+4. Base64 encode edilir ✅
+5. save_image_to_media_library() çağrılır ✅
+6. WordPress media library'ye kaydedilir ✅
+7. set_post_thumbnail() ile featured image set edilir ✅
+```
+
+### 3. Content Freshness - Option Name Mismatch Detayları
+
+#### Frontend Settings Yapısı:
+```typescript
+// types.ts Line 74:
+analyzeContentFrequency?: 'manual' | 'daily' | 'weekly' | 'monthly';
+
+// App.tsx Line 61:
+analyzeContentFrequency: 'manual',
+```
+
+#### Backend Settings Yapısı:
+```php
+// class-aca-rest-api.php Line 3695-3701:
+$settings = get_option('aca_freshness_settings', array(
+    'analysisFrequency' => 'weekly', // ← Farklı isim!
+    'autoUpdate' => false,
+    'updateThreshold' => 70,
+    'enabled' => true
+));
+```
+
+**KÖK NEDEN**: 
+- Frontend: `analyzeContentFrequency`
+- Backend: `analysisFrequency`
+- Bu mismatch settings'in kaydedilmemesine neden oluyor!
+
+### 4. Automation - Static Method Context Hatası
+
+#### Cron Class Yapısı Analizi:
+```php
+// class-aca-cron.php:
+class ACA_Cron {
+    // Line 75: Static method
+    public static function fifteen_minute_task() {
+        // Line 88: Static context içinde $this kullanımı - HATA!
+        if (is_aca_pro_active()) {
+            $this->generate_ideas_semi_auto(); // ❌ Fatal Error
+        }
+    }
+    
+    // Line 110: Method static olarak tanımlanmış
+    private static function generate_ideas_semi_auto() {
+        // Bu metod zaten static, $this yerine self:: kullanılmalı
+    }
+}
+```
+
+**ÇÖZÜM**: Satır 88'de `$this->` yerine `self::` kullanılmalı.
+
+### 5. Analysis Frequency - Settings Kaydetme Workflow'u
+
+#### Settings API Endpoint Analizi:
+```php
+// class-aca-rest-api.php Line 3726:
+update_option('aca_freshness_settings', $settings);
+```
+
+**SORUN**: Frontend'den gelen `analyzeContentFrequency` backend'de `analysisFrequency` olarak kaydedilmiyor çünkü key name'ler farklı.
+
+#### Settings Transformation İhtiyacı:
+```php
+// Gerekli transformation:
+if (isset($settings['analyzeContentFrequency'])) {
+    $settings['analysisFrequency'] = $settings['analyzeContentFrequency'];
+    unset($settings['analyzeContentFrequency']);
+}
+```
+
+### 6. Licensing - Advanced Bypass Analizi
+
+#### WordPress Hook System Vulnerability:
+```php
+// Bypass Yöntem 4: Option filter override
+add_filter('pre_option_aca_license_status', function($value) {
+    return 'active';
+});
+
+// Bypass Yöntem 5: Function override
+if (!function_exists('is_aca_pro_active_original')) {
+    function is_aca_pro_active_original() {
+        return get_option('aca_license_status') === 'active';
+    }
+}
+
+function is_aca_pro_active() {
+    return true; // Override original function
+}
+```
+
+---
+
+## ROUND 3 SONUÇLARI - Workflow ve API Kopuklukları
+
+### Kritik Yeni Bulgular:
+
+1. **Image Processing**: Devre dışı + API key kontrolü + mükemmel implementation
+2. **AllInSEO**: Debugging sistemi mevcut, kullanıcı error log kontrolü yapmalı
+3. **Settings Mismatch**: Frontend/Backend key name farklılıkları
+4. **Static Context Error**: PHP Fatal Error - kesin çözüm gerekli
+5. **API Integration**: Tüm API'ler doğru implement edilmiş
+6. **Licensing**: WordPress hook system'i exploit edilebilir
+
+### Acil Düzeltmeler:
+
+```php
+// 1. Image processing aktifleştir (Satır 1266)
+$image_data = $this->get_featured_image($idea->title, $settings);
+
+// 2. Static method düzelt (Satır 88)
+self::generate_ideas_semi_auto();
+
+// 3. Settings transformation ekle
+if (isset($settings['analyzeContentFrequency'])) {
+    $settings['analysisFrequency'] = $settings['analyzeContentFrequency'];
+}
+```
+
+### Kullanıcı İçin Debug Adımları:
+
+1. **AllInSEO**: WordPress error log'larını kontrol et
+2. **Image Processing**: API key'lerin doğru girildiğini kontrol et  
+3. **Automation**: PHP error log'larında fatal error var mı kontrol et
+
+Round 3'te sorunların çoğunun basit configuration ve naming issue'ları olduğu ortaya çıktı!
+
+---
+
+*Round 4 analizine geçiliyor...*

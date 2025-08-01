@@ -139,9 +139,9 @@ export default defineConfig({
 
 ### Current Release Information
 - **Current Stable Release**: v2.4.0
-- **Release File**: `ai-content-agent-v2.4.0-critical-fixes-and-stability.zip`
-- **Status**: Production ready with all critical issues resolved and enhanced security
-- **Major Features**: PHP error fixes, image processing restoration, content freshness enhancements, security hardening
+- **Release File**: `ai-content-agent-v2.4.0-updated-build-20250801.zip`
+- **Status**: Production ready with all critical issues resolved, enhanced security, and latest build optimizations
+- **Major Features**: PHP error fixes, image processing restoration, content freshness enhancements, security hardening, updated build system
 - **Previous Stable**: v2.3.7 (archived) - SEO detection fixes and user experience improvements
 - **Legacy Versions**: v2.3.0-2.3.6 (archived) - multilingual support, settings navigation improvements
 

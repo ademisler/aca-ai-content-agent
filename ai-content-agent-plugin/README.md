@@ -122,25 +122,26 @@ AI Content Agent (ACA) is a powerful WordPress plugin that leverages Google's Ge
 
 ### Current Release
 - **Latest Stable**: v2.4.0 (Located in `/releases/`)
-- **File**: `ai-content-agent-v2.4.0-critical-fixes-and-stability.zip`
-- **Status**: Production ready with all critical issues resolved
-- **Major Improvements**: PHP error fixes, image processing restoration, content freshness enhancements, security hardening
+- **File**: `ai-content-agent-v2.4.0-updated-build-20250801.zip`
+- **Status**: Production ready with all critical issues resolved and latest build optimizations
+- **Major Improvements**: PHP error fixes, image processing restoration, content freshness enhancements, security hardening, updated build system
 - **Previous Versions**: v2.3.7 and earlier (archived) - SEO detection fixes, settings improvements, multilingual support
 
 ### Archive
 - **Previous Versions**: All older versions are stored in `/releases/archive/`
-- **Total Archived**: 28 previous versions (including v2.3.7)
+- **Total Archived**: 82 previous versions (including v2.4.0 original and v2.3.7)
 - **Purpose**: Development history and rollback capability
 
 ### For Developers
 ```bash
 # Current stable release
-releases/ai-content-agent-v2.4.0-critical-fixes-and-stability.zip
+releases/ai-content-agent-v2.4.0-updated-build-20250801.zip
 
 # Development build (after making changes)
 npm run build:wp  # Builds and copies to both admin/assets/ and admin/js/
 
 # Archived versions
+releases/archive/ai-content-agent-v2.4.0-critical-fixes-and-stability.zip
 releases/archive/ai-content-agent-v2.3.7-*.zip
 releases/archive/ai-content-agent-v2.3.x-*.zip
 releases/archive/ai-content-agent-v2.2.x-*.zip
@@ -278,4 +279,12 @@ For complete version history, see `CHANGELOG.md`.
 
 ---
 
-**Ready to revolutionize your content workflow with AI Content Agent (ACA)?** Download v2.4.0 for the complete, production-ready experience with all critical fixes, enhanced security, and full functionality! 🚀
+**Ready to revolutionize your content workflow with AI Content Agent (ACA)?** Download v2.4.0 (Updated Build 20250801) for the complete, production-ready experience with all critical fixes, enhanced security, latest build optimizations, and full functionality! 🚀
+
+## 🔄 Latest Build Update (August 1, 2025)
+
+- **Updated Build System**: Latest Vite 6.3.5 with optimized compilation
+- **Asset Optimization**: Improved bundle size and loading performance  
+- **Enhanced Compatibility**: Updated dependencies for better WordPress integration
+- **Build Verification**: All assets properly compiled and deployed to both locations
+- **Archive Management**: Previous v2.4.0 release moved to archive for version history

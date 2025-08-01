@@ -3,6 +3,55 @@
   var __vite_style__ = document.createElement("style");
   __vite_style__.textContent = `/* WordPress Admin Compatible Styles for AI Content Agent (ACA) */
 
+/* CSS Variables for WordPress Admin Bar Height */
+
+:root {
+  --wp-admin-bar-height: 32px; /* Default desktop height */
+  
+  /* Enhanced contrast colors - WCAG AA compliant */
+  --aca-text-high-contrast: #212529;    /* 16.75:1 on white */
+  --aca-text-medium-contrast: #495057;  /* 8.59:1 on white */
+  --aca-link-accessible: #0056b3;       /* 7.27:1 on white */
+  --aca-link-hover-accessible: #004085; /* 9.67:1 on white */
+  
+  /* Status colors with proper contrast */
+  --aca-success-accessible: #155724;    /* 7.44:1 on white */
+  --aca-warning-accessible: #856404;    /* 5.94:1 on white */
+  --aca-error-accessible: #721c24;      /* 8.80:1 on white */
+}
+
+@media screen and (max-width: 782px) {
+  :root {
+    --wp-admin-bar-height: 46px; /* WordPress mobile admin bar height */
+  }
+}
+
+/* Handle no admin bar scenario */
+
+body.no-admin-bar {
+  --wp-admin-bar-height: 0px;
+}
+
+/* Ensure WordPress admin bar is touch-friendly on mobile */
+
+@media screen and (max-width: 782px) {
+  /* Don't interfere with WordPress admin bar, just ensure our elements don't block it */
+  #wpadminbar {
+    /* WordPress handles this, we just make sure we don't conflict */
+    position: fixed !important;
+    top: 0 !important;
+    z-index: 99999 !important; /* WordPress standard */
+  }
+  
+  /* Ensure our hamburger doesn't conflict with admin bar */
+  .aca-mobile-hamburger {
+    /* Position it safely away from admin bar */
+    top: calc(var(--wp-admin-bar-height, 46px) + 5px) !important;
+    pointer-events: auto !important;
+    touch-action: manipulation !important;
+  }
+}
+
 /* Remove Tailwind CDN import and create custom WordPress-compatible styles */
 
 /* @import 'https://cdn.tailwindcss.com'; */
@@ -44,9 +93,9 @@
   background: #23282d;
   border-right: 1px solid #ccd0d4;
   position: fixed;
-  top: 32px; /* Account for WordPress admin bar */
+  top: var(--wp-admin-bar-height, 32px); /* Dynamic height instead of fixed 32px */
   left: 160px; /* Right next to WordPress admin menu */
-  height: calc(100vh - 32px); /* Fixed height */
+  height: calc(100vh - var(--wp-admin-bar-height, 32px)); /* Dynamic calculation instead of fixed 32px */
   z-index: 9999;
   overflow-y: auto; /* Allow internal scrolling */
   transform: translateX(-100%);
@@ -1447,6 +1496,267 @@ body.toplevel_page_ai-content-agent #footer-thankyou,
 body.toplevel_page_ai-content-agent #footer-upgrade,
 body.toplevel_page_ai-content-agent #wpfooter {
   display: none !important;
+}
+
+/* Enhanced responsive design - ACA specific improvements */
+
+@media screen and (max-width: 768px) {
+  /* Improve mobile sidebar without breaking existing 782px styles */
+  .aca-sidebar.is-mobile-optimized {
+    width: 100% !important;
+    max-width: 320px !important;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .aca-sidebar.is-mobile-optimized.is-open {
+    transform: translateX(0);
+  }
+  
+  /* Improve touch targets for mobile */
+  .aca-nav-item {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .aca-nav-item a {
+    padding: 12px 20px;
+    width: 100%;
+    display: block;
+  }
+}
+
+/* Mobile overlay for sidebar */
+
+.aca-mobile-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 99998;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.aca-mobile-overlay.is-visible {
+  display: block;
+  opacity: 1;
+}
+
+/* Mobile menu toggle */
+
+.aca-mobile-menu-toggle {
+  display: none;
+  position: fixed;
+  top: 50px;
+  left: 20px;
+  z-index: 100000;
+  background: #0073aa;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+@media screen and (max-width: 768px) {
+  .aca-mobile-menu-toggle {
+    display: block;
+  }
+}
+
+/* WCAG AA compliant color improvements */
+
+.aca-plugin-wrapper .aca-accessible-text {
+  color: var(--aca-text-high-contrast);
+}
+
+.aca-plugin-wrapper .aca-accessible-link {
+  color: var(--aca-link-accessible);
+}
+
+.aca-plugin-wrapper .aca-accessible-link:hover {
+  color: var(--aca-link-hover-accessible);
+}
+
+/* High contrast mode support */
+
+@media (prefers-contrast: high) {
+  .aca-plugin-wrapper {
+    --aca-text-high-contrast: #000000;
+    --aca-link-accessible: #0000ee;
+  }
+}
+
+/* Enhanced Mobile Navigation Fixes - Use higher specificity instead of !important */
+
+@media screen and (max-width: 782px) {
+  /* Ensure smooth transition at breakpoint */
+  .aca-container .aca-sidebar {
+    will-change: transform; /* Optimize animations */
+  }
+  /* Fix sidebar positioning on mobile */
+  .aca-container .aca-sidebar {
+    position: fixed;
+    top: var(--wp-admin-bar-height, 46px);
+    left: 0;
+    width: 280px;
+    height: calc(100vh - var(--wp-admin-bar-height, 46px));
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
+    z-index: 99998; /* Below WordPress admin bar (99999) */
+    box-shadow: 2px 0 20px rgba(0, 0, 0, 0.3);
+    pointer-events: none; /* Prevent click-through when hidden */
+    touch-action: pan-y; /* Allow vertical scrolling */
+  }
+  
+  /* Show sidebar when active - support both open and mobile-active classes */
+  .aca-container .aca-sidebar.mobile-active,
+  .aca-container .aca-sidebar.open {
+    transform: translateX(0);
+    pointer-events: auto; /* Re-enable interactions when visible */
+  }
+  
+  /* Improve mobile navigation items */
+  .aca-container .aca-sidebar .aca-nav-item {
+    min-height: 48px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .aca-container .aca-sidebar .aca-nav-item a {
+    padding: 14px 20px;
+    font-size: 16px;
+    line-height: 1.4;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  /* Mobile hamburger menu */
+  .aca-mobile-hamburger {
+    display: block !important;
+    position: fixed !important;
+    top: calc(var(--wp-admin-bar-height, 46px) + 10px) !important;
+    left: 15px !important;
+    z-index: 99997; /* Below sidebar but above content */
+    background: #0073aa !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 6px !important;
+    padding: 12px 14px !important; /* Larger touch target */
+    cursor: pointer !important;
+    font-size: 18px !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2) !important;
+    transition: all 0.2s ease !important;
+    min-width: 44px !important; /* WCAG minimum touch target */
+    min-height: 44px !important; /* WCAG minimum touch target */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    -webkit-tap-highlight-color: transparent !important; /* Remove iOS highlight */
+    touch-action: manipulation !important; /* Prevent zoom on double-tap */
+  }
+  
+  .aca-mobile-hamburger:hover {
+    background: #005a87 !important;
+    transform: scale(1.05) !important;
+  }
+  
+  .aca-mobile-hamburger:active {
+    transform: scale(0.95) !important;
+  }
+  
+  /* Main content adjustment for mobile */
+  .aca-main-content {
+    margin-left: 0 !important;
+    padding: 20px 15px !important;
+    min-height: calc(100vh - var(--wp-admin-bar-height, 46px)) !important;
+  }
+  
+  /* Mobile overlay for sidebar */
+  .aca-mobile-overlay {
+    display: none !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: rgba(0, 0, 0, 0.6) !important;
+    z-index: 99996; /* Below hamburger menu */
+    opacity: 0 !important;
+    transition: opacity 0.3s ease !important;
+  }
+  
+  .aca-mobile-overlay.active {
+    display: block !important;
+    opacity: 1 !important;
+  }
+  
+  /* Ensure touch targets are accessible */
+  .aca-sidebar button,
+  .aca-sidebar a,
+  .aca-sidebar input[type="button"],
+  .aca-sidebar input[type="submit"] {
+    min-height: 44px !important;
+    min-width: 44px !important;
+  }
+  
+  /* Fix mobile scrolling issues */
+  .aca-sidebar {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  
+  /* Prevent body scroll when sidebar is open */
+  body.aca-sidebar-open {
+    overflow: hidden !important;
+    position: fixed !important;
+    width: 100% !important;
+  }
+}
+
+/* Tablet specific adjustments */
+
+@media screen and (min-width: 783px) and (max-width: 1024px) {
+  .aca-sidebar {
+    width: 220px !important;
+  }
+  
+  .aca-main-content {
+    margin-left: 220px !important;
+  }
+}
+
+/* Desktop cleanup - ensure mobile states don't persist */
+
+@media screen and (min-width: 783px) {
+  .aca-container .aca-sidebar {
+    position: relative !important;
+    transform: none !important;
+    z-index: auto !important;
+    pointer-events: auto !important;
+    width: auto !important;
+    height: auto !important;
+    box-shadow: none !important;
+  }
+  
+  .aca-mobile-hamburger {
+    display: none !important;
+  }
+  
+  .aca-mobile-overlay {
+    display: none !important;
+  }
+  
+  /* Remove mobile-specific body classes on desktop */
+  body.aca-sidebar-open {
+    overflow: auto !important;
+  }
 }/*$vite$:1*/`;
   document.head.appendChild(__vite_style__);
   function getDefaultExportFromCjs(x) {
@@ -10214,8 +10524,23 @@ body.toplevel_page_ai-content-agent #wpfooter {
   const Sidebar = ({ currentView, setView, isOpen, closeSidebar }) => {
     const handleNavigation = (view) => {
       setView(view);
-      closeSidebar();
+      if (window.innerWidth <= 782) {
+        closeSidebar();
+      }
     };
+    React.useEffect(() => {
+      const handleEscKey = (event) => {
+        if (event.key === "Escape" && isOpen && window.innerWidth <= 782) {
+          closeSidebar();
+        }
+      };
+      if (isOpen) {
+        document.addEventListener("keydown", handleEscKey);
+      }
+      return () => {
+        document.removeEventListener("keydown", handleEscKey);
+      };
+    }, [isOpen, closeSidebar]);
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("aside", { className: `aca-sidebar ${isOpen ? "open" : ""}`, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-sidebar-header", style: {
         background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
@@ -15693,13 +16018,48 @@ body.toplevel_page_ai-content-agent #wpfooter {
       };
       loadInitialData();
     }, []);
+    reactExports.useEffect(() => {
+      const handleResize = () => {
+        if (window.innerWidth > 782 && isSidebarOpen) {
+          setIsSidebarOpen(false);
+        }
+        if (isSidebarOpen && window.innerWidth <= 782) {
+          document.body.classList.add("aca-sidebar-open");
+        } else {
+          document.body.classList.remove("aca-sidebar-open");
+        }
+      };
+      handleResize();
+      window.addEventListener("resize", handleResize);
+      return () => {
+        window.removeEventListener("resize", handleResize);
+        document.body.classList.remove("aca-sidebar-open");
+      };
+    }, [isSidebarOpen]);
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "aca-container", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            className: "aca-mobile-hamburger",
+            onClick: (e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              setIsSidebarOpen(!isSidebarOpen);
+            },
+            "aria-label": "Toggle navigation menu",
+            style: { display: window.innerWidth <= 782 ? "block" : "none" },
+            children: "☰"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
           "div",
           {
-            className: `aca-overlay ${isSidebarOpen ? "show" : ""}`,
-            onClick: () => setIsSidebarOpen(false)
+            className: `aca-mobile-overlay ${isSidebarOpen ? "active" : ""}`,
+            onClick: (e) => {
+              e.stopPropagation();
+              setIsSidebarOpen(false);
+            }
           }
         ),
         /* @__PURE__ */ jsxRuntimeExports.jsx(

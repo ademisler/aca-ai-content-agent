@@ -10,21 +10,16 @@ if (!defined('ABSPATH')) {
 class ACA_Rest_Api {
     
     public function __construct() {
-        error_log('ACA: REST API constructor called');
-        
         add_action('rest_api_init', array($this, 'register_routes'));
-        error_log('ACA: rest_api_init hook added');
         
         // Ensure proper charset handling for special characters
         add_action('init', array($this, 'setup_charset_handling'));
-        error_log('ACA: REST API constructor completed');
     }
     
     /**
      * Register REST API routes
      */
     public function register_routes() {
-        error_log('ACA: Starting REST API route registration');
         // Settings endpoints
         register_rest_route('aca/v1', '/settings', array(
             'methods' => 'GET',
@@ -257,7 +252,6 @@ class ACA_Rest_Api {
         ));
         
         // Content Freshness endpoints (Pro feature)
-        error_log('ACA: Registering content-freshness endpoints');
         register_rest_route('aca/v1', '/content-freshness/analyze', array(
             'methods' => 'POST',
             'callback' => array($this, 'analyze_content_freshness'),
@@ -288,7 +282,7 @@ class ACA_Rest_Api {
                 'callback' => array($this, 'get_posts_freshness_data'),
                 'permission_callback' => array($this, 'check_pro_permissions')
             ));
-            error_log('ACA: Successfully registered /content-freshness/posts endpoint');
+
         } catch (Exception $e) {
             error_log('ACA: Error registering /content-freshness/posts endpoint: ' . $e->getMessage());
         }
@@ -299,7 +293,7 @@ class ACA_Rest_Api {
             'permission_callback' => array($this, 'check_pro_permissions')
         ));
         
-        error_log('ACA: Content-freshness endpoints registration completed');
+
         
         // Test endpoint to verify registration works
         register_rest_route('aca/v1', '/test-endpoint', array(
@@ -4145,13 +4139,6 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
      * Get posts with freshness data
      */
     public function get_posts_freshness_data($request) {
-        error_log('ACA: get_posts_freshness_data method called');
-        
-        // Verify this method exists and is callable
-        if (!method_exists($this, 'get_posts_freshness_data')) {
-            error_log('ACA: get_posts_freshness_data method does not exist!');
-            return new WP_Error('method_not_found', 'Method not found', array('status' => 500));
-        }
         
         require_once ACA_PLUGIN_PATH . 'includes/class-aca-content-freshness.php';
         

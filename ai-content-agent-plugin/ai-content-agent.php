@@ -74,19 +74,11 @@ class AI_Content_Agent {
     }
     
     public function init() {
-        error_log('ACA: Plugin init() method called');
-        
         // Initialize dependency installer
         require_once ACA_PLUGIN_PATH . 'install-dependencies.php';
         
         // Initialize REST API
-        error_log('ACA: About to initialize REST API class');
-        try {
-            new ACA_Rest_Api();
-            error_log('ACA: REST API class initialized successfully');
-        } catch (Exception $e) {
-            error_log('ACA: Error initializing REST API class: ' . $e->getMessage());
-        }
+        new ACA_Rest_Api();
         
         // Initialize Cron jobs
         new ACA_Cron();
@@ -221,22 +213,7 @@ class AI_Content_Agent {
 }
 
 // Initialize the plugin
-error_log('ACA: About to initialize main plugin class');
 new AI_Content_Agent();
-error_log('ACA: Main plugin class initialized');
-
-// Manual REST API test
-add_action('rest_api_init', function() {
-    error_log('ACA: Manual rest_api_init hook fired');
-    register_rest_route('aca/v1', '/manual-test', array(
-        'methods' => 'GET',
-        'callback' => function() {
-            return array('success' => true, 'message' => 'Manual test works');
-        },
-        'permission_callback' => '__return_true'
-    ));
-    error_log('ACA: Manual test endpoint registered');
-});
 
 // Hook cron events
 add_action('aca_thirty_minute_event', array('ACA_Cron', 'thirty_minute_task'));

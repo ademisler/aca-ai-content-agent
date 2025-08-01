@@ -359,7 +359,7 @@ class ACA_Rest_Api {
             return false;
         }
         
-        // Check if Pro license is active with detailed error
+        // Check if Pro license is active - return false instead of WP_Error
         if (!is_aca_pro_active()) {
             $license_status = get_option('aca_license_status', 'not_set');
             $license_timestamp = get_option('aca_license_timestamp', 0);
@@ -377,11 +377,8 @@ class ACA_Rest_Api {
             
             error_log('ACA Pro Permission Denied: ' . $error_message);
             
-            return new WP_Error('pro_required', $error_message, array(
-                'status' => 403,
-                'license_status' => $license_status,
-                'license_age_hours' => $age_hours
-            ));
+            // Return false instead of WP_Error to get proper 403 instead of 404
+            return false;
         }
         
         return true;

@@ -1504,8 +1504,9 @@ body.toplevel_page_ai-content-agent #wpfooter {
     box-shadow: 2px 0 20px rgba(0, 0, 0, 0.3) !important;
   }
   
-  /* Show sidebar when active */
-  .aca-sidebar.mobile-active {
+  /* Show sidebar when active - support both open and mobile-active classes */
+  .aca-sidebar.mobile-active,
+  .aca-sidebar.open {
     transform: translateX(0) !important;
   }
   

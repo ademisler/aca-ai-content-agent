@@ -2999,11 +2999,11 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         try {
             // RankMath stores data in post meta with specific keys
             if (!empty($meta_title)) {
-                update_post_meta($post_id, 'rank_math_title', sanitize_text_field($meta_title));
+                update_post_meta($post_id, 'rank_math_title', $this->sanitize_unicode_text($meta_title));
             }
             
             if (!empty($meta_description)) {
-                update_post_meta($post_id, 'rank_math_description', sanitize_textarea_field($meta_description));
+                update_post_meta($post_id, 'rank_math_description', $this->sanitize_unicode_textarea($meta_description));
             }
             
             if (!empty($focus_keywords) && is_array($focus_keywords)) {
@@ -3109,14 +3109,14 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
      */
     private function send_to_yoast($post_id, $meta_title, $meta_description, $focus_keywords) {
         try {
-            // Yoast stores data in post meta with _yoast_wpseo_ prefix
-            if (!empty($meta_title)) {
-                update_post_meta($post_id, '_yoast_wpseo_title', sanitize_text_field($meta_title));
-            }
-            
-            if (!empty($meta_description)) {
-                update_post_meta($post_id, '_yoast_wpseo_metadesc', sanitize_textarea_field($meta_description));
-            }
+                    // Yoast stores data in post meta with _yoast_wpseo_ prefix
+        if (!empty($meta_title)) {
+            update_post_meta($post_id, '_yoast_wpseo_title', $this->sanitize_unicode_text($meta_title));
+        }
+        
+        if (!empty($meta_description)) {
+            update_post_meta($post_id, '_yoast_wpseo_metadesc', $this->sanitize_unicode_textarea($meta_description));
+        }
             
             if (!empty($focus_keywords) && is_array($focus_keywords)) {
                 // Yoast stores the primary focus keyword
@@ -3261,14 +3261,14 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
      */
     private function send_to_aioseo($post_id, $meta_title, $meta_description, $focus_keywords) {
         try {
-            // AIOSEO stores data in post meta with _aioseo_ prefix
-            if (!empty($meta_title)) {
-                update_post_meta($post_id, '_aioseo_title', sanitize_text_field($meta_title));
-            }
-            
-            if (!empty($meta_description)) {
-                update_post_meta($post_id, '_aioseo_description', sanitize_textarea_field($meta_description));
-            }
+                    // AIOSEO stores data in post meta with _aioseo_ prefix
+        if (!empty($meta_title)) {
+            update_post_meta($post_id, '_aioseo_title', $this->sanitize_unicode_text($meta_title));
+        }
+        
+        if (!empty($meta_description)) {
+            update_post_meta($post_id, '_aioseo_description', $this->sanitize_unicode_textarea($meta_description));
+        }
             
             if (!empty($focus_keywords) && is_array($focus_keywords)) {
                 // AIOSEO stores keywords as comma-separated string

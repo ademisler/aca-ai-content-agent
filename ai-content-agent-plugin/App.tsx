@@ -749,12 +749,36 @@ const App: React.FC = () => {
         loadInitialData();
     }, []);
 
+    // Handle mobile sidebar body scroll lock
+    useEffect(() => {
+        if (isSidebarOpen && window.innerWidth <= 782) {
+            document.body.classList.add('aca-sidebar-open');
+        } else {
+            document.body.classList.remove('aca-sidebar-open');
+        }
+        
+        // Cleanup on unmount
+        return () => {
+            document.body.classList.remove('aca-sidebar-open');
+        };
+    }, [isSidebarOpen]);
+
     return (
         <>
             <div className="aca-container">
+                {/* Mobile hamburger menu button */}
+                <button 
+                    className="aca-mobile-hamburger"
+                    onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                    aria-label="Toggle navigation menu"
+                    style={{ display: window.innerWidth <= 782 ? 'block' : 'none' }}
+                >
+                    ☰
+                </button>
+                
                 {/* Mobile overlay */}
                 <div 
-                    className={`aca-overlay ${isSidebarOpen ? 'show' : ''}`}
+                    className={`aca-mobile-overlay ${isSidebarOpen ? 'active' : ''}`}
                     onClick={() => setIsSidebarOpen(false)}
                 />
                 

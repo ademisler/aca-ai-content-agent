@@ -249,6 +249,12 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
             return new WP_Error('not_authenticated', 'Not authenticated');
         }
         
+        // Ensure token is valid before making API calls
+        $token_check = $this->ensure_valid_token();
+        if (is_wp_error($token_check)) {
+            return $token_check;
+        }
+        
         try {
             // Use OAuth2 service to get user info
             $oauth2 = new Oauth2($this->client);
@@ -351,6 +357,12 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
             return new WP_Error('not_authenticated', 'Not authenticated with Google Search Console');
         }
         
+        // Ensure token is valid before making API calls
+        $token_check = $this->ensure_valid_token();
+        if (is_wp_error($token_check)) {
+            return $token_check;
+        }
+        
         try {
             $sites_list = $this->service->sites->listSites();
             $sites = array();
@@ -438,6 +450,13 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
         // Ensure we have proper authentication
         if (!$this->service) {
             error_log('ACA GSC: Service not initialized for AI data');
+            return false;
+        }
+        
+        // Ensure token is valid before making API calls
+        $token_check = $this->ensure_valid_token();
+        if (is_wp_error($token_check)) {
+            error_log('ACA GSC: Token validation failed for AI data: ' . $token_check->get_error_message());
             return false;
         }
         

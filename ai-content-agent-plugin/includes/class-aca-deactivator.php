@@ -28,6 +28,11 @@ class ACA_Deactivator {
         
         // Clear all plugin settings to ensure fresh start
         delete_option('aca_settings');
+        
+        // Clear migration system data
+        delete_option('aca_db_version');
+        delete_option('aca_migration_log');
+        delete_transient('aca_migration_check_done');
         delete_option('aca_style_guide');
         delete_option('aca_google_auth_token');
         delete_option('aca_gsc_site_url');

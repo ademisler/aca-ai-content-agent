@@ -11,6 +11,9 @@ class ACA_Rest_Api {
     
     public function __construct() {
         add_action('rest_api_init', array($this, 'register_routes'));
+        
+        // Ensure proper charset handling for special characters
+        add_action('init', array($this, 'setup_charset_handling'));
     }
     
     /**
@@ -2843,14 +2846,101 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
     }
     
     /**
-     * Send SEO data to detected SEO plugins
+     * Send SEO data to detected SEO plugins with conflict prevention
      */
     private function send_seo_data_to_plugins($post_id, $meta_title, $meta_description, $focus_keywords) {
+        // Get user's preferred SEO plugin from settings
+        $settings = get_option('aca_settings', array());
+        $preferred_plugin = isset($settings['seoPlugin']) ? $settings['seoPlugin'] : 'none';
+        
         $detected_plugins = $this->detect_seo_plugin();
         $results = array();
         
-        foreach ($detected_plugins as $plugin_info) {
-            switch ($plugin_info['plugin']) {
+        // Prevent meta data conflicts by only writing to user's selected plugin
+        if ($preferred_plugin !== 'none') {
+            // Check if preferred plugin is actually installed and active
+            $preferred_plugin_active = false;
+            foreach ($detected_plugins as $plugin_info) {
+                if ($plugin_info['plugin'] === $preferred_plugin && $plugin_info['active']) {
+                    $preferred_plugin_active = true;
+                    break;
+                }
+            }
+            
+            if ($preferred_plugin_active) {
+                // Only send to the preferred plugin to prevent conflicts
+                switch ($preferred_plugin) {
+                    case 'rank_math':
+                        $result = $this->send_to_rankmath($post_id, $meta_title, $meta_description, $focus_keywords);
+                        $results['rank_math'] = $result;
+                        error_log("ACA: Meta data sent only to preferred plugin: RankMath");
+                        break;
+                        
+                    case 'yoast':
+                        $result = $this->send_to_yoast($post_id, $meta_title, $meta_description, $focus_keywords);
+                        $results['yoast'] = $result;
+                        error_log("ACA: Meta data sent only to preferred plugin: Yoast");
+                        break;
+                        
+                    case 'aioseo':
+                        $result = $this->send_to_aioseo($post_id, $meta_title, $meta_description, $focus_keywords);
+                        $results['aioseo'] = $result;
+                        error_log("ACA: Meta data sent only to preferred plugin: AIOSEO");
+                        break;
+                }
+                
+                // Log conflict prevention
+                $this->log_meta_conflict_prevention($post_id, $preferred_plugin, $detected_plugins);
+                
+            } else {
+                error_log("ACA: Preferred SEO plugin ($preferred_plugin) not active, falling back to auto-detection");
+                $results = $this->send_to_auto_detected_plugins($post_id, $meta_title, $meta_description, $focus_keywords, $detected_plugins);
+            }
+        } else {
+            // No preference set, use auto-detection but prevent conflicts
+            $results = $this->send_to_auto_detected_plugins($post_id, $meta_title, $meta_description, $focus_keywords, $detected_plugins);
+        }
+        
+        return $results;
+    }
+    
+    /**
+     * Send to auto-detected plugins with priority-based conflict prevention
+     */
+    private function send_to_auto_detected_plugins($post_id, $meta_title, $meta_description, $focus_keywords, $detected_plugins) {
+        $results = array();
+        
+        if (empty($detected_plugins)) {
+            error_log("ACA: No SEO plugins detected, skipping meta data writing");
+            return $results;
+        }
+        
+        // Priority order: RankMath > Yoast > AIOSEO (based on market usage and reliability)
+        $priority_order = array('rank_math', 'yoast', 'aioseo');
+        $selected_plugin = null;
+        
+        // Find the highest priority active plugin
+        foreach ($priority_order as $plugin_name) {
+            foreach ($detected_plugins as $plugin_info) {
+                if ($plugin_info['plugin'] === $plugin_name && $plugin_info['active']) {
+                    $selected_plugin = $plugin_info;
+                    break 2; // Break both loops
+                }
+            }
+        }
+        
+        // If no priority plugin found, use the first active one
+        if (!$selected_plugin) {
+            foreach ($detected_plugins as $plugin_info) {
+                if ($plugin_info['active']) {
+                    $selected_plugin = $plugin_info;
+                    break;
+                }
+            }
+        }
+        
+        if ($selected_plugin) {
+            switch ($selected_plugin['plugin']) {
                 case 'rank_math':
                     $result = $this->send_to_rankmath($post_id, $meta_title, $meta_description, $focus_keywords);
                     $results['rank_math'] = $result;
@@ -2866,9 +2956,40 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                     $results['aioseo'] = $result;
                     break;
             }
+            
+            error_log("ACA: Meta data sent to auto-selected plugin: " . $selected_plugin['plugin']);
+            $this->log_meta_conflict_prevention($post_id, $selected_plugin['plugin'], $detected_plugins);
         }
         
         return $results;
+    }
+    
+    /**
+     * Log meta data conflict prevention for debugging and transparency
+     */
+    private function log_meta_conflict_prevention($post_id, $selected_plugin, $all_detected_plugins) {
+        $skipped_plugins = array();
+        
+        foreach ($all_detected_plugins as $plugin_info) {
+            if ($plugin_info['plugin'] !== $selected_plugin && $plugin_info['active']) {
+                $skipped_plugins[] = $plugin_info['plugin'];
+            }
+        }
+        
+        if (!empty($skipped_plugins)) {
+            $skipped_list = implode(', ', $skipped_plugins);
+            error_log("ACA: Meta conflict prevention - Post ID: $post_id, Used: $selected_plugin, Skipped: $skipped_list");
+            
+            // Store conflict prevention log in post meta for transparency
+            $conflict_log = array(
+                'timestamp' => current_time('mysql'),
+                'selected_plugin' => $selected_plugin,
+                'skipped_plugins' => $skipped_plugins,
+                'reason' => 'conflict_prevention'
+            );
+            
+            update_post_meta($post_id, '_aca_seo_conflict_log', $conflict_log);
+        }
     }
     
     /**
@@ -3912,5 +4033,109 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         }
         
         return implode(' > ', $path);
+    }
+    
+    /**
+     * Setup proper charset handling for Unicode and special characters
+     */
+    public function setup_charset_handling() {
+        // Ensure UTF-8 encoding is used throughout
+        if (function_exists('mb_internal_encoding')) {
+            mb_internal_encoding('UTF-8');
+        }
+        
+        // Set proper headers for Unicode support
+        if (!headers_sent()) {
+            header('Content-Type: text/html; charset=UTF-8');
+        }
+    }
+    
+    /**
+     * Unicode-safe text sanitization
+     */
+    private function sanitize_unicode_text($text) {
+        if (empty($text)) {
+            return '';
+        }
+        
+        // Convert to UTF-8 if not already
+        if (function_exists('mb_convert_encoding')) {
+            $text = mb_convert_encoding($text, 'UTF-8', 'auto');
+        }
+        
+        // Remove control characters but preserve Unicode
+        $text = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $text);
+        
+        // Normalize Unicode characters
+        if (class_exists('Normalizer')) {
+            $text = Normalizer::normalize($text, Normalizer::FORM_C);
+        }
+        
+        // Standard WordPress sanitization that preserves Unicode
+        return sanitize_text_field($text);
+    }
+    
+    /**
+     * Unicode-safe textarea sanitization
+     */
+    private function sanitize_unicode_textarea($text) {
+        if (empty($text)) {
+            return '';
+        }
+        
+        // Convert to UTF-8 if not already
+        if (function_exists('mb_convert_encoding')) {
+            $text = mb_convert_encoding($text, 'UTF-8', 'auto');
+        }
+        
+        // Remove dangerous control characters but preserve line breaks
+        $text = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $text);
+        
+        // Normalize Unicode characters
+        if (class_exists('Normalizer')) {
+            $text = Normalizer::normalize($text, Normalizer::FORM_C);
+        }
+        
+        // Standard WordPress sanitization that preserves Unicode
+        return sanitize_textarea_field($text);
+    }
+    
+    /**
+     * Safe JSON encoding with Unicode support
+     */
+    private function safe_json_encode($data) {
+        // Use JSON_UNESCAPED_UNICODE to preserve Unicode characters
+        $json = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            error_log('ACA: JSON encoding error: ' . json_last_error_msg());
+            
+            // Fallback: try with escaped Unicode
+            $json = json_encode($data);
+            
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                return false;
+            }
+        }
+        
+        return $json;
+    }
+    
+    /**
+     * Safe JSON decoding with Unicode support
+     */
+    private function safe_json_decode($json, $assoc = true) {
+        if (empty($json)) {
+            return $assoc ? array() : null;
+        }
+        
+        $data = json_decode($json, $assoc);
+        
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            error_log('ACA: JSON decoding error: ' . json_last_error_msg());
+            return $assoc ? array() : null;
+        }
+        
+        return $data;
     }
 }

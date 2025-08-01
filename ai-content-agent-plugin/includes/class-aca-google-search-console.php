@@ -33,7 +33,10 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
             $this->client = new Google_Client();
             $this->client->setApplicationName('AI Content Agent (ACA)');
             $this->client->setScopes([
-                'https://www.googleapis.com/auth/webmasters.readonly'
+                'https://www.googleapis.com/auth/webmasters.readonly',
+                'https://www.googleapis.com/auth/webmasters',
+                'https://www.googleapis.com/auth/siteverification.verify_only',
+                'https://www.googleapis.com/auth/siteverification'
             ]);
             $this->client->setAccessType('offline');
             $this->client->setPrompt('select_account consent'); // Force consent screen for proper refresh token
@@ -525,6 +528,114 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
                 $updated_tokens = get_option('aca_gsc_tokens');
                 return isset($updated_tokens['access_token']) && !empty($updated_tokens['access_token']);
             }
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Validate OAuth scopes for current token
+     */
+    public function validate_token_scopes() {
+        $current_tokens = get_option('aca_gsc_tokens');
+        
+        if (!$current_tokens || !isset($current_tokens['access_token'])) {
+            return new WP_Error('no_token', 'No access token available');
+        }
+        
+        try {
+            // Set the access token
+            $this->client->setAccessToken($current_tokens);
+            
+            // Try to get token info to check scopes
+            $token_info_url = 'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=' . $current_tokens['access_token'];
+            
+            $response = wp_remote_get($token_info_url, array(
+                'timeout' => 30,
+                'headers' => array(
+                    'User-Agent' => 'AI Content Agent (ACA)'
+                )
+            ));
+            
+            if (is_wp_error($response)) {
+                return new WP_Error('scope_check_failed', 'Failed to validate token scopes: ' . $response->get_error_message());
+            }
+            
+            $body = wp_remote_retrieve_body($response);
+            $token_data = json_decode($body, true);
+            
+            if (!$token_data || isset($token_data['error'])) {
+                return new WP_Error('invalid_token', 'Token validation failed: ' . ($token_data['error_description'] ?? 'Unknown error'));
+            }
+            
+            // Check if we have the required scopes
+            $required_scopes = array(
+                'https://www.googleapis.com/auth/webmasters.readonly',
+                'https://www.googleapis.com/auth/webmasters'
+            );
+            
+            $granted_scopes = isset($token_data['scope']) ? explode(' ', $token_data['scope']) : array();
+            $missing_scopes = array();
+            
+            foreach ($required_scopes as $required_scope) {
+                if (!in_array($required_scope, $granted_scopes)) {
+                    $missing_scopes[] = $required_scope;
+                }
+            }
+            
+            if (!empty($missing_scopes)) {
+                error_log('ACA GSC: Missing OAuth scopes: ' . implode(', ', $missing_scopes));
+                
+                // Trigger re-authentication with expanded scopes
+                $this->trigger_scope_reauth_notice($missing_scopes);
+                
+                return new WP_Error('insufficient_scopes', 'Token missing required scopes', array(
+                    'missing_scopes' => $missing_scopes,
+                    'granted_scopes' => $granted_scopes
+                ));
+            }
+            
+            error_log('ACA GSC: Token scope validation successful');
+            return true;
+            
+        } catch (Exception $e) {
+            error_log('ACA GSC: Scope validation error: ' . $e->getMessage());
+            return new WP_Error('scope_validation_error', $e->getMessage());
+        }
+    }
+    
+    /**
+     * Trigger re-authentication notice for insufficient scopes
+     */
+    private function trigger_scope_reauth_notice($missing_scopes) {
+        set_transient('aca_gsc_scope_reauth_required', array(
+            'missing_scopes' => $missing_scopes,
+            'timestamp' => time(),
+            'reason' => 'insufficient_oauth_scopes'
+        ), DAY_IN_SECONDS);
+        
+        error_log("ACA GSC: Scope re-authentication notice set for missing scopes: " . implode(', ', $missing_scopes));
+    }
+    
+    /**
+     * Check if operation requires specific scopes
+     */
+    public function check_operation_permissions($operation) {
+        $scope_requirements = array(
+            'read_data' => array('https://www.googleapis.com/auth/webmasters.readonly'),
+            'submit_sitemap' => array('https://www.googleapis.com/auth/webmasters'),
+            'site_verification' => array('https://www.googleapis.com/auth/siteverification'),
+            'manage_sites' => array('https://www.googleapis.com/auth/webmasters')
+        );
+        
+        if (!isset($scope_requirements[$operation])) {
+            return true; // Unknown operation, assume it's allowed
+        }
+        
+        $validation_result = $this->validate_token_scopes();
+        
+        if (is_wp_error($validation_result)) {
+            return $validation_result;
         }
         
         return true;

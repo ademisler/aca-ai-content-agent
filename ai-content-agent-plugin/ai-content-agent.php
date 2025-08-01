@@ -213,6 +213,7 @@ add_action('admin_init', 'aca_check_database_updates');
 // Handle GSC re-authentication notices
 add_action('admin_notices', 'aca_show_gsc_reauth_notice');
 add_action('admin_init', 'aca_handle_gsc_reauth_dismissal');
+add_action('admin_notices', 'aca_show_gsc_scope_reauth_notice');
 
 // Post view count tracking for content freshness analysis
 function aca_track_post_views() {
@@ -289,6 +290,45 @@ function aca_handle_gsc_reauth_dismissal() {
     if (isset($_GET['dismiss_gsc_reauth']) && $_GET['dismiss_gsc_reauth'] == '1' && current_user_can('manage_options')) {
         delete_transient('aca_gsc_reauth_required');
         wp_redirect(remove_query_arg('dismiss_gsc_reauth'));
+        exit;
+    }
+}
+
+function aca_show_gsc_scope_reauth_notice() {
+    $scope_reauth_data = get_transient('aca_gsc_scope_reauth_required');
+    
+    if (!$scope_reauth_data || !current_user_can('manage_options')) {
+        return;
+    }
+    
+    // Only show on ACA pages to avoid annoying users
+    $screen = get_current_screen();
+    if (!$screen || strpos($screen->id, 'aca') === false) {
+        return;
+    }
+    
+    echo '<div class="notice notice-warning">';
+    echo '<p><strong>ACA Google Search Console - Additional Permissions Required</strong></p>';
+    echo '<p>Your Google Search Console connection needs additional permissions to access all features. Please re-authenticate to grant the required scopes.</p>';
+    
+    if (!empty($scope_reauth_data['missing_scopes'])) {
+        echo '<p><small>Missing permissions: ' . esc_html(implode(', ', $scope_reauth_data['missing_scopes'])) . '</small></p>';
+    }
+    
+    echo '<p>';
+    echo '<a href="' . esc_url(admin_url('admin.php?page=aca-settings')) . '" class="button button-primary">Update Permissions</a> ';
+    echo '<a href="' . esc_url(add_query_arg('dismiss_gsc_scope_reauth', '1')) . '" class="button">Dismiss</a>';
+    echo '</p>';
+    echo '</div>';
+}
+
+// Handle scope reauth dismissal
+add_action('admin_init', 'aca_handle_gsc_scope_reauth_dismissal');
+
+function aca_handle_gsc_scope_reauth_dismissal() {
+    if (isset($_GET['dismiss_gsc_scope_reauth']) && $_GET['dismiss_gsc_scope_reauth'] == '1' && current_user_can('manage_options')) {
+        delete_transient('aca_gsc_scope_reauth_required');
+        wp_redirect(remove_query_arg('dismiss_gsc_scope_reauth'));
         exit;
     }
 }

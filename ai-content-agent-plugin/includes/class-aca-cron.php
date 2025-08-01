@@ -42,9 +42,25 @@ class ACA_Cron {
      * Handles full-automatic mode operations
      */
     public static function thirty_minute_task() {
+        // Cron context detection and resource optimization
+        $is_cron = defined('DOING_CRON') && DOING_CRON;
+        $is_manual_trigger = !$is_cron && (defined('WP_CLI') && WP_CLI) || is_admin();
+        
+        if ($is_cron) {
+            // Optimize for cron environment
+            ini_set('memory_limit', '512M');
+            set_time_limit(300); // 5 minutes max execution
+            error_log('ACA Cron: 30-minute task started in CRON context');
+        } else if ($is_manual_trigger) {
+            error_log('ACA Cron: 30-minute task started manually');
+        }
+        
         $settings = get_option('aca_settings', array());
         
         if (empty($settings['geminiApiKey'])) {
+            if ($is_cron) {
+                error_log('ACA Cron: Skipping 30-minute task - no Gemini API key');
+            }
             return;
         }
         
@@ -73,9 +89,25 @@ class ACA_Cron {
      * Handles semi-automatic mode operations
      */
     public static function fifteen_minute_task() {
+        // Cron context detection and resource optimization
+        $is_cron = defined('DOING_CRON') && DOING_CRON;
+        $is_manual_trigger = !$is_cron && (defined('WP_CLI') && WP_CLI) || is_admin();
+        
+        if ($is_cron) {
+            // Optimize for cron environment - lighter resource usage for 15min task
+            ini_set('memory_limit', '256M');
+            set_time_limit(180); // 3 minutes max execution
+            error_log('ACA Cron: 15-minute task started in CRON context');
+        } else if ($is_manual_trigger) {
+            error_log('ACA Cron: 15-minute task started manually');
+        }
+        
         $settings = get_option('aca_settings', array());
         
         if (empty($settings['geminiApiKey'])) {
+            if ($is_cron) {
+                error_log('ACA Cron: Skipping 15-minute task - no Gemini API key');
+            }
             return;
         }
         

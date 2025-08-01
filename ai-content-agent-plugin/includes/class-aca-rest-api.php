@@ -278,11 +278,16 @@ class ACA_Rest_Api {
             'permission_callback' => array($this, 'check_pro_permissions')
         ));
         
-        register_rest_route('aca/v1', '/content-freshness/posts', array(
-            'methods' => 'GET',
-            'callback' => array($this, 'get_posts_freshness_data'),
-            'permission_callback' => array($this, 'check_pro_permissions')
-        ));
+        try {
+            register_rest_route('aca/v1', '/content-freshness/posts', array(
+                'methods' => 'GET',
+                'callback' => array($this, 'get_posts_freshness_data'),
+                'permission_callback' => array($this, 'check_pro_permissions')
+            ));
+            error_log('ACA: Successfully registered /content-freshness/posts endpoint');
+        } catch (Exception $e) {
+            error_log('ACA: Error registering /content-freshness/posts endpoint: ' . $e->getMessage());
+        }
         
         register_rest_route('aca/v1', '/content-freshness/posts/needing-updates', array(
             'methods' => 'GET',
@@ -4130,6 +4135,13 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
      */
     public function get_posts_freshness_data($request) {
         error_log('ACA: get_posts_freshness_data method called');
+        
+        // Verify this method exists and is callable
+        if (!method_exists($this, 'get_posts_freshness_data')) {
+            error_log('ACA: get_posts_freshness_data method does not exist!');
+            return new WP_Error('method_not_found', 'Method not found', array('status' => 500));
+        }
+        
         require_once ACA_PLUGIN_PATH . 'includes/class-aca-content-freshness.php';
         
         $freshness_manager = new ACA_Content_Freshness();
@@ -4139,23 +4151,38 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         global $wpdb;
         $freshness_table = $wpdb->prefix . 'aca_content_freshness';
         
-        $where_clause = "WHERE p.post_status = 'publish' AND p.post_type = 'post'";
+        // Build WHERE clause safely
+        $where_conditions = array("p.post_status = 'publish'", "p.post_type = 'post'");
         
         if ($status === 'needs_update') {
-            $where_clause .= " AND f.needs_update = 1";
+            $where_conditions[] = "f.needs_update = 1";
         } elseif ($status === 'fresh') {
-            $where_clause .= " AND f.needs_update = 0";
+            $where_conditions[] = "f.needs_update = 0";
         }
         
-        $results = $wpdb->get_results($wpdb->prepare("
-            SELECT p.ID, p.post_title, p.post_date, p.post_modified,
-                   f.freshness_score, f.last_analyzed, f.needs_update, f.update_priority
-            FROM {$wpdb->posts} p
-            LEFT JOIN $freshness_table f ON p.ID = f.post_id
-            $where_clause
-            ORDER BY f.update_priority DESC, f.freshness_score ASC, p.post_date DESC
-            LIMIT %d
-        ", $limit), ARRAY_A);
+        $where_clause = "WHERE " . implode(" AND ", $where_conditions);
+        
+        // Use safer SQL construction
+        $sql = "SELECT p.ID, p.post_title, p.post_date, p.post_modified,
+                       f.freshness_score, f.last_analyzed, f.needs_update, f.update_priority
+                FROM {$wpdb->posts} p
+                LEFT JOIN {$freshness_table} f ON p.ID = f.post_id
+                {$where_clause}
+                ORDER BY f.update_priority DESC, f.freshness_score ASC, p.post_date DESC
+                LIMIT %d";
+        
+        $results = $wpdb->get_results($wpdb->prepare($sql, $limit), ARRAY_A);
+        
+        // Check for database errors
+        if ($wpdb->last_error) {
+            error_log('ACA: Database error in get_posts_freshness_data: ' . $wpdb->last_error);
+            return new WP_Error('database_error', 'Database query failed: ' . $wpdb->last_error, array('status' => 500));
+        }
+        
+        if ($results === null) {
+            error_log('ACA: NULL result from database query in get_posts_freshness_data');
+            return new WP_Error('query_failed', 'Database query returned null', array('status' => 500));
+        }
         
         return array(
             'success' => true,

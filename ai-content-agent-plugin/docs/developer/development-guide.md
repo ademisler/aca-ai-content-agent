@@ -138,9 +138,9 @@ export default defineConfig({
 ## 📦 Release Management
 
 ### Current Release Information
-- **Current Stable Release**: v2.4.0
-- **Release File**: `ai-content-agent-v2.4.0-production-ready-20250801.zip`
-- **Status**: Production ready with compiled assets, comprehensive bug fixes, enhanced SEO integration, and full verification
+- **Current Stable Release**: v2.4.1
+- **Release File**: `ai-content-agent-v2.4.1-updated-build-20250801.zip`
+- **Status**: Production ready with updated build system, enhanced documentation, and full verification
 - **Build Status**: ✅ Compiled with Vite 6.3.5, assets optimized (~640KB bundle)
 - **Major Features**: 
   - ✅ **SEO Integration Enhanced**: Complete compatibility with Yoast, RankMath, and AIOSEO v4+
@@ -160,8 +160,8 @@ npm version patch  # or minor/major
 
 # Update WordPress plugin header
 # In ai-content-agent.php:
-# Version: 2.4.0
-# define('ACA_VERSION', '2.4.0');
+# Version: 2.4.1
+# define('ACA_VERSION', '2.4.1');
 ```
 
 #### 2. Build and Test
@@ -198,28 +198,28 @@ npm run test  # if tests are available
 mv releases/ai-content-agent-v2.3.7-*.zip releases/archive/
 
 # Create new release zip
-zip -r ai-content-agent-v2.4.0-critical-fixes-and-stability.zip \
+zip -r ai-content-agent-v2.4.1-updated-build-20250801.zip \
   ai-content-agent-plugin/ \
   -x "*/node_modules/*" "*/.git/*" "*/dist/*" \
      "*/package-lock.json" "*/.gitignore" "*/.DS_Store" \
      "*/tsconfig.json" "*/vite.config.ts"
 
-# Move to releases directory
-mv ai-content-agent-v2.4.0-*.zip releases/
+# Move to releases directory (already done)
+# releases/ai-content-agent-v2.4.1-updated-build-20250801.zip
 ```
 
 #### 5. Git Operations
 ```bash
 # Commit all changes
 git add .
-git commit -m "🚀 RELEASE v2.4.0: CRITICAL FIXES & PRODUCTION STABILITY"
+git commit -m "🚀 RELEASE v2.4.1: UPDATED BUILD & ENHANCED DOCUMENTATION"
 
 # Push to main branch
 git push origin main
 
 # Create and push tag
-git tag v2.4.0
-git push origin v2.4.0
+git tag v2.4.1
+git push origin v2.4.1
 ```
 
 ### Release Naming Convention
@@ -227,6 +227,7 @@ git push origin v2.4.0
 ai-content-agent-v{MAJOR}.{MINOR}.{PATCH}-{DESCRIPTION}.zip
 
 Examples:
+- ai-content-agent-v2.4.1-updated-build-20250801.zip
 - ai-content-agent-v2.4.0-critical-fixes-and-stability.zip
 - ai-content-agent-v2.3.7-seo-detection-fix-and-defaults.zip
 - ai-content-agent-v2.3.6-api-validation-and-ui-fixes.zip

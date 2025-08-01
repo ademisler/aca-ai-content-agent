@@ -221,7 +221,22 @@ class AI_Content_Agent {
 }
 
 // Initialize the plugin
+error_log('ACA: About to initialize main plugin class');
 new AI_Content_Agent();
+error_log('ACA: Main plugin class initialized');
+
+// Manual REST API test
+add_action('rest_api_init', function() {
+    error_log('ACA: Manual rest_api_init hook fired');
+    register_rest_route('aca/v1', '/manual-test', array(
+        'methods' => 'GET',
+        'callback' => function() {
+            return array('success' => true, 'message' => 'Manual test works');
+        },
+        'permission_callback' => '__return_true'
+    ));
+    error_log('ACA: Manual test endpoint registered');
+});
 
 // Hook cron events
 add_action('aca_thirty_minute_event', array('ACA_Cron', 'thirty_minute_task'));

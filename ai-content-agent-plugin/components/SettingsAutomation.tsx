@@ -79,27 +79,22 @@ export const SettingsAutomation: React.FC<SettingsAutomationProps> = ({
     useEffect(() => {
         const loadLicenseStatus = async () => {
             try {
-                const response = await fetch('/wp-admin/admin-ajax.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: new URLSearchParams({
-                        action: 'aca_get_license_status',
-                        nonce: (window as any).acaAjax?.nonce || ''
-                    })
+                const data = await licenseApi.getStatus();
+                setLicenseStatus({
+                    status: data.status || 'inactive',
+                    is_active: data.is_active || false,
+                    verified_at: data.verified_at || undefined
                 });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.success) {
-                        setLicenseStatus(data.data);
-                        // Update isProActive based on license status
-                        // setIsProActive(data.data.is_active || false); // This line was removed
-                    }
-                }
             } catch (error) {
                 console.error('Failed to load license status:', error);
+                // Set default inactive state on error
+                setLicenseStatus({
+                    status: 'inactive',
+                    is_active: false,
+                    verified_at: undefined
+                });
+            } finally {
+                setIsLoadingLicenseStatus(false);
             }
         };
         

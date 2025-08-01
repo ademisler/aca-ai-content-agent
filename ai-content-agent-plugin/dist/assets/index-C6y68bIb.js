@@ -12559,24 +12559,21 @@ body.toplevel_page_ai-content-agent #wpfooter {
     reactExports.useEffect(() => {
       const loadLicenseStatus = async () => {
         try {
-          const response = await fetch("/wp-admin/admin-ajax.php", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/x-www-form-urlencoded"
-            },
-            body: new URLSearchParams({
-              action: "aca_get_license_status",
-              nonce: window.acaAjax?.nonce || ""
-            })
+          const data = await licenseApi.getStatus();
+          setLicenseStatus({
+            status: data.status || "inactive",
+            is_active: data.is_active || false,
+            verified_at: data.verified_at || void 0
           });
-          if (response.ok) {
-            const data = await response.json();
-            if (data.success) {
-              setLicenseStatus(data.data);
-            }
-          }
         } catch (error) {
           console.error("Failed to load license status:", error);
+          setLicenseStatus({
+            status: "inactive",
+            is_active: false,
+            verified_at: void 0
+          });
+        } finally {
+          setIsLoadingLicenseStatus(false);
         }
       };
       loadLicenseStatus();

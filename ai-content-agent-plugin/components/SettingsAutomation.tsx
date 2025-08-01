@@ -9,7 +9,6 @@ interface SettingsAutomationProps {
     settings: AppSettings;
     onSaveSettings: (settings: AppSettings) => void;
     onShowToast: (message: string, type: 'success' | 'error' | 'warning' | 'info') => void;
-    isProActive?: boolean;
 }
 
 const RadioCard: React.FC<{
@@ -64,8 +63,7 @@ const RadioCard: React.FC<{
 export const SettingsAutomation: React.FC<SettingsAutomationProps> = ({ 
     settings, 
     onSaveSettings, 
-    onShowToast, 
-    isProActive 
+    onShowToast
 }) => {
     const [currentSettings, setCurrentSettings] = useState<AppSettings>(settings);
     const [licenseStatus, setLicenseStatus] = useState<{
@@ -97,7 +95,7 @@ export const SettingsAutomation: React.FC<SettingsAutomationProps> = ({
                     if (data.success) {
                         setLicenseStatus(data.data);
                         // Update isProActive based on license status
-                        setIsProActive(data.data.is_active || false);
+                        // setIsProActive(data.data.is_active || false); // This line was removed
                     }
                 }
             } catch (error) {
@@ -111,11 +109,11 @@ export const SettingsAutomation: React.FC<SettingsAutomationProps> = ({
     // Sync license status with current settings
     useEffect(() => {
         if (licenseStatus && licenseStatus.is_active !== undefined) {
-            setIsProActive(licenseStatus.is_active);
+            // setIsProActive(licenseStatus.is_active); // This line was removed
         }
     }, [licenseStatus]);
 
-    const checkIsProActive = () => {
+    const isProActive = () => {
         // Keep consistent with Settings.tsx logic
         return currentSettings.is_pro || licenseStatus.is_active;
     };
@@ -179,7 +177,7 @@ export const SettingsAutomation: React.FC<SettingsAutomationProps> = ({
             icon={<Zap style={{ width: '24px', height: '24px', color: 'white' }} />}
             actions={saveButton}
         >
-            {checkIsProActive() ? (
+            {isProActive() ? (
                 <div>
                     <p className="aca-page-description" style={{ marginBottom: '20px' }}>
                         Choose how you want the AI Content Agent (ACA) to operate. You can change this at any time.

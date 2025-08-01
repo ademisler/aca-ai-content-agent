@@ -550,8 +550,7 @@ const App: React.FC = () => {
                  return <SettingsAutomation 
                      settings={settings} 
                      onSaveSettings={handleSaveSettings} 
-                     onShowToast={showToast} 
-                     isProActive={settings.is_pro}
+                     onShowToast={showToast}
                  />;
             case 'settings_integrations':
                 return <SettingsIntegrations 

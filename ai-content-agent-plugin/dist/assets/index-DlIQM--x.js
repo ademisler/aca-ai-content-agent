@@ -12549,8 +12549,7 @@ body.toplevel_page_ai-content-agent #wpfooter {
   const SettingsAutomation = ({
     settings,
     onSaveSettings,
-    onShowToast,
-    isProActive
+    onShowToast
   }) => {
     const [currentSettings, setCurrentSettings] = reactExports.useState(settings);
     const [licenseStatus, setLicenseStatus] = reactExports.useState({ status: "inactive", is_active: false });
@@ -12574,7 +12573,6 @@ body.toplevel_page_ai-content-agent #wpfooter {
             const data = await response.json();
             if (data.success) {
               setLicenseStatus(data.data);
-              setIsProActive(data.data.is_active || false);
             }
           }
         } catch (error) {
@@ -12584,11 +12582,9 @@ body.toplevel_page_ai-content-agent #wpfooter {
       loadLicenseStatus();
     }, []);
     reactExports.useEffect(() => {
-      if (licenseStatus && licenseStatus.is_active !== void 0) {
-        setIsProActive(licenseStatus.is_active);
-      }
+      if (licenseStatus && licenseStatus.is_active !== void 0) ;
     }, [licenseStatus]);
-    const checkIsProActive = () => {
+    const isProActive = () => {
       return currentSettings.is_pro || licenseStatus.is_active;
     };
     const handleModeChange = (mode) => {
@@ -12642,7 +12638,7 @@ body.toplevel_page_ai-content-agent #wpfooter {
         description: "Configure how AI Content Agent creates and publishes content automatically",
         icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { style: { width: "24px", height: "24px", color: "white" } }),
         actions: saveButton,
-        children: checkIsProActive() ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+        children: isProActive() ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "aca-page-description", style: { marginBottom: "20px" }, children: "Choose how you want the AI Content Agent (ACA) to operate. You can change this at any time." }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "15px" }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -15861,8 +15857,7 @@ body.toplevel_page_ai-content-agent #wpfooter {
             {
               settings,
               onSaveSettings: handleSaveSettings,
-              onShowToast: showToast,
-              isProActive: settings.is_pro
+              onShowToast: showToast
             }
           );
         case "settings_integrations":

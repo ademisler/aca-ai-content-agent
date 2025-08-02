@@ -1270,24 +1270,16 @@ class ACA_Rest_Api {
                 }
                 
                 // Convert Markdown to HTML if needed
-                if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log('ACA DEBUG: Content before conversion (first 200 chars): ' . substr($draft_data['content'], 0, 200));
-                }
+                aca_debug_log('Content before conversion (first 200 chars): ' . substr($draft_data['content'], 0, 200));
                 if (strpos($draft_data['content'], '**') !== false || 
                     strpos($draft_data['content'], '*') !== false || 
                     strpos($draft_data['content'], '[') !== false ||
                     strpos($draft_data['content'], '##') !== false) {
-                    if (defined('WP_DEBUG') && WP_DEBUG) {
-                        error_log('ACA DEBUG: Markdown detected, converting to HTML');
-                    }
+                    aca_debug_log('Markdown detected, converting to HTML');
                     $draft_data['content'] = $this->markdown_to_html($draft_data['content']);
-                    if (defined('WP_DEBUG') && WP_DEBUG) {
-                        error_log('ACA DEBUG: Content after conversion (first 200 chars): ' . substr($draft_data['content'], 0, 200));
-                    }
+                    aca_debug_log('Content after conversion (first 200 chars): ' . substr($draft_data['content'], 0, 200));
                 } else {
-                    if (defined('WP_DEBUG') && WP_DEBUG) {
-                        error_log('ACA DEBUG: No Markdown detected, using content as-is');
-                    }
+                    aca_debug_log('No Markdown detected, using content as-is');
                 }
                 
                 // Log what we received from AI
@@ -2525,9 +2517,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         // Check if json_encode failed
         if ($body === false) {
             aca_debug_log('JSON Encode Error: ' . esc_html(json_last_error_msg()));
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('ACA Request Data: ' . print_r($request_data, true));
-            }
+            aca_debug_log('Request Data: ' . wp_json_encode($request_data));
             throw new Exception('Failed to encode request data: ' . esc_html(json_last_error_msg()));
         }
         
@@ -2598,9 +2588,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         }
         
         if (empty($data['candidates'][0]['content']['parts'][0]['text'])) {
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('ACA Gemini API No Content: ' . print_r($data, true));
-            }
+            aca_debug_log('Gemini API No Content: ' . wp_json_encode($data));
             throw new Exception('No content returned from Gemini API. Response structure: ' . json_encode(array_keys($data)));
         }
         
@@ -2805,6 +2793,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             $gsc = new ACA_Google_Search_Console();
             
             // Check if this is an OAuth callback
+            // Note: Nonce verification not required for OAuth callbacks from external services
             if (isset($_GET['code'])) {
                 $code = sanitize_text_field(wp_unslash($_GET['code']));
                 $result = $gsc->handle_oauth_callback($code);
@@ -2925,9 +2914,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             
             $detected_plugins = $this->detect_seo_plugin();
             
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('ACA: Detected SEO plugins: ' . print_r($detected_plugins, true));
-            }
+            aca_debug_log('Detected SEO plugins: ' . wp_json_encode($detected_plugins));
             
             return rest_ensure_response(array(
                 'success' => true,
@@ -3011,14 +2998,9 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         }
         
         // Log all active plugins for debugging
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            $active_plugins = get_option('active_plugins', array());
-            error_log('ACA: Active plugins: ' . print_r($active_plugins, true));
-        }
-        
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('ACA: Total detected SEO plugins: ' . count($detected_plugins));
-        }
+        $active_plugins = get_option('active_plugins', array());
+        aca_debug_log('Active plugins: ' . wp_json_encode($active_plugins));
+        aca_debug_log('Total detected SEO plugins: ' . count($detected_plugins));
         
         return $detected_plugins;
     }
@@ -3835,11 +3817,9 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         aca_debug_log('Site binding info - URL: ' . $site_url . ', Hash: ' . substr($site_hash, 0, 16) . '...');
         
         // Log request body (without showing full license key for security)
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            $log_body = $body_data;
-            $log_body['license_key'] = substr($license_key, 0, 8) . '...';
-            error_log('ACA: Request body: ' . print_r($log_body, true));
-        }
+        $log_body = $body_data;
+        $log_body['license_key'] = substr($license_key, 0, 8) . '...';
+        aca_debug_log('Request body: ' . wp_json_encode($log_body));
         
         $response = wp_remote_post($url, array(
             'headers' => array(
@@ -3891,13 +3871,9 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         
         // Log the full response for debugging
         // Only log detailed response in debug mode to prevent sensitive data exposure
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('ACA: Gumroad API response (DEBUG): ' . print_r($data, true));
-        }
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('ACA: Response analysis - success field: ' . (isset($data['success']) ? ($data['success'] ? 'true' : 'false') : 'missing'));
-            error_log('ACA: Response analysis - success type: ' . (isset($data['success']) ? gettype($data['success']) : 'N/A'));
-        }
+        aca_debug_log('Gumroad API response (DEBUG): ' . wp_json_encode($data));
+        aca_debug_log('Response analysis - success field: ' . (isset($data['success']) ? ($data['success'] ? 'true' : 'false') : 'missing'));
+        aca_debug_log('Response analysis - success type: ' . (isset($data['success']) ? gettype($data['success']) : 'N/A'));
         
         // Validate license according to Gumroad documentation
         // Check if response has success field and purchase data
@@ -4238,19 +4214,19 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         
         $where_clause = "WHERE " . implode(" AND ", $where_conditions);
         
-        // Use properly prepared SQL
-        $sql = "SELECT p.ID, p.post_title, p.post_date, p.post_modified,
-                       f.freshness_score, f.last_analyzed, f.needs_update, f.update_priority
-                FROM {$wpdb->posts} p
-                LEFT JOIN {$freshness_table} f ON p.ID = f.post_id
-                {$where_clause}
-                ORDER BY f.update_priority DESC, f.freshness_score ASC, p.post_date DESC
-                LIMIT %d";
+        // Build the complete SQL with table names (safe since they're controlled by WordPress)
+        $sql = $wpdb->prepare(
+            "SELECT p.ID, p.post_title, p.post_date, p.post_modified,
+                    f.freshness_score, f.last_analyzed, f.needs_update, f.update_priority
+             FROM {$wpdb->posts} p
+             LEFT JOIN {$freshness_table} f ON p.ID = f.post_id
+             {$where_clause}
+             ORDER BY f.update_priority DESC, f.freshness_score ASC, p.post_date DESC
+             LIMIT %d",
+            array_merge($where_values, array($limit))
+        );
         
-        // Add limit to values array
-        $where_values[] = $limit;
-        
-        $results = $wpdb->get_results($wpdb->prepare($sql, $where_values), ARRAY_A);
+        $results = $wpdb->get_results($sql, ARRAY_A);
         
         // Check for database errors
         if ($wpdb->last_error) {

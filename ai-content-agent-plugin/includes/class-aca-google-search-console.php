@@ -65,7 +65,7 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
                     }
                 }
             } catch (Exception $e) {
-                error_log('ACA GSC Init Error: ' . $e->getMessage());
+                aca_debug_log('GSC Init Error: ' . $e->getMessage());
                 $this->client = null;
                 $this->service = null;
             }
@@ -122,7 +122,7 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
                 return true;
                 
             } catch (Exception $e) {
-                error_log('GSC OAuth Error: ' . $e->getMessage());
+                aca_debug_log('GSC OAuth Error: ' . $e->getMessage());
                 return new WP_Error('oauth_error', $e->getMessage());
             }
         }
@@ -186,12 +186,12 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
                             // Clear validation cache since we have new tokens
                             $this->clear_validation_cache();
                             
-                            error_log("ACA GSC: Successfully refreshed access token on attempt $attempt");
+                            aca_debug_log("GSC: Successfully refreshed access token on attempt $attempt");
                             return; // Success - exit method
                             
                         } catch (Exception $e) {
                             $last_error = $e->getMessage();
-                            error_log("ACA GSC: Token refresh attempt $attempt failed: " . $last_error);
+                            aca_debug_log("GSC: Token refresh attempt $attempt failed: " . $last_error);
                             
                             if ($attempt < $max_retries) {
                                 sleep($retry_delay);
@@ -204,12 +204,12 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
                     $this->handle_refresh_failure($last_error);
                     
                 } else {
-                    error_log('ACA GSC: No refresh token available in client or stored tokens');
+                    aca_debug_log('GSC: No refresh token available in client or stored tokens');
                     $this->handle_refresh_failure('No refresh token available');
                 }
                 
             } catch (Exception $e) {
-                error_log('ACA GSC Token Refresh Error: ' . $e->getMessage());
+                aca_debug_log('GSC Token Refresh Error: ' . $e->getMessage());
                 $this->handle_refresh_failure($e->getMessage());
             }
         }
@@ -221,7 +221,7 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
             $failure_count = get_option('aca_gsc_refresh_failures', 0) + 1;
             update_option('aca_gsc_refresh_failures', $failure_count);
             
-            error_log("ACA GSC: Token refresh failure #$failure_count - $error_message");
+            aca_debug_log("GSC: Token refresh failure #$failure_count - $error_message");
             
             // After 3 consecutive failures, trigger re-authentication notice
             if ($failure_count >= 3) {
@@ -238,7 +238,7 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
                 'timestamp' => time()
             ), DAY_IN_SECONDS);
             
-            error_log("ACA GSC: Re-authentication notice set due to: $error_message");
+                            aca_debug_log("GSC: Re-authentication notice set due to: $error_message");
         }
         
         /**
@@ -266,7 +266,7 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
                 );
                 
             } catch (Exception $e) {
-                error_log('GSC User Info Error: ' . $e->getMessage());
+                aca_debug_log('GSC User Info Error: ' . $e->getMessage());
                 return new WP_Error('api_error', $e->getMessage());
             }
         }
@@ -310,10 +310,10 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
             
             // Set default dates (last 30 days)
             if (!$start_date) {
-                $start_date = date('Y-m-d', strtotime('-30 days'));
+                $start_date = gmdate('Y-m-d', strtotime('-30 days'));
             }
             if (!$end_date) {
-                $end_date = date('Y-m-d', strtotime('-1 day')); // Yesterday (GSC data has 1-day delay)
+                $end_date = gmdate('Y-m-d', strtotime('-1 day')); // Yesterday (GSC data has 1-day delay)
             }
             
             try {
@@ -344,7 +344,7 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
                 return $results;
                 
             } catch (Exception $e) {
-                error_log('GSC Search Analytics Error: ' . $e->getMessage());
+                aca_debug_log('GSC Search Analytics Error: ' . $e->getMessage());
                 return new WP_Error('api_error', $e->getMessage());
             }
         }
@@ -377,7 +377,7 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
                 return $sites;
                 
             } catch (Exception $e) {
-                error_log('GSC Sites List Error: ' . $e->getMessage());
+                aca_debug_log('GSC Sites List Error: ' . $e->getMessage());
                 return new WP_Error('api_error', $e->getMessage());
             }
         }
@@ -496,7 +496,7 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
                 );
                 
             } catch (Exception $e) {
-                error_log('GSC Page Performance Error: ' . $e->getMessage());
+                aca_debug_log('GSC Page Performance Error: ' . $e->getMessage());
                 return new WP_Error('api_error', $e->getMessage());
             }
         }
@@ -550,7 +550,7 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
         public function get_data_for_ai() {
             // Ensure we have proper authentication
             if (!$this->service) {
-                error_log('ACA GSC: Service not initialized for AI data');
+                aca_debug_log('GSC: Service not initialized for AI data');
                 return false;
             }
             
@@ -558,7 +558,7 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
             $token_check = $this->ensure_valid_token();
             if (is_wp_error($token_check) || $token_check === false) {
                 $error_msg = is_wp_error($token_check) ? $token_check->get_error_message() : 'Token validation failed';
-                error_log('ACA GSC: Token validation failed for AI data: ' . $error_msg);
+                aca_debug_log('GSC: Token validation failed for AI data: ' . $error_msg);
                 return false;
             }
             
@@ -572,14 +572,14 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
             $underperforming_pages = $this->get_underperforming_pages($site_url, 10);
             
             if (is_wp_error($top_queries) || is_wp_error($underperforming_pages)) {
-                error_log('ACA GSC: Error fetching data - Queries: ' . (is_wp_error($top_queries) ? $top_queries->get_error_message() : 'OK') . 
+                aca_debug_log('GSC: Error fetching data - Queries: ' . (is_wp_error($top_queries) ? $top_queries->get_error_message() : 'OK') . 
                          ', Pages: ' . (is_wp_error($underperforming_pages) ? $underperforming_pages->get_error_message() : 'OK'));
                 return false;
             }
             
             // Ensure we have meaningful data
             if (empty($top_queries) && empty($underperforming_pages)) {
-                error_log('ACA GSC: No meaningful data found for site: ' . $site_url);
+                aca_debug_log('GSC: No meaningful data found for site: ' . $site_url);
                 return false;
             }
             
@@ -587,7 +587,7 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
                 'topQueries' => $top_queries ?: array(),
                 'underperformingPages' => $underperforming_pages ?: array(),
                 'site_url' => $site_url,
-                'data_date' => date('Y-m-d H:i:s')
+                'data_date' => gmdate('Y-m-d H:i:s')
             );
         }
 
@@ -708,7 +708,7 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
                 }
                 
                 if (!empty($missing_scopes)) {
-                    error_log('ACA GSC: Missing OAuth scopes: ' . implode(', ', $missing_scopes));
+                    aca_debug_log('GSC: Missing OAuth scopes: ' . implode(', ', $missing_scopes));
                     
                     // Trigger re-authentication with expanded scopes
                     $this->trigger_scope_reauth_notice($missing_scopes);
@@ -719,7 +719,7 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
                     ));
                 }
                 
-                error_log('ACA GSC: Token scope validation successful');
+                aca_debug_log('GSC: Token scope validation successful');
                 
                 // Cache successful validation for 10 minutes
                 set_transient($cache_key, 'valid', 600);
@@ -727,7 +727,7 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
                 return true;
                 
             } catch (Exception $e) {
-                error_log('ACA GSC: Scope validation error: ' . $e->getMessage());
+                aca_debug_log('GSC: Scope validation error: ' . $e->getMessage());
                 
                 // Cache failed validation for 1 minute to prevent spam
                 set_transient($cache_key, 'invalid', 60);
@@ -746,7 +746,7 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
                 'reason' => 'insufficient_oauth_scopes'
             ), DAY_IN_SECONDS);
             
-            error_log("ACA GSC: Scope re-authentication notice set for missing scopes: " . implode(', ', $missing_scopes));
+            aca_debug_log("GSC: Scope re-authentication notice set for missing scopes: " . implode(', ', $missing_scopes));
         }
         
         /**
@@ -783,14 +783,14 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
             $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_aca_gsc_scope_validation_%'");
             $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_timeout_aca_gsc_scope_validation_%'");
             
-            error_log('ACA GSC: Cleared validation cache after token refresh');
+            aca_debug_log('GSC: Cleared validation cache after token refresh');
         }
     }
     } else {
         // Create a dummy class when Google classes are not available
         class ACA_Google_Search_Console {
             public function __construct() {
-                error_log('ACA GSC Error: Google API client library not installed. Run: composer install');
+                aca_debug_log('GSC Error: Google API client library not installed. Run: composer install');
             }
             
             public function get_auth_status() {
@@ -834,7 +834,7 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
     // Create a dummy class when vendor directory doesn't exist
     class ACA_Google_Search_Console {
         public function __construct() {
-            error_log('ACA GSC Error: Google API client library not installed. Run: composer install');
+            aca_debug_log('GSC Error: Google API client library not installed. Run: composer install');
         }
         
         public function get_auth_status() {

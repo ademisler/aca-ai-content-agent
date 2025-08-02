@@ -96,7 +96,7 @@ class ACA_Content_Freshness {
                     return $click_score + $impression_score + $ctr_score;
                 }
             } catch (Exception $e) {
-                error_log('ACA Content Freshness: GSC performance error: ' . $e->getMessage());
+                aca_debug_log('Content Freshness: GSC performance error: ' . $e->getMessage());
             }
         }
         
@@ -140,7 +140,7 @@ class ACA_Content_Freshness {
      */
     private function get_fallback_analysis($content, $title) {
         $content_length = strlen($content);
-        $word_count = str_word_count(strip_tags($content));
+        $word_count = str_word_count(wp_strip_all_tags($content));
         
         // Simple heuristic analysis
         $freshness_score = 75; // Base score
@@ -153,7 +153,7 @@ class ACA_Content_Freshness {
         }
         
         // Check for recent dates in content
-        $current_year = date('Y');
+        $current_year = gmdate('Y');
         $last_year = $current_year - 1;
         
         if (strpos($content, $current_year) !== false) {
@@ -201,7 +201,7 @@ class ACA_Content_Freshness {
      * @return string JSON response
      */
     private function get_enhanced_heuristic_analysis($content, $title) {
-        $content_text = strip_tags($content);
+        $content_text = wp_strip_all_tags($content);
         $word_count = str_word_count($content_text);
         
         // Base score
@@ -215,7 +215,7 @@ class ACA_Content_Freshness {
         }
         
         // Date and time analysis
-        $current_year = date('Y');
+        $current_year = gmdate('Y');
         $last_year = $current_year - 1;
         $two_years_ago = $current_year - 2;
         
@@ -372,7 +372,7 @@ class ACA_Content_Freshness {
             $prompt = "Analyze this published content for freshness and provide comprehensive update recommendations:
 
 Title: {$title}
-Content: " . substr(strip_tags($content), 0, 2000) . "...
+Content: " . substr(wp_strip_all_tags($content), 0, 2000) . "...
 
 Provide a detailed JSON response with:
 1. freshness_score (0-100) - Overall content freshness score
@@ -422,13 +422,13 @@ Return only valid JSON format.";
             ));
             
             if (is_wp_error($response)) {
-                error_log('ACA Content Freshness: Gemini API request failed: ' . $response->get_error_message());
+                aca_debug_log('Content Freshness: Gemini API request failed: ' . $response->get_error_message());
                 return new WP_Error('api_request_failed', $response->get_error_message());
             }
             
             $response_code = wp_remote_retrieve_response_code($response);
             if ($response_code !== 200) {
-                error_log('ACA Content Freshness: Gemini API returned error code: ' . $response_code);
+                aca_debug_log('Content Freshness: Gemini API returned error code: ' . $response_code);
                 return new WP_Error('api_error', 'API request failed with code: ' . $response_code);
             }
             
@@ -436,7 +436,7 @@ Return only valid JSON format.";
             $data = json_decode($response_body, true);
             
             if (!$data || !isset($data['candidates'][0]['content']['parts'][0]['text'])) {
-                error_log('ACA Content Freshness: Invalid Gemini API response format');
+                aca_debug_log('Content Freshness: Invalid Gemini API response format');
                 return new WP_Error('invalid_response', 'Invalid API response format');
             }
             
@@ -445,7 +445,7 @@ Return only valid JSON format.";
             // Validate that the response is valid JSON
             $parsed_response = json_decode($ai_response, true);
             if (json_last_error() !== JSON_ERROR_NONE) {
-                error_log('ACA Content Freshness: AI returned invalid JSON: ' . json_last_error_msg());
+                aca_debug_log('Content Freshness: AI returned invalid JSON: ' . json_last_error_msg());
                 return new WP_Error('invalid_json', 'AI response is not valid JSON');
             }
             
@@ -453,7 +453,7 @@ Return only valid JSON format.";
             $required_fields = array('freshness_score', 'update_priority', 'specific_suggestions');
             foreach ($required_fields as $field) {
                 if (!isset($parsed_response[$field])) {
-                    error_log('ACA Content Freshness: Missing required field in AI response: ' . $field);
+                    aca_debug_log('Content Freshness: Missing required field in AI response: ' . $field);
                     return new WP_Error('missing_field', 'Missing required field: ' . $field);
                 }
             }
@@ -461,7 +461,7 @@ Return only valid JSON format.";
             return $ai_response;
             
         } catch (Exception $e) {
-            error_log('ACA Content Freshness: Exception in AI analysis: ' . $e->getMessage());
+            aca_debug_log('Content Freshness: Exception in AI analysis: ' . $e->getMessage());
             return new WP_Error('exception', $e->getMessage());
         }
     }
@@ -529,7 +529,7 @@ Return only valid JSON format.";
         
         $result = $wpdb->get_row(
             $wpdb->prepare(
-                "SELECT * FROM $table_name WHERE post_id = %d",
+                "SELECT * FROM {$wpdb->prefix}aca_content_freshness WHERE post_id = %d",
                 $post_id
             ),
             ARRAY_A
@@ -560,8 +560,8 @@ Return only valid JSON format.";
         $posts = $wpdb->get_col($wpdb->prepare("
             SELECT p.ID 
             FROM {$wpdb->posts} p
-            LEFT JOIN $freshness_table f ON p.ID = f.post_id
-            LEFT JOIN $postmeta_table pm ON p.ID = pm.post_id AND pm.meta_key = '_aca_last_freshness_check'
+            LEFT JOIN {$wpdb->prefix}aca_content_freshness f ON p.ID = f.post_id
+            LEFT JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '_aca_last_freshness_check'
             WHERE p.post_status = 'publish'
             AND p.post_type = 'post'
             AND (
@@ -596,7 +596,7 @@ Return only valid JSON format.";
         $results = $wpdb->get_results($wpdb->prepare("
             SELECT p.ID, p.post_title, p.post_date, f.freshness_score, f.update_priority, f.last_analyzed
             FROM {$wpdb->posts} p
-            INNER JOIN $freshness_table f ON p.ID = f.post_id
+            INNER JOIN {$wpdb->prefix}aca_content_freshness f ON p.ID = f.post_id
             WHERE p.post_status = 'publish'
             AND p.post_type = 'post'
             AND f.needs_update = 1

@@ -8,12 +8,10 @@
  * Author URI: https://ademisler.com/en
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: ai-content-agent
- * Domain Path: /languages
+ * Text Domain: ai-content-agent-v2.4.6-production-stable
  * Requires at least: 5.0
  * Tested up to: 6.7
  * Requires PHP: 7.4
- * Network: false
  */
 
 // Prevent direct access
@@ -48,6 +46,18 @@ function is_aca_pro_active() {
     return count(array_filter($checks)) === 4;
 }
 
+/**
+ * Debug logging helper - only logs when WP_DEBUG is enabled
+ * 
+ * @param string $message Log message
+ * @return void
+ */
+function aca_debug_log($message) {
+    if (defined('WP_DEBUG') && WP_DEBUG) {
+        error_log('ACA: ' . $message);
+    }
+}
+
 // Include required files
 require_once ACA_PLUGIN_PATH . 'includes/class-aca-activator.php';
 require_once ACA_PLUGIN_PATH . 'includes/class-aca-deactivator.php';
@@ -79,7 +89,7 @@ class AI_Content_Agent {
         new ACA_Cron();
         
         // Handle Google Search Console OAuth callback - only when needed
-        if (isset($_GET['code']) && isset($_GET['state']) && $_GET['state'] === 'aca_gsc_auth') {
+        if (isset($_GET['code']) && isset($_GET['state']) && sanitize_text_field($_GET['state']) === 'aca_gsc_auth') {
             add_action('admin_init', array($this, 'handle_gsc_oauth_callback'));
         }
         
@@ -94,17 +104,18 @@ class AI_Content_Agent {
      * Handle Google Search Console OAuth callback
      */
     public function handle_gsc_oauth_callback() {
-        if (isset($_GET['page']) && $_GET['page'] === 'ai-content-agent' && 
-            isset($_GET['gsc_auth']) && $_GET['gsc_auth'] === 'callback' && 
+        if (isset($_GET['page']) && sanitize_text_field($_GET['page']) === 'ai-content-agent' && 
+            isset($_GET['gsc_auth']) && sanitize_text_field($_GET['gsc_auth']) === 'callback' && 
             isset($_GET['code'])) {
             
             require_once ACA_PLUGIN_PATH . 'includes/class-aca-google-search-console.php';
             
             $gsc = new ACA_Google_Search_Console();
-            $result = $gsc->handle_oauth_callback($_GET['code']);
+            $code = sanitize_text_field(wp_unslash($_GET['code']));
+            $result = $gsc->handle_oauth_callback($code);
             
             if (is_wp_error($result)) {
-                wp_die('Google Search Console authentication failed: ' . $result->get_error_message());
+                wp_die('Google Search Console authentication failed: ' . esc_html($result->get_error_message()));
             } else {
                 // Redirect back to settings page
                 wp_redirect(admin_url('admin.php?page=ai-content-agent&view=settings&gsc_connected=1'));
@@ -333,8 +344,8 @@ function aca_show_gsc_reauth_notice() {
 function aca_handle_gsc_reauth_dismissal() {
     if (isset($_GET['dismiss_gsc_reauth']) && $_GET['dismiss_gsc_reauth'] == '1' && current_user_can('manage_options')) {
         // Add nonce verification for security
-        if (!isset($_GET['_wpnonce']) || !wp_verify_nonce($_GET['_wpnonce'], 'aca_dismiss_gsc_reauth')) {
-            wp_die(__('Security check failed. Please try again.', 'ai-content-agent'));
+        if (!isset($_GET['_wpnonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['_wpnonce'])), 'aca_dismiss_gsc_reauth')) {
+            wp_die(esc_html__('Security check failed. Please try again.', 'ai-content-agent-v2.4.6-production-stable'));
         }
         
         delete_transient('aca_gsc_reauth_required');
@@ -374,8 +385,8 @@ function aca_show_gsc_scope_reauth_notice() {
 function aca_handle_gsc_scope_reauth_dismissal() {
     if (isset($_GET['dismiss_gsc_scope_reauth']) && $_GET['dismiss_gsc_scope_reauth'] == '1' && current_user_can('manage_options')) {
         // Add nonce verification for security
-        if (!isset($_GET['_wpnonce']) || !wp_verify_nonce($_GET['_wpnonce'], 'aca_dismiss_gsc_scope_reauth')) {
-            wp_die(__('Security check failed. Please try again.', 'ai-content-agent'));
+        if (!isset($_GET['_wpnonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['_wpnonce'])), 'aca_dismiss_gsc_scope_reauth')) {
+            wp_die(esc_html__('Security check failed. Please try again.', 'ai-content-agent-v2.4.6-production-stable'));
         }
         
         delete_transient('aca_gsc_scope_reauth_required');

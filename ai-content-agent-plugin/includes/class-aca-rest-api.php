@@ -284,7 +284,7 @@ class ACA_Rest_Api {
             ));
 
         } catch (Exception $e) {
-            error_log('ACA: Error registering /content-freshness/posts endpoint: ' . $e->getMessage());
+            aca_debug_log('Error registering /content-freshness/posts endpoint: ' . $e->getMessage());
         }
         
         register_rest_route('aca/v1', '/content-freshness/posts/needing-updates', array(
@@ -385,7 +385,7 @@ class ACA_Rest_Api {
                 $error_message .= 'License validation failed.';
             }
             
-            error_log('ACA Pro Permission Denied: ' . $error_message);
+            aca_debug_log('Pro Permission Denied: ' . $error_message);
             
             // Return false instead of WP_Error to get proper 403 instead of 404
             return false;
@@ -992,7 +992,12 @@ class ACA_Rest_Api {
         $drafts = get_posts(array(
             'post_type' => 'post',
             'post_status' => array('draft', 'future'),
-            'meta_key' => '_aca_meta_title',
+            'meta_query' => array(
+                array(
+                    'key' => '_aca_meta_title',
+                    'compare' => 'EXISTS'
+                )
+            ),
             'numberposts' => -1,
             'orderby' => 'date',
             'order' => 'DESC'
@@ -1055,8 +1060,8 @@ class ACA_Rest_Api {
         // Prepare update data
         $update_data = array(
             'ID' => $post_id,
-            'post_date' => date('Y-m-d H:i:s', strtotime($new_date)),
-            'post_date_gmt' => get_gmt_from_date(date('Y-m-d H:i:s', strtotime($new_date))),
+            'post_date' => gmdate('Y-m-d H:i:s', strtotime($new_date)),
+            'post_date_gmt' => get_gmt_from_date(gmdate('Y-m-d H:i:s', strtotime($new_date))),
             'edit_date' => true
         );
         
@@ -1086,10 +1091,13 @@ class ACA_Rest_Api {
      */
     public function create_draft($request) {
         // Set up error handling to catch fatal errors
-        $old_error_handler = set_error_handler(function($severity, $message, $file, $line) {
-            error_log("ACA PHP Error: $message in $file on line $line");
-            throw new ErrorException($message, 0, $severity, $file, $line);
-        });
+        $old_error_handler = null;
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            $old_error_handler = set_error_handler(function($severity, $message, $file, $line) {
+                error_log("ACA PHP Error: " . esc_html($message) . " in " . esc_html($file) . " on line " . intval($line));
+                throw new ErrorException(esc_html($message), 0, intval($severity), esc_html($file), intval($line));
+            });
+        }
         
         try {
             $nonce_check = $this->verify_nonce($request);
@@ -1105,22 +1113,22 @@ class ACA_Rest_Api {
             $idea_id = (int) $params['ideaId'];
             
             // Log the attempt
-            error_log('ACA: Creating draft for idea ID: ' . $idea_id);
+            aca_debug_log('Creating draft for idea ID: ' . $idea_id);
             
             $result = $this->create_draft_from_idea($idea_id);
             
             // Log the result
             if (is_wp_error($result)) {
-                error_log('ACA: Draft creation failed for idea ' . $idea_id . ': ' . $result->get_error_message());
+                aca_debug_log('Draft creation failed for idea ' . $idea_id . ': ' . $result->get_error_message());
             } else {
-                error_log('ACA: Draft creation successful for idea ' . $idea_id);
+                aca_debug_log('Draft creation successful for idea ' . $idea_id);
             }
             
             return $result;
             
         } catch (Throwable $e) {
-            error_log('ACA FATAL ERROR in create_draft: ' . $e->getMessage());
-            error_log('ACA FATAL ERROR stack trace: ' . $e->getTraceAsString());
+            aca_debug_log('FATAL ERROR in create_draft: ' . $e->getMessage());
+            aca_debug_log('FATAL ERROR stack trace: ' . $e->getTraceAsString());
             return new WP_Error('fatal_error', 'A fatal error occurred during draft creation: ' . $e->getMessage(), array('status' => 500));
         } finally {
             // Restore previous error handler
@@ -1262,25 +1270,35 @@ class ACA_Rest_Api {
                 }
                 
                 // Convert Markdown to HTML if needed
-                error_log('ACA DEBUG: Content before conversion (first 200 chars): ' . substr($draft_data['content'], 0, 200));
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log('ACA DEBUG: Content before conversion (first 200 chars): ' . substr($draft_data['content'], 0, 200));
+                }
                 if (strpos($draft_data['content'], '**') !== false || 
                     strpos($draft_data['content'], '*') !== false || 
                     strpos($draft_data['content'], '[') !== false ||
                     strpos($draft_data['content'], '##') !== false) {
-                    error_log('ACA DEBUG: Markdown detected, converting to HTML');
+                    if (defined('WP_DEBUG') && WP_DEBUG) {
+                        error_log('ACA DEBUG: Markdown detected, converting to HTML');
+                    }
                     $draft_data['content'] = $this->markdown_to_html($draft_data['content']);
-                    error_log('ACA DEBUG: Content after conversion (first 200 chars): ' . substr($draft_data['content'], 0, 200));
+                    if (defined('WP_DEBUG') && WP_DEBUG) {
+                        error_log('ACA DEBUG: Content after conversion (first 200 chars): ' . substr($draft_data['content'], 0, 200));
+                    }
                 } else {
-                    error_log('ACA DEBUG: No Markdown detected, using content as-is');
+                    if (defined('WP_DEBUG') && WP_DEBUG) {
+                        error_log('ACA DEBUG: No Markdown detected, using content as-is');
+                    }
                 }
                 
                 // Log what we received from AI
-                error_log('ACA DEBUG: AI response keys: ' . implode(', ', array_keys($draft_data)));
-                if (isset($draft_data['categoryIds'])) {
-                    error_log('ACA DEBUG: AI selected category IDs: ' . implode(', ', $draft_data['categoryIds']));
-                }
-                if (isset($draft_data['tags'])) {
-                    error_log('ACA DEBUG: AI selected tags: ' . implode(', ', $draft_data['tags']));
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log('ACA DEBUG: AI response keys: ' . implode(', ', array_keys($draft_data)));
+                    if (isset($draft_data['categoryIds'])) {
+                        error_log('ACA DEBUG: AI selected category IDs: ' . implode(', ', $draft_data['categoryIds']));
+                    }
+                    if (isset($draft_data['tags'])) {
+                        error_log('ACA DEBUG: AI selected tags: ' . implode(', ', $draft_data['tags']));
+                    }
                 }
                 
             } catch (Exception $ai_error) {
@@ -1317,20 +1335,30 @@ class ACA_Rest_Api {
                 )
             );
             
-            error_log('ACA DEBUG: Creating WordPress post');
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('ACA DEBUG: Creating WordPress post');
+            }
             $post_id = wp_insert_post($post_data);
             
             if (is_wp_error($post_id)) {
-                error_log('ACA DEBUG: wp_insert_post failed: ' . $post_id->get_error_message());
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log('ACA DEBUG: wp_insert_post failed: ' . $post_id->get_error_message());
+                }
                 throw new Exception('Failed to create WordPress post: ' . $post_id->get_error_message());
             }
             
-            error_log('ACA DEBUG: WordPress post created with ID: ' . $post_id);
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('ACA DEBUG: WordPress post created with ID: ' . $post_id);
+            }
             
             // Add categories safely using AI-selected IDs
-            error_log('ACA DEBUG: Processing categories');
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('ACA DEBUG: Processing categories');
+            }
             if (isset($draft_data['categoryIds']) && is_array($draft_data['categoryIds'])) {
-                error_log('ACA DEBUG: Found ' . count($draft_data['categoryIds']) . ' category IDs to process');
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log('ACA DEBUG: Found ' . count($draft_data['categoryIds']) . ' category IDs to process');
+                }
                 $category_ids = array();
                 foreach ($draft_data['categoryIds'] as $category_id) {
                     if (is_numeric($category_id)) {
@@ -1339,26 +1367,40 @@ class ACA_Rest_Api {
                         $category = get_category($category_id);
                         if ($category && !is_wp_error($category)) {
                             $category_ids[] = $category_id;
-                            error_log('ACA DEBUG: Valid category ID: ' . $category_id . ' (' . $category->name . ')');
+                            if (defined('WP_DEBUG') && WP_DEBUG) {
+                                error_log('ACA DEBUG: Valid category ID: ' . $category_id . ' (' . $category->name . ')');
+                            }
                         } else {
-                            error_log('ACA DEBUG: Invalid category ID: ' . $category_id);
+                            if (defined('WP_DEBUG') && WP_DEBUG) {
+                                error_log('ACA DEBUG: Invalid category ID: ' . $category_id);
+                            }
                         }
                     }
                 }
                 if (!empty($category_ids)) {
-                    error_log('ACA DEBUG: Setting ' . count($category_ids) . ' categories');
+                    if (defined('WP_DEBUG') && WP_DEBUG) {
+                        error_log('ACA DEBUG: Setting ' . count($category_ids) . ' categories');
+                    }
                     wp_set_post_categories($post_id, $category_ids);
                 } else {
-                    error_log('ACA DEBUG: No valid categories to set');
+                    if (defined('WP_DEBUG') && WP_DEBUG) {
+                        error_log('ACA DEBUG: No valid categories to set');
+                    }
                 }
             } else {
-                error_log('ACA DEBUG: No categoryIds in draft_data');
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log('ACA DEBUG: No categoryIds in draft_data');
+                }
             }
             
             // Add tags safely
-            error_log('ACA DEBUG: Processing tags');
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('ACA DEBUG: Processing tags');
+            }
             if (isset($draft_data['tags']) && is_array($draft_data['tags'])) {
-                error_log('ACA DEBUG: Found ' . count($draft_data['tags']) . ' tags to process');
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log('ACA DEBUG: Found ' . count($draft_data['tags']) . ' tags to process');
+                }
                 $clean_tags = array();
                 foreach ($draft_data['tags'] as $tag) {
                     if (is_string($tag) && !empty(trim($tag))) {
@@ -1366,13 +1408,19 @@ class ACA_Rest_Api {
                     }
                 }
                 if (!empty($clean_tags)) {
-                    error_log('ACA DEBUG: Setting ' . count($clean_tags) . ' tags: ' . implode(', ', $clean_tags));
+                    if (defined('WP_DEBUG') && WP_DEBUG) {
+                        error_log('ACA DEBUG: Setting ' . count($clean_tags) . ' tags: ' . implode(', ', $clean_tags));
+                    }
                     wp_set_post_tags($post_id, $clean_tags);
                 } else {
-                    error_log('ACA DEBUG: No valid tags to set');
+                    if (defined('WP_DEBUG') && WP_DEBUG) {
+                        error_log('ACA DEBUG: No valid tags to set');
+                    }
                 }
             } else {
-                error_log('ACA DEBUG: No tags in draft_data');
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log('ACA DEBUG: No tags in draft_data');
+                }
             }
             
             // Set featured image if we have one
@@ -1380,14 +1428,16 @@ class ACA_Rest_Api {
                 $attachment_id = $this->save_image_to_media_library($image_data, $idea->title, $post_id);
                 if ($attachment_id) {
                     set_post_thumbnail($post_id, $attachment_id);
-                    error_log('ACA: Successfully set featured image for post ' . $post_id . ' with attachment ' . $attachment_id);
+                    aca_debug_log('Successfully set featured image for post ' . $post_id . ' with attachment ' . $attachment_id);
                 } else {
-                    error_log('ACA: Failed to create attachment for featured image');
+                    aca_debug_log('Failed to create attachment for featured image');
                 }
             }
             
             // Send SEO data to detected SEO plugins
-            error_log('ACA DEBUG: Sending SEO data to detected SEO plugins');
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('ACA DEBUG: Sending SEO data to detected SEO plugins');
+            }
             try {
                 $focus_keywords_array = !empty($focus_keywords) ? explode(',', $focus_keywords) : array();
                 $focus_keywords_array = array_map('trim', $focus_keywords_array);
@@ -1400,12 +1450,18 @@ class ACA_Rest_Api {
                 );
                 
                 if (!empty($seo_results)) {
-                    error_log('ACA DEBUG: SEO data sent successfully: ' . json_encode($seo_results));
+                    if (defined('WP_DEBUG') && WP_DEBUG) {
+                        error_log('ACA DEBUG: SEO data sent successfully: ' . json_encode($seo_results));
+                    }
                 } else {
-                    error_log('ACA DEBUG: No SEO plugins detected or no data sent');
+                    if (defined('WP_DEBUG') && WP_DEBUG) {
+                        error_log('ACA DEBUG: No SEO plugins detected or no data sent');
+                    }
                 }
             } catch (Exception $e) {
-                error_log('ACA DEBUG: SEO data sending failed (non-blocking): ' . $e->getMessage());
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log('ACA DEBUG: SEO data sending failed (non-blocking): ' . $e->getMessage());
+                }
             }
             
             // Update idea status instead of deleting (safer approach)
@@ -1416,21 +1472,29 @@ class ACA_Rest_Api {
             );
             
             // Add activity log with error handling (non-blocking)
-            error_log('ACA DEBUG: Adding activity log');
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('ACA DEBUG: Adding activity log');
+            }
             $log_result = $this->add_activity_log('draft_created', "Created draft: \"{$idea->title}\"", 'FileText');
             if (!$log_result) {
-                error_log('ACA DEBUG: Activity log failed but continuing with draft creation');
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log('ACA DEBUG: Activity log failed but continuing with draft creation');
+                }
             } else {
-                error_log('ACA DEBUG: Activity log added successfully');
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log('ACA DEBUG: Activity log added successfully');
+                }
             }
             
             // Return the created post - simplified approach to avoid formatting errors
-            error_log('ACA DEBUG: Getting created post for response');
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('ACA DEBUG: Getting created post for response');
+            }
             $created_post = get_post($post_id);
             
             if (!$created_post) {
                 // Even if we can't retrieve the post, it was created successfully
-                error_log('ACA: Post created but could not retrieve - Post ID: ' . $post_id);
+                aca_debug_log('Post created but could not retrieve - Post ID: ' . $post_id);
                 return rest_ensure_response(array(
                     'id' => $post_id,
                     'title' => $idea->title,
@@ -1465,18 +1529,22 @@ class ACA_Rest_Api {
                 'message' => 'Draft created successfully'
             );
             
-            error_log('ACA DEBUG: Returning successful response');
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('ACA DEBUG: Returning successful response');
+            }
             return rest_ensure_response($safe_response);
             
         } catch (Exception $e) {
-            error_log('ACA DEBUG: Exception caught in create_draft_from_idea');
-            error_log('ACA Draft Creation Error: ' . $e->getMessage());
-            error_log('ACA Draft Creation Stack Trace: ' . $e->getTraceAsString());
-            error_log('ACA Draft Creation Context - Idea ID: ' . $idea_id);
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('ACA DEBUG: Exception caught in create_draft_from_idea');
+            }
+            aca_debug_log('Draft Creation Error: ' . $e->getMessage());
+            aca_debug_log('Draft Creation Stack Trace: ' . $e->getTraceAsString());
+            aca_debug_log('Draft Creation Context - Idea ID: ' . $idea_id);
             
             // If post was created but we got an error later, try to return success anyway
             if (isset($post_id) && $post_id && !is_wp_error($post_id)) {
-                error_log('ACA: Post was created successfully (ID: ' . $post_id . ') but error occurred in processing');
+                aca_debug_log('Post was created successfully (ID: ' . $post_id . ') but error occurred in processing');
                 
                 // Try to get basic post info and return success
                 $created_post = get_post($post_id);
@@ -1586,13 +1654,17 @@ class ACA_Rest_Api {
         $params = $request->get_json_params();
         
         // Debug logging
-        error_log('ACA Schedule Draft: Post ID = ' . $post_id);
-        error_log('ACA Schedule Draft: Params = ' . json_encode($params));
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('ACA Schedule Draft: Post ID = ' . $post_id);
+            error_log('ACA Schedule Draft: Params = ' . json_encode($params));
+        }
         
         // Handle both 'date' and 'scheduledDate' parameters for compatibility
         $scheduled_date = isset($params['scheduledDate']) ? $params['scheduledDate'] : (isset($params['date']) ? $params['date'] : null);
         
-        error_log('ACA Schedule Draft: Scheduled Date = ' . $scheduled_date);
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('ACA Schedule Draft: Scheduled Date = ' . $scheduled_date);
+        }
         
         if (empty($scheduled_date)) {
             return new WP_Error('missing_date', 'Scheduled date is required', array('status' => 400));
@@ -1614,8 +1686,10 @@ class ACA_Rest_Api {
         $current_wp_time = current_time('timestamp');
         $current_wp_date = current_time('Y-m-d H:i:s');
         
-        error_log('ACA Schedule Draft: Current WP Time = ' . $current_wp_date);
-        error_log('ACA Schedule Draft: Received Date = ' . $parsed_date->format('Y-m-d H:i:s'));
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('ACA Schedule Draft: Current WP Time = ' . $current_wp_date);
+            error_log('ACA Schedule Draft: Received Date = ' . $parsed_date->format('Y-m-d H:i:s'));
+        }
         
         // If the date doesn't include a time (just date from calendar), set it to a future time
         $time_part = $parsed_date->format('H:i:s');
@@ -1624,16 +1698,20 @@ class ACA_Rest_Api {
         if ($time_part === '00:00:00') {
             // Set to 9:00 AM of that date to ensure it's in the future for scheduling
             $parsed_date->setTime(9, 0, 0);
-            error_log('ACA Schedule Draft: Set time to 9:00 AM for calendar date');
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('ACA Schedule Draft: Set time to 9:00 AM for calendar date');
+            }
         }
         
         // Convert to WordPress local time format
         $local_date = $parsed_date->format('Y-m-d H:i:s');
         $target_timestamp = $parsed_date->getTimestamp();
         
-        error_log('ACA Schedule Draft: Target Local Date = ' . $local_date);
-        error_log('ACA Schedule Draft: Target Timestamp = ' . $target_timestamp);
-        error_log('ACA Schedule Draft: Current Timestamp = ' . $current_wp_time);
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('ACA Schedule Draft: Target Local Date = ' . $local_date);
+            error_log('ACA Schedule Draft: Target Timestamp = ' . $target_timestamp);
+            error_log('ACA Schedule Draft: Current Timestamp = ' . $current_wp_time);
+        }
         
         // Update post meta for our plugin
         update_post_meta($post_id, '_aca_scheduled_for', $scheduled_date);
@@ -1650,25 +1728,31 @@ class ACA_Rest_Api {
         if ($target_timestamp > $current_wp_time) {
             // Future date - schedule it
             $update_data['post_status'] = 'future';
-            error_log('ACA Schedule Draft: Setting post status to FUTURE');
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('ACA Schedule Draft: Setting post status to FUTURE');
+            }
         } else {
             // Past or current date - keep as draft but update the date
             $update_data['post_status'] = 'draft';
-            error_log('ACA Schedule Draft: Past/current date - keeping as draft');
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('ACA Schedule Draft: Past/current date - keeping as draft');
+            }
         }
         
-        error_log('ACA Schedule Draft: Update Data = ' . json_encode($update_data));
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('ACA Schedule Draft: Update Data = ' . json_encode($update_data));
+        }
         
         // Update the post
         $update_result = wp_update_post($update_data);
         
         if (is_wp_error($update_result)) {
-            error_log('ACA Schedule Draft: wp_update_post failed: ' . $update_result->get_error_message());
+            aca_debug_log('Schedule Draft: wp_update_post failed: ' . $update_result->get_error_message());
             return new WP_Error('update_failed', 'Failed to schedule post: ' . $update_result->get_error_message(), array('status' => 500));
         }
         
         if ($update_result === 0) {
-            error_log('ACA Schedule Draft: wp_update_post returned 0');
+            aca_debug_log('Schedule Draft: wp_update_post returned 0');
             return new WP_Error('update_failed', 'Failed to update post - wp_update_post returned 0', array('status' => 500));
         }
         
@@ -1684,9 +1768,11 @@ class ACA_Rest_Api {
         $readable_date = $parsed_date->format('M j, Y g:i A');
         $this->add_activity_log('draft_scheduled', "Scheduled draft: \"{$updated_post->post_title}\" for {$readable_date}", 'Calendar');
         
-        error_log('ACA Schedule Draft: Successfully updated post. Final status = ' . $updated_post->post_status);
-        error_log('ACA Schedule Draft: Final post_date = ' . $updated_post->post_date);
-        error_log('ACA Schedule Draft: Final post_date_gmt = ' . $updated_post->post_date_gmt);
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('ACA Schedule Draft: Successfully updated post. Final status = ' . $updated_post->post_status);
+            error_log('ACA Schedule Draft: Final post_date = ' . $updated_post->post_date);
+            error_log('ACA Schedule Draft: Final post_date_gmt = ' . $updated_post->post_date_gmt);
+        }
         
         return rest_ensure_response($formatted_post);
     }
@@ -1754,7 +1840,7 @@ class ACA_Rest_Api {
                     }
                 }
             } catch (Exception $img_error) {
-                error_log('ACA Featured Image Error: ' . $img_error->getMessage());
+                aca_debug_log('Featured Image Error: ' . $img_error->getMessage());
             }
             
             // Safely get categories
@@ -1769,7 +1855,7 @@ class ACA_Rest_Api {
                     }
                 }
             } catch (Exception $cat_error) {
-                error_log('ACA Categories Error: ' . $cat_error->getMessage());
+                aca_debug_log('Categories Error: ' . $cat_error->getMessage());
             }
             
             // Safely get tags
@@ -1784,7 +1870,7 @@ class ACA_Rest_Api {
                     }
                 }
             } catch (Exception $tag_error) {
-                error_log('ACA Tags Error: ' . $tag_error->getMessage());
+                aca_debug_log('Tags Error: ' . $tag_error->getMessage());
             }
             
             // Safely get meta data
@@ -1803,7 +1889,7 @@ class ACA_Rest_Api {
                 $ai_generated = get_post_meta($post->ID, '_aca_ai_generated', true) ?: false;
                 $generation_date = get_post_meta($post->ID, '_aca_generation_date', true) ?: '';
             } catch (Exception $meta_error) {
-                error_log('ACA Meta Data Error: ' . $meta_error->getMessage());
+                aca_debug_log('Meta Data Error: ' . $meta_error->getMessage());
             }
             
             return array(
@@ -1827,8 +1913,8 @@ class ACA_Rest_Api {
             );
             
         } catch (Exception $e) {
-            error_log('ACA Format Post Critical Error: ' . $e->getMessage());
-            throw new Exception('Failed to format post data: ' . $e->getMessage());
+            aca_debug_log('Format Post Critical Error: ' . esc_html($e->getMessage()));
+            throw new Exception('Failed to format post data: ' . esc_html($e->getMessage()));
         }
     }
     
@@ -1841,10 +1927,10 @@ class ACA_Rest_Api {
         try {
             // Check if table exists first
             $table_name = $wpdb->prefix . 'aca_activity_logs';
-            $table_exists = $wpdb->get_var("SHOW TABLES LIKE '$table_name'") === $table_name;
+            $table_exists = $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $table_name)) === $table_name;
             
             if (!$table_exists) {
-                error_log('ACA: Activity logs table does not exist: ' . $table_name);
+                aca_debug_log('Activity logs table does not exist: ' . $table_name);
                 return false;
             }
             
@@ -1859,14 +1945,14 @@ class ACA_Rest_Api {
             );
             
             if ($result === false) {
-                error_log('ACA: Failed to insert activity log: ' . $wpdb->last_error);
+                aca_debug_log('Failed to insert activity log: ' . $wpdb->last_error);
                 return false;
             }
             
             return true;
             
         } catch (Exception $e) {
-            error_log('ACA: Activity log exception: ' . $e->getMessage());
+            aca_debug_log('Activity log exception: ' . $e->getMessage());
             return false;
         }
     }
@@ -1893,7 +1979,7 @@ class ACA_Rest_Api {
                 return $this->fetch_stock_photo($title, $settings['imageSourceProvider'], $api_key);
             }
         } catch (Exception $e) {
-            error_log('ACA Image Generation Error: ' . $e->getMessage());
+            aca_debug_log('Image Generation Error: ' . $e->getMessage());
             return null;
         }
     }
@@ -1914,7 +2000,7 @@ class ACA_Rest_Api {
         // Decode and save image data
         $image_content = base64_decode($image_data);
         if ($image_content === false) {
-            error_log('ACA: Failed to decode base64 image data');
+            aca_debug_log('Failed to decode base64 image data');
             return false;
         }
         
@@ -1922,9 +2008,9 @@ class ACA_Rest_Api {
         
         // Verify file was created successfully
         if (!file_exists($temp_file) || filesize($temp_file) === 0) {
-            error_log('ACA: Failed to create temporary image file');
+            aca_debug_log('Failed to create temporary image file');
             if (file_exists($temp_file)) {
-                unlink($temp_file);
+                wp_delete_file($temp_file);
             }
             return false;
         }
@@ -1938,9 +2024,9 @@ class ACA_Rest_Api {
         $attachment_id = media_handle_sideload($file_array, $post_id);
         
         if (is_wp_error($attachment_id)) {
-            error_log('ACA: Failed to create media attachment: ' . $attachment_id->get_error_message());
+            aca_debug_log('Failed to create media attachment: ' . $attachment_id->get_error_message());
             if (file_exists($temp_file)) {
-                unlink($temp_file);
+                wp_delete_file($temp_file);
             }
             return false;
         }
@@ -2160,7 +2246,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         
         // Create a descriptive prompt for the blog post title - EXPLICITLY PREVENT TEXT
         // Extract key concepts from the title for better relevance
-        $clean_title = strip_tags($title);
+        $clean_title = wp_strip_all_tags($title);
         $key_concepts = $this->extract_key_concepts($clean_title);
         
         $prompt = "Create a {$style_prompt} image that represents the concept of \"{$clean_title}\". Focus on the main themes: {$key_concepts}. The image should be relevant to the topic, visually appealing, suitable for use as a featured image on a professional blog, and capture the essence of the subject matter. IMPORTANT: Do not include any text, words, letters, numbers, signs, or written content in the image. The image should be purely visual without any textual elements, logos, or readable content.";
@@ -2170,14 +2256,14 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             $imagen_response = $this->call_imagen_api($api_key, $prompt);
             
             if (is_wp_error($imagen_response)) {
-                error_log('ACA Imagen API Error: ' . $imagen_response->get_error_message());
+                aca_debug_log('Imagen API Error: ' . $imagen_response->get_error_message());
                 throw new Exception('Imagen API error: ' . $imagen_response->get_error_message());
             }
             
             return $imagen_response;
             
         } catch (Exception $e) {
-            error_log('ACA AI Image Generation Error: ' . $e->getMessage());
+            aca_debug_log('AI Image Generation Error: ' . $e->getMessage());
             
             // Provide more specific error messages for common issues
             $error_message = $e->getMessage();
@@ -2256,7 +2342,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         ));
         
         if (is_wp_error($response)) {
-            error_log('ACA Imagen API network error: ' . $response->get_error_message());
+            aca_debug_log('Imagen API network error: ' . $response->get_error_message());
             return new WP_Error('network_error', 'Failed to connect to Google Imagen API: ' . $response->get_error_message());
         }
         
@@ -2271,14 +2357,14 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                     $error_message .= ': ' . $error_data['error']['message'];
                 }
             }
-            error_log('ACA Imagen API error: ' . $error_message);
+            aca_debug_log('Imagen API error: ' . $error_message);
             return new WP_Error('imagen_api_error', $error_message);
         }
         
         $data = json_decode($response_body, true);
         
         if (!isset($data['predictions'][0]['bytesBase64Encoded'])) {
-            error_log('ACA Imagen API invalid response: ' . $response_body);
+            aca_debug_log('Imagen API invalid response: ' . $response_body);
             return new WP_Error('invalid_response', 'Invalid response from Imagen API - missing image data');
         }
         
@@ -2315,7 +2401,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         }
         
         // Default case - try to use it as-is but warn about potential issues
-        error_log('ACA: Using API key as access token - this may not work properly');
+                    aca_debug_log('Using API key as access token - this may not work properly');
         return $api_key;
     }
     
@@ -2348,22 +2434,22 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         ));
         
         if (is_wp_error($response)) {
-            throw new Exception('Failed to fetch from ' . $provider . ': ' . $response->get_error_message());
+            throw new Exception('Failed to fetch from ' . esc_html($provider) . ': ' . esc_html($response->get_error_message()));
         }
         
         $status_code = wp_remote_retrieve_response_code($response);
         if ($status_code !== 200) {
-            throw new Exception('API request failed with status ' . $status_code . ' for provider: ' . $provider);
+            throw new Exception('API request failed with status ' . intval($status_code) . ' for provider: ' . esc_html($provider));
         }
         
         $body = wp_remote_retrieve_body($response);
         if (empty($body)) {
-            throw new Exception('Empty response from ' . $provider . ' API');
+            throw new Exception('Empty response from ' . esc_html($provider) . ' API');
         }
         
         $data = json_decode($body, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new Exception('Invalid JSON response from ' . $provider . ': ' . json_last_error_msg());
+            throw new Exception('Invalid JSON response from ' . esc_html($provider) . ': ' . esc_html(json_last_error_msg()));
         }
         
         $image_url = '';
@@ -2386,7 +2472,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         }
         
         if (empty($image_url)) {
-            throw new Exception('No images found for query: ' . $query);
+            throw new Exception('No images found for query: ' . esc_html($query));
         }
         
         // Download and convert to base64
@@ -2438,9 +2524,11 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         
         // Check if json_encode failed
         if ($body === false) {
-            error_log('ACA JSON Encode Error: ' . json_last_error_msg());
-            error_log('ACA Request Data: ' . print_r($request_data, true));
-            throw new Exception('Failed to encode request data: ' . json_last_error_msg());
+            aca_debug_log('JSON Encode Error: ' . esc_html(json_last_error_msg()));
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('ACA Request Data: ' . print_r($request_data, true));
+            }
+            throw new Exception('Failed to encode request data: ' . esc_html(json_last_error_msg()));
         }
         
         $response = wp_remote_post($url, array(
@@ -2455,8 +2543,8 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         ));
 
         if (is_wp_error($response)) {
-            error_log('ACA Gemini API WP Error: ' . $response->get_error_message());
-            throw new Exception('Gemini API request failed: ' . $response->get_error_message());
+            aca_debug_log('Gemini API WP Error: ' . esc_html($response->get_error_message()));
+            throw new Exception('Gemini API request failed: ' . esc_html($response->get_error_message()));
         }
         
         $response_code = wp_remote_retrieve_response_code($response);
@@ -2464,36 +2552,36 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         // Handle 503 and other overload errors with retry logic
         if ($response_code === 503 || $response_code === 429) {
             $error_body = wp_remote_retrieve_body($response);
-            error_log("ACA Gemini API Overload Error (Code {$response_code}): " . substr($error_body, 0, 500));
+                            aca_debug_log("Gemini API Overload Error (Code {$response_code}): " . substr($error_body, 0, 500));
             
             // Check if we should retry
             if ($retry_count < $max_retries) {
                 // Try fallback model on first retry
                 if ($retry_count === 0 && $model === 'gemini-2.0-flash') {
-                    error_log("ACA: Trying fallback model {$fallback_model}");
+                    aca_debug_log("Trying fallback model {$fallback_model}");
                     sleep($retry_delay);
                     return $this->call_gemini_api($api_key, $prompt, $fallback_model, $retry_count + 1);
                 }
                 
                 // Exponential backoff
                 $delay = $retry_delay * pow(2, $retry_count);
-                error_log("ACA: Retrying in {$delay} seconds... (attempt " . ($retry_count + 1) . "/{$max_retries})");
+                aca_debug_log("Retrying in {$delay} seconds... (attempt " . ($retry_count + 1) . "/{$max_retries})");
                 sleep($delay);
                 return $this->call_gemini_api($api_key, $prompt, $model, $retry_count + 1);
             }
             
-            throw new Exception("Gemini API service unavailable after {$max_retries} attempts. Error code: {$response_code} - " . substr($error_body, 0, 200));
+            throw new Exception("Gemini API service unavailable after " . intval($max_retries) . " attempts. Error code: " . intval($response_code) . " - " . esc_html(substr($error_body, 0, 200)));
         }
         
         if ($response_code !== 200) {
             $error_body = wp_remote_retrieve_body($response);
-            error_log('ACA Gemini API HTTP Error: Code ' . $response_code . ', Body: ' . substr($error_body, 0, 500));
-            throw new Exception('Gemini API returned error code: ' . $response_code . ' - ' . substr($error_body, 0, 200));
+            aca_debug_log('Gemini API HTTP Error: Code ' . intval($response_code) . ', Body: ' . esc_html(substr($error_body, 0, 500)));
+            throw new Exception('Gemini API returned error code: ' . intval($response_code) . ' - ' . esc_html(substr($error_body, 0, 200)));
         }
         
         $response_body = wp_remote_retrieve_body($response);
         if (empty($response_body)) {
-            error_log('ACA Gemini API Empty Response Body');
+            aca_debug_log('Gemini API Empty Response Body');
             throw new Exception('Empty response from Gemini API');
         }
         
@@ -2505,12 +2593,14 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         $data = json_decode($response_body, true);
         
         if (json_last_error() !== JSON_ERROR_NONE) {
-            error_log('ACA Gemini API JSON Error: ' . json_last_error_msg() . ', Response: ' . substr($response_body, 0, 300));
-            throw new Exception('Invalid JSON response from Gemini API: ' . json_last_error_msg());
+            aca_debug_log('Gemini API JSON Error: ' . esc_html(json_last_error_msg()) . ', Response: ' . esc_html(substr($response_body, 0, 300)));
+            throw new Exception('Invalid JSON response from Gemini API: ' . esc_html(json_last_error_msg()));
         }
         
         if (empty($data['candidates'][0]['content']['parts'][0]['text'])) {
-            error_log('ACA Gemini API No Content: ' . print_r($data, true));
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('ACA Gemini API No Content: ' . print_r($data, true));
+            }
             throw new Exception('No content returned from Gemini API. Response structure: ' . json_encode(array_keys($data)));
         }
         
@@ -2687,13 +2777,13 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             
             return rest_ensure_response($status);
         } catch (Exception $e) {
-            error_log('ACA GSC Auth Status Error: ' . $e->getMessage());
+            aca_debug_log('GSC Auth Status Error: ' . $e->getMessage());
             return rest_ensure_response(array(
                 'connected' => false, 
                 'error' => 'Failed to check GSC auth status: ' . $e->getMessage()
             ));
         } catch (Error $e) {
-            error_log('ACA GSC Auth Status Fatal Error: ' . $e->getMessage());
+            aca_debug_log('GSC Auth Status Fatal Error: ' . $e->getMessage());
             return rest_ensure_response(array(
                 'connected' => false, 
                 'error' => 'Fatal error checking GSC auth status'
@@ -2716,7 +2806,8 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             
             // Check if this is an OAuth callback
             if (isset($_GET['code'])) {
-                $result = $gsc->handle_oauth_callback($_GET['code']);
+                $code = sanitize_text_field(wp_unslash($_GET['code']));
+                $result = $gsc->handle_oauth_callback($code);
                 
                 if (is_wp_error($result)) {
                     return $result;
@@ -2741,10 +2832,10 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 }
             }
         } catch (Exception $e) {
-            error_log('ACA GSC Connect Error: ' . $e->getMessage());
+            aca_debug_log('GSC Connect Error: ' . $e->getMessage());
             return new WP_Error('gsc_error', 'Failed to connect to GSC: ' . $e->getMessage());
         } catch (Error $e) {
-            error_log('ACA GSC Connect Fatal Error: ' . $e->getMessage());
+            aca_debug_log('GSC Connect Fatal Error: ' . $e->getMessage());
             return new WP_Error('gsc_error', 'Fatal error connecting to GSC');
         }
     }
@@ -2818,7 +2909,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             ));
             
         } catch (Exception $e) {
-            error_log('ACA GSC Status Error: ' . $e->getMessage());
+            aca_debug_log('GSC Status Error: ' . $e->getMessage());
             return new WP_Error('gsc_status_error', 'Failed to get GSC status', array('status' => 500));
         }
     }
@@ -2828,11 +2919,15 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
      */
     public function get_seo_plugins($request) {
         try {
-            error_log('ACA: get_seo_plugins called');
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('ACA: get_seo_plugins called');
+            }
             
             $detected_plugins = $this->detect_seo_plugin();
             
-            error_log('ACA: Detected SEO plugins: ' . print_r($detected_plugins, true));
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('ACA: Detected SEO plugins: ' . print_r($detected_plugins, true));
+            }
             
             return rest_ensure_response(array(
                 'success' => true,
@@ -2842,7 +2937,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 'timestamp' => current_time('mysql')
             ));
         } catch (Exception $e) {
-            error_log('ACA: Error in get_seo_plugins: ' . $e->getMessage());
+            aca_debug_log('Error in get_seo_plugins: ' . $e->getMessage());
             return new WP_Error('seo_detection_failed', 'Failed to detect SEO plugins: ' . $e->getMessage(), array('status' => 500));
         }
     }
@@ -2853,7 +2948,9 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
     private function detect_seo_plugin() {
         $detected_plugins = array();
         
-        error_log('ACA: Starting SEO plugin detection...');
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('ACA: Starting SEO plugin detection...');
+        }
         
         // Check for RankMath - Enhanced detection
         $rankmath_detected = false;
@@ -2870,7 +2967,9 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 'pro' => class_exists('\RankMath\Pro\Admin\Admin_Menu')
             );
         }
-        error_log('ACA: RankMath detection result: ' . ($rankmath_detected ? 'found' : 'not found'));
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('ACA: RankMath detection result: ' . ($rankmath_detected ? 'found' : 'not found'));
+        }
         
         // Check for Yoast SEO - Enhanced detection  
         $yoast_detected = false;
@@ -2887,7 +2986,9 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 'premium' => defined('WPSEO_PREMIUM_PLUGIN_FILE')
             );
         }
-        error_log('ACA: Yoast SEO detection result: ' . ($yoast_detected ? 'found' : 'not found'));
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('ACA: Yoast SEO detection result: ' . ($yoast_detected ? 'found' : 'not found'));
+        }
         
         // Check for All in One SEO (AIOSEO) - Enhanced detection
         $aioseo_detected = false;
@@ -2905,13 +3006,19 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 'pro' => is_plugin_active('all-in-one-seo-pack-pro/all_in_one_seo_pack.php') || defined('AIOSEO_PRO')
             );
         }
-        error_log('ACA: AIOSEO detection result: ' . ($aioseo_detected ? 'found' : 'not found'));
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('ACA: AIOSEO detection result: ' . ($aioseo_detected ? 'found' : 'not found'));
+        }
         
         // Log all active plugins for debugging
-        $active_plugins = get_option('active_plugins', array());
-        error_log('ACA: Active plugins: ' . print_r($active_plugins, true));
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            $active_plugins = get_option('active_plugins', array());
+            error_log('ACA: Active plugins: ' . print_r($active_plugins, true));
+        }
         
-        error_log('ACA: Total detected SEO plugins: ' . count($detected_plugins));
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('ACA: Total detected SEO plugins: ' . count($detected_plugins));
+        }
         
         return $detected_plugins;
     }
@@ -2944,19 +3051,19 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                     case 'rank_math':
                         $result = $this->send_to_rankmath($post_id, $meta_title, $meta_description, $focus_keywords);
                         $results['rank_math'] = $result;
-                        error_log("ACA: Meta data sent only to preferred plugin: RankMath");
+                        aca_debug_log("Meta data sent only to preferred plugin: RankMath");
                         break;
                         
                     case 'yoast':
                         $result = $this->send_to_yoast($post_id, $meta_title, $meta_description, $focus_keywords);
                         $results['yoast'] = $result;
-                        error_log("ACA: Meta data sent only to preferred plugin: Yoast");
+                        aca_debug_log("Meta data sent only to preferred plugin: Yoast");
                         break;
                         
                     case 'aioseo':
                         $result = $this->send_to_aioseo($post_id, $meta_title, $meta_description, $focus_keywords);
                         $results['aioseo'] = $result;
-                        error_log("ACA: Meta data sent only to preferred plugin: AIOSEO");
+                        aca_debug_log("Meta data sent only to preferred plugin: AIOSEO");
                         break;
                 }
                 
@@ -3191,7 +3298,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 update_post_meta($post_id, 'rank_math_internal_links', $internal_links);
             }
             
-            error_log('ACA: Successfully sent SEO data to RankMath for post ' . $post_id);
+            aca_debug_log('Successfully sent SEO data to RankMath for post ' . $post_id);
             
             return array(
                 'success' => true,
@@ -3213,7 +3320,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             );
             
         } catch (Exception $e) {
-            error_log('ACA: Error sending to RankMath: ' . $e->getMessage());
+            aca_debug_log('Error sending to RankMath: ' . $e->getMessage());
             return array(
                 'success' => false,
                 'message' => 'Error sending to RankMath: ' . $e->getMessage(),
@@ -3264,7 +3371,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             // Estimate reading time based on content length
             $post = get_post($post_id);
             if ($post && !empty($post->post_content)) {
-                $word_count = str_word_count(strip_tags($post->post_content));
+                $word_count = str_word_count(wp_strip_all_tags($post->post_content));
                 $reading_time = max(1, ceil($word_count / 200)); // 200 words per minute
                 update_post_meta($post_id, '_yoast_wpseo_estimated-reading-time-minutes', $reading_time);
             }
@@ -3345,7 +3452,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 update_post_meta($post_id, '_yoast_wpseo_canonical', $post_url);
             }
             
-            error_log('ACA: Successfully sent SEO data to Yoast SEO for post ' . $post_id);
+            aca_debug_log('Successfully sent SEO data to Yoast SEO for post ' . $post_id);
             
             return array(
                 'success' => true,
@@ -3366,7 +3473,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             );
             
         } catch (Exception $e) {
-            error_log('ACA: Error sending to Yoast SEO: ' . $e->getMessage());
+            aca_debug_log('Error sending to Yoast SEO: ' . $e->getMessage());
             return array(
                 'success' => false,
                 'message' => 'Error sending to Yoast SEO: ' . $e->getMessage(),
@@ -3534,7 +3641,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 update_post_meta($post_id, '_aioseo_description', $this->sanitize_unicode_textarea($meta_description));
             }
             
-            error_log('ACA: Successfully sent SEO data to All in One SEO for post ' . $post_id);
+            aca_debug_log('Successfully sent SEO data to All in One SEO for post ' . $post_id);
             
             return array(
                 'success' => true,
@@ -3554,7 +3661,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             );
             
         } catch (Exception $e) {
-            error_log('ACA: Error sending to All in One SEO: ' . $e->getMessage());
+            aca_debug_log('Error sending to All in One SEO: ' . $e->getMessage());
             return array(
                 'success' => false,
                 'message' => 'Error sending to All in One SEO: ' . $e->getMessage(),
@@ -3589,7 +3696,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         $product_id = 'Q2Mhx923crYSQP19FBbYsg==';
         
         // Log the product ID being used for debugging
-        error_log('ACA: Using product_id: ' . $product_id . ' for license verification');
+        aca_debug_log('Using product_id: ' . $product_id . ' for license verification');
         
         try {
             $verification_result = $this->call_gumroad_api($product_id, $license_key);
@@ -3600,7 +3707,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 $current_site_hash = hash('sha256', get_site_url() . NONCE_SALT);
                 
                 if (!empty($stored_site_hash) && $stored_site_hash !== $current_site_hash) {
-                    error_log('ACA: License already bound to another site');
+                    aca_debug_log('License already bound to another site');
                     return rest_ensure_response(array(
                         'success' => false,
                         'message' => 'This license is already active on another website. Each license can only be used on one site at a time. Please deactivate it from the other site first.'
@@ -3635,7 +3742,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             return rest_ensure_response($verification_result);
             
         } catch (Exception $e) {
-            error_log('ACA: License verification error: ' . $e->getMessage());
+            aca_debug_log('License verification error: ' . $e->getMessage());
             
             // Clean up any partial data
             delete_option('aca_license_status');
@@ -3684,7 +3791,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             delete_option('aca_license_verified');
             delete_option('aca_license_timestamp');
             
-            error_log('ACA: License deactivated successfully');
+            aca_debug_log('License deactivated successfully');
             
             return rest_ensure_response(array(
                 'success' => true,
@@ -3692,7 +3799,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             ));
             
         } catch (Exception $e) {
-            error_log('ACA: License deactivation error: ' . $e->getMessage());
+            aca_debug_log('License deactivation error: ' . $e->getMessage());
             
             // Return JSON error response instead of WP_Error
             return rest_ensure_response(array(
@@ -3710,7 +3817,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         $url = 'https://api.gumroad.com/v2/licenses/verify';
         
         // Log API call details
-        error_log('ACA: Calling Gumroad API - URL: ' . $url . ', Product ID: ' . $product_id);
+        aca_debug_log('Calling Gumroad API - URL: ' . $url . ', Product ID: ' . $product_id);
         
         // Generate site-specific hash for license binding
         $site_url = get_site_url();
@@ -3725,12 +3832,14 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         
         // Store site info locally instead of sending to Gumroad
         // (Gumroad API doesn't support custom metadata in license verification)
-        error_log('ACA: Site binding info - URL: ' . $site_url . ', Hash: ' . substr($site_hash, 0, 16) . '...');
+        aca_debug_log('Site binding info - URL: ' . $site_url . ', Hash: ' . substr($site_hash, 0, 16) . '...');
         
         // Log request body (without showing full license key for security)
-        $log_body = $body_data;
-        $log_body['license_key'] = substr($license_key, 0, 8) . '...';
-        error_log('ACA: Request body: ' . print_r($log_body, true));
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            $log_body = $body_data;
+            $log_body['license_key'] = substr($license_key, 0, 8) . '...';
+            error_log('ACA: Request body: ' . print_r($log_body, true));
+        }
         
         $response = wp_remote_post($url, array(
             'headers' => array(
@@ -3743,7 +3852,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         ));
         
         if (is_wp_error($response)) {
-            error_log('ACA: Gumroad API request failed: ' . $response->get_error_message());
+            aca_debug_log('Gumroad API request failed: ' . $response->get_error_message());
             return array(
                 'success' => false,
                 'message' => 'Gumroad API request failed: ' . $response->get_error_message(),
@@ -3757,7 +3866,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         $body = wp_remote_retrieve_body($response);
         
         if ($response_code !== 200) {
-            error_log('ACA: Gumroad API error - Code: ' . $response_code . ', Body: ' . $body);
+            aca_debug_log('Gumroad API error - Code: ' . $response_code . ', Body: ' . $body);
             return array(
                 'success' => false,
                 'message' => 'Gumroad API returned error code: ' . $response_code,
@@ -3770,7 +3879,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         $data = json_decode($body, true);
         
         if (json_last_error() !== JSON_ERROR_NONE) {
-            error_log('ACA: JSON decode error - Body: ' . $body);
+            aca_debug_log('JSON decode error - Body: ' . $body);
             return array(
                 'success' => false,
                 'message' => 'Invalid JSON response from Gumroad API',
@@ -3785,13 +3894,15 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         if (defined('WP_DEBUG') && WP_DEBUG) {
             error_log('ACA: Gumroad API response (DEBUG): ' . print_r($data, true));
         }
-        error_log('ACA: Response analysis - success field: ' . (isset($data['success']) ? ($data['success'] ? 'true' : 'false') : 'missing'));
-        error_log('ACA: Response analysis - success type: ' . (isset($data['success']) ? gettype($data['success']) : 'N/A'));
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('ACA: Response analysis - success field: ' . (isset($data['success']) ? ($data['success'] ? 'true' : 'false') : 'missing'));
+            error_log('ACA: Response analysis - success type: ' . (isset($data['success']) ? gettype($data['success']) : 'N/A'));
+        }
         
         // Validate license according to Gumroad documentation
         // Check if response has success field and purchase data
         if (!isset($data['success'])) {
-            error_log('ACA: Missing success field in Gumroad response');
+            aca_debug_log('Missing success field in Gumroad response');
             return array(
                 'success' => false,
                 'message' => 'Invalid Gumroad API response format',
@@ -3813,11 +3924,11 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             }
         }
         
-        error_log('ACA: License validation result: ' . ($is_valid ? 'VALID' : 'INVALID'));
+        aca_debug_log('License validation result: ' . ($is_valid ? 'VALID' : 'INVALID'));
         
         // Additional validation if purchase data exists
         if (isset($data['purchase'])) {
-            error_log('ACA: Purchase data found, validating...');
+            aca_debug_log('Purchase data found, validating...');
             
             // If we have purchase data, assume license is valid unless proven otherwise
             $purchase_valid = true;
@@ -3827,10 +3938,10 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 $refunded = $data['purchase']['refunded'];
                 if (is_bool($refunded) && $refunded === true) {
                     $purchase_valid = false;
-                    error_log('ACA: License invalid - refunded');
+                    aca_debug_log('License invalid - refunded');
                 } elseif (is_string($refunded) && strtolower($refunded) === 'true') {
                     $purchase_valid = false;
-                    error_log('ACA: License invalid - refunded (string)');
+                    aca_debug_log('License invalid - refunded (string)');
                 }
             }
             
@@ -3839,10 +3950,10 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 $chargebacked = $data['purchase']['chargebacked'];
                 if (is_bool($chargebacked) && $chargebacked === true) {
                     $purchase_valid = false;
-                    error_log('ACA: License invalid - chargebacked');
+                    aca_debug_log('License invalid - chargebacked');
                 } elseif (is_string($chargebacked) && strtolower($chargebacked) === 'true') {
                     $purchase_valid = false;
-                    error_log('ACA: License invalid - chargebacked (string)');
+                    aca_debug_log('License invalid - chargebacked (string)');
                 }
             }
             
@@ -3850,7 +3961,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             // even if the success field is ambiguous
             if ($purchase_valid) {
                 $is_valid = true;
-                error_log('ACA: License valid based on purchase data');
+                aca_debug_log('License valid based on purchase data');
             } else {
                 $is_valid = false;
             }
@@ -3858,15 +3969,15 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             // Check if subscription has ended, cancelled, or failed (for subscription products)
             if (isset($data['purchase']['subscription_ended_at']) && $data['purchase']['subscription_ended_at'] !== null) {
                 $is_valid = false;
-                error_log('ACA: License invalid - subscription ended at: ' . $data['purchase']['subscription_ended_at']);
+                aca_debug_log('License invalid - subscription ended at: ' . $data['purchase']['subscription_ended_at']);
             }
             if (isset($data['purchase']['subscription_cancelled_at']) && $data['purchase']['subscription_cancelled_at'] !== null) {
                 $is_valid = false;
-                error_log('ACA: License invalid - subscription cancelled at: ' . $data['purchase']['subscription_cancelled_at']);
+                aca_debug_log('License invalid - subscription cancelled at: ' . $data['purchase']['subscription_cancelled_at']);
             }
             if (isset($data['purchase']['subscription_failed_at']) && $data['purchase']['subscription_failed_at'] !== null) {
                 $is_valid = false;
-                error_log('ACA: License invalid - subscription failed at: ' . $data['purchase']['subscription_failed_at']);
+                aca_debug_log('License invalid - subscription failed at: ' . $data['purchase']['subscription_failed_at']);
             }
         }
         
@@ -4113,18 +4224,21 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         global $wpdb;
         $freshness_table = $wpdb->prefix . 'aca_content_freshness';
         
-        // Build WHERE clause safely
-        $where_conditions = array("p.post_status = 'publish'", "p.post_type = 'post'");
+        // Build WHERE clause safely with prepared statements
+        $where_conditions = array("p.post_status = %s", "p.post_type = %s");
+        $where_values = array('publish', 'post');
         
         if ($status === 'needs_update') {
-            $where_conditions[] = "f.needs_update = 1";
+            $where_conditions[] = "f.needs_update = %d";
+            $where_values[] = 1;
         } elseif ($status === 'fresh') {
-            $where_conditions[] = "f.needs_update = 0";
+            $where_conditions[] = "f.needs_update = %d";
+            $where_values[] = 0;
         }
         
         $where_clause = "WHERE " . implode(" AND ", $where_conditions);
         
-        // Use safer SQL construction
+        // Use properly prepared SQL
         $sql = "SELECT p.ID, p.post_title, p.post_date, p.post_modified,
                        f.freshness_score, f.last_analyzed, f.needs_update, f.update_priority
                 FROM {$wpdb->posts} p
@@ -4133,16 +4247,19 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 ORDER BY f.update_priority DESC, f.freshness_score ASC, p.post_date DESC
                 LIMIT %d";
         
-        $results = $wpdb->get_results($wpdb->prepare($sql, $limit), ARRAY_A);
+        // Add limit to values array
+        $where_values[] = $limit;
+        
+        $results = $wpdb->get_results($wpdb->prepare($sql, $where_values), ARRAY_A);
         
         // Check for database errors
         if ($wpdb->last_error) {
-            error_log('ACA: Database error in get_posts_freshness_data: ' . $wpdb->last_error);
+            aca_debug_log('Database error in get_posts_freshness_data: ' . $wpdb->last_error);
             return new WP_Error('database_error', 'Database query failed: ' . $wpdb->last_error, array('status' => 500));
         }
         
         if ($results === null) {
-            error_log('ACA: NULL result from database query in get_posts_freshness_data');
+            aca_debug_log('NULL result from database query in get_posts_freshness_data');
             return new WP_Error('query_failed', 'Database query returned null', array('status' => 500));
         }
         
@@ -4353,7 +4470,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         $json = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         
         if (json_last_error() !== JSON_ERROR_NONE) {
-            error_log('ACA: JSON encoding error: ' . json_last_error_msg());
+            aca_debug_log('JSON encoding error: ' . json_last_error_msg());
             
             // Fallback: try with escaped Unicode
             $json = json_encode($data);
@@ -4377,7 +4494,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         $data = json_decode($json, $assoc);
         
         if (json_last_error() !== JSON_ERROR_NONE) {
-            error_log('ACA: JSON decoding error: ' . json_last_error_msg());
+            aca_debug_log('JSON decoding error: ' . json_last_error_msg());
             return $assoc ? array() : null;
         }
         

@@ -26,12 +26,12 @@ class ACA_Cron {
     public function add_cron_intervals($schedules) {
         $schedules['aca_thirty_minutes'] = array(
             'interval' => 30 * 60, // 30 minutes in seconds
-            'display' => __('Every 30 Minutes', 'ai-content-agent')
+            'display' => __('Every 30 Minutes', 'ai-content-agent-v2.4.6-production-stable')
         );
         
         $schedules['aca_fifteen_minutes'] = array(
             'interval' => 15 * 60, // 15 minutes in seconds
-            'display' => __('Every 15 Minutes', 'ai-content-agent')
+            'display' => __('Every 15 Minutes', 'ai-content-agent-v2.4.6-production-stable')
         );
         
         return $schedules;
@@ -45,7 +45,7 @@ class ACA_Cron {
         // Prevent overlapping executions
         $lock_key = 'aca_thirty_minute_task_lock';
         if (get_transient($lock_key)) {
-            error_log('ACA Cron: 30-minute task already running, skipping this execution');
+            aca_debug_log('Cron: 30-minute task already running, skipping this execution');
             return;
         }
         
@@ -63,18 +63,22 @@ class ACA_Cron {
             
             if ($is_cron) {
                 // Optimize for cron environment
-                ini_set('memory_limit', '512M');
-                set_time_limit(300); // 5 minutes max execution
-                error_log('ACA Cron: 30-minute task started in CRON context (Memory: 512M, Time: 300s)');
+                if (function_exists('ini_set')) {
+                    ini_set('memory_limit', '512M');
+                }
+                if (function_exists('set_time_limit')) {
+                    set_time_limit(300); // 5 minutes max execution
+                }
+                aca_debug_log('Cron: 30-minute task started in CRON context (Memory: 512M, Time: 300s)');
             } else if ($is_manual_trigger) {
-                error_log('ACA Cron: 30-minute task started manually');
+                aca_debug_log('Cron: 30-minute task started manually');
             }
         
         $settings = get_option('aca_settings', array());
         
         if (empty($settings['geminiApiKey'])) {
             if ($is_cron) {
-                error_log('ACA Cron: Skipping 30-minute task - no Gemini API key');
+                aca_debug_log('Cron: Skipping 30-minute task - no Gemini API key');
             }
             return;
         }
@@ -94,7 +98,7 @@ class ACA_Cron {
             if (is_aca_pro_active()) {
                 self::run_full_automatic_cycle();
             } else {
-                error_log('ACA: Full-automatic mode requires Pro license');
+                aca_debug_log('Full-automatic mode requires Pro license');
             }
         }
         
@@ -109,7 +113,7 @@ class ACA_Cron {
             
             // Always release the lock
             delete_transient($lock_key);
-            error_log('ACA Cron: 30-minute task completed, lock released, limits restored');
+            aca_debug_log('Cron: 30-minute task completed, lock released, limits restored');
         }
     }
     
@@ -121,7 +125,7 @@ class ACA_Cron {
         // Prevent overlapping executions
         $lock_key = 'aca_fifteen_minute_task_lock';
         if (get_transient($lock_key)) {
-            error_log('ACA Cron: 15-minute task already running, skipping this execution');
+            aca_debug_log('Cron: 15-minute task already running, skipping this execution');
             return;
         }
         
@@ -139,18 +143,22 @@ class ACA_Cron {
         
         if ($is_cron) {
             // Optimize for cron environment - lighter resource usage for 15min task
-            ini_set('memory_limit', '256M');
-            set_time_limit(180); // 3 minutes max execution
-            error_log('ACA Cron: 15-minute task started in CRON context (Memory: 256M, Time: 180s)');
+            if (function_exists('ini_set')) {
+                ini_set('memory_limit', '256M');
+            }
+            if (function_exists('set_time_limit')) {
+                set_time_limit(180); // 3 minutes max execution
+            }
+            aca_debug_log('Cron: 15-minute task started in CRON context (Memory: 256M, Time: 180s)');
         } else if ($is_manual_trigger) {
-            error_log('ACA Cron: 15-minute task started manually');
+            aca_debug_log('Cron: 15-minute task started manually');
         }
         
         $settings = get_option('aca_settings', array());
         
         if (empty($settings['geminiApiKey'])) {
             if ($is_cron) {
-                error_log('ACA Cron: Skipping 15-minute task - no Gemini API key');
+                aca_debug_log('Cron: Skipping 15-minute task - no Gemini API key');
             }
             return;
         }
@@ -164,22 +172,22 @@ class ACA_Cron {
             if (is_aca_pro_active()) {
                 self::generate_ideas_semi_auto();
             } else {
-                error_log('ACA: Semi-automatic mode requires Pro license');
+                aca_debug_log('Semi-automatic mode requires Pro license');
             }
         }
         
         } finally {
             // Restore original resource limits
-            if (isset($original_memory_limit)) {
+            if (isset($original_memory_limit) && function_exists('ini_set')) {
                 ini_set('memory_limit', $original_memory_limit);
             }
-            if (isset($original_time_limit)) {
+            if (isset($original_time_limit) && function_exists('set_time_limit')) {
                 set_time_limit($original_time_limit);
             }
             
             // Always release the lock
             delete_transient($lock_key);
-            error_log('ACA Cron: 15-minute task completed, lock released, limits restored');
+            aca_debug_log('Cron: 15-minute task completed, lock released, limits restored');
         }
     }
     
@@ -191,7 +199,7 @@ class ACA_Cron {
         $result = $rest_api->analyze_style_guide(null, true); // null request, true = auto mode
         
         if (is_wp_error($result)) {
-            error_log('ACA Auto Style Guide Analysis Error: ' . $result->get_error_message());
+            aca_debug_log('Auto Style Guide Analysis Error: ' . $result->get_error_message());
         }
     }
     
@@ -209,7 +217,7 @@ class ACA_Cron {
         $result = $rest_api->generate_ideas($request);
         
         if (is_wp_error($result)) {
-            error_log('ACA Semi-Auto Ideas Generation Error: ' . $result->get_error_message());
+            aca_debug_log('Semi-Auto Ideas Generation Error: ' . $result->get_error_message());
         }
     }
     
@@ -256,8 +264,13 @@ class ACA_Cron {
                 // Get the created post
                 $post = get_posts(array(
                     'post_status' => 'draft',
-                    'meta_key' => '_aca_created_from_idea',
-                    'meta_value' => $latest_idea->id,
+                    'meta_query' => array(
+                        array(
+                            'key' => '_aca_created_from_idea',
+                            'value' => $latest_idea->id,
+                            'compare' => '='
+                        )
+                    ),
                     'numberposts' => 1,
                     'orderby' => 'date',
                     'order' => 'DESC'
@@ -275,7 +288,7 @@ class ACA_Cron {
             }
             
         } catch (Exception $e) {
-            error_log('ACA Full Auto Cycle Error: ' . $e->getMessage());
+            aca_debug_log('Full Auto Cycle Error: ' . $e->getMessage());
         }
     }
     
@@ -329,15 +342,21 @@ class ACA_Cron {
     private static function analyze_content_freshness() {
         $freshness_manager = new ACA_Content_Freshness();
         
-        // Get posts that need analysis using the approach from documentation
+        // Get posts that need analysis using optimized query
         $posts = get_posts(array(
             'post_status' => 'publish',
             'numberposts' => 10, // Limit to prevent timeout
             'meta_query' => array(
+                'relation' => 'OR',
                 array(
                     'key' => '_aca_last_freshness_check',
-                    'value' => date('Y-m-d', strtotime('-7 days')),
-                    'compare' => '<'
+                    'value' => strtotime('-7 days'),
+                    'compare' => '<',
+                    'type' => 'NUMERIC'
+                ),
+                array(
+                    'key' => '_aca_last_freshness_check',
+                    'compare' => 'NOT EXISTS'
                 )
             )
         ));

@@ -1074,32 +1074,32 @@ body.auto-fold .aca-main {
 
 /* Hide all WordPress admin notices/notifications on plugin page */
 
-body.toplevel_page_ai-content-agent .notice,
-body.toplevel_page_ai-content-agent .updated,
-body.toplevel_page_ai-content-agent .error,
-body.toplevel_page_ai-content-agent .notice-warning,
-body.toplevel_page_ai-content-agent .notice-error,
-body.toplevel_page_ai-content-agent .notice-success,
-body.toplevel_page_ai-content-agent .notice-info,
-body.toplevel_page_ai-content-agent .update-nag,
-body.toplevel_page_ai-content-agent .admin-notice,
-body.toplevel_page_ai-content-agent .plugin-update-tr,
-body.toplevel_page_ai-content-agent .update-message,
-body.toplevel_page_ai-content-agent .wp-admin-notice,
-body.toplevel_page_ai-content-agent .notice-dismiss,
-body.toplevel_page_ai-content-agent .is-dismissible,
-body.toplevel_page_ai-content-agent #wpbody-content > .notice,
-body.toplevel_page_ai-content-agent #wpbody-content > .updated,
-body.toplevel_page_ai-content-agent #wpbody-content > .error,
-body.toplevel_page_ai-content-agent .wrap > .notice,
-body.toplevel_page_ai-content-agent .wrap > .updated,
-body.toplevel_page_ai-content-agent .wrap > .error,
-body.toplevel_page_ai-content-agent #wpbody-content > div[class*="notice"],
-body.toplevel_page_ai-content-agent #wpbody-content > div[class*="updated"],
-body.toplevel_page_ai-content-agent #wpbody-content > div[class*="error"],
-body.toplevel_page_ai-content-agent #wpbody-content > div[id*="message"],
-body.toplevel_page_ai-content-agent #wpbody-content > div[id*="notice"],
-body.toplevel_page_ai-content-agent #wpbody-content > *:not(#root) {
+body.toplevel_page_ai-content-agent-plugin .notice,
+body.toplevel_page_ai-content-agent-plugin .updated,
+body.toplevel_page_ai-content-agent-plugin .error,
+body.toplevel_page_ai-content-agent-plugin .notice-warning,
+body.toplevel_page_ai-content-agent-plugin .notice-error,
+body.toplevel_page_ai-content-agent-plugin .notice-success,
+body.toplevel_page_ai-content-agent-plugin .notice-info,
+body.toplevel_page_ai-content-agent-plugin .update-nag,
+body.toplevel_page_ai-content-agent-plugin .admin-notice,
+body.toplevel_page_ai-content-agent-plugin .plugin-update-tr,
+body.toplevel_page_ai-content-agent-plugin .update-message,
+body.toplevel_page_ai-content-agent-plugin .wp-admin-notice,
+body.toplevel_page_ai-content-agent-plugin .notice-dismiss,
+body.toplevel_page_ai-content-agent-plugin .is-dismissible,
+body.toplevel_page_ai-content-agent-plugin #wpbody-content > .notice,
+body.toplevel_page_ai-content-agent-plugin #wpbody-content > .updated,
+body.toplevel_page_ai-content-agent-plugin #wpbody-content > .error,
+body.toplevel_page_ai-content-agent-plugin .wrap > .notice,
+body.toplevel_page_ai-content-agent-plugin .wrap > .updated,
+body.toplevel_page_ai-content-agent-plugin .wrap > .error,
+body.toplevel_page_ai-content-agent-plugin #wpbody-content > div[class*="notice"],
+body.toplevel_page_ai-content-agent-plugin #wpbody-content > div[class*="updated"],
+body.toplevel_page_ai-content-agent-plugin #wpbody-content > div[class*="error"],
+body.toplevel_page_ai-content-agent-plugin #wpbody-content > div[id*="message"],
+body.toplevel_page_ai-content-agent-plugin #wpbody-content > div[id*="notice"],
+body.toplevel_page_ai-content-agent-plugin #wpbody-content > *:not(#root) {
   display: none !important;
   visibility: hidden !important;
   opacity: 0 !important;
@@ -1113,10 +1113,10 @@ body.toplevel_page_ai-content-agent #wpbody-content > *:not(#root) {
 
 /* Allow our own plugin notices to show if needed */
 
-body.toplevel_page_ai-content-agent #root .notice,
-body.toplevel_page_ai-content-agent #root .error,
-body.toplevel_page_ai-content-agent #root .updated,
-body.toplevel_page_ai-content-agent .aca-notice {
+body.toplevel_page_ai-content-agent-plugin #root .notice,
+body.toplevel_page_ai-content-agent-plugin #root .error,
+body.toplevel_page_ai-content-agent-plugin #root .updated,
+body.toplevel_page_ai-content-agent-plugin .aca-notice {
   display: block !important;
   visibility: visible !important;
   opacity: 1 !important;
@@ -1127,7 +1127,7 @@ body.toplevel_page_ai-content-agent .aca-notice {
 
 /* Fix calendar container overflow issues */
 
-body.toplevel_page_ai-content-agent .aca-main {
+body.toplevel_page_ai-content-agent-plugin .aca-main {
   overflow-x: hidden !important;
   width: 100% !important;
   max-width: 100% !important;
@@ -1135,7 +1135,7 @@ body.toplevel_page_ai-content-agent .aca-main {
 
 /* Calendar grid container fixes */
 
-body.toplevel_page_ai-content-agent .aca-card {
+body.toplevel_page_ai-content-agent-plugin .aca-card {
   overflow: hidden !important;
   width: 100% !important;
   max-width: 100% !important;
@@ -1144,7 +1144,7 @@ body.toplevel_page_ai-content-agent .aca-card {
 
 /* Calendar day cells overflow control */
 
-body.toplevel_page_ai-content-agent .aca-card-content > div[style*="display: grid"] > div {
+body.toplevel_page_ai-content-agent-plugin .aca-card-content > div[style*="display: grid"] > div {
   overflow: hidden !important;
   word-wrap: break-word !important;
   word-break: break-word !important;
@@ -1154,7 +1154,7 @@ body.toplevel_page_ai-content-agent .aca-card-content > div[style*="display: gri
 
 /* Post items in calendar cells - prevent overflow */
 
-body.toplevel_page_ai-content-agent .aca-card-content div[style*="flex-direction: column"] > div {
+body.toplevel_page_ai-content-agent-plugin .aca-card-content div[style*="flex-direction: column"] > div {
   overflow: hidden !important;
   text-overflow: ellipsis !important;
   white-space: nowrap !important;
@@ -1164,7 +1164,7 @@ body.toplevel_page_ai-content-agent .aca-card-content div[style*="flex-direction
 
 /* Ensure calendar doesn't exceed main content bounds */
 
-body.toplevel_page_ai-content-agent .aca-card-content {
+body.toplevel_page_ai-content-agent-plugin .aca-card-content {
   overflow-x: auto !important;
   overflow-y: visible !important;
   max-width: 100% !important;
@@ -1174,25 +1174,25 @@ body.toplevel_page_ai-content-agent .aca-card-content {
 
 /* Prevent scroll jump on collapsible sections - disable smooth for fixed position */
 
-body.toplevel_page_ai-content-agent {
+body.toplevel_page_ai-content-agent-plugin {
   scroll-behavior: auto !important;
 }
 
 /* Apply smooth behavior only to our container, not the whole page */
 
-body.toplevel_page_ai-content-agent #root {
+body.toplevel_page_ai-content-agent-plugin #root {
   scroll-behavior: smooth !important;
 }
 
 /* Bu sınıf eklendiğinde anlık scroll geçişi sağlar */
 
-body.toplevel_page_ai-content-agent #root.no-smooth-scroll {
+body.toplevel_page_ai-content-agent-plugin #root.no-smooth-scroll {
   scroll-behavior: auto !important;
 }
 
 /* Optimize collapsible section transitions */
 
-body.toplevel_page_ai-content-agent .aca-card [id^="section-content-"] {
+body.toplevel_page_ai-content-agent-plugin .aca-card [id^="section-content-"] {
   transform-origin: top !important;
   backface-visibility: hidden !important;
   -webkit-backface-visibility: hidden !important;
@@ -1202,27 +1202,27 @@ body.toplevel_page_ai-content-agent .aca-card [id^="section-content-"] {
 
 /* Prevent layout shifts during transitions */
 
-body.toplevel_page_ai-content-agent .aca-card {
+body.toplevel_page_ai-content-agent-plugin .aca-card {
   contain: layout !important;
 }
 
 /* Smooth transitions without affecting scroll */
 
-body.toplevel_page_ai-content-agent .aca-card [id^="section-content-"] * {
+body.toplevel_page_ai-content-agent-plugin .aca-card [id^="section-content-"] * {
   will-change: auto !important;
 }
 
 /* Smooth header click behavior */
 
-body.toplevel_page_ai-content-agent .aca-card-header[role="button"] {
+body.toplevel_page_ai-content-agent-plugin .aca-card-header[role="button"] {
   transition: background-color 0.2s ease !important;
 }
 
-body.toplevel_page_ai-content-agent .aca-card-header[role="button"]:hover {
+body.toplevel_page_ai-content-agent-plugin .aca-card-header[role="button"]:hover {
   background-color: rgba(0, 0, 0, 0.02) !important;
 }
 
-body.toplevel_page_ai-content-agent .aca-card-header[role="button"]:active {
+body.toplevel_page_ai-content-agent-plugin .aca-card-header[role="button"]:active {
   background-color: rgba(0, 0, 0, 0.05) !important;
   transform: translateY(1px) !important;
   transition: all 0.1s ease !important;
@@ -1413,9 +1413,9 @@ body.toplevel_page_ai-content-agent .aca-card-header[role="button"]:active {
 
 /* Fix for WordPress clear divs causing unwanted spacing - More specific selectors */
 
-body.toplevel_page_ai-content-agent #wpbody-content > .clear,
-body.toplevel_page_ai-content-agent #wpbody > .clear,
-body.toplevel_page_ai-content-agent .clear {
+body.toplevel_page_ai-content-agent-plugin #wpbody-content > .clear,
+body.toplevel_page_ai-content-agent-plugin #wpbody > .clear,
+body.toplevel_page_ai-content-agent-plugin .clear {
   display: none !important;
   height: 0 !important;
   margin: 0 !important;
@@ -1424,31 +1424,31 @@ body.toplevel_page_ai-content-agent .clear {
 
 /* Additional fix for screen-meta and other spacing issues */
 
-body.toplevel_page_ai-content-agent #screen-meta {
+body.toplevel_page_ai-content-agent-plugin #screen-meta {
   margin-bottom: 0 !important;
   padding-bottom: 0 !important;
 }
 
 /* COMPREHENSIVE WORDPRESS ADMIN OVERRIDE - Remove ALL spacing */
 
-body.toplevel_page_ai-content-agent #wpbody-content {
+body.toplevel_page_ai-content-agent-plugin #wpbody-content {
   padding: 0 !important;
   margin: 0 !important;
 }
 
-body.toplevel_page_ai-content-agent #wpbody {
+body.toplevel_page_ai-content-agent-plugin #wpbody {
   padding: 0 !important;
   margin: 0 !important;
 }
 
-body.toplevel_page_ai-content-agent #wpcontent {
+body.toplevel_page_ai-content-agent-plugin #wpcontent {
   padding: 0 !important;
   margin: 0 !important;
 }
 
 /* Ensure our root element takes full space and overrides everything */
 
-body.toplevel_page_ai-content-agent #root {
+body.toplevel_page_ai-content-agent-plugin #root {
   margin: 0 !important;
   padding: 0 !important;
   width: calc(100% - 160px) !important; /* Account for WordPress admin menu */
@@ -1466,7 +1466,7 @@ body.toplevel_page_ai-content-agent #root {
 
 /* Prevent page jumping when Settings dropdowns open */
 
-body.toplevel_page_ai-content-agent #root .aca-main {
+body.toplevel_page_ai-content-agent-plugin #root .aca-main {
   max-height: calc(100vh - 32px) !important;
   overflow-y: auto !important;
   scroll-behavior: smooth !important;
@@ -1484,7 +1484,7 @@ body.toplevel_page_ai-content-agent #root .aca-main {
     margin-left: 240px !important; /* Sidebar width exactly - border creates 1px gap */
   }
   
-  body.toplevel_page_ai-content-agent #root {
+  body.toplevel_page_ai-content-agent-plugin #root {
     width: calc(100% - 36px) !important; /* Collapsed menu width */
     left: 36px !important; /* Collapsed menu width */
     height: calc(100vh - 32px) !important;
@@ -1492,7 +1492,7 @@ body.toplevel_page_ai-content-agent #root .aca-main {
 }
 
 @media screen and (max-width: 782px) {
-  body.toplevel_page_ai-content-agent #root {
+  body.toplevel_page_ai-content-agent-plugin #root {
     width: 100% !important; /* Mobile: no side menu */
     left: 0 !important;
     height: calc(100vh - 46px) !important; /* Mobile admin bar is taller */
@@ -1502,7 +1502,7 @@ body.toplevel_page_ai-content-agent #root .aca-main {
 
 /* Make our container take full space and override WordPress */
 
-body.toplevel_page_ai-content-agent .aca-container {
+body.toplevel_page_ai-content-agent-plugin .aca-container {
   margin: 0 !important;
   padding: 0 !important;
   width: 100% !important;
@@ -1514,9 +1514,9 @@ body.toplevel_page_ai-content-agent .aca-container {
 
 /* Hide WordPress admin footer elements on plugin page */
 
-body.toplevel_page_ai-content-agent #footer-thankyou,
-body.toplevel_page_ai-content-agent #footer-upgrade,
-body.toplevel_page_ai-content-agent #wpfooter {
+body.toplevel_page_ai-content-agent-plugin #footer-thankyou,
+body.toplevel_page_ai-content-agent-plugin #footer-upgrade,
+body.toplevel_page_ai-content-agent-plugin #wpfooter {
   display: none !important;
 }
 

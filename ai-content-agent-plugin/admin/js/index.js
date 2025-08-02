@@ -3,55 +3,6 @@
   var __vite_style__ = document.createElement("style");
   __vite_style__.textContent = `/* WordPress Admin Compatible Styles for AI Content Agent (ACA) */
 
-/* CSS Variables for WordPress Admin Bar Height */
-
-:root {
-  --wp-admin-bar-height: 32px; /* Default desktop height */
-  
-  /* Enhanced contrast colors - WCAG AA compliant */
-  --aca-text-high-contrast: #212529;    /* 16.75:1 on white */
-  --aca-text-medium-contrast: #495057;  /* 8.59:1 on white */
-  --aca-link-accessible: #0056b3;       /* 7.27:1 on white */
-  --aca-link-hover-accessible: #004085; /* 9.67:1 on white */
-  
-  /* Status colors with proper contrast */
-  --aca-success-accessible: #155724;    /* 7.44:1 on white */
-  --aca-warning-accessible: #856404;    /* 5.94:1 on white */
-  --aca-error-accessible: #721c24;      /* 8.80:1 on white */
-}
-
-@media screen and (max-width: 782px) {
-  :root {
-    --wp-admin-bar-height: 46px; /* WordPress mobile admin bar height */
-  }
-}
-
-/* Handle no admin bar scenario */
-
-body.no-admin-bar {
-  --wp-admin-bar-height: 0px;
-}
-
-/* Ensure WordPress admin bar is touch-friendly on mobile */
-
-@media screen and (max-width: 782px) {
-  /* Don't interfere with WordPress admin bar, just ensure our elements don't block it */
-  #wpadminbar {
-    /* WordPress handles this, we just make sure we don't conflict */
-    position: fixed !important;
-    top: 0 !important;
-    z-index: 99999 !important; /* WordPress standard */
-  }
-  
-  /* Ensure our hamburger doesn't conflict with admin bar */
-  .aca-mobile-hamburger {
-    /* Position it safely away from admin bar */
-    top: calc(var(--wp-admin-bar-height, 46px) + 5px) !important;
-    pointer-events: auto !important;
-    touch-action: manipulation !important;
-  }
-}
-
 /* Remove Tailwind CDN import and create custom WordPress-compatible styles */
 
 /* @import 'https://cdn.tailwindcss.com'; */
@@ -300,7 +251,7 @@ body.no-admin-bar {
 
 .aca-main {
   flex: 1;
-  margin-left: 160px; /* Account for WordPress admin menu */
+  /* This margin is handled by the #root container's fixed positioning */
   padding: 20px;
   background: #f0f0f1;
   min-height: 100vh;
@@ -1073,32 +1024,32 @@ body.auto-fold .aca-main {
 
 /* Hide all WordPress admin notices/notifications on plugin page */
 
-body.toplevel_page_ai-content-agent .notice,
-body.toplevel_page_ai-content-agent .updated,
-body.toplevel_page_ai-content-agent .error,
-body.toplevel_page_ai-content-agent .notice-warning,
-body.toplevel_page_ai-content-agent .notice-error,
-body.toplevel_page_ai-content-agent .notice-success,
-body.toplevel_page_ai-content-agent .notice-info,
-body.toplevel_page_ai-content-agent .update-nag,
-body.toplevel_page_ai-content-agent .admin-notice,
-body.toplevel_page_ai-content-agent .plugin-update-tr,
-body.toplevel_page_ai-content-agent .update-message,
-body.toplevel_page_ai-content-agent .wp-admin-notice,
-body.toplevel_page_ai-content-agent .notice-dismiss,
-body.toplevel_page_ai-content-agent .is-dismissible,
-body.toplevel_page_ai-content-agent #wpbody-content > .notice,
-body.toplevel_page_ai-content-agent #wpbody-content > .updated,
-body.toplevel_page_ai-content-agent #wpbody-content > .error,
-body.toplevel_page_ai-content-agent .wrap > .notice,
-body.toplevel_page_ai-content-agent .wrap > .updated,
-body.toplevel_page_ai-content-agent .wrap > .error,
-body.toplevel_page_ai-content-agent #wpbody-content > div[class*="notice"],
-body.toplevel_page_ai-content-agent #wpbody-content > div[class*="updated"],
-body.toplevel_page_ai-content-agent #wpbody-content > div[class*="error"],
-body.toplevel_page_ai-content-agent #wpbody-content > div[id*="message"],
-body.toplevel_page_ai-content-agent #wpbody-content > div[id*="notice"],
-body.toplevel_page_ai-content-agent #wpbody-content > *:not(#root) {
+body.toplevel_page_ai-content-agent-plugin .notice,
+body.toplevel_page_ai-content-agent-plugin .updated,
+body.toplevel_page_ai-content-agent-plugin .error,
+body.toplevel_page_ai-content-agent-plugin .notice-warning,
+body.toplevel_page_ai-content-agent-plugin .notice-error,
+body.toplevel_page_ai-content-agent-plugin .notice-success,
+body.toplevel_page_ai-content-agent-plugin .notice-info,
+body.toplevel_page_ai-content-agent-plugin .update-nag,
+body.toplevel_page_ai-content-agent-plugin .admin-notice,
+body.toplevel_page_ai-content-agent-plugin .plugin-update-tr,
+body.toplevel_page_ai-content-agent-plugin .update-message,
+body.toplevel_page_ai-content-agent-plugin .wp-admin-notice,
+body.toplevel_page_ai-content-agent-plugin .notice-dismiss,
+body.toplevel_page_ai-content-agent-plugin .is-dismissible,
+body.toplevel_page_ai-content-agent-plugin #wpbody-content > .notice,
+body.toplevel_page_ai-content-agent-plugin #wpbody-content > .updated,
+body.toplevel_page_ai-content-agent-plugin #wpbody-content > .error,
+body.toplevel_page_ai-content-agent-plugin .wrap > .notice,
+body.toplevel_page_ai-content-agent-plugin .wrap > .updated,
+body.toplevel_page_ai-content-agent-plugin .wrap > .error,
+body.toplevel_page_ai-content-agent-plugin #wpbody-content > div[class*="notice"],
+body.toplevel_page_ai-content-agent-plugin #wpbody-content > div[class*="updated"],
+body.toplevel_page_ai-content-agent-plugin #wpbody-content > div[class*="error"],
+body.toplevel_page_ai-content-agent-plugin #wpbody-content > div[id*="message"],
+body.toplevel_page_ai-content-agent-plugin #wpbody-content > div[id*="notice"],
+body.toplevel_page_ai-content-agent-plugin #wpbody-content > *:not(#root) {
   display: none !important;
   visibility: hidden !important;
   opacity: 0 !important;
@@ -1112,10 +1063,10 @@ body.toplevel_page_ai-content-agent #wpbody-content > *:not(#root) {
 
 /* Allow our own plugin notices to show if needed */
 
-body.toplevel_page_ai-content-agent #root .notice,
-body.toplevel_page_ai-content-agent #root .error,
-body.toplevel_page_ai-content-agent #root .updated,
-body.toplevel_page_ai-content-agent .aca-notice {
+body.toplevel_page_ai-content-agent-plugin #root .notice,
+body.toplevel_page_ai-content-agent-plugin #root .error,
+body.toplevel_page_ai-content-agent-plugin #root .updated,
+body.toplevel_page_ai-content-agent-plugin .aca-notice {
   display: block !important;
   visibility: visible !important;
   opacity: 1 !important;
@@ -1126,7 +1077,7 @@ body.toplevel_page_ai-content-agent .aca-notice {
 
 /* Fix calendar container overflow issues */
 
-body.toplevel_page_ai-content-agent .aca-main {
+body.toplevel_page_ai-content-agent-plugin .aca-main {
   overflow-x: hidden !important;
   width: 100% !important;
   max-width: 100% !important;
@@ -1134,7 +1085,7 @@ body.toplevel_page_ai-content-agent .aca-main {
 
 /* Calendar grid container fixes */
 
-body.toplevel_page_ai-content-agent .aca-card {
+body.toplevel_page_ai-content-agent-plugin .aca-card {
   overflow: hidden !important;
   width: 100% !important;
   max-width: 100% !important;
@@ -1143,7 +1094,7 @@ body.toplevel_page_ai-content-agent .aca-card {
 
 /* Calendar day cells overflow control */
 
-body.toplevel_page_ai-content-agent .aca-card-content > div[style*="display: grid"] > div {
+body.toplevel_page_ai-content-agent-plugin .aca-card-content > div[style*="display: grid"] > div {
   overflow: hidden !important;
   word-wrap: break-word !important;
   word-break: break-word !important;
@@ -1153,7 +1104,7 @@ body.toplevel_page_ai-content-agent .aca-card-content > div[style*="display: gri
 
 /* Post items in calendar cells - prevent overflow */
 
-body.toplevel_page_ai-content-agent .aca-card-content div[style*="flex-direction: column"] > div {
+body.toplevel_page_ai-content-agent-plugin .aca-card-content div[style*="flex-direction: column"] > div {
   overflow: hidden !important;
   text-overflow: ellipsis !important;
   white-space: nowrap !important;
@@ -1163,7 +1114,7 @@ body.toplevel_page_ai-content-agent .aca-card-content div[style*="flex-direction
 
 /* Ensure calendar doesn't exceed main content bounds */
 
-body.toplevel_page_ai-content-agent .aca-card-content {
+body.toplevel_page_ai-content-agent-plugin .aca-card-content {
   overflow-x: auto !important;
   overflow-y: visible !important;
   max-width: 100% !important;
@@ -1173,25 +1124,25 @@ body.toplevel_page_ai-content-agent .aca-card-content {
 
 /* Prevent scroll jump on collapsible sections - disable smooth for fixed position */
 
-body.toplevel_page_ai-content-agent {
+body.toplevel_page_ai-content-agent-plugin {
   scroll-behavior: auto !important;
 }
 
 /* Apply smooth behavior only to our container, not the whole page */
 
-body.toplevel_page_ai-content-agent #root {
+body.toplevel_page_ai-content-agent-plugin #root {
   scroll-behavior: smooth !important;
 }
 
 /* Bu sınıf eklendiğinde anlık scroll geçişi sağlar */
 
-body.toplevel_page_ai-content-agent #root.no-smooth-scroll {
+body.toplevel_page_ai-content-agent-plugin #root.no-smooth-scroll {
   scroll-behavior: auto !important;
 }
 
 /* Optimize collapsible section transitions */
 
-body.toplevel_page_ai-content-agent .aca-card [id^="section-content-"] {
+body.toplevel_page_ai-content-agent-plugin .aca-card [id^="section-content-"] {
   transform-origin: top !important;
   backface-visibility: hidden !important;
   -webkit-backface-visibility: hidden !important;
@@ -1201,27 +1152,27 @@ body.toplevel_page_ai-content-agent .aca-card [id^="section-content-"] {
 
 /* Prevent layout shifts during transitions */
 
-body.toplevel_page_ai-content-agent .aca-card {
+body.toplevel_page_ai-content-agent-plugin .aca-card {
   contain: layout !important;
 }
 
 /* Smooth transitions without affecting scroll */
 
-body.toplevel_page_ai-content-agent .aca-card [id^="section-content-"] * {
+body.toplevel_page_ai-content-agent-plugin .aca-card [id^="section-content-"] * {
   will-change: auto !important;
 }
 
 /* Smooth header click behavior */
 
-body.toplevel_page_ai-content-agent .aca-card-header[role="button"] {
+body.toplevel_page_ai-content-agent-plugin .aca-card-header[role="button"] {
   transition: background-color 0.2s ease !important;
 }
 
-body.toplevel_page_ai-content-agent .aca-card-header[role="button"]:hover {
+body.toplevel_page_ai-content-agent-plugin .aca-card-header[role="button"]:hover {
   background-color: rgba(0, 0, 0, 0.02) !important;
 }
 
-body.toplevel_page_ai-content-agent .aca-card-header[role="button"]:active {
+body.toplevel_page_ai-content-agent-plugin .aca-card-header[role="button"]:active {
   background-color: rgba(0, 0, 0, 0.05) !important;
   transform: translateY(1px) !important;
   transition: all 0.1s ease !important;
@@ -1412,9 +1363,9 @@ body.toplevel_page_ai-content-agent .aca-card-header[role="button"]:active {
 
 /* Fix for WordPress clear divs causing unwanted spacing - More specific selectors */
 
-body.toplevel_page_ai-content-agent #wpbody-content > .clear,
-body.toplevel_page_ai-content-agent #wpbody > .clear,
-body.toplevel_page_ai-content-agent .clear {
+body.toplevel_page_ai-content-agent-plugin #wpbody-content > .clear,
+body.toplevel_page_ai-content-agent-plugin #wpbody > .clear,
+body.toplevel_page_ai-content-agent-plugin .clear {
   display: none !important;
   height: 0 !important;
   margin: 0 !important;
@@ -1423,31 +1374,31 @@ body.toplevel_page_ai-content-agent .clear {
 
 /* Additional fix for screen-meta and other spacing issues */
 
-body.toplevel_page_ai-content-agent #screen-meta {
+body.toplevel_page_ai-content-agent-plugin #screen-meta {
   margin-bottom: 0 !important;
   padding-bottom: 0 !important;
 }
 
 /* COMPREHENSIVE WORDPRESS ADMIN OVERRIDE - Remove ALL spacing */
 
-body.toplevel_page_ai-content-agent #wpbody-content {
+body.toplevel_page_ai-content-agent-plugin #wpbody-content {
   padding: 0 !important;
   margin: 0 !important;
 }
 
-body.toplevel_page_ai-content-agent #wpbody {
+body.toplevel_page_ai-content-agent-plugin #wpbody {
   padding: 0 !important;
   margin: 0 !important;
 }
 
-body.toplevel_page_ai-content-agent #wpcontent {
+body.toplevel_page_ai-content-agent-plugin #wpcontent {
   padding: 0 !important;
   margin: 0 !important;
 }
 
 /* Ensure our root element takes full space and overrides everything */
 
-body.toplevel_page_ai-content-agent #root {
+body.toplevel_page_ai-content-agent-plugin #root {
   margin: 0 !important;
   padding: 0 !important;
   width: calc(100% - 160px) !important; /* Account for WordPress admin menu */
@@ -1465,7 +1416,7 @@ body.toplevel_page_ai-content-agent #root {
 
 /* Prevent page jumping when Settings dropdowns open */
 
-body.toplevel_page_ai-content-agent #root .aca-main {
+body.toplevel_page_ai-content-agent-plugin #root .aca-main {
   max-height: calc(100vh - 32px) !important;
   overflow-y: auto !important;
   scroll-behavior: smooth !important;
@@ -1479,11 +1430,9 @@ body.toplevel_page_ai-content-agent #root .aca-main {
     left: 36px !important; /* Collapsed WordPress menu width */
   }
   
-  .aca-main {
-    margin-left: 240px !important; /* Sidebar width exactly - border creates 1px gap */
-  }
+  /* Flexbox handles main content positioning automatically */
   
-  body.toplevel_page_ai-content-agent #root {
+  body.toplevel_page_ai-content-agent-plugin #root {
     width: calc(100% - 36px) !important; /* Collapsed menu width */
     left: 36px !important; /* Collapsed menu width */
     height: calc(100vh - 32px) !important;
@@ -1491,7 +1440,7 @@ body.toplevel_page_ai-content-agent #root .aca-main {
 }
 
 @media screen and (max-width: 782px) {
-  body.toplevel_page_ai-content-agent #root {
+  body.toplevel_page_ai-content-agent-plugin #root {
     width: 100% !important; /* Mobile: no side menu */
     left: 0 !important;
     height: calc(100vh - 46px) !important; /* Mobile admin bar is taller */
@@ -1501,7 +1450,7 @@ body.toplevel_page_ai-content-agent #root .aca-main {
 
 /* Make our container take full space and override WordPress */
 
-body.toplevel_page_ai-content-agent .aca-container {
+body.toplevel_page_ai-content-agent-plugin .aca-container {
   margin: 0 !important;
   padding: 0 !important;
   width: 100% !important;
@@ -1513,341 +1462,10 @@ body.toplevel_page_ai-content-agent .aca-container {
 
 /* Hide WordPress admin footer elements on plugin page */
 
-body.toplevel_page_ai-content-agent #footer-thankyou,
-body.toplevel_page_ai-content-agent #footer-upgrade,
-body.toplevel_page_ai-content-agent #wpfooter {
+body.toplevel_page_ai-content-agent-plugin #footer-thankyou,
+body.toplevel_page_ai-content-agent-plugin #footer-upgrade,
+body.toplevel_page_ai-content-agent-plugin #wpfooter {
   display: none !important;
-}
-
-/* Enhanced responsive design - ACA specific improvements */
-
-@media screen and (max-width: 768px) {
-  /* Improve mobile sidebar without breaking existing 782px styles */
-  .aca-sidebar.is-mobile-optimized {
-    width: 100% !important;
-    max-width: 320px !important;
-    transform: translateX(-100%);
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  
-  .aca-sidebar.is-mobile-optimized.is-open {
-    transform: translateX(0);
-  }
-  
-  /* Improve touch targets for mobile */
-  .aca-nav-item {
-    min-height: 44px;
-    display: flex;
-    align-items: center;
-  }
-  
-  .aca-nav-item a {
-    padding: 12px 20px;
-    width: 100%;
-    display: block;
-  }
-}
-
-/* Mobile overlay for sidebar */
-
-.aca-mobile-overlay {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 99998;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.aca-mobile-overlay.is-visible {
-  display: block;
-  opacity: 1;
-}
-
-/* Mobile menu toggle */
-
-.aca-mobile-menu-toggle {
-  display: none;
-  position: fixed;
-  top: 50px;
-  left: 20px;
-  z-index: 100000;
-  background: #0073aa;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 8px 12px;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-@media screen and (max-width: 768px) {
-  .aca-mobile-menu-toggle {
-    display: block;
-  }
-}
-
-/* WCAG AA compliant color improvements */
-
-.aca-plugin-wrapper .aca-accessible-text {
-  color: var(--aca-text-high-contrast);
-}
-
-.aca-plugin-wrapper .aca-accessible-link {
-  color: var(--aca-link-accessible);
-}
-
-.aca-plugin-wrapper .aca-accessible-link:hover {
-  color: var(--aca-link-hover-accessible);
-}
-
-/* High contrast mode support */
-
-@media (prefers-contrast: high) {
-  .aca-plugin-wrapper {
-    --aca-text-high-contrast: #000000;
-    --aca-link-accessible: #0000ee;
-  }
-}
-
-/* Enhanced Mobile Navigation Fixes - Use higher specificity instead of !important */
-
-@media screen and (max-width: 782px) {
-  /* Ensure smooth transition at breakpoint */
-  .aca-container .aca-sidebar {
-    will-change: transform; /* Optimize animations */
-  }
-  /* Fix sidebar positioning on mobile */
-  .aca-container .aca-sidebar {
-    position: fixed;
-    top: var(--wp-admin-bar-height, 46px);
-    left: 0;
-    width: 280px;
-    height: calc(100vh - var(--wp-admin-bar-height, 46px));
-    transform: translateX(-100%);
-    transition: transform 0.3s ease-in-out;
-    z-index: 99998; /* Below WordPress admin bar (99999) */
-    box-shadow: 2px 0 20px rgba(0, 0, 0, 0.3);
-    pointer-events: none; /* Prevent click-through when hidden */
-    touch-action: pan-y; /* Allow vertical scrolling */
-  }
-  
-  /* Show sidebar when active - support both open and mobile-active classes */
-  .aca-container .aca-sidebar.mobile-active,
-  .aca-container .aca-sidebar.open {
-    transform: translateX(0);
-    pointer-events: auto; /* Re-enable interactions when visible */
-  }
-  
-  /* Improve mobile navigation items */
-  .aca-container .aca-sidebar .aca-nav-item {
-    min-height: 48px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  }
-  
-  .aca-container .aca-sidebar .aca-nav-item a {
-    padding: 14px 20px;
-    font-size: 16px;
-    line-height: 1.4;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  
-  /* Mobile hamburger menu */
-  .aca-mobile-hamburger {
-    display: block !important;
-    position: fixed !important;
-    top: calc(var(--wp-admin-bar-height, 46px) + 10px) !important;
-    left: 15px !important;
-    z-index: 99997; /* Below sidebar but above content */
-    background: #0073aa !important;
-    color: white !important;
-    border: none !important;
-    border-radius: 6px !important;
-    padding: 12px 14px !important; /* Larger touch target */
-    cursor: pointer !important;
-    font-size: 18px !important;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2) !important;
-    transition: all 0.2s ease !important;
-    min-width: 44px !important; /* WCAG minimum touch target */
-    min-height: 44px !important; /* WCAG minimum touch target */
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    -webkit-tap-highlight-color: transparent !important; /* Remove iOS highlight */
-    touch-action: manipulation !important; /* Prevent zoom on double-tap */
-  }
-  
-  .aca-mobile-hamburger:hover {
-    background: #005a87 !important;
-    transform: scale(1.05) !important;
-  }
-  
-  .aca-mobile-hamburger:active {
-    transform: scale(0.95) !important;
-  }
-  
-  /* Main content adjustment for mobile */
-  .aca-main-content {
-    margin-left: 0 !important;
-    padding: 20px 15px !important;
-    min-height: calc(100vh - var(--wp-admin-bar-height, 46px)) !important;
-  }
-  
-  /* Mobile overlay for sidebar */
-  .aca-mobile-overlay {
-    display: none !important;
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    background: rgba(0, 0, 0, 0.6) !important;
-    z-index: 99996; /* Below hamburger menu */
-    opacity: 0 !important;
-    transition: opacity 0.3s ease !important;
-  }
-  
-  .aca-mobile-overlay.active {
-    display: block !important;
-    opacity: 1 !important;
-  }
-  
-  /* Ensure touch targets are accessible */
-  .aca-sidebar button,
-  .aca-sidebar a,
-  .aca-sidebar input[type="button"],
-  .aca-sidebar input[type="submit"] {
-    min-height: 44px !important;
-    min-width: 44px !important;
-  }
-  
-  /* Fix mobile scrolling issues */
-  .aca-sidebar {
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch !important;
-  }
-  
-  /* Prevent body scroll when sidebar is open */
-  body.aca-sidebar-open {
-    overflow: hidden !important;
-    position: fixed !important;
-    width: 100% !important;
-  }
-}
-
-/* Tablet specific adjustments */
-
-@media screen and (min-width: 783px) and (max-width: 1024px) {
-  .aca-sidebar {
-    width: 220px !important;
-  }
-  
-  .aca-main-content {
-    margin-left: 220px !important;
-  }
-}
-
-/* Desktop cleanup - ensure mobile states don't persist */
-
-@media screen and (min-width: 783px) {
-  .aca-container .aca-sidebar {
-    position: relative !important;
-    transform: none !important;
-    z-index: auto !important;
-    pointer-events: auto !important;
-    width: auto !important;
-    height: auto !important;
-    box-shadow: none !important;
-  }
-  
-  .aca-mobile-hamburger {
-    display: none !important;
-  }
-  
-  .aca-mobile-overlay {
-    display: none !important;
-  }
-  
-  /* Remove mobile-specific body classes on desktop */
-  body.aca-sidebar-open {
-    overflow: auto !important;
-  }
-}
-
-/* WordPress Page Specific - Critical Root Container Positioning */
-
-body.toplevel_page_ai-content-agent #wpcontent {
-  padding: 0 !important;
-  margin: 0 !important;
-}
-
-/* Ensure our root element takes full space and overrides everything */
-
-body.toplevel_page_ai-content-agent #root {
-  margin: 0 !important;
-  padding: 0 !important;
-  width: calc(100% - 160px) !important; /* Account for WordPress admin menu */
-  height: calc(100vh - 32px) !important; /* Account for WordPress admin bar */
-  position: fixed !important;
-  top: 32px !important; /* Account for WordPress admin bar */
-  left: 160px !important; /* Right next to WordPress admin menu */
-  right: 0 !important;
-  bottom: 0 !important;
-  z-index: 999999 !important;
-  background: #f0f0f1 !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-}
-
-/* Prevent page jumping when Settings dropdowns open */
-
-body.toplevel_page_ai-content-agent #root .aca-main {
-  max-height: calc(100vh - 32px) !important;
-  overflow-y: auto !important;
-  scroll-behavior: smooth !important;
-}
-
-/* Responsive WordPress admin menu adjustments */
-
-@media screen and (max-width: 960px) and (min-width: 783px) {
-  /* Collapsed WordPress menu adjustments */
-  .aca-sidebar {
-    left: 36px !important; /* Collapsed WordPress menu width */
-  }
-  
-  .aca-main {
-    margin-left: 240px !important; /* Sidebar width exactly - border creates 1px gap */
-  }
-  
-  body.toplevel_page_ai-content-agent #root {
-    width: calc(100% - 36px) !important; /* Collapsed menu width */
-    left: 36px !important; /* Collapsed menu width */
-    height: calc(100vh - 32px) !important;
-  }
-}
-
-@media screen and (max-width: 782px) {
-  body.toplevel_page_ai-content-agent #root {
-    width: 100% !important; /* Mobile: no side menu */
-    left: 0 !important;
-    height: calc(100vh - 46px) !important; /* Mobile admin bar is taller */
-    top: 46px !important;
-  }
-}
-
-/* Make our container take full space and override WordPress */
-
-body.toplevel_page_ai-content-agent .aca-container {
-  margin: 0 !important;
-  padding: 0 !important;
-  width: 100% !important;
-  height: 100vh !important;
 }/*$vite$:1*/`;
   document.head.appendChild(__vite_style__);
   function getDefaultExportFromCjs(x) {

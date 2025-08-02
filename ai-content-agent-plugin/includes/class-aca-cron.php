@@ -288,7 +288,7 @@ class ACA_Cron {
             }
             
         } catch (Exception $e) {
-            error_log('ACA Full Auto Cycle Error: ' . $e->getMessage());
+            aca_debug_log('Full Auto Cycle Error: ' . $e->getMessage());
         }
     }
     

@@ -288,7 +288,7 @@ body.no-admin-bar {
   }
   
   .aca-main {
-    margin-left: 241px; /* Plugin sidebar (240px) + minimal 1px gap */
+    margin-left: 240px; /* Sidebar width exactly - border creates 1px gap */
     padding: 20px;
   }
 }
@@ -299,7 +299,7 @@ body.auto-fold .aca-sidebar {
 }
 
 body.auto-fold .aca-main {
-  margin-left: 241px !important; /* Plugin sidebar (240px) + minimal 1px gap */
+  margin-left: 240px !important; /* Sidebar width exactly - border creates 1px gap */
 }
 
 /* Static positioning makes auto-fold adjustments unnecessary - flexbox handles everything */
@@ -1689,4 +1689,69 @@ body.toplevel_page_ai-content-agent #wpfooter {
   body.aca-sidebar-open {
     overflow: auto !important;
   }
+}
+
+/* WordPress Page Specific - Critical Root Container Positioning */
+body.toplevel_page_ai-content-agent #wpcontent {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Ensure our root element takes full space and overrides everything */
+body.toplevel_page_ai-content-agent #root {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: calc(100% - 160px) !important; /* Account for WordPress admin menu */
+  height: calc(100vh - 32px) !important; /* Account for WordPress admin bar */
+  position: fixed !important;
+  top: 32px !important; /* Account for WordPress admin bar */
+  left: 160px !important; /* Right next to WordPress admin menu */
+  right: 0 !important;
+  bottom: 0 !important;
+  z-index: 999999 !important;
+  background: #f0f0f1 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+/* Prevent page jumping when Settings dropdowns open */
+body.toplevel_page_ai-content-agent #root .aca-main {
+  max-height: calc(100vh - 32px) !important;
+  overflow-y: auto !important;
+  scroll-behavior: smooth !important;
+}
+
+/* Responsive WordPress admin menu adjustments */
+@media screen and (max-width: 960px) and (min-width: 783px) {
+  /* Collapsed WordPress menu adjustments */
+  .aca-sidebar {
+    left: 36px !important; /* Collapsed WordPress menu width */
+  }
+  
+  .aca-main {
+    margin-left: 240px !important; /* Sidebar width exactly - border creates 1px gap */
+  }
+  
+  body.toplevel_page_ai-content-agent #root {
+    width: calc(100% - 36px) !important; /* Collapsed menu width */
+    left: 36px !important; /* Collapsed menu width */
+    height: calc(100vh - 32px) !important;
+  }
+}
+
+@media screen and (max-width: 782px) {
+  body.toplevel_page_ai-content-agent #root {
+    width: 100% !important; /* Mobile: no side menu */
+    left: 0 !important;
+    height: calc(100vh - 46px) !important; /* Mobile admin bar is taller */
+    top: 46px !important;
+  }
+}
+
+/* Make our container take full space and override WordPress */
+body.toplevel_page_ai-content-agent .aca-container {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  height: 100vh !important;
 }

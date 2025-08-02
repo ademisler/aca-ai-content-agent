@@ -26,12 +26,12 @@ class ACA_Cron {
     public function add_cron_intervals($schedules) {
         $schedules['aca_thirty_minutes'] = array(
             'interval' => 30 * 60, // 30 minutes in seconds
-            'display' => __('Every 30 Minutes', 'ai-content-agent')
+            'display' => __('Every 30 Minutes', 'ai-content-agent-plugin')
         );
         
         $schedules['aca_fifteen_minutes'] = array(
             'interval' => 15 * 60, // 15 minutes in seconds
-            'display' => __('Every 15 Minutes', 'ai-content-agent')
+            'display' => __('Every 15 Minutes', 'ai-content-agent-plugin')
         );
         
         return $schedules;

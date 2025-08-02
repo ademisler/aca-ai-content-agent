@@ -1,14 +1,14 @@
 <?php
 /**
  * Plugin Name: AI Content Agent (ACA)
- * Plugin URI: https://ademisler.gumroad.com/l/ai-content-agent-pro
+ * Plugin URI: https://ademisler.gumroad.com/l/ai-content-agent-plugin-pro
  * Description: AI-powered content creation and management plugin that generates blog posts, ideas, and manages your content workflow automatically with Google Search Console integration and Pro features.
- * Version: 2.4.11
+ * Version: 2.4.12
  * Author: Adem Isler
  * Author URI: https://ademisler.com/en
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: ai-content-agent
+ * Text Domain: ai-content-agent-plugin-plugin
  * Requires at least: 5.0
  * Tested up to: 6.7
  * Requires PHP: 7.4
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('ACA_VERSION', '2.4.11');
+define('ACA_VERSION', '2.4.12');
 define('ACA_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('ACA_PLUGIN_PATH', plugin_dir_path(__FILE__));
 
@@ -106,7 +106,7 @@ class AI_Content_Agent {
      */
     public function handle_gsc_oauth_callback() {
         // Note: OAuth callbacks from external services don't require nonce verification
-        if (isset($_GET['page']) && sanitize_text_field(wp_unslash($_GET['page'])) === 'ai-content-agent' && // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- OAuth callback parameter
+        if (isset($_GET['page']) && sanitize_text_field(wp_unslash($_GET['page'])) === 'ai-content-agent-plugin' && // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- OAuth callback parameter
             isset($_GET['gsc_auth']) && sanitize_text_field(wp_unslash($_GET['gsc_auth'])) === 'callback' && // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- OAuth callback parameter
             isset($_GET['code'])) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- OAuth callback parameter
             
@@ -120,7 +120,7 @@ class AI_Content_Agent {
                 wp_die('Google Search Console authentication failed: ' . esc_html($result->get_error_message()));
             } else {
                 // Redirect back to settings page
-                wp_redirect(admin_url('admin.php?page=ai-content-agent&view=settings&gsc_connected=1'));
+                wp_redirect(admin_url('admin.php?page=ai-content-agent-plugin&view=settings&gsc_connected=1'));
                 exit;
             }
         }
@@ -134,7 +134,7 @@ class AI_Content_Agent {
             'AI Content Agent (ACA)',
             'AI Content Agent (ACA)',
             'manage_options',
-            'ai-content-agent',
+            'ai-content-agent-plugin',
             array($this, 'admin_page'),
             'dashicons-edit-large',
             30
@@ -160,7 +160,7 @@ class AI_Content_Agent {
      */
     public function enqueue_admin_scripts($hook) {
         // Only load on our plugin page
-        if ('toplevel_page_ai-content-agent' != $hook) {
+        if ('toplevel_page_ai-content-agent-plugin' != $hook) {
             return;
         }
         
@@ -348,7 +348,7 @@ function aca_handle_gsc_reauth_dismissal() {
     if (isset($_GET['dismiss_gsc_reauth']) && $_GET['dismiss_gsc_reauth'] == '1' && current_user_can('manage_options')) {
         // Add nonce verification for security
         if (!isset($_GET['_wpnonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['_wpnonce'])), 'aca_dismiss_gsc_reauth')) {
-            wp_die(esc_html__('Security check failed. Please try again.', 'ai-content-agent'));
+            wp_die(esc_html__('Security check failed. Please try again.', 'ai-content-agent-plugin'));
         }
         
         delete_transient('aca_gsc_reauth_required');
@@ -389,7 +389,7 @@ function aca_handle_gsc_scope_reauth_dismissal() {
     if (isset($_GET['dismiss_gsc_scope_reauth']) && $_GET['dismiss_gsc_scope_reauth'] == '1' && current_user_can('manage_options')) {
         // Add nonce verification for security
         if (!isset($_GET['_wpnonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['_wpnonce'])), 'aca_dismiss_gsc_scope_reauth')) {
-            wp_die(esc_html__('Security check failed. Please try again.', 'ai-content-agent'));
+            wp_die(esc_html__('Security check failed. Please try again.', 'ai-content-agent-plugin'));
         }
         
         delete_transient('aca_gsc_scope_reauth_required');

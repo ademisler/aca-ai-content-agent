@@ -4244,8 +4244,8 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             );
         }
         
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $sql is properly prepared above using $wpdb->prepare()
-        $results = $wpdb->get_results($sql, ARRAY_A); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table query for freshness data analysis
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- $sql is properly prepared above using $wpdb->prepare() for custom table query
+        $results = $wpdb->get_results($sql, ARRAY_A);
         
         // Check for database errors
         if ($wpdb->last_error) {

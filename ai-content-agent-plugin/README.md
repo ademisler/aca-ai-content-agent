@@ -1,6 +1,6 @@
 # AI Content Agent (ACA) - WordPress Plugin
 
-**Version:** 2.4.14  
+**Version:** 2.4.15  
 **Requires:** WordPress 5.0+, PHP 7.4+  
 **License:** GPL v2 or later  
 **Author:** Adem Isler  
@@ -261,6 +261,43 @@ See [CHANGELOG.md](CHANGELOG.md) for complete version history.
 - Mobile app companion
 
 ## Changelog
+
+### Version 2.4.15 (2025-02-01)
+**🎯 CRITICAL LAYOUT FIX - Sidebar-Content Gap Eliminated**
+
+**✅ Root Cause Analysis Completed:**
+- **Issue:** Double-counting WordPress menu width in layout calculations
+- **Problem:** #root container already offset by 160px, but .aca-main added another 160px
+- **Result:** 160px excessive gap between sidebar and main content
+
+**🔧 MATHEMATICAL CORRECTION:**
+- **Before:** .aca-main margin-left: 401px (160px WP menu + 241px sidebar)
+- **After:** .aca-main margin-left: 241px (only sidebar width needed)
+- **Gap Eliminated:** 160px unnecessary spacing removed
+
+**📐 LAYOUT LOGIC FIXED:**
+- **#root Container:** Already positioned 160px from left (handles WP menu offset)
+- **Sidebar:** Positioned relative to #root container
+- **Main Content:** Only needs to clear sidebar width (241px including border)
+- **Result:** Perfect seamless alignment
+
+**🎨 ALL RESPONSIVE STATES CORRECTED:**
+- **Desktop (Normal Menu):** 241px margin = Perfect alignment
+- **Desktop (Auto-fold Menu):** 241px margin = Perfect alignment  
+- **Tablet/Mobile:** Existing responsive rules maintained
+- **Universal Fix:** Same margin works for all WordPress menu states
+
+**🔍 TECHNICAL RESOLUTION:**
+- **Double-offset eliminated:** No more WP menu width double-counting
+- **Sidebar border included:** 240px + 1px border = 241px total
+- **CSS specificity maintained:** All media queries and overrides updated
+- **Source files synchronized:** Both index.css and admin/css/index.css fixed
+
+**🎯 USER EXPERIENCE IMPACT:**
+- **Before:** Large horizontal gap disrupted interface flow
+- **After:** Seamless sidebar-to-content transition
+- **Visual Integration:** Perfect WordPress admin interface alignment
+- **Professional Appearance:** Clean, polished layout achieved
 
 ### Version 2.4.14 (2025-02-01)
 **🔧 Critical Auto-Fold WordPress Menu Fix**

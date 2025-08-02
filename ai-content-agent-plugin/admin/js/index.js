@@ -312,7 +312,7 @@ body.no-admin-bar {
   }
   
   .aca-main {
-    margin-left: 400px; /* WordPress menu (160px) + sidebar (240px) = 400px */
+    margin-left: 241px; /* Only account for the plugin's sidebar (240px + 1px border) */
     padding: 20px;
   }
 }
@@ -324,7 +324,7 @@ body.auto-fold .aca-sidebar {
 }
 
 body.auto-fold .aca-main {
-  margin-left: 276px !important; /* Collapsed WP menu (36px) + sidebar (240px) */
+  margin-left: 241px !important; /* Only account for the plugin's sidebar (240px + 1px border) */
 }
 
 /* Mobile header */

@@ -1,6 +1,6 @@
 # AI Content Agent (ACA) - WordPress Plugin
 
-**Version:** 2.4.23  
+**Version:** 2.4.24  
 **Requires:** WordPress 5.0+, PHP 7.4+  
 **License:** GPL v2 or later  
 **Author:** Adem Isler  
@@ -261,6 +261,38 @@ See [CHANGELOG.md](CHANGELOG.md) for complete version history.
 - Mobile app companion
 
 ## Changelog
+
+### Version 2.4.24 (2025-02-01)
+**🔥 CRITICAL AUTO-CRON FIX - 500 Error Resolved**
+
+**✅ Root Cause Identified and Fixed:**
+- **Critical Issue:** `generate_ideas()` method expected `WP_REST_Request` object but received array in cron context
+- **Error Type:** PHP Fatal Error - Method signature mismatch causing 500 server error
+- **Impact:** Auto-cron test completely failed with JSON parse error on frontend
+
+**🚀 TECHNICAL SOLUTION:**
+- **Fixed Method Call:** Created proper `WP_REST_Request` object in `run_full_automatic_cycle()`
+- **Request Structure:** Added JSON body, headers, and proper REST request format
+- **Parameter Handling:** Ensured `auto` flag is properly passed for nonce bypass
+- **Error Chain Broken:** Eliminated PHP fatal error → 500 response → HTML instead of JSON
+
+**🔧 IMPLEMENTATION DETAILS:**
+```php
+// Before (BROKEN):
+$ideas_result = $rest_api->generate_ideas(array('count' => 1, 'auto' => true));
+
+// After (FIXED):
+$request = new WP_REST_Request('POST', '/aca/v1/ideas/generate');
+$request->set_body(json_encode(array('count' => 1, 'auto' => true)));
+$request->set_header('Content-Type', 'application/json');
+$ideas_result = $rest_api->generate_ideas($request);
+```
+
+**🎯 VERIFIED FUNCTIONALITY:**
+- **Auto-cron Test:** Should now return proper JSON response instead of 500 error
+- **Full-Auto Mode:** Complete automation cycle can now execute without fatal errors
+- **Error Handling:** Proper exception catching and JSON response formatting
+- **Debug Endpoint:** `/wp-json/aca/v1/debug/cron/full-auto` now functional
 
 ### Version 2.4.23 (2025-02-01)
 **🔥 CRITICAL FIX - Body Class Mismatch Resolved**

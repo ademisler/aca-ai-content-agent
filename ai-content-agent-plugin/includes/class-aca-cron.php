@@ -236,7 +236,10 @@ class ACA_Cron {
             $rest_api = new ACA_Rest_Api();
             
             // Generate one idea
-            $ideas_result = $rest_api->generate_ideas(array('count' => 1, 'auto' => true));
+            $request = new WP_REST_Request('POST', '/aca/v1/ideas/generate');
+            $request->set_body(json_encode(array('count' => 1, 'auto' => true)));
+            $request->set_header('Content-Type', 'application/json');
+            $ideas_result = $rest_api->generate_ideas($request);
             
             if (is_wp_error($ideas_result) || empty($ideas_result)) {
                 return;

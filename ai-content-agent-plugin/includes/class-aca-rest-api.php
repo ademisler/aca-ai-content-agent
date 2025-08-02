@@ -1335,20 +1335,30 @@ class ACA_Rest_Api {
                 )
             );
             
-            error_log('ACA DEBUG: Creating WordPress post');
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('ACA DEBUG: Creating WordPress post');
+            }
             $post_id = wp_insert_post($post_data);
             
             if (is_wp_error($post_id)) {
-                error_log('ACA DEBUG: wp_insert_post failed: ' . $post_id->get_error_message());
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log('ACA DEBUG: wp_insert_post failed: ' . $post_id->get_error_message());
+                }
                 throw new Exception('Failed to create WordPress post: ' . $post_id->get_error_message());
             }
             
-            error_log('ACA DEBUG: WordPress post created with ID: ' . $post_id);
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('ACA DEBUG: WordPress post created with ID: ' . $post_id);
+            }
             
             // Add categories safely using AI-selected IDs
-            error_log('ACA DEBUG: Processing categories');
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('ACA DEBUG: Processing categories');
+            }
             if (isset($draft_data['categoryIds']) && is_array($draft_data['categoryIds'])) {
-                error_log('ACA DEBUG: Found ' . count($draft_data['categoryIds']) . ' category IDs to process');
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log('ACA DEBUG: Found ' . count($draft_data['categoryIds']) . ' category IDs to process');
+                }
                 $category_ids = array();
                 foreach ($draft_data['categoryIds'] as $category_id) {
                     if (is_numeric($category_id)) {
@@ -2855,7 +2865,9 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             
             $detected_plugins = $this->detect_seo_plugin();
             
-            error_log('ACA: Detected SEO plugins: ' . print_r($detected_plugins, true));
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('ACA: Detected SEO plugins: ' . print_r($detected_plugins, true));
+            }
             
             return rest_ensure_response(array(
                 'success' => true,
@@ -2931,8 +2943,10 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         error_log('ACA: AIOSEO detection result: ' . ($aioseo_detected ? 'found' : 'not found'));
         
         // Log all active plugins for debugging
-        $active_plugins = get_option('active_plugins', array());
-        error_log('ACA: Active plugins: ' . print_r($active_plugins, true));
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            $active_plugins = get_option('active_plugins', array());
+            error_log('ACA: Active plugins: ' . print_r($active_plugins, true));
+        }
         
         error_log('ACA: Total detected SEO plugins: ' . count($detected_plugins));
         
@@ -3751,9 +3765,11 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         error_log('ACA: Site binding info - URL: ' . $site_url . ', Hash: ' . substr($site_hash, 0, 16) . '...');
         
         // Log request body (without showing full license key for security)
-        $log_body = $body_data;
-        $log_body['license_key'] = substr($license_key, 0, 8) . '...';
-        error_log('ACA: Request body: ' . print_r($log_body, true));
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            $log_body = $body_data;
+            $log_body['license_key'] = substr($license_key, 0, 8) . '...';
+            error_log('ACA: Request body: ' . print_r($log_body, true));
+        }
         
         $response = wp_remote_post($url, array(
             'headers' => array(

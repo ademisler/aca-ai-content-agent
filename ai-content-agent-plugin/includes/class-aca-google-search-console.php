@@ -122,7 +122,7 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
                 return true;
                 
             } catch (Exception $e) {
-                error_log('GSC OAuth Error: ' . $e->getMessage());
+                aca_debug_log('GSC OAuth Error: ' . $e->getMessage());
                 return new WP_Error('oauth_error', $e->getMessage());
             }
         }
@@ -186,7 +186,7 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
                             // Clear validation cache since we have new tokens
                             $this->clear_validation_cache();
                             
-                            error_log("ACA GSC: Successfully refreshed access token on attempt $attempt");
+                            aca_debug_log("GSC: Successfully refreshed access token on attempt $attempt");
                             return; // Success - exit method
                             
                         } catch (Exception $e) {

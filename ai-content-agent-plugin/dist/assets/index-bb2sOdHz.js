@@ -315,6 +315,11 @@ body.no-admin-bar {
     margin-left: 240px; /* Sidebar width exactly - border creates 1px gap */
     padding: 20px;
   }
+  
+  /* High specificity for normal state */
+  body.wp-admin.toplevel_page_ai-content-agent-plugin .aca-main {
+    margin-left: 240px !important; /* Sidebar width exactly - border creates 1px gap */
+  }
 }
 
 /* Auto-fold WordPress menu support (when menu is collapsed) */
@@ -324,6 +329,12 @@ body.auto-fold .aca-sidebar {
 }
 
 body.auto-fold .aca-main {
+  margin-left: 240px !important; /* Sidebar width exactly - border creates 1px gap */
+}
+
+/* High specificity auto-fold rules */
+
+body.wp-admin.auto-fold.toplevel_page_ai-content-agent-plugin .aca-main {
   margin-left: 240px !important; /* Sidebar width exactly - border creates 1px gap */
 }
 
@@ -1485,7 +1496,7 @@ body.toplevel_page_ai-content-agent #root .aca-main {
   }
   
   .aca-main {
-    margin-left: 276px !important; /* Collapsed WP menu (36px) + sidebar (240px) */
+    margin-left: 240px !important; /* Sidebar width exactly - border creates 1px gap */
   }
   
   body.toplevel_page_ai-content-agent #root {

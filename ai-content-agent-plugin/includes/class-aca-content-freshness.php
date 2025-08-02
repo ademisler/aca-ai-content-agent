@@ -140,7 +140,7 @@ class ACA_Content_Freshness {
      */
     private function get_fallback_analysis($content, $title) {
         $content_length = strlen($content);
-        $word_count = str_word_count(strip_tags($content));
+        $word_count = str_word_count(wp_strip_all_tags($content));
         
         // Simple heuristic analysis
         $freshness_score = 75; // Base score
@@ -591,12 +591,12 @@ Return only valid JSON format.";
         
         global $wpdb;
         
-        $freshness_table = $wpdb->prefix . 'aca_content_freshness';
+        $freshness_table = esc_sql($wpdb->prefix . 'aca_content_freshness');
         
         $results = $wpdb->get_results($wpdb->prepare("
             SELECT p.ID, p.post_title, p.post_date, f.freshness_score, f.update_priority, f.last_analyzed
             FROM {$wpdb->posts} p
-            INNER JOIN $freshness_table f ON p.ID = f.post_id
+            INNER JOIN {$freshness_table} f ON p.ID = f.post_id
             WHERE p.post_status = 'publish'
             AND p.post_type = 'post'
             AND f.needs_update = 1

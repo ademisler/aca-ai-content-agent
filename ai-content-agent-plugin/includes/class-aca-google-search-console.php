@@ -780,10 +780,12 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
             global $wpdb;
             
             // Clear all validation cache transients
-            $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_aca_gsc_scope_validation_%'");
-            $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_timeout_aca_gsc_scope_validation_%'");
+            $wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->options} WHERE option_name LIKE %s", '_transient_aca_gsc_scope_validation_%'));
+            $wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->options} WHERE option_name LIKE %s", '_transient_timeout_aca_gsc_scope_validation_%'));
             
-            error_log('ACA GSC: Cleared validation cache after token refresh');
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('ACA GSC: Cleared validation cache after token refresh');
+            }
         }
     }
     } else {

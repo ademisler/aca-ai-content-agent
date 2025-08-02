@@ -244,7 +244,7 @@ class ACA_Cron {
             
             // Get the generated idea from database
             global $wpdb;
-            $latest_idea = $wpdb->get_row(
+            $latest_idea = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table query for latest idea in cron context
                 "SELECT * FROM {$wpdb->prefix}aca_ideas ORDER BY created_at DESC LIMIT 1"
             );
             
@@ -491,7 +491,7 @@ class ACA_Cron {
     private static function add_activity_log($type, $details, $icon) {
         global $wpdb;
         
-        $wpdb->insert(
+        $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table insert for activity logging
             $wpdb->prefix . 'aca_activity_logs',
             array(
                 'timestamp' => current_time('mysql'),

@@ -51,7 +51,7 @@ class ACA_Migration_Manager {
         global $wpdb;
         
         // Check if tables exist (existing installation)
-        $tables_exist = $wpdb->get_var("SHOW TABLES LIKE '{$wpdb->prefix}aca_ideas'");
+        $tables_exist = $wpdb->get_var("SHOW TABLES LIKE '{$wpdb->prefix}aca_ideas'"); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Schema detection for migration management
         
         if ($tables_exist) {
             // Existing installation - mark current version and log existing options
@@ -143,7 +143,7 @@ class ACA_Migration_Manager {
         
         try {
             // Start transaction (if supported)
-            $wpdb->query('START TRANSACTION');
+            $wpdb->query('START TRANSACTION'); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Transaction control for migration safety
             
             // Include migration file
             if (!file_exists($migration['file'])) {
@@ -164,7 +164,7 @@ class ACA_Migration_Manager {
             }
             
             // Commit transaction
-            $wpdb->query('COMMIT');
+            $wpdb->query('COMMIT'); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Transaction commit for migration safety
             
             // Log successful migration
             $this->log_migration($migration['version'], "Migration {$migration['name']} executed successfully");
@@ -173,7 +173,7 @@ class ACA_Migration_Manager {
             
         } catch (Exception $e) {
             // Rollback transaction
-            $wpdb->query('ROLLBACK');
+            $wpdb->query('ROLLBACK'); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Transaction rollback for migration safety
             return new WP_Error('migration_failed', $e->getMessage());
         }
     }

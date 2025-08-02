@@ -247,6 +247,15 @@
   }
 }
 
+/* Auto-fold WordPress menu support (when menu is collapsed) */
+body.auto-fold .aca-sidebar {
+  left: 36px !important; /* Collapsed WordPress menu width */
+}
+
+body.auto-fold .aca-main {
+  margin-left: 276px !important; /* Collapsed WP menu (36px) + sidebar (240px) */
+}
+
 /* Mobile header */
 .aca-mobile-header {
   display: flex;

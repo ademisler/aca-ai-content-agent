@@ -1,6 +1,6 @@
 # AI Content Agent (ACA) - WordPress Plugin
 
-**Version:** 2.4.13  
+**Version:** 2.4.14  
 **Requires:** WordPress 5.0+, PHP 7.4+  
 **License:** GPL v2 or later  
 **Author:** Adem Isler  
@@ -261,6 +261,32 @@ See [CHANGELOG.md](CHANGELOG.md) for complete version history.
 - Mobile app companion
 
 ## Changelog
+
+### Version 2.4.14 (2025-02-01)
+**🔧 Critical Auto-Fold WordPress Menu Fix**
+
+**✅ WordPress Auto-Fold Menu Support:**
+- Fixed layout issues when WordPress admin menu is in auto-fold state
+- Added specific CSS rules for `body.auto-fold` class detection
+- Proper handling of collapsed WordPress menu (36px width)
+- Eliminated excessive spacing in auto-fold mode
+
+**🎯 Auto-Fold Layout Corrections:**
+- Sidebar positioning: Adjusted for 36px collapsed WordPress menu
+- Main content margin: Corrected to 276px (36px + 240px) in auto-fold mode
+- Responsive behavior: Seamless transition between expanded and collapsed states
+- Real-world usage: Fixed actual user experience issues
+
+**📱 Enhanced Responsive Detection:**
+- WordPress menu state detection: Expanded vs collapsed
+- Dynamic layout adjustments based on menu state
+- Improved compatibility with WordPress admin interface
+- Better integration across different screen sizes and menu states
+
+**🔍 Root Cause Analysis Resolved:**
+- Issue: Auto-fold WordPress menu (36px) with incorrect 400px margin calculation
+- Solution: Specific CSS rules for auto-fold state with 276px margin
+- Result: Perfect alignment and no excessive spacing
 
 ### Version 2.4.13 (2025-02-01)
 **🎨 UI/UX Layout Optimization - Sidebar & Content Spacing Fix**

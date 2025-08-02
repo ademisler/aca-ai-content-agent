@@ -1,6 +1,6 @@
 # AI Content Agent (ACA) - WordPress Plugin
 
-**Version:** 2.4.8  
+**Version:** 2.4.9  
 **Requires:** WordPress 5.0+, PHP 7.4+  
 **License:** GPL v2 or later  
 **Author:** Adem Isler  
@@ -261,6 +261,25 @@ See [CHANGELOG.md](CHANGELOG.md) for complete version history.
 - Mobile app companion
 
 ## Changelog
+
+### Version 2.4.9 (2025-02-01)
+**🚨 Critical Plugin Activation Fix**
+
+**✅ Critical Syntax Error Fixed:**
+- Fixed fatal PHP syntax error in class-aca-rest-api.php
+- Resolved missing quote separation in phpcs:ignore comments
+- Plugin activation fatal error completely eliminated
+
+**🔧 Technical Fixes:**
+- Line 1804-1805: Proper phpcs:ignore comment formatting
+- SQL string separation from annotation comments
+- Comprehensive PHP syntax validation across all 11 files
+
+**🛡️ Activation Safety:**
+- Plugin can now be activated without fatal errors
+- All PHP syntax errors eliminated
+- WordPress coding standards maintained
+- Database queries properly formatted
 
 ### Version 2.4.8 (2025-02-01)
 **🏆 Ultimate WordPress Coding Standards Compliance**

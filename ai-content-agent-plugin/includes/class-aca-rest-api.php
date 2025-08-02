@@ -1094,7 +1094,7 @@ class ACA_Rest_Api {
         $old_error_handler = null;
         if (defined('WP_DEBUG') && WP_DEBUG) {
             $old_error_handler = set_error_handler(function($severity, $message, $file, $line) {
-                error_log("ACA PHP Error: " . esc_html($message) . " in " . esc_html($file) . " on line " . intval($line));
+                aca_debug_log("PHP Error: " . esc_html($message) . " in " . esc_html($file) . " on line " . intval($line));
                 throw new ErrorException(esc_html($message), 0, intval($severity), esc_html($file), intval($line));
             });
         }
@@ -1283,14 +1283,12 @@ class ACA_Rest_Api {
                 }
                 
                 // Log what we received from AI
-                if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log('ACA DEBUG: AI response keys: ' . implode(', ', array_keys($draft_data)));
-                    if (isset($draft_data['categoryIds'])) {
-                        error_log('ACA DEBUG: AI selected category IDs: ' . implode(', ', $draft_data['categoryIds']));
-                    }
-                    if (isset($draft_data['tags'])) {
-                        error_log('ACA DEBUG: AI selected tags: ' . implode(', ', $draft_data['tags']));
-                    }
+                aca_debug_log('AI response keys: ' . implode(', ', array_keys($draft_data)));
+                if (isset($draft_data['categoryIds'])) {
+                    aca_debug_log('AI selected category IDs: ' . implode(', ', $draft_data['categoryIds']));
+                }
+                if (isset($draft_data['tags'])) {
+                    aca_debug_log('AI selected tags: ' . implode(', ', $draft_data['tags']));
                 }
                 
             } catch (Exception $ai_error) {
@@ -1328,28 +1326,28 @@ class ACA_Rest_Api {
             );
             
             if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('ACA DEBUG: Creating WordPress post');
+                aca_debug_log(' Creating WordPress post');
             }
             $post_id = wp_insert_post($post_data);
             
             if (is_wp_error($post_id)) {
                 if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log('ACA DEBUG: wp_insert_post failed: ' . $post_id->get_error_message());
+                    aca_debug_log(' wp_insert_post failed: ' . $post_id->get_error_message());
                 }
                 throw new Exception('Failed to create WordPress post: ' . $post_id->get_error_message());
             }
             
             if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('ACA DEBUG: WordPress post created with ID: ' . $post_id);
+                aca_debug_log(' WordPress post created with ID: ' . $post_id);
             }
             
             // Add categories safely using AI-selected IDs
             if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('ACA DEBUG: Processing categories');
+                aca_debug_log(' Processing categories');
             }
             if (isset($draft_data['categoryIds']) && is_array($draft_data['categoryIds'])) {
                 if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log('ACA DEBUG: Found ' . count($draft_data['categoryIds']) . ' category IDs to process');
+                    aca_debug_log(' Found ' . count($draft_data['categoryIds']) . ' category IDs to process');
                 }
                 $category_ids = array();
                 foreach ($draft_data['categoryIds'] as $category_id) {
@@ -1360,38 +1358,38 @@ class ACA_Rest_Api {
                         if ($category && !is_wp_error($category)) {
                             $category_ids[] = $category_id;
                             if (defined('WP_DEBUG') && WP_DEBUG) {
-                                error_log('ACA DEBUG: Valid category ID: ' . $category_id . ' (' . $category->name . ')');
+                                aca_debug_log(' Valid category ID: ' . $category_id . ' (' . $category->name . ')');
                             }
                         } else {
                             if (defined('WP_DEBUG') && WP_DEBUG) {
-                                error_log('ACA DEBUG: Invalid category ID: ' . $category_id);
+                                aca_debug_log(' Invalid category ID: ' . $category_id);
                             }
                         }
                     }
                 }
                 if (!empty($category_ids)) {
                     if (defined('WP_DEBUG') && WP_DEBUG) {
-                        error_log('ACA DEBUG: Setting ' . count($category_ids) . ' categories');
+                        aca_debug_log(' Setting ' . count($category_ids) . ' categories');
                     }
                     wp_set_post_categories($post_id, $category_ids);
                 } else {
                     if (defined('WP_DEBUG') && WP_DEBUG) {
-                        error_log('ACA DEBUG: No valid categories to set');
+                        aca_debug_log(' No valid categories to set');
                     }
                 }
             } else {
                 if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log('ACA DEBUG: No categoryIds in draft_data');
+                    aca_debug_log(' No categoryIds in draft_data');
                 }
             }
             
             // Add tags safely
             if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('ACA DEBUG: Processing tags');
+                aca_debug_log(' Processing tags');
             }
             if (isset($draft_data['tags']) && is_array($draft_data['tags'])) {
                 if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log('ACA DEBUG: Found ' . count($draft_data['tags']) . ' tags to process');
+                    aca_debug_log(' Found ' . count($draft_data['tags']) . ' tags to process');
                 }
                 $clean_tags = array();
                 foreach ($draft_data['tags'] as $tag) {
@@ -1401,17 +1399,17 @@ class ACA_Rest_Api {
                 }
                 if (!empty($clean_tags)) {
                     if (defined('WP_DEBUG') && WP_DEBUG) {
-                        error_log('ACA DEBUG: Setting ' . count($clean_tags) . ' tags: ' . implode(', ', $clean_tags));
+                        aca_debug_log(' Setting ' . count($clean_tags) . ' tags: ' . implode(', ', $clean_tags));
                     }
                     wp_set_post_tags($post_id, $clean_tags);
                 } else {
                     if (defined('WP_DEBUG') && WP_DEBUG) {
-                        error_log('ACA DEBUG: No valid tags to set');
+                        aca_debug_log(' No valid tags to set');
                     }
                 }
             } else {
                 if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log('ACA DEBUG: No tags in draft_data');
+                    aca_debug_log(' No tags in draft_data');
                 }
             }
             
@@ -1428,7 +1426,7 @@ class ACA_Rest_Api {
             
             // Send SEO data to detected SEO plugins
             if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('ACA DEBUG: Sending SEO data to detected SEO plugins');
+                aca_debug_log(' Sending SEO data to detected SEO plugins');
             }
             try {
                 $focus_keywords_array = !empty($focus_keywords) ? explode(',', $focus_keywords) : array();
@@ -1443,16 +1441,16 @@ class ACA_Rest_Api {
                 
                 if (!empty($seo_results)) {
                     if (defined('WP_DEBUG') && WP_DEBUG) {
-                        error_log('ACA DEBUG: SEO data sent successfully: ' . json_encode($seo_results));
+                        aca_debug_log(' SEO data sent successfully: ' . json_encode($seo_results));
                     }
                 } else {
                     if (defined('WP_DEBUG') && WP_DEBUG) {
-                        error_log('ACA DEBUG: No SEO plugins detected or no data sent');
+                        aca_debug_log(' No SEO plugins detected or no data sent');
                     }
                 }
             } catch (Exception $e) {
                 if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log('ACA DEBUG: SEO data sending failed (non-blocking): ' . $e->getMessage());
+                    aca_debug_log(' SEO data sending failed (non-blocking): ' . $e->getMessage());
                 }
             }
             
@@ -1465,22 +1463,22 @@ class ACA_Rest_Api {
             
             // Add activity log with error handling (non-blocking)
             if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('ACA DEBUG: Adding activity log');
+                aca_debug_log(' Adding activity log');
             }
             $log_result = $this->add_activity_log('draft_created', "Created draft: \"{$idea->title}\"", 'FileText');
             if (!$log_result) {
                 if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log('ACA DEBUG: Activity log failed but continuing with draft creation');
+                    aca_debug_log(' Activity log failed but continuing with draft creation');
                 }
             } else {
                 if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log('ACA DEBUG: Activity log added successfully');
+                    aca_debug_log(' Activity log added successfully');
                 }
             }
             
             // Return the created post - simplified approach to avoid formatting errors
             if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('ACA DEBUG: Getting created post for response');
+                aca_debug_log(' Getting created post for response');
             }
             $created_post = get_post($post_id);
             
@@ -1522,13 +1520,13 @@ class ACA_Rest_Api {
             );
             
             if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('ACA DEBUG: Returning successful response');
+                aca_debug_log(' Returning successful response');
             }
             return rest_ensure_response($safe_response);
             
         } catch (Exception $e) {
             if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('ACA DEBUG: Exception caught in create_draft_from_idea');
+                aca_debug_log(' Exception caught in create_draft_from_idea');
             }
             aca_debug_log('Draft Creation Error: ' . $e->getMessage());
             aca_debug_log('Draft Creation Stack Trace: ' . $e->getTraceAsString());
@@ -1647,15 +1645,15 @@ class ACA_Rest_Api {
         
         // Debug logging
         if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('ACA Schedule Draft: Post ID = ' . $post_id);
-            error_log('ACA Schedule Draft: Params = ' . json_encode($params));
+            aca_debug_log('Schedule Draft: Post ID = ' . $post_id);
+            aca_debug_log('Schedule Draft: Params = ' . json_encode($params));
         }
         
         // Handle both 'date' and 'scheduledDate' parameters for compatibility
         $scheduled_date = isset($params['scheduledDate']) ? $params['scheduledDate'] : (isset($params['date']) ? $params['date'] : null);
         
         if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('ACA Schedule Draft: Scheduled Date = ' . $scheduled_date);
+            aca_debug_log('Schedule Draft: Scheduled Date = ' . $scheduled_date);
         }
         
         if (empty($scheduled_date)) {
@@ -1679,8 +1677,8 @@ class ACA_Rest_Api {
         $current_wp_date = current_time('Y-m-d H:i:s');
         
         if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('ACA Schedule Draft: Current WP Time = ' . $current_wp_date);
-            error_log('ACA Schedule Draft: Received Date = ' . $parsed_date->format('Y-m-d H:i:s'));
+            aca_debug_log('Schedule Draft: Current WP Time = ' . $current_wp_date);
+            aca_debug_log('Schedule Draft: Received Date = ' . $parsed_date->format('Y-m-d H:i:s'));
         }
         
         // If the date doesn't include a time (just date from calendar), set it to a future time
@@ -1691,7 +1689,7 @@ class ACA_Rest_Api {
             // Set to 9:00 AM of that date to ensure it's in the future for scheduling
             $parsed_date->setTime(9, 0, 0);
             if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('ACA Schedule Draft: Set time to 9:00 AM for calendar date');
+                aca_debug_log('Schedule Draft: Set time to 9:00 AM for calendar date');
             }
         }
         
@@ -1700,9 +1698,9 @@ class ACA_Rest_Api {
         $target_timestamp = $parsed_date->getTimestamp();
         
         if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('ACA Schedule Draft: Target Local Date = ' . $local_date);
-            error_log('ACA Schedule Draft: Target Timestamp = ' . $target_timestamp);
-            error_log('ACA Schedule Draft: Current Timestamp = ' . $current_wp_time);
+            aca_debug_log('Schedule Draft: Target Local Date = ' . $local_date);
+            aca_debug_log('Schedule Draft: Target Timestamp = ' . $target_timestamp);
+            aca_debug_log('Schedule Draft: Current Timestamp = ' . $current_wp_time);
         }
         
         // Update post meta for our plugin
@@ -1721,18 +1719,18 @@ class ACA_Rest_Api {
             // Future date - schedule it
             $update_data['post_status'] = 'future';
             if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('ACA Schedule Draft: Setting post status to FUTURE');
+                aca_debug_log('Schedule Draft: Setting post status to FUTURE');
             }
         } else {
             // Past or current date - keep as draft but update the date
             $update_data['post_status'] = 'draft';
             if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('ACA Schedule Draft: Past/current date - keeping as draft');
+                aca_debug_log('Schedule Draft: Past/current date - keeping as draft');
             }
         }
         
         if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('ACA Schedule Draft: Update Data = ' . json_encode($update_data));
+            aca_debug_log('Schedule Draft: Update Data = ' . json_encode($update_data));
         }
         
         // Update the post
@@ -1761,9 +1759,9 @@ class ACA_Rest_Api {
         $this->add_activity_log('draft_scheduled', "Scheduled draft: \"{$updated_post->post_title}\" for {$readable_date}", 'Calendar');
         
         if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('ACA Schedule Draft: Successfully updated post. Final status = ' . $updated_post->post_status);
-            error_log('ACA Schedule Draft: Final post_date = ' . $updated_post->post_date);
-            error_log('ACA Schedule Draft: Final post_date_gmt = ' . $updated_post->post_date_gmt);
+            aca_debug_log('Schedule Draft: Successfully updated post. Final status = ' . $updated_post->post_status);
+            aca_debug_log('Schedule Draft: Final post_date = ' . $updated_post->post_date);
+            aca_debug_log('Schedule Draft: Final post_date_gmt = ' . $updated_post->post_date_gmt);
         }
         
         return rest_ensure_response($formatted_post);
@@ -2909,7 +2907,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
     public function get_seo_plugins($request) {
         try {
             if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('ACA: get_seo_plugins called');
+                aca_debug_log(' get_seo_plugins called');
             }
             
             $detected_plugins = $this->detect_seo_plugin();
@@ -2936,7 +2934,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         $detected_plugins = array();
         
         if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('ACA: Starting SEO plugin detection...');
+            aca_debug_log(' Starting SEO plugin detection...');
         }
         
         // Check for RankMath - Enhanced detection
@@ -2955,7 +2953,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             );
         }
         if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('ACA: RankMath detection result: ' . ($rankmath_detected ? 'found' : 'not found'));
+            aca_debug_log(' RankMath detection result: ' . ($rankmath_detected ? 'found' : 'not found'));
         }
         
         // Check for Yoast SEO - Enhanced detection  
@@ -2974,7 +2972,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             );
         }
         if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('ACA: Yoast SEO detection result: ' . ($yoast_detected ? 'found' : 'not found'));
+            aca_debug_log(' Yoast SEO detection result: ' . ($yoast_detected ? 'found' : 'not found'));
         }
         
         // Check for All in One SEO (AIOSEO) - Enhanced detection
@@ -2994,7 +2992,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             );
         }
         if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('ACA: AIOSEO detection result: ' . ($aioseo_detected ? 'found' : 'not found'));
+            aca_debug_log(' AIOSEO detection result: ' . ($aioseo_detected ? 'found' : 'not found'));
         }
         
         // Log all active plugins for debugging

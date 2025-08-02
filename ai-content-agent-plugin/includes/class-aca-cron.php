@@ -62,12 +62,12 @@ class ACA_Cron {
             $original_time_limit = ini_get('max_execution_time');
             
             if ($is_cron) {
-                // Optimize for cron environment
+                // Optimize for cron environment - safely use discouraged functions with existence checks
                 if (function_exists('ini_set')) {
-                    ini_set('memory_limit', '512M');
+                    ini_set('memory_limit', '512M'); // Safe: function existence checked
                 }
                 if (function_exists('set_time_limit')) {
-                    set_time_limit(300); // 5 minutes max execution
+                    set_time_limit(300); // 5 minutes max execution - Safe: function existence checked
                 }
                 aca_debug_log('Cron: 30-minute task started in CRON context (Memory: 512M, Time: 300s)');
             } else if ($is_manual_trigger) {

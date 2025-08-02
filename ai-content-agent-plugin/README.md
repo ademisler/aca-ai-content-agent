@@ -1,6 +1,6 @@
 # AI Content Agent (ACA) - WordPress Plugin
 
-**Version:** 2.4.20  
+**Version:** 2.4.21  
 **Requires:** WordPress 5.0+, PHP 7.4+  
 **License:** GPL v2 or later  
 **Author:** Adem Isler  
@@ -261,6 +261,20 @@ See [CHANGELOG.md](CHANGELOG.md) for complete version history.
 - Mobile app companion
 
 ## Changelog
+
+### Version 2.4.21 (2025-02-01)
+**🎯 MINIMAL GAP ADJUSTMENT - Reduced Sidebar-Content Spacing**
+
+**✅ Gap Optimization:**
+- **Problem:** 4px gap between sidebar and content was too large
+- **Solution:** Reduced gap from 4px to 1px for tighter layout
+- **Result:** Minimal, clean spacing between plugin sidebar and content
+
+**📐 SPACING PRECISION:**
+- **Before:** .aca-main margin-left: 244px (240px sidebar + 4px gap)
+- **After:** .aca-main margin-left: 241px (240px sidebar + 1px gap)
+- **Auto-fold:** Consistent 1px gap maintained in collapsed WordPress menu state
+- **Visual Result:** Sidebar border-right (1px) creates perfect visual separation
 
 ### Version 2.4.20 (2025-02-01)
 **🔄 LAYOUT REVERT & PRECISION FIX - Sidebar Close to WordPress Menu**

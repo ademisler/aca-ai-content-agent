@@ -312,7 +312,7 @@ body.no-admin-bar {
   }
   
   .aca-main {
-    margin-left: 244px; /* Plugin sidebar (240px) + small 4px gap */
+    margin-left: 241px; /* Plugin sidebar (240px) + minimal 1px gap */
     padding: 20px;
   }
 }
@@ -324,7 +324,7 @@ body.auto-fold .aca-sidebar {
 }
 
 body.auto-fold .aca-main {
-  margin-left: 244px !important; /* Plugin sidebar (240px) + small 4px gap */
+  margin-left: 241px !important; /* Plugin sidebar (240px) + minimal 1px gap */
 }
 
 /* Static positioning makes auto-fold adjustments unnecessary - flexbox handles everything */

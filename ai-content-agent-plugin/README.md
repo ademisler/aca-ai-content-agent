@@ -1,6 +1,6 @@
 # AI Content Agent (ACA) - WordPress Plugin
 
-**Version:** 2.4.9  
+**Version:** 2.4.10  
 **Requires:** WordPress 5.0+, PHP 7.4+  
 **License:** GPL v2 or later  
 **Author:** Adem Isler  
@@ -261,6 +261,31 @@ See [CHANGELOG.md](CHANGELOG.md) for complete version history.
 - Mobile app companion
 
 ## Changelog
+
+### Version 2.4.10 (2025-02-01)
+**🏆 WordPress.org Plugin Directory Compliance**
+
+**✅ SQL Query Preparation Fixed:**
+- Fixed WordPress.DB.PreparedSQL.NotPrepared errors in class-aca-rest-api.php
+- Resolved interpolated variable issues in freshness data queries
+- Proper SQL string preparation for WordPress.org standards
+
+**📝 WordPress.org README Compliance:**
+- Updated "Tested up to" from 6.7 to 6.8 (latest WordPress version)
+- Fixed stable tag mismatch: 2.4.6 → 2.4.10 synchronization
+- Reduced tags from 10 to 5 (WordPress.org limit compliance)
+- Shortened description to 150 characters maximum
+
+**🔧 Text Domain Optimization:**
+- Changed text domain from "ai-content-agent-plugin" to "ai-content-agent"
+- Removed restricted "plugin" term from text domain
+- Updated all PHP files with correct text domain
+
+**🛡️ WordPress.org Directory Ready:**
+- Zero ERROR level violations remaining
+- All WARNING level issues resolved
+- Complete WordPress Plugin Directory compliance
+- Ready for official WordPress.org submission
 
 ### Version 2.4.9 (2025-02-01)
 **🚨 Critical Plugin Activation Fix**

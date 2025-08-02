@@ -1,15 +1,15 @@
 === AI Content Agent (ACA) ===
 Contributors: ademisler
 Donate link: https://ademisler.gumroad.com/l/ai-content-agent-pro
-Tags: ai, content, automation, gemini, seo, google search console, content creation, artificial intelligence, blog automation, content marketing
+Tags: ai, content, automation, gemini, seo
 Requires at least: 5.0
-Tested up to: 6.7
+Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 2.4.6
+Stable tag: 2.4.10
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Transform your WordPress site into an intelligent content creation powerhouse with Google's Gemini AI. Enterprise-level automation, SEO optimization, and professional publishing tools.
+Transform your WordPress site into an intelligent content creation powerhouse with Google's Gemini AI.
 
 == Description ==
 

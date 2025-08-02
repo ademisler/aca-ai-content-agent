@@ -4214,7 +4214,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 "SELECT p.ID, p.post_title, p.post_date, p.post_modified,
                         f.freshness_score, f.last_analyzed, f.needs_update, f.update_priority
                  FROM {$wpdb->posts} p
-                 LEFT JOIN {$freshness_table} f ON p.ID = f.post_id
+                 LEFT JOIN $freshness_table f ON p.ID = f.post_id
                  WHERE p.post_status = %s AND p.post_type = %s AND f.needs_update = %d
                  ORDER BY f.update_priority DESC, f.freshness_score ASC, p.post_date DESC
                  LIMIT %d",
@@ -4225,7 +4225,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 "SELECT p.ID, p.post_title, p.post_date, p.post_modified,
                         f.freshness_score, f.last_analyzed, f.needs_update, f.update_priority
                  FROM {$wpdb->posts} p
-                 LEFT JOIN {$freshness_table} f ON p.ID = f.post_id
+                 LEFT JOIN $freshness_table f ON p.ID = f.post_id
                  WHERE p.post_status = %s AND p.post_type = %s AND f.needs_update = %d
                  ORDER BY f.update_priority DESC, f.freshness_score ASC, p.post_date DESC
                  LIMIT %d",
@@ -4236,7 +4236,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 "SELECT p.ID, p.post_title, p.post_date, p.post_modified,
                         f.freshness_score, f.last_analyzed, f.needs_update, f.update_priority
                  FROM {$wpdb->posts} p
-                 LEFT JOIN {$freshness_table} f ON p.ID = f.post_id
+                 LEFT JOIN $freshness_table f ON p.ID = f.post_id
                  WHERE p.post_status = %s AND p.post_type = %s
                  ORDER BY f.update_priority DESC, f.freshness_score ASC, p.post_date DESC
                  LIMIT %d",

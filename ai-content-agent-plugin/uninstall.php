@@ -36,17 +36,17 @@ $tables_to_drop = array(
 
 // Drop custom tables (direct queries required for uninstall)
 foreach ($tables_to_drop as $table) {
-    $wpdb->query($wpdb->prepare("DROP TABLE IF EXISTS `%s`", $table));
+    $wpdb->query($wpdb->prepare("DROP TABLE IF EXISTS `%s`", $table)); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange -- Required for uninstall process
 }
 
 // Delete all post meta fields created by the plugin (optimized for uninstall)
-$wpdb->query($wpdb->prepare(
+$wpdb->query($wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Required for uninstall cleanup
     "DELETE FROM {$wpdb->postmeta} WHERE meta_key = %s",
     '_aca_last_freshness_check'
 ));
 
 // Clean up any remaining plugin data (direct query required for uninstall)
-$wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->options} WHERE option_name LIKE %s", 'aca_%'));
+$wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->options} WHERE option_name LIKE %s", 'aca_%')); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Required for uninstall cleanup
 
 // Log uninstall completion using plugin's debug function
 if (function_exists('aca_debug_log')) {

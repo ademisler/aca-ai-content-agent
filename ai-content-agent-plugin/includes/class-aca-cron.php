@@ -64,10 +64,10 @@ class ACA_Cron {
             if ($is_cron) {
                 // Optimize for cron environment - safely use discouraged functions with existence checks
                 if (function_exists('ini_set')) {
-                    ini_set('memory_limit', '512M'); // Safe: function existence checked
+                    ini_set('memory_limit', '512M'); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- Required for cron optimization, safely checked
                 }
                 if (function_exists('set_time_limit')) {
-                    set_time_limit(300); // 5 minutes max execution - Safe: function existence checked
+                    set_time_limit(300); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- Required for cron execution, safely checked
                 }
                 aca_debug_log('Cron: 30-minute task started in CRON context (Memory: 512M, Time: 300s)');
             } else if ($is_manual_trigger) {
@@ -105,10 +105,10 @@ class ACA_Cron {
         } finally {
             // Restore original resource limits
             if (isset($original_memory_limit)) {
-                ini_set('memory_limit', $original_memory_limit);
+                ini_set('memory_limit', $original_memory_limit); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- Restoring original value after cron task
             }
             if (isset($original_time_limit)) {
-                set_time_limit($original_time_limit);
+                set_time_limit($original_time_limit); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- Restoring original value after cron task
             }
             
             // Always release the lock
@@ -144,10 +144,10 @@ class ACA_Cron {
         if ($is_cron) {
             // Optimize for cron environment - lighter resource usage for 15min task
             if (function_exists('ini_set')) {
-                ini_set('memory_limit', '256M');
+                ini_set('memory_limit', '256M'); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- Required for 15min cron optimization, safely checked
             }
             if (function_exists('set_time_limit')) {
-                set_time_limit(180); // 3 minutes max execution
+                set_time_limit(180); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- Required for 15min cron execution, safely checked
             }
             aca_debug_log('Cron: 15-minute task started in CRON context (Memory: 256M, Time: 180s)');
         } else if ($is_manual_trigger) {
@@ -179,10 +179,10 @@ class ACA_Cron {
         } finally {
             // Restore original resource limits
             if (isset($original_memory_limit) && function_exists('ini_set')) {
-                ini_set('memory_limit', $original_memory_limit);
+                ini_set('memory_limit', $original_memory_limit); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- Restoring original value after 15min cron task
             }
             if (isset($original_time_limit) && function_exists('set_time_limit')) {
-                set_time_limit($original_time_limit);
+                set_time_limit($original_time_limit); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- Restoring original value after 15min cron task
             }
             
             // Always release the lock

@@ -4207,17 +4207,15 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             $where_values[] = 0;
         }
         
-        // Build the complete SQL with proper preparation (WordPress compliant approach)
-        // Table name cannot be prepared, so we use string concatenation for table names only
-        
-        $base_query = "SELECT p.ID, p.post_title, p.post_date, p.post_modified,
-                              f.freshness_score, f.last_analyzed, f.needs_update, f.update_priority
-                       FROM {$wpdb->posts} p
-                       LEFT JOIN " . esc_sql($freshness_table) . " f ON p.ID = f.post_id";
+        // Build SQL queries with proper preparation (WordPress compliant approach)
+        // Each query must be prepared separately with direct string literals
         
         if ($status === 'needs_update') {
             $sql = $wpdb->prepare(
-                $base_query . "
+                "SELECT p.ID, p.post_title, p.post_date, p.post_modified,
+                        f.freshness_score, f.last_analyzed, f.needs_update, f.update_priority
+                 FROM {$wpdb->posts} p
+                 LEFT JOIN {$wpdb->prefix}aca_content_freshness f ON p.ID = f.post_id
                  WHERE p.post_status = %s AND p.post_type = %s AND f.needs_update = %d
                  ORDER BY f.update_priority DESC, f.freshness_score ASC, p.post_date DESC
                  LIMIT %d",
@@ -4225,7 +4223,10 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             );
         } elseif ($status === 'fresh') {
             $sql = $wpdb->prepare(
-                $base_query . "
+                "SELECT p.ID, p.post_title, p.post_date, p.post_modified,
+                        f.freshness_score, f.last_analyzed, f.needs_update, f.update_priority
+                 FROM {$wpdb->posts} p
+                 LEFT JOIN {$wpdb->prefix}aca_content_freshness f ON p.ID = f.post_id
                  WHERE p.post_status = %s AND p.post_type = %s AND f.needs_update = %d
                  ORDER BY f.update_priority DESC, f.freshness_score ASC, p.post_date DESC
                  LIMIT %d",
@@ -4233,7 +4234,10 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             );
         } else {
             $sql = $wpdb->prepare(
-                $base_query . "
+                "SELECT p.ID, p.post_title, p.post_date, p.post_modified,
+                        f.freshness_score, f.last_analyzed, f.needs_update, f.update_priority
+                 FROM {$wpdb->posts} p
+                 LEFT JOIN {$wpdb->prefix}aca_content_freshness f ON p.ID = f.post_id
                  WHERE p.post_status = %s AND p.post_type = %s
                  ORDER BY f.update_priority DESC, f.freshness_score ASC, p.post_date DESC
                  LIMIT %d",
@@ -4241,6 +4245,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             );
         }
         
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $sql is properly prepared above using $wpdb->prepare()
         $results = $wpdb->get_results($sql, ARRAY_A); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table query for freshness data analysis
         
         // Check for database errors

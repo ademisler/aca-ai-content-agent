@@ -54,7 +54,7 @@ function is_aca_pro_active() {
  */
 function aca_debug_log($message) {
     if (defined('WP_DEBUG') && WP_DEBUG) {
-        error_log('ACA: ' . $message);
+        error_log('ACA: ' . $message); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Centralized debug logging function
     }
 }
 
@@ -90,7 +90,7 @@ class AI_Content_Agent {
         
         // Handle Google Search Console OAuth callback - only when needed
         // Note: Nonce verification not required for OAuth callbacks from external services
-        if (isset($_GET['code']) && isset($_GET['state']) && sanitize_text_field(wp_unslash($_GET['state'])) === 'aca_gsc_auth') {
+        if (isset($_GET['code']) && isset($_GET['state']) && sanitize_text_field(wp_unslash($_GET['state'])) === 'aca_gsc_auth') { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- OAuth callback from external service
             add_action('admin_init', array($this, 'handle_gsc_oauth_callback'));
         }
         
@@ -106,14 +106,14 @@ class AI_Content_Agent {
      */
     public function handle_gsc_oauth_callback() {
         // Note: OAuth callbacks from external services don't require nonce verification
-        if (isset($_GET['page']) && sanitize_text_field(wp_unslash($_GET['page'])) === 'ai-content-agent' && 
-            isset($_GET['gsc_auth']) && sanitize_text_field(wp_unslash($_GET['gsc_auth'])) === 'callback' && 
-            isset($_GET['code'])) {
+        if (isset($_GET['page']) && sanitize_text_field(wp_unslash($_GET['page'])) === 'ai-content-agent' && // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- OAuth callback parameter
+            isset($_GET['gsc_auth']) && sanitize_text_field(wp_unslash($_GET['gsc_auth'])) === 'callback' && // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- OAuth callback parameter
+            isset($_GET['code'])) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- OAuth callback parameter
             
             require_once ACA_PLUGIN_PATH . 'includes/class-aca-google-search-console.php';
             
             $gsc = new ACA_Google_Search_Console();
-            $code = sanitize_text_field(wp_unslash($_GET['code']));
+            $code = sanitize_text_field(wp_unslash($_GET['code'])); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- OAuth callback parameter
             $result = $gsc->handle_oauth_callback($code);
             
             if (is_wp_error($result)) {
@@ -272,7 +272,7 @@ function aca_admin_init_handler() {
     
     // Handle GSC reauth dismissals (only process if relevant GET parameters exist)
     // Note: These are admin dismissal actions with proper nonce verification in the handler
-    if (isset($_GET['dismiss_gsc_reauth']) || isset($_GET['dismiss_gsc_scope_reauth'])) {
+    if (isset($_GET['dismiss_gsc_reauth']) || isset($_GET['dismiss_gsc_scope_reauth'])) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce verification handled in individual handlers
         aca_handle_gsc_reauth_dismissal();
         aca_handle_gsc_scope_reauth_dismissal();
     }

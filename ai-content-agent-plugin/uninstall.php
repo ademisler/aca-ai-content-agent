@@ -48,7 +48,10 @@ $wpdb->query($wpdb->prepare(
 // Clean up any remaining plugin data (direct query required for uninstall)
 $wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->options} WHERE option_name LIKE %s", 'aca_%'));
 
-// Log uninstall completion (only in debug mode)
-if (defined('WP_DEBUG') && WP_DEBUG) {
-    error_log('ACA: Plugin completely uninstalled and all data removed');
+// Log uninstall completion using plugin's debug function
+if (function_exists('aca_debug_log')) {
+    aca_debug_log('Plugin completely uninstalled and all data removed');
+} else if (defined('WP_DEBUG') && WP_DEBUG) {
+    // Fallback for uninstall process when plugin functions may not be available
+    error_log('ACA: Plugin completely uninstalled and all data removed'); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Uninstall logging fallback
 }

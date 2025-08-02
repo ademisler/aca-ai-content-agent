@@ -1428,9 +1428,9 @@ class ACA_Rest_Api {
                 $attachment_id = $this->save_image_to_media_library($image_data, $idea->title, $post_id);
                 if ($attachment_id) {
                     set_post_thumbnail($post_id, $attachment_id);
-                    error_log('ACA: Successfully set featured image for post ' . $post_id . ' with attachment ' . $attachment_id);
+                    aca_debug_log('Successfully set featured image for post ' . $post_id . ' with attachment ' . $attachment_id);
                 } else {
-                    error_log('ACA: Failed to create attachment for featured image');
+                    aca_debug_log('Failed to create attachment for featured image');
                 }
             }
             
@@ -1686,8 +1686,10 @@ class ACA_Rest_Api {
         $current_wp_time = current_time('timestamp');
         $current_wp_date = current_time('Y-m-d H:i:s');
         
-        error_log('ACA Schedule Draft: Current WP Time = ' . $current_wp_date);
-        error_log('ACA Schedule Draft: Received Date = ' . $parsed_date->format('Y-m-d H:i:s'));
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('ACA Schedule Draft: Current WP Time = ' . $current_wp_date);
+            error_log('ACA Schedule Draft: Received Date = ' . $parsed_date->format('Y-m-d H:i:s'));
+        }
         
         // If the date doesn't include a time (just date from calendar), set it to a future time
         $time_part = $parsed_date->format('H:i:s');
@@ -1696,16 +1698,20 @@ class ACA_Rest_Api {
         if ($time_part === '00:00:00') {
             // Set to 9:00 AM of that date to ensure it's in the future for scheduling
             $parsed_date->setTime(9, 0, 0);
-            error_log('ACA Schedule Draft: Set time to 9:00 AM for calendar date');
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('ACA Schedule Draft: Set time to 9:00 AM for calendar date');
+            }
         }
         
         // Convert to WordPress local time format
         $local_date = $parsed_date->format('Y-m-d H:i:s');
         $target_timestamp = $parsed_date->getTimestamp();
         
-        error_log('ACA Schedule Draft: Target Local Date = ' . $local_date);
-        error_log('ACA Schedule Draft: Target Timestamp = ' . $target_timestamp);
-        error_log('ACA Schedule Draft: Current Timestamp = ' . $current_wp_time);
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('ACA Schedule Draft: Target Local Date = ' . $local_date);
+            error_log('ACA Schedule Draft: Target Timestamp = ' . $target_timestamp);
+            error_log('ACA Schedule Draft: Current Timestamp = ' . $current_wp_time);
+        }
         
         // Update post meta for our plugin
         update_post_meta($post_id, '_aca_scheduled_for', $scheduled_date);
@@ -1722,25 +1728,31 @@ class ACA_Rest_Api {
         if ($target_timestamp > $current_wp_time) {
             // Future date - schedule it
             $update_data['post_status'] = 'future';
-            error_log('ACA Schedule Draft: Setting post status to FUTURE');
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('ACA Schedule Draft: Setting post status to FUTURE');
+            }
         } else {
             // Past or current date - keep as draft but update the date
             $update_data['post_status'] = 'draft';
-            error_log('ACA Schedule Draft: Past/current date - keeping as draft');
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('ACA Schedule Draft: Past/current date - keeping as draft');
+            }
         }
         
-        error_log('ACA Schedule Draft: Update Data = ' . json_encode($update_data));
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('ACA Schedule Draft: Update Data = ' . json_encode($update_data));
+        }
         
         // Update the post
         $update_result = wp_update_post($update_data);
         
         if (is_wp_error($update_result)) {
-            error_log('ACA Schedule Draft: wp_update_post failed: ' . $update_result->get_error_message());
+            aca_debug_log('Schedule Draft: wp_update_post failed: ' . $update_result->get_error_message());
             return new WP_Error('update_failed', 'Failed to schedule post: ' . $update_result->get_error_message(), array('status' => 500));
         }
         
         if ($update_result === 0) {
-            error_log('ACA Schedule Draft: wp_update_post returned 0');
+            aca_debug_log('Schedule Draft: wp_update_post returned 0');
             return new WP_Error('update_failed', 'Failed to update post - wp_update_post returned 0', array('status' => 500));
         }
         
@@ -1756,9 +1768,11 @@ class ACA_Rest_Api {
         $readable_date = $parsed_date->format('M j, Y g:i A');
         $this->add_activity_log('draft_scheduled', "Scheduled draft: \"{$updated_post->post_title}\" for {$readable_date}", 'Calendar');
         
-        error_log('ACA Schedule Draft: Successfully updated post. Final status = ' . $updated_post->post_status);
-        error_log('ACA Schedule Draft: Final post_date = ' . $updated_post->post_date);
-        error_log('ACA Schedule Draft: Final post_date_gmt = ' . $updated_post->post_date_gmt);
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('ACA Schedule Draft: Successfully updated post. Final status = ' . $updated_post->post_status);
+            error_log('ACA Schedule Draft: Final post_date = ' . $updated_post->post_date);
+            error_log('ACA Schedule Draft: Final post_date_gmt = ' . $updated_post->post_date_gmt);
+        }
         
         return rest_ensure_response($formatted_post);
     }
@@ -2763,13 +2777,13 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             
             return rest_ensure_response($status);
         } catch (Exception $e) {
-            error_log('ACA GSC Auth Status Error: ' . $e->getMessage());
+            aca_debug_log('GSC Auth Status Error: ' . $e->getMessage());
             return rest_ensure_response(array(
                 'connected' => false, 
                 'error' => 'Failed to check GSC auth status: ' . $e->getMessage()
             ));
         } catch (Error $e) {
-            error_log('ACA GSC Auth Status Fatal Error: ' . $e->getMessage());
+            aca_debug_log('GSC Auth Status Fatal Error: ' . $e->getMessage());
             return rest_ensure_response(array(
                 'connected' => false, 
                 'error' => 'Fatal error checking GSC auth status'
@@ -2818,10 +2832,10 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 }
             }
         } catch (Exception $e) {
-            error_log('ACA GSC Connect Error: ' . $e->getMessage());
+            aca_debug_log('GSC Connect Error: ' . $e->getMessage());
             return new WP_Error('gsc_error', 'Failed to connect to GSC: ' . $e->getMessage());
         } catch (Error $e) {
-            error_log('ACA GSC Connect Fatal Error: ' . $e->getMessage());
+            aca_debug_log('GSC Connect Fatal Error: ' . $e->getMessage());
             return new WP_Error('gsc_error', 'Fatal error connecting to GSC');
         }
     }
@@ -2895,7 +2909,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             ));
             
         } catch (Exception $e) {
-            error_log('ACA GSC Status Error: ' . $e->getMessage());
+            aca_debug_log('GSC Status Error: ' . $e->getMessage());
             return new WP_Error('gsc_status_error', 'Failed to get GSC status', array('status' => 500));
         }
     }
@@ -2905,7 +2919,9 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
      */
     public function get_seo_plugins($request) {
         try {
-            error_log('ACA: get_seo_plugins called');
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('ACA: get_seo_plugins called');
+            }
             
             $detected_plugins = $this->detect_seo_plugin();
             
@@ -2921,7 +2937,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 'timestamp' => current_time('mysql')
             ));
         } catch (Exception $e) {
-            error_log('ACA: Error in get_seo_plugins: ' . $e->getMessage());
+            aca_debug_log('Error in get_seo_plugins: ' . $e->getMessage());
             return new WP_Error('seo_detection_failed', 'Failed to detect SEO plugins: ' . $e->getMessage(), array('status' => 500));
         }
     }
@@ -2932,7 +2948,9 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
     private function detect_seo_plugin() {
         $detected_plugins = array();
         
-        error_log('ACA: Starting SEO plugin detection...');
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('ACA: Starting SEO plugin detection...');
+        }
         
         // Check for RankMath - Enhanced detection
         $rankmath_detected = false;
@@ -2949,7 +2967,9 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 'pro' => class_exists('\RankMath\Pro\Admin\Admin_Menu')
             );
         }
-        error_log('ACA: RankMath detection result: ' . ($rankmath_detected ? 'found' : 'not found'));
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('ACA: RankMath detection result: ' . ($rankmath_detected ? 'found' : 'not found'));
+        }
         
         // Check for Yoast SEO - Enhanced detection  
         $yoast_detected = false;
@@ -2966,7 +2986,9 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 'premium' => defined('WPSEO_PREMIUM_PLUGIN_FILE')
             );
         }
-        error_log('ACA: Yoast SEO detection result: ' . ($yoast_detected ? 'found' : 'not found'));
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('ACA: Yoast SEO detection result: ' . ($yoast_detected ? 'found' : 'not found'));
+        }
         
         // Check for All in One SEO (AIOSEO) - Enhanced detection
         $aioseo_detected = false;
@@ -2984,7 +3006,9 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 'pro' => is_plugin_active('all-in-one-seo-pack-pro/all_in_one_seo_pack.php') || defined('AIOSEO_PRO')
             );
         }
-        error_log('ACA: AIOSEO detection result: ' . ($aioseo_detected ? 'found' : 'not found'));
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('ACA: AIOSEO detection result: ' . ($aioseo_detected ? 'found' : 'not found'));
+        }
         
         // Log all active plugins for debugging
         if (defined('WP_DEBUG') && WP_DEBUG) {
@@ -2992,7 +3016,9 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             error_log('ACA: Active plugins: ' . print_r($active_plugins, true));
         }
         
-        error_log('ACA: Total detected SEO plugins: ' . count($detected_plugins));
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('ACA: Total detected SEO plugins: ' . count($detected_plugins));
+        }
         
         return $detected_plugins;
     }
@@ -3025,19 +3051,19 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                     case 'rank_math':
                         $result = $this->send_to_rankmath($post_id, $meta_title, $meta_description, $focus_keywords);
                         $results['rank_math'] = $result;
-                        error_log("ACA: Meta data sent only to preferred plugin: RankMath");
+                        aca_debug_log("Meta data sent only to preferred plugin: RankMath");
                         break;
                         
                     case 'yoast':
                         $result = $this->send_to_yoast($post_id, $meta_title, $meta_description, $focus_keywords);
                         $results['yoast'] = $result;
-                        error_log("ACA: Meta data sent only to preferred plugin: Yoast");
+                        aca_debug_log("Meta data sent only to preferred plugin: Yoast");
                         break;
                         
                     case 'aioseo':
                         $result = $this->send_to_aioseo($post_id, $meta_title, $meta_description, $focus_keywords);
                         $results['aioseo'] = $result;
-                        error_log("ACA: Meta data sent only to preferred plugin: AIOSEO");
+                        aca_debug_log("Meta data sent only to preferred plugin: AIOSEO");
                         break;
                 }
                 

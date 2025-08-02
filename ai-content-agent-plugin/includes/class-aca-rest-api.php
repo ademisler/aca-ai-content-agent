@@ -3071,7 +3071,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 $this->log_meta_conflict_prevention($post_id, $preferred_plugin, $detected_plugins);
                 
             } else {
-                error_log("ACA: Preferred SEO plugin ($preferred_plugin) not active, falling back to auto-detection");
+                aca_debug_log("Preferred SEO plugin ($preferred_plugin) not active, falling back to auto-detection");
                 $results = $this->send_to_auto_detected_plugins($post_id, $meta_title, $meta_description, $focus_keywords, $detected_plugins);
             }
         } else {
@@ -3089,7 +3089,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         $results = array();
         
         if (empty($detected_plugins)) {
-            error_log("ACA: No SEO plugins detected, skipping meta data writing");
+            aca_debug_log("No SEO plugins detected, skipping meta data writing");
             return $results;
         }
         
@@ -3135,7 +3135,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                     break;
             }
             
-            error_log("ACA: Meta data sent to auto-selected plugin: " . $selected_plugin['plugin']);
+            aca_debug_log("Meta data sent to auto-selected plugin: " . $selected_plugin['plugin']);
             $this->log_meta_conflict_prevention($post_id, $selected_plugin['plugin'], $detected_plugins);
         }
         
@@ -3156,7 +3156,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         
         if (!empty($skipped_plugins)) {
             $skipped_list = implode(', ', $skipped_plugins);
-            error_log("ACA: Meta conflict prevention - Post ID: $post_id, Used: $selected_plugin, Skipped: $skipped_list");
+            aca_debug_log("Meta conflict prevention - Post ID: $post_id, Used: $selected_plugin, Skipped: $skipped_list");
             
             // Store conflict prevention log in post meta for transparency
             $conflict_log = array(

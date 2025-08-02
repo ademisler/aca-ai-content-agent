@@ -507,7 +507,7 @@ class ACA_Rest_Api {
             'posts_per_page' => 20,
             'orderby' => 'date',
             'order' => 'DESC',
-            'meta_query' => array(
+            'meta_query' => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Optimized query for style analysis, limited to 20 posts
                 array(
                     'key' => '_wp_page_template',
                     'compare' => 'NOT EXISTS'
@@ -992,7 +992,7 @@ class ACA_Rest_Api {
         $drafts = get_posts(array(
             'post_type' => 'post',
             'post_status' => array('draft', 'future'),
-            'meta_query' => array(
+            'meta_query' => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Optimized query for drafts with ACA meta data
                 array(
                     'key' => '_aca_meta_title',
                     'compare' => 'EXISTS'

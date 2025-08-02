@@ -265,7 +265,7 @@ class ACA_Cron {
                 // Optimized query for draft posts with specific meta key
                 $post = get_posts(array(
                     'post_status' => 'draft',
-                    'meta_query' => array(
+                    'meta_query' => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Optimized query with NUMERIC type for performance
                         array(
                             'key' => '_aca_created_from_idea',
                             'value' => $latest_idea->id,
@@ -348,7 +348,7 @@ class ACA_Cron {
         $posts = get_posts(array(
             'post_status' => 'publish',
             'numberposts' => 10, // Limit to prevent timeout
-            'meta_query' => array(
+            'meta_query' => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Optimized freshness analysis query with NUMERIC type and limited results
                 'relation' => 'OR',
                 array(
                     'key' => '_aca_last_freshness_check',

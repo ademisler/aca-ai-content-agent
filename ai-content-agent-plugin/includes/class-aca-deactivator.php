@@ -44,8 +44,8 @@ class ACA_Deactivator {
         
         // Clear GSC token validation cache (dynamic transients)
         global $wpdb;
-        $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_aca_gsc_scope_validation_%'");
-        $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_timeout_aca_gsc_scope_validation_%'");
+        $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_aca_gsc_scope_validation_%'"); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Deactivation cleanup of dynamic transients
+        $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_timeout_aca_gsc_scope_validation_%'"); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Deactivation cleanup of transient timeouts
         delete_option('aca_style_guide');
         delete_option('aca_google_auth_token');
         delete_option('aca_gsc_site_url');

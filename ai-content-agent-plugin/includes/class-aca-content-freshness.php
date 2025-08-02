@@ -499,7 +499,7 @@ Return only valid JSON format.";
         $table_name = $wpdb->prefix . 'aca_content_freshness';
         
         // Direct database query required for custom table operations
-        $wpdb->replace(
+        $wpdb->replace( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table operations require direct queries
             $table_name,
             array(
                 'post_id' => $post_id,
@@ -528,7 +528,7 @@ Return only valid JSON format.";
         
         $table_name = $wpdb->prefix . 'aca_content_freshness';
         
-        $result = $wpdb->get_row(
+        $result = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table query for freshness data
             $wpdb->prepare(
                 "SELECT * FROM {$wpdb->prefix}aca_content_freshness WHERE post_id = %d",
                 $post_id
@@ -558,7 +558,7 @@ Return only valid JSON format.";
         
         // Get published posts that haven't been analyzed in the last week
         // Check both the freshness table and the meta field
-        $posts = $wpdb->get_col($wpdb->prepare("
+        $posts = $wpdb->get_col($wpdb->prepare(" // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Complex query for freshness analysis across custom and core tables
             SELECT p.ID 
             FROM {$wpdb->posts} p
             LEFT JOIN {$wpdb->prefix}aca_content_freshness f ON p.ID = f.post_id
@@ -594,7 +594,7 @@ Return only valid JSON format.";
         
         $freshness_table = $wpdb->prefix . 'aca_content_freshness';
         
-        $results = $wpdb->get_results($wpdb->prepare("
+        $results = $wpdb->get_results($wpdb->prepare(" // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table query for posts needing updates
             SELECT p.ID, p.post_title, p.post_date, f.freshness_score, f.update_priority, f.last_analyzed
             FROM {$wpdb->posts} p
             INNER JOIN {$wpdb->prefix}aca_content_freshness f ON p.ID = f.post_id
@@ -625,7 +625,7 @@ Return only valid JSON format.";
         
         $table_name = $wpdb->prefix . 'aca_content_updates';
         
-        $result = $wpdb->insert(
+        $result = $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table insert for content update tracking
             $table_name,
             array(
                 'post_id' => $post_id,

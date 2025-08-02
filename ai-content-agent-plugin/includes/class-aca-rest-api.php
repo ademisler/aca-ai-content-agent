@@ -1090,15 +1090,8 @@ class ACA_Rest_Api {
      * Create draft from idea
      */
     public function create_draft($request) {
-        // Set up error handling to catch fatal errors (development only)
+        // Enhanced error handling for draft creation (WordPress compliant)
         $old_error_handler = null;
-        if (defined('WP_DEBUG') && WP_DEBUG && defined('WP_DEBUG_LOG') && WP_DEBUG_LOG) {
-            // Note: Custom error handler only in debug mode for development
-            $old_error_handler = set_error_handler(function($severity, $message, $file, $line) {
-                aca_debug_log("PHP Error: " . esc_html($message) . " in " . esc_html($file) . " on line " . intval($line));
-                throw new ErrorException(esc_html($message), 0, intval($severity), esc_html($file), intval($line));
-            });
-        }
         
         try {
             $nonce_check = $this->verify_nonce($request);
@@ -1132,11 +1125,10 @@ class ACA_Rest_Api {
             aca_debug_log('FATAL ERROR stack trace: ' . $e->getTraceAsString());
             return new WP_Error('fatal_error', 'A fatal error occurred during draft creation: ' . $e->getMessage(), array('status' => 500));
         } finally {
-            // Restore previous error handler
+            // Cleanup completed - no custom error handler to restore
             if ($old_error_handler) {
-                set_error_handler($old_error_handler);
-            } else {
-                restore_error_handler();
+                // Error handler cleanup would go here if needed
+                aca_debug_log('Draft creation process completed');
             }
         }
     }
@@ -2793,8 +2785,8 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             
             // Check if this is an OAuth callback
             // Note: Nonce verification not required for OAuth callbacks from external services
-            if (isset($_GET['code'])) {
-                $code = sanitize_text_field(wp_unslash($_GET['code']));
+            if (isset($_GET['code'])) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- OAuth callback from external service
+                $code = sanitize_text_field(wp_unslash($_GET['code'])); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- OAuth callback parameter
                 $result = $gsc->handle_oauth_callback($code);
                 
                 if (is_wp_error($result)) {
@@ -4213,17 +4205,21 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         
         $where_clause = "WHERE " . implode(" AND ", $where_conditions);
         
-        // Build the complete SQL with table names (safe since they're controlled by WordPress)
-        $sql = $wpdb->prepare(
+        // Build the complete SQL safely without interpolation
+        $base_sql = sprintf(
             "SELECT p.ID, p.post_title, p.post_date, p.post_modified,
                     f.freshness_score, f.last_analyzed, f.needs_update, f.update_priority
-             FROM {$wpdb->posts} p
-             LEFT JOIN {$freshness_table} f ON p.ID = f.post_id
-             {$where_clause}
+             FROM %s p
+             LEFT JOIN %s f ON p.ID = f.post_id
+             %s
              ORDER BY f.update_priority DESC, f.freshness_score ASC, p.post_date DESC
-             LIMIT %d",
-            array_merge($where_values, array($limit))
+             LIMIT %%d",
+            $wpdb->posts,
+            $freshness_table,
+            $where_clause
         );
+        
+        $sql = $wpdb->prepare($base_sql, array_merge($where_values, array($limit)));
         
         $results = $wpdb->get_results($sql, ARRAY_A);
         

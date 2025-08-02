@@ -1,6 +1,6 @@
 # AI Content Agent (ACA) - WordPress Plugin
 
-**Version:** 2.4.15  
+**Version:** 2.4.16  
 **Requires:** WordPress 5.0+, PHP 7.4+  
 **License:** GPL v2 or later  
 **Author:** Adem Isler  
@@ -261,6 +261,35 @@ See [CHANGELOG.md](CHANGELOG.md) for complete version history.
 - Mobile app companion
 
 ## Changelog
+
+### Version 2.4.16 (2025-02-01)
+**🎯 PRECISION LAYOUT FIX - Perfect 1px Sidebar-Content Gap**
+
+**✅ Exact Spacing Achievement:**
+- **Goal:** Sidebar and content should be adjacent with only 1px gap
+- **Solution:** Main content margin set to exact sidebar width (240px)
+- **Result:** Sidebar border-right (1px) creates perfect 1px separation
+
+**🔧 MARGIN PRECISION CORRECTION:**
+- **Before:** .aca-main margin-left: 241px (240px sidebar + 1px border)
+- **After:** .aca-main margin-left: 240px (exact sidebar width)
+- **Gap Created:** Sidebar's border-right (1px) provides the desired spacing
+
+**📐 AUTO-FOLD CONTAINER SYNCHRONIZATION:**
+- **Added:** body.auto-fold #root positioning adjustment
+- **Fixed:** #root container left position matches sidebar in auto-fold state
+- **Result:** Consistent layout behavior across all WordPress menu states
+
+**🎨 LAYOUT MATHEMATICS:**
+- **Normal State:** Sidebar (160px-400px) + 1px border + Content (400px+)
+- **Auto-fold State:** Sidebar (36px-276px) + 1px border + Content (276px+)
+- **Perfect Alignment:** Content starts exactly where sidebar ends + 1px
+
+**🔍 TECHNICAL PRECISION:**
+- **Sidebar width:** 240px (content area)
+- **Sidebar border:** 1px (visual separator)
+- **Main margin:** 240px (touches sidebar content edge)
+- **Visual gap:** 1px (from border-right)
 
 ### Version 2.4.15 (2025-02-01)
 **🎯 CRITICAL LAYOUT FIX - Sidebar-Content Gap Eliminated**

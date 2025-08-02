@@ -312,7 +312,7 @@ body.no-admin-bar {
   }
   
   .aca-main {
-    margin-left: 241px; /* Only account for the plugin's sidebar (240px + 1px border) */
+    margin-left: 240px; /* Sidebar width exactly - border creates 1px gap */
     padding: 20px;
   }
 }
@@ -324,7 +324,14 @@ body.auto-fold .aca-sidebar {
 }
 
 body.auto-fold .aca-main {
-  margin-left: 241px !important; /* Only account for the plugin's sidebar (240px + 1px border) */
+  margin-left: 240px !important; /* Sidebar width exactly - border creates 1px gap */
+}
+
+/* Auto-fold #root container adjustment */
+
+body.auto-fold #root {
+  left: 36px !important; /* Collapsed WordPress menu width */
+  width: calc(100% - 36px) !important; /* Adjust width for collapsed menu */
 }
 
 /* Mobile header */

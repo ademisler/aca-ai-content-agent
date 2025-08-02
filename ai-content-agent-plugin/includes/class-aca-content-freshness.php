@@ -96,9 +96,7 @@ class ACA_Content_Freshness {
                     return $click_score + $impression_score + $ctr_score;
                 }
             } catch (Exception $e) {
-                if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log('ACA Content Freshness: GSC performance error: ' . $e->getMessage());
-                }
+                aca_debug_log('Content Freshness: GSC performance error: ' . $e->getMessage());
             }
         }
         
@@ -424,13 +422,13 @@ Return only valid JSON format.";
             ));
             
             if (is_wp_error($response)) {
-                error_log('ACA Content Freshness: Gemini API request failed: ' . $response->get_error_message());
+                aca_debug_log('Content Freshness: Gemini API request failed: ' . $response->get_error_message());
                 return new WP_Error('api_request_failed', $response->get_error_message());
             }
             
             $response_code = wp_remote_retrieve_response_code($response);
             if ($response_code !== 200) {
-                error_log('ACA Content Freshness: Gemini API returned error code: ' . $response_code);
+                aca_debug_log('Content Freshness: Gemini API returned error code: ' . $response_code);
                 return new WP_Error('api_error', 'API request failed with code: ' . $response_code);
             }
             

@@ -63,8 +63,12 @@ class ACA_Cron {
             
             if ($is_cron) {
                 // Optimize for cron environment
-                ini_set('memory_limit', '512M');
-                set_time_limit(300); // 5 minutes max execution
+                if (function_exists('ini_set')) {
+                    ini_set('memory_limit', '512M');
+                }
+                if (function_exists('set_time_limit')) {
+                    set_time_limit(300); // 5 minutes max execution
+                }
                 aca_debug_log('Cron: 30-minute task started in CRON context (Memory: 512M, Time: 300s)');
             } else if ($is_manual_trigger) {
                 aca_debug_log('Cron: 30-minute task started manually');
@@ -74,7 +78,7 @@ class ACA_Cron {
         
         if (empty($settings['geminiApiKey'])) {
             if ($is_cron) {
-                error_log('ACA Cron: Skipping 30-minute task - no Gemini API key');
+                aca_debug_log('Cron: Skipping 30-minute task - no Gemini API key');
             }
             return;
         }
@@ -94,7 +98,7 @@ class ACA_Cron {
             if (is_aca_pro_active()) {
                 self::run_full_automatic_cycle();
             } else {
-                error_log('ACA: Full-automatic mode requires Pro license');
+                aca_debug_log('Full-automatic mode requires Pro license');
             }
         }
         
@@ -109,7 +113,7 @@ class ACA_Cron {
             
             // Always release the lock
             delete_transient($lock_key);
-            error_log('ACA Cron: 30-minute task completed, lock released, limits restored');
+            aca_debug_log('Cron: 30-minute task completed, lock released, limits restored');
         }
     }
     
@@ -121,7 +125,7 @@ class ACA_Cron {
         // Prevent overlapping executions
         $lock_key = 'aca_fifteen_minute_task_lock';
         if (get_transient($lock_key)) {
-            error_log('ACA Cron: 15-minute task already running, skipping this execution');
+            aca_debug_log('Cron: 15-minute task already running, skipping this execution');
             return;
         }
         
@@ -139,18 +143,22 @@ class ACA_Cron {
         
         if ($is_cron) {
             // Optimize for cron environment - lighter resource usage for 15min task
-            ini_set('memory_limit', '256M');
-            set_time_limit(180); // 3 minutes max execution
-            error_log('ACA Cron: 15-minute task started in CRON context (Memory: 256M, Time: 180s)');
+            if (function_exists('ini_set')) {
+                ini_set('memory_limit', '256M');
+            }
+            if (function_exists('set_time_limit')) {
+                set_time_limit(180); // 3 minutes max execution
+            }
+            aca_debug_log('Cron: 15-minute task started in CRON context (Memory: 256M, Time: 180s)');
         } else if ($is_manual_trigger) {
-            error_log('ACA Cron: 15-minute task started manually');
+            aca_debug_log('Cron: 15-minute task started manually');
         }
         
         $settings = get_option('aca_settings', array());
         
         if (empty($settings['geminiApiKey'])) {
             if ($is_cron) {
-                error_log('ACA Cron: Skipping 15-minute task - no Gemini API key');
+                aca_debug_log('Cron: Skipping 15-minute task - no Gemini API key');
             }
             return;
         }

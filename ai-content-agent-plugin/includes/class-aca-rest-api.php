@@ -1270,16 +1270,24 @@ class ACA_Rest_Api {
                 }
                 
                 // Convert Markdown to HTML if needed
-                error_log('ACA DEBUG: Content before conversion (first 200 chars): ' . substr($draft_data['content'], 0, 200));
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log('ACA DEBUG: Content before conversion (first 200 chars): ' . substr($draft_data['content'], 0, 200));
+                }
                 if (strpos($draft_data['content'], '**') !== false || 
                     strpos($draft_data['content'], '*') !== false || 
                     strpos($draft_data['content'], '[') !== false ||
                     strpos($draft_data['content'], '##') !== false) {
-                    error_log('ACA DEBUG: Markdown detected, converting to HTML');
+                    if (defined('WP_DEBUG') && WP_DEBUG) {
+                        error_log('ACA DEBUG: Markdown detected, converting to HTML');
+                    }
                     $draft_data['content'] = $this->markdown_to_html($draft_data['content']);
-                    error_log('ACA DEBUG: Content after conversion (first 200 chars): ' . substr($draft_data['content'], 0, 200));
+                    if (defined('WP_DEBUG') && WP_DEBUG) {
+                        error_log('ACA DEBUG: Content after conversion (first 200 chars): ' . substr($draft_data['content'], 0, 200));
+                    }
                 } else {
-                    error_log('ACA DEBUG: No Markdown detected, using content as-is');
+                    if (defined('WP_DEBUG') && WP_DEBUG) {
+                        error_log('ACA DEBUG: No Markdown detected, using content as-is');
+                    }
                 }
                 
                 // Log what we received from AI

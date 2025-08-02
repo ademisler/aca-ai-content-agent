@@ -310,10 +310,10 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
             
             // Set default dates (last 30 days)
             if (!$start_date) {
-                $start_date = date('Y-m-d', strtotime('-30 days'));
+                $start_date = gmdate('Y-m-d', strtotime('-30 days'));
             }
             if (!$end_date) {
-                $end_date = date('Y-m-d', strtotime('-1 day')); // Yesterday (GSC data has 1-day delay)
+                $end_date = gmdate('Y-m-d', strtotime('-1 day')); // Yesterday (GSC data has 1-day delay)
             }
             
             try {
@@ -587,7 +587,7 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
                 'topQueries' => $top_queries ?: array(),
                 'underperformingPages' => $underperforming_pages ?: array(),
                 'site_url' => $site_url,
-                'data_date' => date('Y-m-d H:i:s')
+                'data_date' => gmdate('Y-m-d H:i:s')
             );
         }
 

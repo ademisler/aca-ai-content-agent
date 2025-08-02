@@ -992,7 +992,12 @@ class ACA_Rest_Api {
         $drafts = get_posts(array(
             'post_type' => 'post',
             'post_status' => array('draft', 'future'),
-            'meta_key' => '_aca_meta_title',
+            'meta_query' => array(
+                array(
+                    'key' => '_aca_meta_title',
+                    'compare' => 'EXISTS'
+                )
+            ),
             'numberposts' => -1,
             'orderby' => 'date',
             'order' => 'DESC'
@@ -1055,8 +1060,8 @@ class ACA_Rest_Api {
         // Prepare update data
         $update_data = array(
             'ID' => $post_id,
-            'post_date' => date('Y-m-d H:i:s', strtotime($new_date)),
-            'post_date_gmt' => get_gmt_from_date(date('Y-m-d H:i:s', strtotime($new_date))),
+            'post_date' => gmdate('Y-m-d H:i:s', strtotime($new_date)),
+            'post_date_gmt' => get_gmt_from_date(gmdate('Y-m-d H:i:s', strtotime($new_date))),
             'edit_date' => true
         );
         
@@ -1087,8 +1092,8 @@ class ACA_Rest_Api {
     public function create_draft($request) {
         // Set up error handling to catch fatal errors
         $old_error_handler = set_error_handler(function($severity, $message, $file, $line) {
-            error_log("ACA PHP Error: $message in $file on line $line");
-            throw new ErrorException($message, 0, $severity, $file, $line);
+            error_log("ACA PHP Error: " . esc_html($message) . " in " . esc_html($file) . " on line " . intval($line));
+            throw new ErrorException(esc_html($message), 0, $severity, esc_html($file), intval($line));
         });
         
         try {
@@ -2505,8 +2510,8 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         $data = json_decode($response_body, true);
         
         if (json_last_error() !== JSON_ERROR_NONE) {
-            error_log('ACA Gemini API JSON Error: ' . json_last_error_msg() . ', Response: ' . substr($response_body, 0, 300));
-            throw new Exception('Invalid JSON response from Gemini API: ' . json_last_error_msg());
+            error_log('ACA Gemini API JSON Error: ' . esc_html(json_last_error_msg()) . ', Response: ' . esc_html(substr($response_body, 0, 300)));
+            throw new Exception('Invalid JSON response from Gemini API: ' . esc_html(json_last_error_msg()));
         }
         
         if (empty($data['candidates'][0]['content']['parts'][0]['text'])) {

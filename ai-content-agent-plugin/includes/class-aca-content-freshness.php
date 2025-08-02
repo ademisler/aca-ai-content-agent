@@ -153,7 +153,7 @@ class ACA_Content_Freshness {
         }
         
         // Check for recent dates in content
-        $current_year = date('Y');
+        $current_year = gmdate('Y');
         $last_year = $current_year - 1;
         
         if (strpos($content, $current_year) !== false) {
@@ -215,7 +215,7 @@ class ACA_Content_Freshness {
         }
         
         // Date and time analysis
-        $current_year = date('Y');
+        $current_year = gmdate('Y');
         $last_year = $current_year - 1;
         $two_years_ago = $current_year - 2;
         

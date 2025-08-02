@@ -262,13 +262,15 @@ class ACA_Cron {
             // Auto-publish if enabled
             if (isset($settings['autoPublish']) && $settings['autoPublish']) {
                 // Get the created post
+                // Optimized query for draft posts with specific meta key
                 $post = get_posts(array(
                     'post_status' => 'draft',
                     'meta_query' => array(
                         array(
                             'key' => '_aca_created_from_idea',
                             'value' => $latest_idea->id,
-                            'compare' => '='
+                            'compare' => '=',
+                            'type' => 'NUMERIC'
                         )
                     ),
                     'numberposts' => 1,

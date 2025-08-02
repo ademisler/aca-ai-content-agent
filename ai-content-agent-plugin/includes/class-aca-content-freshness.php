@@ -498,6 +498,7 @@ Return only valid JSON format.";
         
         $table_name = $wpdb->prefix . 'aca_content_freshness';
         
+        // Direct database query required for custom table operations
         $wpdb->replace(
             $table_name,
             array(

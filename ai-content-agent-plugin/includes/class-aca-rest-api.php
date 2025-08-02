@@ -1090,9 +1090,10 @@ class ACA_Rest_Api {
      * Create draft from idea
      */
     public function create_draft($request) {
-        // Set up error handling to catch fatal errors
+        // Set up error handling to catch fatal errors (development only)
         $old_error_handler = null;
-        if (defined('WP_DEBUG') && WP_DEBUG) {
+        if (defined('WP_DEBUG') && WP_DEBUG && defined('WP_DEBUG_LOG') && WP_DEBUG_LOG) {
+            // Note: Custom error handler only in debug mode for development
             $old_error_handler = set_error_handler(function($severity, $message, $file, $line) {
                 aca_debug_log("PHP Error: " . esc_html($message) . " in " . esc_html($file) . " on line " . intval($line));
                 throw new ErrorException(esc_html($message), 0, intval($severity), esc_html($file), intval($line));
@@ -2575,7 +2576,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         
         // Only log response in debug mode to prevent sensitive data exposure
         if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('ACA Gemini API Response (DEBUG): ' . substr($response_body, 0, 200));
+            aca_debug_log('Gemini API Response (DEBUG): ' . substr($response_body, 0, 200));
         }
         
         $data = json_decode($response_body, true);
@@ -3051,7 +3052,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 $this->log_meta_conflict_prevention($post_id, $preferred_plugin, $detected_plugins);
                 
             } else {
-                error_log("ACA: Preferred SEO plugin ($preferred_plugin) not active, falling back to auto-detection");
+                aca_debug_log(" Preferred SEO plugin ($preferred_plugin) not active, falling back to auto-detection");
                 $results = $this->send_to_auto_detected_plugins($post_id, $meta_title, $meta_description, $focus_keywords, $detected_plugins);
             }
         } else {
@@ -3069,7 +3070,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         $results = array();
         
         if (empty($detected_plugins)) {
-            error_log("ACA: No SEO plugins detected, skipping meta data writing");
+            aca_debug_log(" No SEO plugins detected, skipping meta data writing");
             return $results;
         }
         
@@ -3115,7 +3116,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                     break;
             }
             
-            error_log("ACA: Meta data sent to auto-selected plugin: " . $selected_plugin['plugin']);
+            aca_debug_log(" Meta data sent to auto-selected plugin: " . $selected_plugin['plugin']);
             $this->log_meta_conflict_prevention($post_id, $selected_plugin['plugin'], $detected_plugins);
         }
         
@@ -3136,7 +3137,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         
         if (!empty($skipped_plugins)) {
             $skipped_list = implode(', ', $skipped_plugins);
-            error_log("ACA: Meta conflict prevention - Post ID: $post_id, Used: $selected_plugin, Skipped: $skipped_list");
+            aca_debug_log(" Meta conflict prevention - Post ID: $post_id, Used: $selected_plugin, Skipped: $skipped_list");
             
             // Store conflict prevention log in post meta for transparency
             $conflict_log = array(

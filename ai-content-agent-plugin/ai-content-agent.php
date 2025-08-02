@@ -271,6 +271,7 @@ function aca_admin_init_handler() {
     aca_check_database_updates();
     
     // Handle GSC reauth dismissals (only process if relevant GET parameters exist)
+    // Note: These are admin dismissal actions with proper nonce verification in the handler
     if (isset($_GET['dismiss_gsc_reauth']) || isset($_GET['dismiss_gsc_scope_reauth'])) {
         aca_handle_gsc_reauth_dismissal();
         aca_handle_gsc_scope_reauth_dismissal();

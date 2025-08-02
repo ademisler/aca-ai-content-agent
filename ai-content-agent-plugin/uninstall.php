@@ -34,20 +34,19 @@ $tables_to_drop = array(
     $wpdb->prefix . 'aca_content_freshness'
 );
 
+// Drop custom tables (direct queries required for uninstall)
 foreach ($tables_to_drop as $table) {
-    $wpdb->query($wpdb->prepare("DROP TABLE IF EXISTS %s", $table));
+    $wpdb->query($wpdb->prepare("DROP TABLE IF EXISTS `%s`", $table));
 }
 
-// Delete all post meta fields created by the plugin
-$wpdb->delete(
-    $wpdb->postmeta,
-    array(
-        'meta_key' => '_aca_last_freshness_check'
-    )
-);
+// Delete all post meta fields created by the plugin (optimized for uninstall)
+$wpdb->query($wpdb->prepare(
+    "DELETE FROM {$wpdb->postmeta} WHERE meta_key = %s",
+    '_aca_last_freshness_check'
+));
 
-// Clean up any remaining plugin data
-$wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE 'aca_%'");
+// Clean up any remaining plugin data (direct query required for uninstall)
+$wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->options} WHERE option_name LIKE %s", 'aca_%'));
 
 // Log uninstall completion (only in debug mode)
 if (defined('WP_DEBUG') && WP_DEBUG) {

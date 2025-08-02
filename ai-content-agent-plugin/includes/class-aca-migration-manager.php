@@ -34,7 +34,7 @@ class ACA_Migration_Manager {
         foreach ($pending_migrations as $migration) {
             $result = $this->execute_migration($migration);
             if (is_wp_error($result)) {
-                error_log('ACA Migration failed: ' . $result->get_error_message());
+                aca_debug_log('Migration failed: ' . $result->get_error_message());
                 return $result;
             }
             
@@ -203,6 +203,6 @@ class ACA_Migration_Manager {
         }
         
         update_option('aca_migration_log', $migration_log);
-        error_log("ACA Migration: $message");
+        aca_debug_log("Migration: $message");
     }
 }

@@ -144,7 +144,7 @@ class ACA_Activator {
             $result = $migration_manager->run_migrations();
             
             if (is_wp_error($result)) {
-                error_log('ACA Migration initialization failed: ' . $result->get_error_message());
+                aca_debug_log('Migration initialization failed: ' . $result->get_error_message());
                 // Don't fail activation - just log the error
             }
         }

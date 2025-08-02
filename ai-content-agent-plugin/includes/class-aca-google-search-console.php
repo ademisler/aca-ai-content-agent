@@ -65,7 +65,7 @@ if (file_exists(ACA_PLUGIN_PATH . 'vendor/autoload.php')) {
                     }
                 }
             } catch (Exception $e) {
-                error_log('ACA GSC Init Error: ' . $e->getMessage());
+                aca_debug_log('GSC Init Error: ' . $e->getMessage());
                 $this->client = null;
                 $this->service = null;
             }

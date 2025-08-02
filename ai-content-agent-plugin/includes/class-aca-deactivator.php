@@ -52,7 +52,7 @@ class ACA_Deactivator {
         delete_option('aca_freshness_settings');
         delete_option('aca_last_freshness_analysis');
         
-        error_log('ACA: Plugin data cleaned up on deactivation');
+        aca_debug_log('Plugin data cleaned up on deactivation');
     }
     
     /**

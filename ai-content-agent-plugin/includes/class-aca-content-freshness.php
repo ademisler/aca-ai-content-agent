@@ -436,7 +436,7 @@ Return only valid JSON format.";
             $data = json_decode($response_body, true);
             
             if (!$data || !isset($data['candidates'][0]['content']['parts'][0]['text'])) {
-                error_log('ACA Content Freshness: Invalid Gemini API response format');
+                aca_debug_log('Content Freshness: Invalid Gemini API response format');
                 return new WP_Error('invalid_response', 'Invalid API response format');
             }
             
@@ -445,7 +445,7 @@ Return only valid JSON format.";
             // Validate that the response is valid JSON
             $parsed_response = json_decode($ai_response, true);
             if (json_last_error() !== JSON_ERROR_NONE) {
-                error_log('ACA Content Freshness: AI returned invalid JSON: ' . json_last_error_msg());
+                aca_debug_log('Content Freshness: AI returned invalid JSON: ' . json_last_error_msg());
                 return new WP_Error('invalid_json', 'AI response is not valid JSON');
             }
             
@@ -453,7 +453,7 @@ Return only valid JSON format.";
             $required_fields = array('freshness_score', 'update_priority', 'specific_suggestions');
             foreach ($required_fields as $field) {
                 if (!isset($parsed_response[$field])) {
-                    error_log('ACA Content Freshness: Missing required field in AI response: ' . $field);
+                    aca_debug_log('Content Freshness: Missing required field in AI response: ' . $field);
                     return new WP_Error('missing_field', 'Missing required field: ' . $field);
                 }
             }
@@ -461,7 +461,7 @@ Return only valid JSON format.";
             return $ai_response;
             
         } catch (Exception $e) {
-            error_log('ACA Content Freshness: Exception in AI analysis: ' . $e->getMessage());
+            aca_debug_log('Content Freshness: Exception in AI analysis: ' . $e->getMessage());
             return new WP_Error('exception', $e->getMessage());
         }
     }

@@ -49,4 +49,6 @@ $wpdb->delete(
 // Clean up any remaining plugin data
 $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE 'aca_%'");
 
-error_log('ACA: Plugin completely uninstalled and all data removed');
+if (defined('WP_DEBUG') && WP_DEBUG) {
+    error_log('ACA: Plugin completely uninstalled and all data removed');
+}

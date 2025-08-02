@@ -1291,12 +1291,14 @@ class ACA_Rest_Api {
                 }
                 
                 // Log what we received from AI
-                error_log('ACA DEBUG: AI response keys: ' . implode(', ', array_keys($draft_data)));
-                if (isset($draft_data['categoryIds'])) {
-                    error_log('ACA DEBUG: AI selected category IDs: ' . implode(', ', $draft_data['categoryIds']));
-                }
-                if (isset($draft_data['tags'])) {
-                    error_log('ACA DEBUG: AI selected tags: ' . implode(', ', $draft_data['tags']));
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log('ACA DEBUG: AI response keys: ' . implode(', ', array_keys($draft_data)));
+                    if (isset($draft_data['categoryIds'])) {
+                        error_log('ACA DEBUG: AI selected category IDs: ' . implode(', ', $draft_data['categoryIds']));
+                    }
+                    if (isset($draft_data['tags'])) {
+                        error_log('ACA DEBUG: AI selected tags: ' . implode(', ', $draft_data['tags']));
+                    }
                 }
                 
             } catch (Exception $ai_error) {

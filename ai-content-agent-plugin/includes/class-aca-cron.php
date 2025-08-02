@@ -172,22 +172,22 @@ class ACA_Cron {
             if (is_aca_pro_active()) {
                 self::generate_ideas_semi_auto();
             } else {
-                error_log('ACA: Semi-automatic mode requires Pro license');
+                aca_debug_log('Semi-automatic mode requires Pro license');
             }
         }
         
         } finally {
             // Restore original resource limits
-            if (isset($original_memory_limit)) {
+            if (isset($original_memory_limit) && function_exists('ini_set')) {
                 ini_set('memory_limit', $original_memory_limit);
             }
-            if (isset($original_time_limit)) {
+            if (isset($original_time_limit) && function_exists('set_time_limit')) {
                 set_time_limit($original_time_limit);
             }
             
             // Always release the lock
             delete_transient($lock_key);
-            error_log('ACA Cron: 15-minute task completed, lock released, limits restored');
+            aca_debug_log('Cron: 15-minute task completed, lock released, limits restored');
         }
     }
     
@@ -199,7 +199,7 @@ class ACA_Cron {
         $result = $rest_api->analyze_style_guide(null, true); // null request, true = auto mode
         
         if (is_wp_error($result)) {
-            error_log('ACA Auto Style Guide Analysis Error: ' . $result->get_error_message());
+            aca_debug_log('Auto Style Guide Analysis Error: ' . $result->get_error_message());
         }
     }
     
@@ -217,7 +217,7 @@ class ACA_Cron {
         $result = $rest_api->generate_ideas($request);
         
         if (is_wp_error($result)) {
-            error_log('ACA Semi-Auto Ideas Generation Error: ' . $result->get_error_message());
+            aca_debug_log('Semi-Auto Ideas Generation Error: ' . $result->get_error_message());
         }
     }
     

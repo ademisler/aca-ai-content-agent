@@ -76,7 +76,7 @@ class ACA_Dependencies_Installer {
         }
         
         // Verify nonce
-        if (!wp_verify_nonce($_POST['nonce'], 'aca_install_dependencies')) {
+        if (!isset($_POST['nonce']) || !wp_verify_nonce(wp_unslash(sanitize_text_field($_POST['nonce'])), 'aca_install_dependencies')) {
             wp_die('Security check failed');
         }
         
@@ -162,7 +162,7 @@ class ACA_Dependencies_Installer {
             echo '<p>Automatic installation is not available. Please install manually:</p>';
             echo '<ol>';
             echo '<li>Connect to your server via SSH</li>';
-            echo '<li>Navigate to: <code>' . ACA_PLUGIN_PATH . '</code></li>';
+            echo '<li>Navigate to: <code>' . esc_html(ACA_PLUGIN_PATH) . '</code></li>';
             echo '<li>Run: <code>composer install --no-dev --optimize-autoloader</code></li>';
             echo '</ol>';
         }
@@ -180,7 +180,7 @@ class ACA_Dependencies_Installer {
                     
                     $.post(ajaxurl, {
                         action: 'aca_install_dependencies',
-                        nonce: '<?php echo wp_create_nonce('aca_install_dependencies'); ?>'
+                        nonce: '<?php echo esc_js(wp_create_nonce('aca_install_dependencies')); ?>'
                     }, function(response) {
                         if (response.success) {
                             button.text('✅ Installed Successfully');

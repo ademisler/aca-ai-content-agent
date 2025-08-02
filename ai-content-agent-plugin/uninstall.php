@@ -35,7 +35,7 @@ $tables_to_drop = array(
 );
 
 foreach ($tables_to_drop as $table) {
-    $wpdb->query("DROP TABLE IF EXISTS $table");
+    $wpdb->query($wpdb->prepare("DROP TABLE IF EXISTS %s", $table));
 }
 
 // Delete all post meta fields created by the plugin
@@ -47,6 +47,8 @@ $wpdb->delete(
 );
 
 // Clean up any remaining plugin data
-$wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE 'aca_%'");
+$wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->options} WHERE option_name LIKE %s", 'aca_%'));
 
-error_log('ACA: Plugin completely uninstalled and all data removed');
+if (defined('WP_DEBUG') && WP_DEBUG) {
+    error_log('ACA: Plugin completely uninstalled and all data removed');
+}

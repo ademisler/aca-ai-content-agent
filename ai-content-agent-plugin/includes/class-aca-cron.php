@@ -45,7 +45,9 @@ class ACA_Cron {
         // Prevent overlapping executions
         $lock_key = 'aca_thirty_minute_task_lock';
         if (get_transient($lock_key)) {
-            error_log('ACA Cron: 30-minute task already running, skipping this execution');
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('ACA Cron: 30-minute task already running, skipping this execution');
+            }
             return;
         }
         
@@ -256,8 +258,13 @@ class ACA_Cron {
                 // Get the created post
                 $post = get_posts(array(
                     'post_status' => 'draft',
-                    'meta_key' => '_aca_created_from_idea',
-                    'meta_value' => $latest_idea->id,
+                    'meta_query' => array(
+                        array(
+                            'key' => '_aca_created_from_idea',
+                            'value' => $latest_idea->id,
+                            'compare' => '='
+                        )
+                    ),
                     'numberposts' => 1,
                     'orderby' => 'date',
                     'order' => 'DESC'
@@ -334,10 +341,15 @@ class ACA_Cron {
             'post_status' => 'publish',
             'numberposts' => 10, // Limit to prevent timeout
             'meta_query' => array(
+                'relation' => 'OR',
                 array(
                     'key' => '_aca_last_freshness_check',
-                    'value' => date('Y-m-d', strtotime('-7 days')),
+                    'value' => gmdate('Y-m-d', strtotime('-7 days')),
                     'compare' => '<'
+                ),
+                array(
+                    'key' => '_aca_last_freshness_check',
+                    'compare' => 'NOT EXISTS'
                 )
             )
         ));

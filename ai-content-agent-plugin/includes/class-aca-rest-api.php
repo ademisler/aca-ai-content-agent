@@ -1801,8 +1801,12 @@ class ACA_Rest_Api {
     private function get_existing_titles() {
         global $wpdb;
         
-        $idea_titles = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table query for duplicate detection"SELECT title FROM {$wpdb->prefix}aca_ideas");
-        $post_titles = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- WordPress core table query for duplicate detection"SELECT post_title FROM {$wpdb->prefix}posts WHERE post_status IN ('publish', 'draft')");
+        $idea_titles = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table query for duplicate detection
+            "SELECT title FROM {$wpdb->prefix}aca_ideas"
+        );
+        $post_titles = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- WordPress core table query for duplicate detection
+            "SELECT post_title FROM {$wpdb->prefix}posts WHERE post_status IN ('publish', 'draft')"
+        );
         
         return array_merge($idea_titles, $post_titles);
     }

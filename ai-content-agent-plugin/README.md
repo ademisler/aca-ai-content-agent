@@ -1,6 +1,6 @@
 # AI Content Agent (ACA) - WordPress Plugin
 
-**Version:** 2.4.12  
+**Version:** 2.4.13  
 **Requires:** WordPress 5.0+, PHP 7.4+  
 **License:** GPL v2 or later  
 **Author:** Adem Isler  
@@ -261,6 +261,32 @@ See [CHANGELOG.md](CHANGELOG.md) for complete version history.
 - Mobile app companion
 
 ## Changelog
+
+### Version 2.4.13 (2025-02-01)
+**🎨 UI/UX Layout Optimization - Sidebar & Content Spacing Fix**
+
+**✅ Layout Spacing Issues Resolved:**
+- Fixed gap between WordPress admin menu and plugin sidebar
+- Eliminated unnecessary spacing between sidebar and main content area
+- Improved visual integration with WordPress admin interface
+
+**🔧 CSS Layout Improvements:**
+- Desktop (>960px): Main content margin corrected from 240px to 400px
+- Tablet (783-960px): Added responsive support for collapsed WordPress menu (276px margin)
+- Proper calculation: WordPress menu width + sidebar width = total margin
+- Enhanced responsive behavior across all screen sizes
+
+**📱 Responsive Enhancements:**
+- Collapsed WordPress menu (36px) properly handled on tablet screens
+- Sidebar positioning adjusted for collapsed menu state
+- Seamless transition between expanded and collapsed menu states
+- Mobile layout remains unchanged and optimized
+
+**🎯 Visual Integration:**
+- Plugin sidebar now properly aligns with WordPress admin interface
+- Eliminated visual gaps that disrupted admin experience
+- Better space utilization for main content area
+- Consistent spacing across all viewport sizes
 
 ### Version 2.4.12 (2025-02-01)
 **🎯 Final WordPress.org Text Domain Compliance**

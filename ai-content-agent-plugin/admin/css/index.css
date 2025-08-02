@@ -242,7 +242,7 @@
   }
   
   .aca-main {
-    margin-left: 240px; /* Only account for sidebar width, not WordPress menu */
+    margin-left: 400px; /* WordPress menu (160px) + sidebar (240px) = 400px */
     padding: 20px;
   }
 }
@@ -1337,7 +1337,16 @@ body.toplevel_page_ai-content-agent #root .aca-main {
 }
 
 /* Responsive WordPress admin menu adjustments */
-@media screen and (max-width: 960px) {
+@media screen and (max-width: 960px) and (min-width: 783px) {
+  /* Collapsed WordPress menu adjustments */
+  .aca-sidebar {
+    left: 36px !important; /* Collapsed WordPress menu width */
+  }
+  
+  .aca-main {
+    margin-left: 276px !important; /* Collapsed WP menu (36px) + sidebar (240px) */
+  }
+  
   body.toplevel_page_ai-content-agent #root {
     width: calc(100% - 36px) !important; /* Collapsed menu width */
     left: 36px !important; /* Collapsed menu width */

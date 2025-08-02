@@ -36,14 +36,16 @@
   width: 240px;
   background: #23282d;
   border-right: 1px solid #ccd0d4;
-  position: static; /* Changed from fixed to static for proper flexbox flow */
+  position: fixed;
+  top: var(--wp-admin-bar-height, 32px);
+  left: 160px;
   z-index: 9999;
   overflow-y: auto; /* Allow internal scrolling */
-  transform: none; /* Remove transform for static positioning */
+  transform: translateX(-100%);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 2px 0 20px rgba(0, 0, 0, 0.15);
   backdrop-filter: blur(10px);
-  height: 100vh; /* Full height for proper layout */
+  height: calc(100vh - var(--wp-admin-bar-height, 32px));
 }
 
 .aca-sidebar.open {
@@ -236,21 +238,22 @@
 
 @media (min-width: 783px) {
   .aca-sidebar {
-    transform: none; /* Static positioning - no transform needed */
-    position: static !important; /* Ensure static positioning on desktop */
-    height: 100vh !important; /* Full height for proper layout */
+    transform: translateX(0); /* Show sidebar on desktop */
   }
   
   .aca-main {
-    margin-left: 0; /* Flexbox handles positioning - no manual margin needed */
+    margin-left: 244px; /* Plugin sidebar (240px) + small 4px gap */
     padding: 20px;
   }
-  
-  /* Add aesthetic gap between sidebar and content */
-  .aca-container {
-    gap: 24px; /* Modern 24px spacing between sidebar and content */
-    padding: 0 24px; /* Add padding to right side as well */
-  }
+}
+
+/* Auto-fold adjustments for collapsed WordPress menu */
+body.auto-fold .aca-sidebar {
+  left: 36px !important; /* Collapsed WP menu width */
+}
+
+body.auto-fold .aca-main {
+  margin-left: 244px !important; /* Plugin sidebar (240px) + small 4px gap */
 }
 
 /* Static positioning makes auto-fold adjustments unnecessary - flexbox handles everything */

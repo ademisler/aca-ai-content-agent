@@ -1,6 +1,6 @@
 # AI Content Agent (ACA) - WordPress Plugin
 
-**Version:** 2.4.16  
+**Version:** 2.4.20  
 **Requires:** WordPress 5.0+, PHP 7.4+  
 **License:** GPL v2 or later  
 **Author:** Adem Isler  
@@ -261,6 +261,32 @@ See [CHANGELOG.md](CHANGELOG.md) for complete version history.
 - Mobile app companion
 
 ## Changelog
+
+### Version 2.4.20 (2025-02-01)
+**🔄 LAYOUT REVERT & PRECISION FIX - Sidebar Close to WordPress Menu**
+
+**✅ Reverted Overlapping Issues:**
+- **Problem:** v2.4.19 flexbox changes caused sidebar and content to completely overlap
+- **Solution:** Reverted to position: fixed for sidebar with proper positioning
+- **Result:** Sidebar stays close to WordPress menu, content has minimal gap
+
+**🎯 PRECISE SPACING ADJUSTMENT:**
+- **Sidebar Position:** Fixed positioning close to WordPress sidebar (left: 160px)
+- **Content Gap:** Added precise 4px gap between plugin sidebar and content
+- **Auto-fold Support:** Re-implemented auto-fold adjustments for collapsed WordPress menu
+- **Layout Stability:** Ensured consistent spacing across all WordPress menu states
+
+**🔧 CSS ARCHITECTURE FIXES:**
+- **Reverted:** position: static changes that broke layout flow
+- **Restored:** transform-based sidebar show/hide mechanism
+- **Added:** Minimal 4px margin for aesthetic content separation
+- **Fixed:** Auto-fold left positioning for collapsed WordPress menu
+
+### Version 2.4.19 (2025-02-01)
+**🚫 DEPRECATED - Layout Overlapping Issues**
+- **Issue:** Flexbox implementation caused sidebar and content to overlap
+- **Status:** Reverted in v2.4.20 due to layout problems
+- **Note:** Do not use this version - use v2.4.20 instead
 
 ### Version 2.4.16 (2025-02-01)
 **🎯 PRECISION LAYOUT FIX - Perfect 1px Sidebar-Content Gap**

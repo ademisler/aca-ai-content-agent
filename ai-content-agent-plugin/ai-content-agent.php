@@ -348,7 +348,7 @@ function aca_handle_gsc_reauth_dismissal() {
     if (isset($_GET['dismiss_gsc_reauth']) && $_GET['dismiss_gsc_reauth'] == '1' && current_user_can('manage_options')) {
         // Add nonce verification for security
         if (!isset($_GET['_wpnonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['_wpnonce'])), 'aca_dismiss_gsc_reauth')) {
-            wp_die(esc_html__('Security check failed. Please try again.', 'ai-content-agent-plugin'));
+            wp_die(esc_html__('Security check failed. Please try again.', 'ai-content-agent'));
         }
         
         delete_transient('aca_gsc_reauth_required');
@@ -389,7 +389,7 @@ function aca_handle_gsc_scope_reauth_dismissal() {
     if (isset($_GET['dismiss_gsc_scope_reauth']) && $_GET['dismiss_gsc_scope_reauth'] == '1' && current_user_can('manage_options')) {
         // Add nonce verification for security
         if (!isset($_GET['_wpnonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['_wpnonce'])), 'aca_dismiss_gsc_scope_reauth')) {
-            wp_die(esc_html__('Security check failed. Please try again.', 'ai-content-agent-plugin'));
+            wp_die(esc_html__('Security check failed. Please try again.', 'ai-content-agent'));
         }
         
         delete_transient('aca_gsc_scope_reauth_required');

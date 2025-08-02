@@ -4193,7 +4193,6 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         $status = $request->get_param('status'); // 'needs_update', 'fresh', 'all'
         
         global $wpdb;
-        $freshness_table = $wpdb->prefix . 'aca_content_freshness';
         
         // Build WHERE clause safely with prepared statements
         $where_conditions = array("p.post_status = %s", "p.post_type = %s");

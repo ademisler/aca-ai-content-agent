@@ -1,6 +1,6 @@
 # AI Content Agent (ACA) - WordPress Plugin
 
-**Version:** 2.4.6  
+**Version:** 2.4.7  
 **Requires:** WordPress 5.0+, PHP 7.4+  
 **License:** GPL v2 or later  
 **Author:** Adem Isler  

@@ -284,7 +284,9 @@ class ACA_Rest_Api {
             ));
 
         } catch (Exception $e) {
-            error_log('ACA: Error registering /content-freshness/posts endpoint: ' . $e->getMessage());
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('ACA: Error registering /content-freshness/posts endpoint: ' . $e->getMessage());
+            }
         }
         
         register_rest_route('aca/v1', '/content-freshness/posts/needing-updates', array(

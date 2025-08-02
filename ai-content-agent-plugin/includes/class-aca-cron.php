@@ -45,7 +45,9 @@ class ACA_Cron {
         // Prevent overlapping executions
         $lock_key = 'aca_thirty_minute_task_lock';
         if (get_transient($lock_key)) {
-            error_log('ACA Cron: 30-minute task already running, skipping this execution');
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('ACA Cron: 30-minute task already running, skipping this execution');
+            }
             return;
         }
         

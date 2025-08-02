@@ -26,12 +26,12 @@ class ACA_Cron {
     public function add_cron_intervals($schedules) {
         $schedules['aca_thirty_minutes'] = array(
             'interval' => 30 * 60, // 30 minutes in seconds
-            'display' => __('Every 30 Minutes', 'ai-content-agent')
+            'display' => __('Every 30 Minutes', 'ai-content-agent-v2.4.6-production-stable')
         );
         
         $schedules['aca_fifteen_minutes'] = array(
             'interval' => 15 * 60, // 15 minutes in seconds
-            'display' => __('Every 15 Minutes', 'ai-content-agent')
+            'display' => __('Every 15 Minutes', 'ai-content-agent-v2.4.6-production-stable')
         );
         
         return $schedules;
@@ -336,7 +336,7 @@ class ACA_Cron {
             'meta_query' => array(
                 array(
                     'key' => '_aca_last_freshness_check',
-                    'value' => date('Y-m-d', strtotime('-7 days')),
+                    'value' => gmdate('Y-m-d', strtotime('-7 days')),
                     'compare' => '<'
                 )
             )

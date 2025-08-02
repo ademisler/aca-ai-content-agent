@@ -8,11 +8,15 @@ Elbette, aşağıda istenen metnin tamamının İngilizce'ye çevrilmiş, düzg�
 | 337 | 67 | ERROR | `WordPress.WP.I18n.TextDomainMismatch` | Mismatched text domain. Expected 'ai-content-agent-v2.4.6-production-stable' but got 'ai-content-agent'. Learn more (opens in a new tab) | View in code editor (opens in a new tab) |
 | 378 | 67 | ERROR | `WordPress.WP.I18n.TextDomainMismatch` | Mismatched text domain. Expected 'ai-content-agent-v2.4.6-production-stable' but got 'ai-content-agent'. Learn more (opens in a new tab) | View in code editor (opens in a new tab) |
 
+**ÇÖZÜLDÜ** - Text domain mismatches fixed by updating the text domain to 'ai-content-agent-v2.4.6-production-stable' and adding proper escaping.
+
 ### FILE: `includes/class-aca-cron.php`
 | Line | Column | Type | Code | Message | Edit Link |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | 29 | 49 | ERROR | `WordPress.WP.I18n.TextDomainMismatch` | Mismatched text domain. Expected 'ai-content-agent-v2.4.6-production-stable' but got 'ai-content-agent'. Learn more (opens in a new tab) | View in code editor (opens in a new tab) |
 | 34 | 49 | ERROR | `WordPress.WP.I18n.TextDomainMismatch` | Mismatched text domain. Expected 'ai-content-agent-v2.4.6-production-stable' but got 'ai-content-agent'. Learn more (opens in a new tab) | View in code editor (opens in a new tab) |
+
+**ÇÖZÜLDÜ** - Text domain mismatches fixed by updating to 'ai-content-agent-v2.4.6-production-stable'.
 
 ### FILE: `ai-content-agent.php`
 | Line | Column | Type | Code | Message | Edit Link |
@@ -21,11 +25,15 @@ Elbette, aşağıda istenen metnin tamamının İngilizce'ye çevrilmiş, düzg�
 | 0 | 0 | WARNING | `textdomain_mismatch` | The "Text Domain" header in the plugin file does not match the slug. Found "ai-content-agent", expected "ai-content-agent-v2.4.6-production-stable". Learn more (opens in a new tab) | View in code editor (opens in a new tab) |
 | 0 | 0 | WARNING | `plugin_header_nonexistent_domain_path` | The "Domain Path" header in the plugin file must point to an existing folder. Found: "languages". Learn more (opens in a new tab) | View in code editor (opens in a new tab) |
 
+**ÇÖZÜLDÜ** - Plugin header issues fixed by removing Network header, updating Text Domain to match expected value, and removing Domain Path header.
+
 ### FILE: `install-dependencies.php`
 | Line | Column | Type | Code | Message | Edit Link |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | 165 | 46 | ERROR | `WordPress.Security.EscapeOutput.OutputNotEscaped` | All output should be run through an escaping function (see the Security sections in the WordPress Developer Handbooks), found 'ACA_PLUGIN_PATH'. Learn more (opens in a new tab) | View in code editor (opens in a new tab) |
 | 183 | 44 | ERROR | `WordPress.Security.EscapeOutput.OutputNotEscaped` | All output should be run through an escaping function (see the Security sections in the WordPress Developer Handbooks), found 'wp_create_nonce'. Learn more (opens in a new tab) | View in code editor (opens in a new tab) |
+
+**ÇÖZÜLDÜ** - Security escaping issues fixed by using esc_html() for ACA_PLUGIN_PATH and esc_js() for wp_create_nonce output.
 
 ### FILE: `ai-content-agent.php`
 | Line | Column | Type | Code | Message | Edit Link |
@@ -33,6 +41,8 @@ Elbette, aşağıda istenen metnin tamamının İngilizce'ye çevrilmiş, düzg�
 | 107 | 74 | ERROR | `WordPress.Security.EscapeOutput.OutputNotEscaped` | All output should be run through an escaping function (see the Security sections in the WordPress Developer Handbooks), found '$result'. Learn more (opens in a new tab) | View in code editor (opens in a new tab) |
 | 337 | 20 | ERROR | `WordPress.Security.EscapeOutput.OutputNotEscaped` | All output should be run through an escaping function (see the Security sections in the WordPress Developer Handbooks), found '__'. Learn more (opens in a new tab) | View in code editor (opens in a new tab) |
 | 378 | 20 | ERROR | `WordPress.Security.EscapeOutput.OutputNotEscaped` | All output should be run through an escaping function (see the Security sections in the WordPress Developer Handbooks), found '__'. Learn more (opens in a new tab) | View in code editor (opens in a new tab) |
+
+**ÇÖZÜLDÜ** - Security escaping issues fixed by using esc_html() for error messages and esc_html__() for translated strings.
 
 ### FILE: `includes/class-aca-rest-api.php`
 | Line | Column | Type | Code | Message | Edit Link |
@@ -58,6 +68,8 @@ Elbette, aşağıda istenen metnin tamamının İngilizce'ye çevrilmiş, düzg�
 | 2491 | 95 | ERROR | `WordPress.Security.EscapeOutput.ExceptionNotEscaped` | All output should be run through an escaping function (see the Security sections in the WordPress Developer Handbooks), found 'substr'. Learn more (opens in a new tab) | View in code editor (opens in a new tab) |
 | 2509 | 77 | ERROR | `WordPress.Security.EscapeOutput.ExceptionNotEscaped` | All output should be run through an escaping function (see the Security sections in the WordPress Developer Handbooks), found 'json_last_error_msg'. Learn more (opens in a new tab) | View in code editor (opens in a new tab) |
 
+**ÇÖZÜLDÜ** - All exception escaping issues fixed by using esc_html() for all variables and function outputs in exception messages, intval() for numeric values, and proper error handling.
+
 ### FILE: `includes/class-aca-content-freshness.php`
 | Line | Column | Type | Code | Message | Edit Link |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -66,6 +78,8 @@ Elbette, aşağıda istenen metnin tamamının İngilizce'ye çevrilmiş, düzg�
 | 204 | 25 | ERROR | `WordPress.WP.AlternativeFunctions.strip_tags_strip_tags` | strip_tags() is discouraged. Use the more comprehensive wp_strip_all_tags() instead. | View in code editor (opens in a new tab) |
 | 218 | 25 | ERROR | `WordPress.DateTime.RestrictedFunctions.date_date` | date() is affected by runtime timezone changes which can cause date/time to be incorrectly displayed. Use gmdate() instead. | View in code editor (opens in a new tab) |
 | 375 | 21 | ERROR | `WordPress.WP.AlternativeFunctions.strip_tags_strip_tags` | strip_tags() is discouraged. Use the more comprehensive wp_strip_all_tags() instead. | View in code editor (opens in a new tab) |
+
+**ÇÖZÜLDÜ** - Alternative functions issues fixed by replacing strip_tags() with wp_strip_all_tags() and date() with gmdate().
 | 99 | 17 | WARNING | `WordPress.PHP.DevelopmentFunctions.error_log_error_log` | error_log() found. Debug code should not normally be used in production. | View in code editor (opens in a new tab) |
 | 425 | 17 | WARNING | `WordPress.PHP.DevelopmentFunctions.error_log_error_log` | error_log() found. Debug code should not normally be used in production. | View in code editor (opens in a new tab) |
 | 431 | 17 | WARNING | `WordPress.PHP.DevelopmentFunctions.error_log_error_log` | error_log() found. Debug code should not normally be used in production. | View in code editor (opens in a new tab) |
@@ -78,10 +92,14 @@ Elbette, aşağıda istenen metnin tamamının İngilizce'ye çevrilmiş, düzg�
 | 564 | 1 | WARNING | `WordPress.DB.PreparedSQL.InterpolatedNotPrepared` | Use placeholders and $wpdb->prepare(); found interpolated variable $postmeta_table at LEFT JOIN $postmeta_table pm ON p.ID = pm.post_id AND pm.meta_key = '_aca_last_freshness_check'\n | View in code editor (opens in a new tab) |
 | 599 | 1 | WARNING | `WordPress.DB.PreparedSQL.InterpolatedNotPrepared` | Use placeholders and $wpdb->prepare(); found interpolated variable $freshness_table at INNER JOIN $freshness_table f ON p.ID = f.post_id\n | View in code editor (opens in a new tab) |
 
+**ÇÖZÜLDÜ** - Interpolated SQL issues fixed by replacing variable interpolation with proper WordPress table names using {$wpdb->prefix} syntax.
+
 ### FILE: `includes/class-aca-cron.php`
 | Line | Column | Type | Code | Message | Edit Link |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | 339 | 32 | ERROR | `WordPress.DateTime.RestrictedFunctions.date_date` | date() is affected by runtime timezone changes which can cause date/time to be incorrectly displayed. Use gmdate() instead. | View in code editor (opens in a new tab) |
+
+**ÇÖZÜLDÜ** - Date function issue fixed by replacing date() with gmdate().
 | 48 | 13 | WARNING | `WordPress.PHP.DevelopmentFunctions.error_log_error_log` | error_log() found. Debug code should not normally be used in production. | View in code editor (opens in a new tab) |
 | 66 | 17 | WARNING | `Squiz.PHP.DiscouragedFunctions.Discouraged` | The use of function ini_set() is discouraged | View in code editor (opens in a new tab) |
 | 67 | 17 | WARNING | `Squiz.PHP.DiscouragedFunctions.Discouraged` | The use of function set_time_limit() is discouraged | View in code editor (opens in a new tab) |
@@ -115,7 +133,11 @@ Elbette, aşağıda istenen metnin tamamının İngilizce'ye çevrilmiş, düzg�
 | 1943 | 17 | ERROR | `WordPress.WP.AlternativeFunctions.unlink_unlink` | unlink() is discouraged. Use wp_delete_file() to delete a file. | View in code editor (opens in a new tab) |
 | 2163 | 24 | ERROR | `WordPress.WP.AlternativeFunctions.strip_tags_strip_tags` | strip_tags() is discouraged. Use the more comprehensive wp_strip_all_tags() instead. | View in code editor (opens in a new tab) |
 | 3267 | 46 | ERROR | `WordPress.WP.AlternativeFunctions.strip_tags_strip_tags` | strip_tags() is discouraged. Use the more comprehensive wp_strip_all_tags() instead. | View in code editor (opens in a new tab) |
+
+**ÇÖZÜLDÜ** - Alternative functions issues fixed by replacing date() with gmdate(), unlink() with wp_delete_file(), and strip_tags() with wp_strip_all_tags().
 | 4136 | 54 | ERROR | `WordPress.DB.PreparedSQL.NotPrepared` | Use placeholders and $wpdb->prepare(); found $sql | View in code editor (opens in a new tab) |
+
+**ÇÖZÜLDÜ** - Database preparation issue fixed by properly using prepared statements with placeholders.
 | 287 | 13 | WARNING | `WordPress.PHP.DevelopmentFunctions.error_log_error_log` | error_log() found. Debug code should not normally be used in production. | View in code editor (opens in a new tab) |
 | 388 | 13 | WARNING | `WordPress.PHP.DevelopmentFunctions.error_log_error_log` | error_log() found. Debug code should not normally be used in production. | View in code editor (opens in a new tab) |
 | 1089 | 30 | WARNING | `WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler` | set_error_handler() found. Debug code should not normally be used in production. | View in code editor (opens in a new tab) |
@@ -188,6 +210,8 @@ Elbette, aşağıda istenen metnin tamamının İngilizce'ye çevrilmiş, düzg�
 | 1806 | 17 | WARNING | `WordPress.PHP.DevelopmentFunctions.error_log_error_log` | error_log() found. Debug code should not normally be used in production. | View in code editor (opens in a new tab) |
 | 1830 | 13 | WARNING | `WordPress.PHP.DevelopmentFunctions.error_log_error_log` | error_log() found. Debug code should not normally be used in production. | View in code editor (opens in a new tab) |
 | 1844 | 44 | WARNING | `WordPress.DB.PreparedSQL.InterpolatedNotPrepared` | Use placeholders and $wpdb->prepare(); found interpolated variable $table_name at "SHOW TABLES LIKE '$table_name'" | View in code editor (opens in a new tab) |
+
+**ÇÖZÜLDÜ** - Interpolated SQL issue fixed by using $wpdb->prepare() with placeholders.
 | 1847 | 17 | WARNING | `WordPress.PHP.DevelopmentFunctions.error_log_error_log` | error_log() found. Debug code should not normally be used in production. | View in code editor (opens in a new tab) |
 | 1862 | 17 | WARNING | `WordPress.PHP.DevelopmentFunctions.error_log_error_log` | error_log() found. Debug code should not normally be used in production. | View in code editor (opens in a new tab) |
 | 1869 | 13 | WARNING | `WordPress.PHP.DevelopmentFunctions.error_log_error_log` | error_log() found. Debug code should not normally be used in production. | View in code editor (opens in a new tab) |
@@ -285,6 +309,8 @@ Elbette, aşağıda istenen metnin tamamının İngilizce'ye çevrilmiş, düzg�
 | 313 | 31 | ERROR | `WordPress.DateTime.RestrictedFunctions.date_date` | date() is affected by runtime timezone changes which can cause date/time to be incorrectly displayed. Use gmdate() instead. | View in code editor (opens in a new tab) |
 | 316 | 29 | ERROR | `WordPress.DateTime.RestrictedFunctions.date_date` | date() is affected by runtime timezone changes which can cause date/time to be incorrectly displayed. Use gmdate() instead. | View in code editor (opens in a new tab) |
 | 590 | 32 | ERROR | `WordPress.DateTime.RestrictedFunctions.date_date` | date() is affected by runtime timezone changes which can cause date/time to be incorrectly displayed. Use gmdate() instead. | View in code editor (opens in a new tab) |
+
+**ÇÖZÜLDÜ** - Date function issues fixed by replacing all date() calls with gmdate().
 | 68 | 17 | WARNING | `WordPress.PHP.DevelopmentFunctions.error_log_error_log` | error_log() found. Debug code should not normally be used in production. | View in code editor (opens in a new tab) |
 | 125 | 17 | WARNING | `WordPress.PHP.DevelopmentFunctions.error_log_error_log` | error_log() found. Debug code should not normally be used in production. | View in code editor (opens in a new tab) |
 | 189 | 29 | WARNING | `WordPress.PHP.DevelopmentFunctions.error_log_error_log` | error_log() found. Debug code should not normally be used in production. | View in code editor (opens in a new tab) |
@@ -313,6 +339,8 @@ Elbette, aşağıda istenen metnin tamamının İngilizce'ye çevrilmiş, düzg�
 | Line | Column | Type | Code | Message | Edit Link |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | 38 | 18 | WARNING | `WordPress.DB.PreparedSQL.InterpolatedNotPrepared` | Use placeholders and $wpdb->prepare(); found interpolated variable $table at "DROP TABLE IF EXISTS $table" | View in code editor (opens in a new tab) |
+
+**ÇÖZÜLDÜ** - Interpolated SQL issue fixed by using $wpdb->prepare() with placeholders.
 | 52 | 1 | WARNING | `WordPress.PHP.DevelopmentFunctions.error_log_error_log` | error_log() found. Debug code should not normally be used in production. | View in code editor (opens in a new tab) |
 
 ### FILE: `install-dependencies.php`
@@ -321,6 +349,8 @@ Elbette, aşağıda istenen metnin tamamının İngilizce'ye çevrilmiş, düzg�
 | 79 | 30 | WARNING | `WordPress.Security.ValidatedSanitizedInput.InputNotValidated` | Detected usage of a possibly undefined superglobal array index: $_POST['nonce']. Use isset() or empty() to check the index exists before using it | View in code editor (opens in a new tab) |
 | 79 | 30 | WARNING | `WordPress.Security.ValidatedSanitizedInput.MissingUnslash` | $_POST['nonce'] not unslashed before sanitization. Use wp_unslash() or similar | View in code editor (opens in a new tab) |
 | 79 | 30 | WARNING | `WordPress.Security.ValidatedSanitizedInput.InputNotSanitized` | Detected usage of a non-sanitized input variable: $_POST['nonce'] | View in code editor (opens in a new tab) |
+
+**ÇÖZÜLDÜ** - Input validation issues fixed by adding isset() check, wp_unslash(), and sanitize_text_field() for $_POST['nonce'].
 
 ### FILE: `ai-content-agent.php`
 | Line | Column | Type | Code | Message | Edit Link |

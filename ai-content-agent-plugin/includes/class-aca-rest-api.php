@@ -1055,8 +1055,8 @@ class ACA_Rest_Api {
         // Prepare update data
         $update_data = array(
             'ID' => $post_id,
-            'post_date' => date('Y-m-d H:i:s', strtotime($new_date)),
-            'post_date_gmt' => get_gmt_from_date(date('Y-m-d H:i:s', strtotime($new_date))),
+            'post_date' => gmdate('Y-m-d H:i:s', strtotime($new_date)),
+            'post_date_gmt' => get_gmt_from_date(gmdate('Y-m-d H:i:s', strtotime($new_date))),
             'edit_date' => true
         );
         
@@ -1087,8 +1087,8 @@ class ACA_Rest_Api {
     public function create_draft($request) {
         // Set up error handling to catch fatal errors
         $old_error_handler = set_error_handler(function($severity, $message, $file, $line) {
-            error_log("ACA PHP Error: $message in $file on line $line");
-            throw new ErrorException($message, 0, $severity, $file, $line);
+            error_log("ACA PHP Error: " . esc_html($message) . " in " . esc_html($file) . " on line " . intval($line));
+            throw new ErrorException(esc_html($message), 0, intval($severity), esc_html($file), intval($line));
         });
         
         try {
@@ -1827,8 +1827,8 @@ class ACA_Rest_Api {
             );
             
         } catch (Exception $e) {
-            error_log('ACA Format Post Critical Error: ' . $e->getMessage());
-            throw new Exception('Failed to format post data: ' . $e->getMessage());
+            error_log('ACA Format Post Critical Error: ' . esc_html($e->getMessage()));
+            throw new Exception('Failed to format post data: ' . esc_html($e->getMessage()));
         }
     }
     
@@ -1841,7 +1841,7 @@ class ACA_Rest_Api {
         try {
             // Check if table exists first
             $table_name = $wpdb->prefix . 'aca_activity_logs';
-            $table_exists = $wpdb->get_var("SHOW TABLES LIKE '$table_name'") === $table_name;
+            $table_exists = $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $table_name)) === $table_name;
             
             if (!$table_exists) {
                 error_log('ACA: Activity logs table does not exist: ' . $table_name);
@@ -1924,7 +1924,7 @@ class ACA_Rest_Api {
         if (!file_exists($temp_file) || filesize($temp_file) === 0) {
             error_log('ACA: Failed to create temporary image file');
             if (file_exists($temp_file)) {
-                unlink($temp_file);
+                wp_delete_file($temp_file);
             }
             return false;
         }
@@ -1940,7 +1940,7 @@ class ACA_Rest_Api {
         if (is_wp_error($attachment_id)) {
             error_log('ACA: Failed to create media attachment: ' . $attachment_id->get_error_message());
             if (file_exists($temp_file)) {
-                unlink($temp_file);
+                wp_delete_file($temp_file);
             }
             return false;
         }
@@ -2160,7 +2160,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         
         // Create a descriptive prompt for the blog post title - EXPLICITLY PREVENT TEXT
         // Extract key concepts from the title for better relevance
-        $clean_title = strip_tags($title);
+        $clean_title = wp_strip_all_tags($title);
         $key_concepts = $this->extract_key_concepts($clean_title);
         
         $prompt = "Create a {$style_prompt} image that represents the concept of \"{$clean_title}\". Focus on the main themes: {$key_concepts}. The image should be relevant to the topic, visually appealing, suitable for use as a featured image on a professional blog, and capture the essence of the subject matter. IMPORTANT: Do not include any text, words, letters, numbers, signs, or written content in the image. The image should be purely visual without any textual elements, logos, or readable content.";
@@ -2348,22 +2348,22 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         ));
         
         if (is_wp_error($response)) {
-            throw new Exception('Failed to fetch from ' . $provider . ': ' . $response->get_error_message());
+            throw new Exception('Failed to fetch from ' . esc_html($provider) . ': ' . esc_html($response->get_error_message()));
         }
         
         $status_code = wp_remote_retrieve_response_code($response);
         if ($status_code !== 200) {
-            throw new Exception('API request failed with status ' . $status_code . ' for provider: ' . $provider);
+            throw new Exception('API request failed with status ' . intval($status_code) . ' for provider: ' . esc_html($provider));
         }
         
         $body = wp_remote_retrieve_body($response);
         if (empty($body)) {
-            throw new Exception('Empty response from ' . $provider . ' API');
+            throw new Exception('Empty response from ' . esc_html($provider) . ' API');
         }
         
         $data = json_decode($body, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new Exception('Invalid JSON response from ' . $provider . ': ' . json_last_error_msg());
+            throw new Exception('Invalid JSON response from ' . esc_html($provider) . ': ' . esc_html(json_last_error_msg()));
         }
         
         $image_url = '';
@@ -2386,7 +2386,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         }
         
         if (empty($image_url)) {
-            throw new Exception('No images found for query: ' . $query);
+            throw new Exception('No images found for query: ' . esc_html($query));
         }
         
         // Download and convert to base64
@@ -2438,9 +2438,9 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         
         // Check if json_encode failed
         if ($body === false) {
-            error_log('ACA JSON Encode Error: ' . json_last_error_msg());
+            error_log('ACA JSON Encode Error: ' . esc_html(json_last_error_msg()));
             error_log('ACA Request Data: ' . print_r($request_data, true));
-            throw new Exception('Failed to encode request data: ' . json_last_error_msg());
+            throw new Exception('Failed to encode request data: ' . esc_html(json_last_error_msg()));
         }
         
         $response = wp_remote_post($url, array(
@@ -2455,8 +2455,8 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         ));
 
         if (is_wp_error($response)) {
-            error_log('ACA Gemini API WP Error: ' . $response->get_error_message());
-            throw new Exception('Gemini API request failed: ' . $response->get_error_message());
+            error_log('ACA Gemini API WP Error: ' . esc_html($response->get_error_message()));
+            throw new Exception('Gemini API request failed: ' . esc_html($response->get_error_message()));
         }
         
         $response_code = wp_remote_retrieve_response_code($response);
@@ -2482,13 +2482,13 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 return $this->call_gemini_api($api_key, $prompt, $model, $retry_count + 1);
             }
             
-            throw new Exception("Gemini API service unavailable after {$max_retries} attempts. Error code: {$response_code} - " . substr($error_body, 0, 200));
+            throw new Exception("Gemini API service unavailable after " . intval($max_retries) . " attempts. Error code: " . intval($response_code) . " - " . esc_html(substr($error_body, 0, 200)));
         }
         
         if ($response_code !== 200) {
             $error_body = wp_remote_retrieve_body($response);
-            error_log('ACA Gemini API HTTP Error: Code ' . $response_code . ', Body: ' . substr($error_body, 0, 500));
-            throw new Exception('Gemini API returned error code: ' . $response_code . ' - ' . substr($error_body, 0, 200));
+            error_log('ACA Gemini API HTTP Error: Code ' . intval($response_code) . ', Body: ' . esc_html(substr($error_body, 0, 500)));
+            throw new Exception('Gemini API returned error code: ' . intval($response_code) . ' - ' . esc_html(substr($error_body, 0, 200)));
         }
         
         $response_body = wp_remote_retrieve_body($response);
@@ -2505,8 +2505,8 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         $data = json_decode($response_body, true);
         
         if (json_last_error() !== JSON_ERROR_NONE) {
-            error_log('ACA Gemini API JSON Error: ' . json_last_error_msg() . ', Response: ' . substr($response_body, 0, 300));
-            throw new Exception('Invalid JSON response from Gemini API: ' . json_last_error_msg());
+            error_log('ACA Gemini API JSON Error: ' . esc_html(json_last_error_msg()) . ', Response: ' . esc_html(substr($response_body, 0, 300)));
+            throw new Exception('Invalid JSON response from Gemini API: ' . esc_html(json_last_error_msg()));
         }
         
         if (empty($data['candidates'][0]['content']['parts'][0]['text'])) {
@@ -3264,7 +3264,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             // Estimate reading time based on content length
             $post = get_post($post_id);
             if ($post && !empty($post->post_content)) {
-                $word_count = str_word_count(strip_tags($post->post_content));
+                $word_count = str_word_count(wp_strip_all_tags($post->post_content));
                 $reading_time = max(1, ceil($word_count / 200)); // 200 words per minute
                 update_post_meta($post_id, '_yoast_wpseo_estimated-reading-time-minutes', $reading_time);
             }
@@ -4113,18 +4113,21 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         global $wpdb;
         $freshness_table = $wpdb->prefix . 'aca_content_freshness';
         
-        // Build WHERE clause safely
-        $where_conditions = array("p.post_status = 'publish'", "p.post_type = 'post'");
+        // Build WHERE clause safely with prepared statements
+        $where_conditions = array("p.post_status = %s", "p.post_type = %s");
+        $where_values = array('publish', 'post');
         
         if ($status === 'needs_update') {
-            $where_conditions[] = "f.needs_update = 1";
+            $where_conditions[] = "f.needs_update = %d";
+            $where_values[] = 1;
         } elseif ($status === 'fresh') {
-            $where_conditions[] = "f.needs_update = 0";
+            $where_conditions[] = "f.needs_update = %d";
+            $where_values[] = 0;
         }
         
         $where_clause = "WHERE " . implode(" AND ", $where_conditions);
         
-        // Use safer SQL construction
+        // Use properly prepared SQL
         $sql = "SELECT p.ID, p.post_title, p.post_date, p.post_modified,
                        f.freshness_score, f.last_analyzed, f.needs_update, f.update_priority
                 FROM {$wpdb->posts} p
@@ -4133,7 +4136,10 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 ORDER BY f.update_priority DESC, f.freshness_score ASC, p.post_date DESC
                 LIMIT %d";
         
-        $results = $wpdb->get_results($wpdb->prepare($sql, $limit), ARRAY_A);
+        // Add limit to values array
+        $where_values[] = $limit;
+        
+        $results = $wpdb->get_results($wpdb->prepare($sql, $where_values), ARRAY_A);
         
         // Check for database errors
         if ($wpdb->last_error) {

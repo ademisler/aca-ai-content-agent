@@ -8,12 +8,10 @@
  * Author URI: https://ademisler.com/en
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: ai-content-agent
- * Domain Path: /languages
+ * Text Domain: ai-content-agent-v2.4.6-production-stable
  * Requires at least: 5.0
  * Tested up to: 6.7
  * Requires PHP: 7.4
- * Network: false
  */
 
 // Prevent direct access
@@ -104,7 +102,7 @@ class AI_Content_Agent {
             $result = $gsc->handle_oauth_callback($_GET['code']);
             
             if (is_wp_error($result)) {
-                wp_die('Google Search Console authentication failed: ' . $result->get_error_message());
+                wp_die('Google Search Console authentication failed: ' . esc_html($result->get_error_message()));
             } else {
                 // Redirect back to settings page
                 wp_redirect(admin_url('admin.php?page=ai-content-agent&view=settings&gsc_connected=1'));
@@ -334,7 +332,7 @@ function aca_handle_gsc_reauth_dismissal() {
     if (isset($_GET['dismiss_gsc_reauth']) && $_GET['dismiss_gsc_reauth'] == '1' && current_user_can('manage_options')) {
         // Add nonce verification for security
         if (!isset($_GET['_wpnonce']) || !wp_verify_nonce($_GET['_wpnonce'], 'aca_dismiss_gsc_reauth')) {
-            wp_die(__('Security check failed. Please try again.', 'ai-content-agent'));
+            wp_die(esc_html__('Security check failed. Please try again.', 'ai-content-agent-v2.4.6-production-stable'));
         }
         
         delete_transient('aca_gsc_reauth_required');
@@ -375,7 +373,7 @@ function aca_handle_gsc_scope_reauth_dismissal() {
     if (isset($_GET['dismiss_gsc_scope_reauth']) && $_GET['dismiss_gsc_scope_reauth'] == '1' && current_user_can('manage_options')) {
         // Add nonce verification for security
         if (!isset($_GET['_wpnonce']) || !wp_verify_nonce($_GET['_wpnonce'], 'aca_dismiss_gsc_scope_reauth')) {
-            wp_die(__('Security check failed. Please try again.', 'ai-content-agent'));
+            wp_die(esc_html__('Security check failed. Please try again.', 'ai-content-agent-v2.4.6-production-stable'));
         }
         
         delete_transient('aca_gsc_scope_reauth_required');

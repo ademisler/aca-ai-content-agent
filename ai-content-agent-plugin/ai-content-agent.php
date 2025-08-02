@@ -46,6 +46,18 @@ function is_aca_pro_active() {
     return count(array_filter($checks)) === 4;
 }
 
+/**
+ * Debug logging helper - only logs when WP_DEBUG is enabled
+ * 
+ * @param string $message Log message
+ * @return void
+ */
+function aca_debug_log($message) {
+    if (defined('WP_DEBUG') && WP_DEBUG) {
+        error_log('ACA: ' . $message);
+    }
+}
+
 // Include required files
 require_once ACA_PLUGIN_PATH . 'includes/class-aca-activator.php';
 require_once ACA_PLUGIN_PATH . 'includes/class-aca-deactivator.php';
@@ -77,7 +89,7 @@ class AI_Content_Agent {
         new ACA_Cron();
         
         // Handle Google Search Console OAuth callback - only when needed
-        if (isset($_GET['code']) && isset($_GET['state']) && $_GET['state'] === 'aca_gsc_auth') {
+        if (isset($_GET['code']) && isset($_GET['state']) && sanitize_text_field($_GET['state']) === 'aca_gsc_auth') {
             add_action('admin_init', array($this, 'handle_gsc_oauth_callback'));
         }
         
@@ -92,14 +104,15 @@ class AI_Content_Agent {
      * Handle Google Search Console OAuth callback
      */
     public function handle_gsc_oauth_callback() {
-        if (isset($_GET['page']) && $_GET['page'] === 'ai-content-agent' && 
-            isset($_GET['gsc_auth']) && $_GET['gsc_auth'] === 'callback' && 
+        if (isset($_GET['page']) && sanitize_text_field($_GET['page']) === 'ai-content-agent' && 
+            isset($_GET['gsc_auth']) && sanitize_text_field($_GET['gsc_auth']) === 'callback' && 
             isset($_GET['code'])) {
             
             require_once ACA_PLUGIN_PATH . 'includes/class-aca-google-search-console.php';
             
             $gsc = new ACA_Google_Search_Console();
-            $result = $gsc->handle_oauth_callback($_GET['code']);
+            $code = sanitize_text_field(wp_unslash($_GET['code']));
+            $result = $gsc->handle_oauth_callback($code);
             
             if (is_wp_error($result)) {
                 wp_die('Google Search Console authentication failed: ' . esc_html($result->get_error_message()));
@@ -331,7 +344,7 @@ function aca_show_gsc_reauth_notice() {
 function aca_handle_gsc_reauth_dismissal() {
     if (isset($_GET['dismiss_gsc_reauth']) && $_GET['dismiss_gsc_reauth'] == '1' && current_user_can('manage_options')) {
         // Add nonce verification for security
-        if (!isset($_GET['_wpnonce']) || !wp_verify_nonce($_GET['_wpnonce'], 'aca_dismiss_gsc_reauth')) {
+        if (!isset($_GET['_wpnonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['_wpnonce'])), 'aca_dismiss_gsc_reauth')) {
             wp_die(esc_html__('Security check failed. Please try again.', 'ai-content-agent-v2.4.6-production-stable'));
         }
         
@@ -372,7 +385,7 @@ function aca_show_gsc_scope_reauth_notice() {
 function aca_handle_gsc_scope_reauth_dismissal() {
     if (isset($_GET['dismiss_gsc_scope_reauth']) && $_GET['dismiss_gsc_scope_reauth'] == '1' && current_user_can('manage_options')) {
         // Add nonce verification for security
-        if (!isset($_GET['_wpnonce']) || !wp_verify_nonce($_GET['_wpnonce'], 'aca_dismiss_gsc_scope_reauth')) {
+        if (!isset($_GET['_wpnonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['_wpnonce'])), 'aca_dismiss_gsc_scope_reauth')) {
             wp_die(esc_html__('Security check failed. Please try again.', 'ai-content-agent-v2.4.6-production-stable'));
         }
         

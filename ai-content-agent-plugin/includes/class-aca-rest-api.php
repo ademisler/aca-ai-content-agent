@@ -284,7 +284,7 @@ class ACA_Rest_Api {
             ));
 
         } catch (Exception $e) {
-            error_log('ACA: Error registering /content-freshness/posts endpoint: ' . $e->getMessage());
+            aca_debug_log('Error registering /content-freshness/posts endpoint: ' . $e->getMessage());
         }
         
         register_rest_route('aca/v1', '/content-freshness/posts/needing-updates', array(
@@ -385,7 +385,7 @@ class ACA_Rest_Api {
                 $error_message .= 'License validation failed.';
             }
             
-            error_log('ACA Pro Permission Denied: ' . $error_message);
+            aca_debug_log('Pro Permission Denied: ' . $error_message);
             
             // Return false instead of WP_Error to get proper 403 instead of 404
             return false;
@@ -992,7 +992,12 @@ class ACA_Rest_Api {
         $drafts = get_posts(array(
             'post_type' => 'post',
             'post_status' => array('draft', 'future'),
-            'meta_key' => '_aca_meta_title',
+            'meta_query' => array(
+                array(
+                    'key' => '_aca_meta_title',
+                    'compare' => 'EXISTS'
+                )
+            ),
             'numberposts' => -1,
             'orderby' => 'date',
             'order' => 'DESC'
@@ -1086,10 +1091,13 @@ class ACA_Rest_Api {
      */
     public function create_draft($request) {
         // Set up error handling to catch fatal errors
-        $old_error_handler = set_error_handler(function($severity, $message, $file, $line) {
-            error_log("ACA PHP Error: " . esc_html($message) . " in " . esc_html($file) . " on line " . intval($line));
-            throw new ErrorException(esc_html($message), 0, intval($severity), esc_html($file), intval($line));
-        });
+        $old_error_handler = null;
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            $old_error_handler = set_error_handler(function($severity, $message, $file, $line) {
+                error_log("ACA PHP Error: " . esc_html($message) . " in " . esc_html($file) . " on line " . intval($line));
+                throw new ErrorException(esc_html($message), 0, intval($severity), esc_html($file), intval($line));
+            });
+        }
         
         try {
             $nonce_check = $this->verify_nonce($request);
@@ -1105,22 +1113,22 @@ class ACA_Rest_Api {
             $idea_id = (int) $params['ideaId'];
             
             // Log the attempt
-            error_log('ACA: Creating draft for idea ID: ' . $idea_id);
+            aca_debug_log('Creating draft for idea ID: ' . $idea_id);
             
             $result = $this->create_draft_from_idea($idea_id);
             
             // Log the result
             if (is_wp_error($result)) {
-                error_log('ACA: Draft creation failed for idea ' . $idea_id . ': ' . $result->get_error_message());
+                aca_debug_log('Draft creation failed for idea ' . $idea_id . ': ' . $result->get_error_message());
             } else {
-                error_log('ACA: Draft creation successful for idea ' . $idea_id);
+                aca_debug_log('Draft creation successful for idea ' . $idea_id);
             }
             
             return $result;
             
         } catch (Throwable $e) {
-            error_log('ACA FATAL ERROR in create_draft: ' . $e->getMessage());
-            error_log('ACA FATAL ERROR stack trace: ' . $e->getTraceAsString());
+            aca_debug_log('FATAL ERROR in create_draft: ' . $e->getMessage());
+            aca_debug_log('FATAL ERROR stack trace: ' . $e->getTraceAsString());
             return new WP_Error('fatal_error', 'A fatal error occurred during draft creation: ' . $e->getMessage(), array('status' => 500));
         } finally {
             // Restore previous error handler
@@ -2439,7 +2447,9 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         // Check if json_encode failed
         if ($body === false) {
             error_log('ACA JSON Encode Error: ' . esc_html(json_last_error_msg()));
-            error_log('ACA Request Data: ' . print_r($request_data, true));
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('ACA Request Data: ' . print_r($request_data, true));
+            }
             throw new Exception('Failed to encode request data: ' . esc_html(json_last_error_msg()));
         }
         
@@ -2510,7 +2520,9 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         }
         
         if (empty($data['candidates'][0]['content']['parts'][0]['text'])) {
-            error_log('ACA Gemini API No Content: ' . print_r($data, true));
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('ACA Gemini API No Content: ' . print_r($data, true));
+            }
             throw new Exception('No content returned from Gemini API. Response structure: ' . json_encode(array_keys($data)));
         }
         
@@ -2716,7 +2728,8 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             
             // Check if this is an OAuth callback
             if (isset($_GET['code'])) {
-                $result = $gsc->handle_oauth_callback($_GET['code']);
+                $code = sanitize_text_field(wp_unslash($_GET['code']));
+                $result = $gsc->handle_oauth_callback($code);
                 
                 if (is_wp_error($result)) {
                     return $result;

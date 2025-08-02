@@ -45,7 +45,7 @@ class ACA_Cron {
         // Prevent overlapping executions
         $lock_key = 'aca_thirty_minute_task_lock';
         if (get_transient($lock_key)) {
-            error_log('ACA Cron: 30-minute task already running, skipping this execution');
+            aca_debug_log('Cron: 30-minute task already running, skipping this execution');
             return;
         }
         
@@ -65,9 +65,9 @@ class ACA_Cron {
                 // Optimize for cron environment
                 ini_set('memory_limit', '512M');
                 set_time_limit(300); // 5 minutes max execution
-                error_log('ACA Cron: 30-minute task started in CRON context (Memory: 512M, Time: 300s)');
+                aca_debug_log('Cron: 30-minute task started in CRON context (Memory: 512M, Time: 300s)');
             } else if ($is_manual_trigger) {
-                error_log('ACA Cron: 30-minute task started manually');
+                aca_debug_log('Cron: 30-minute task started manually');
             }
         
         $settings = get_option('aca_settings', array());
@@ -256,8 +256,13 @@ class ACA_Cron {
                 // Get the created post
                 $post = get_posts(array(
                     'post_status' => 'draft',
-                    'meta_key' => '_aca_created_from_idea',
-                    'meta_value' => $latest_idea->id,
+                    'meta_query' => array(
+                        array(
+                            'key' => '_aca_created_from_idea',
+                            'value' => $latest_idea->id,
+                            'compare' => '='
+                        )
+                    ),
                     'numberposts' => 1,
                     'orderby' => 'date',
                     'order' => 'DESC'
@@ -329,15 +334,21 @@ class ACA_Cron {
     private static function analyze_content_freshness() {
         $freshness_manager = new ACA_Content_Freshness();
         
-        // Get posts that need analysis using the approach from documentation
+        // Get posts that need analysis using optimized query
         $posts = get_posts(array(
             'post_status' => 'publish',
             'numberposts' => 10, // Limit to prevent timeout
             'meta_query' => array(
+                'relation' => 'OR',
                 array(
                     'key' => '_aca_last_freshness_check',
-                    'value' => gmdate('Y-m-d', strtotime('-7 days')),
-                    'compare' => '<'
+                    'value' => strtotime('-7 days'),
+                    'compare' => '<',
+                    'type' => 'NUMERIC'
+                ),
+                array(
+                    'key' => '_aca_last_freshness_check',
+                    'compare' => 'NOT EXISTS'
                 )
             )
         ));

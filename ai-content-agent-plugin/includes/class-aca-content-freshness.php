@@ -96,7 +96,9 @@ class ACA_Content_Freshness {
                     return $click_score + $impression_score + $ctr_score;
                 }
             } catch (Exception $e) {
-                error_log('ACA Content Freshness: GSC performance error: ' . $e->getMessage());
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log('ACA Content Freshness: GSC performance error: ' . $e->getMessage());
+                }
             }
         }
         

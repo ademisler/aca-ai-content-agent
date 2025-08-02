@@ -3298,7 +3298,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 update_post_meta($post_id, 'rank_math_internal_links', $internal_links);
             }
             
-            error_log('ACA: Successfully sent SEO data to RankMath for post ' . $post_id);
+            aca_debug_log('Successfully sent SEO data to RankMath for post ' . $post_id);
             
             return array(
                 'success' => true,
@@ -3320,7 +3320,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             );
             
         } catch (Exception $e) {
-            error_log('ACA: Error sending to RankMath: ' . $e->getMessage());
+            aca_debug_log('Error sending to RankMath: ' . $e->getMessage());
             return array(
                 'success' => false,
                 'message' => 'Error sending to RankMath: ' . $e->getMessage(),
@@ -3452,7 +3452,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 update_post_meta($post_id, '_yoast_wpseo_canonical', $post_url);
             }
             
-            error_log('ACA: Successfully sent SEO data to Yoast SEO for post ' . $post_id);
+            aca_debug_log('Successfully sent SEO data to Yoast SEO for post ' . $post_id);
             
             return array(
                 'success' => true,
@@ -3473,7 +3473,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             );
             
         } catch (Exception $e) {
-            error_log('ACA: Error sending to Yoast SEO: ' . $e->getMessage());
+            aca_debug_log('Error sending to Yoast SEO: ' . $e->getMessage());
             return array(
                 'success' => false,
                 'message' => 'Error sending to Yoast SEO: ' . $e->getMessage(),
@@ -3641,7 +3641,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 update_post_meta($post_id, '_aioseo_description', $this->sanitize_unicode_textarea($meta_description));
             }
             
-            error_log('ACA: Successfully sent SEO data to All in One SEO for post ' . $post_id);
+            aca_debug_log('Successfully sent SEO data to All in One SEO for post ' . $post_id);
             
             return array(
                 'success' => true,
@@ -3661,7 +3661,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             );
             
         } catch (Exception $e) {
-            error_log('ACA: Error sending to All in One SEO: ' . $e->getMessage());
+            aca_debug_log('Error sending to All in One SEO: ' . $e->getMessage());
             return array(
                 'success' => false,
                 'message' => 'Error sending to All in One SEO: ' . $e->getMessage(),
@@ -3696,7 +3696,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         $product_id = 'Q2Mhx923crYSQP19FBbYsg==';
         
         // Log the product ID being used for debugging
-        error_log('ACA: Using product_id: ' . $product_id . ' for license verification');
+        aca_debug_log('Using product_id: ' . $product_id . ' for license verification');
         
         try {
             $verification_result = $this->call_gumroad_api($product_id, $license_key);
@@ -3707,7 +3707,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 $current_site_hash = hash('sha256', get_site_url() . NONCE_SALT);
                 
                 if (!empty($stored_site_hash) && $stored_site_hash !== $current_site_hash) {
-                    error_log('ACA: License already bound to another site');
+                    aca_debug_log('License already bound to another site');
                     return rest_ensure_response(array(
                         'success' => false,
                         'message' => 'This license is already active on another website. Each license can only be used on one site at a time. Please deactivate it from the other site first.'
@@ -3742,7 +3742,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             return rest_ensure_response($verification_result);
             
         } catch (Exception $e) {
-            error_log('ACA: License verification error: ' . $e->getMessage());
+            aca_debug_log('License verification error: ' . $e->getMessage());
             
             // Clean up any partial data
             delete_option('aca_license_status');
@@ -3791,7 +3791,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             delete_option('aca_license_verified');
             delete_option('aca_license_timestamp');
             
-            error_log('ACA: License deactivated successfully');
+            aca_debug_log('License deactivated successfully');
             
             return rest_ensure_response(array(
                 'success' => true,
@@ -3799,7 +3799,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             ));
             
         } catch (Exception $e) {
-            error_log('ACA: License deactivation error: ' . $e->getMessage());
+            aca_debug_log('License deactivation error: ' . $e->getMessage());
             
             // Return JSON error response instead of WP_Error
             return rest_ensure_response(array(
@@ -3817,7 +3817,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         $url = 'https://api.gumroad.com/v2/licenses/verify';
         
         // Log API call details
-        error_log('ACA: Calling Gumroad API - URL: ' . $url . ', Product ID: ' . $product_id);
+        aca_debug_log('Calling Gumroad API - URL: ' . $url . ', Product ID: ' . $product_id);
         
         // Generate site-specific hash for license binding
         $site_url = get_site_url();
@@ -3832,7 +3832,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         
         // Store site info locally instead of sending to Gumroad
         // (Gumroad API doesn't support custom metadata in license verification)
-        error_log('ACA: Site binding info - URL: ' . $site_url . ', Hash: ' . substr($site_hash, 0, 16) . '...');
+        aca_debug_log('Site binding info - URL: ' . $site_url . ', Hash: ' . substr($site_hash, 0, 16) . '...');
         
         // Log request body (without showing full license key for security)
         if (defined('WP_DEBUG') && WP_DEBUG) {
@@ -3852,7 +3852,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         ));
         
         if (is_wp_error($response)) {
-            error_log('ACA: Gumroad API request failed: ' . $response->get_error_message());
+            aca_debug_log('Gumroad API request failed: ' . $response->get_error_message());
             return array(
                 'success' => false,
                 'message' => 'Gumroad API request failed: ' . $response->get_error_message(),
@@ -3866,7 +3866,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         $body = wp_remote_retrieve_body($response);
         
         if ($response_code !== 200) {
-            error_log('ACA: Gumroad API error - Code: ' . $response_code . ', Body: ' . $body);
+            aca_debug_log('Gumroad API error - Code: ' . $response_code . ', Body: ' . $body);
             return array(
                 'success' => false,
                 'message' => 'Gumroad API returned error code: ' . $response_code,
@@ -3879,7 +3879,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         $data = json_decode($body, true);
         
         if (json_last_error() !== JSON_ERROR_NONE) {
-            error_log('ACA: JSON decode error - Body: ' . $body);
+            aca_debug_log('JSON decode error - Body: ' . $body);
             return array(
                 'success' => false,
                 'message' => 'Invalid JSON response from Gumroad API',
@@ -3894,13 +3894,15 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         if (defined('WP_DEBUG') && WP_DEBUG) {
             error_log('ACA: Gumroad API response (DEBUG): ' . print_r($data, true));
         }
-        error_log('ACA: Response analysis - success field: ' . (isset($data['success']) ? ($data['success'] ? 'true' : 'false') : 'missing'));
-        error_log('ACA: Response analysis - success type: ' . (isset($data['success']) ? gettype($data['success']) : 'N/A'));
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('ACA: Response analysis - success field: ' . (isset($data['success']) ? ($data['success'] ? 'true' : 'false') : 'missing'));
+            error_log('ACA: Response analysis - success type: ' . (isset($data['success']) ? gettype($data['success']) : 'N/A'));
+        }
         
         // Validate license according to Gumroad documentation
         // Check if response has success field and purchase data
         if (!isset($data['success'])) {
-            error_log('ACA: Missing success field in Gumroad response');
+            aca_debug_log('Missing success field in Gumroad response');
             return array(
                 'success' => false,
                 'message' => 'Invalid Gumroad API response format',
@@ -3922,11 +3924,11 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             }
         }
         
-        error_log('ACA: License validation result: ' . ($is_valid ? 'VALID' : 'INVALID'));
+        aca_debug_log('License validation result: ' . ($is_valid ? 'VALID' : 'INVALID'));
         
         // Additional validation if purchase data exists
         if (isset($data['purchase'])) {
-            error_log('ACA: Purchase data found, validating...');
+            aca_debug_log('Purchase data found, validating...');
             
             // If we have purchase data, assume license is valid unless proven otherwise
             $purchase_valid = true;
@@ -3936,10 +3938,10 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 $refunded = $data['purchase']['refunded'];
                 if (is_bool($refunded) && $refunded === true) {
                     $purchase_valid = false;
-                    error_log('ACA: License invalid - refunded');
+                    aca_debug_log('License invalid - refunded');
                 } elseif (is_string($refunded) && strtolower($refunded) === 'true') {
                     $purchase_valid = false;
-                    error_log('ACA: License invalid - refunded (string)');
+                    aca_debug_log('License invalid - refunded (string)');
                 }
             }
             
@@ -3948,10 +3950,10 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
                 $chargebacked = $data['purchase']['chargebacked'];
                 if (is_bool($chargebacked) && $chargebacked === true) {
                     $purchase_valid = false;
-                    error_log('ACA: License invalid - chargebacked');
+                    aca_debug_log('License invalid - chargebacked');
                 } elseif (is_string($chargebacked) && strtolower($chargebacked) === 'true') {
                     $purchase_valid = false;
-                    error_log('ACA: License invalid - chargebacked (string)');
+                    aca_debug_log('License invalid - chargebacked (string)');
                 }
             }
             
@@ -3959,7 +3961,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             // even if the success field is ambiguous
             if ($purchase_valid) {
                 $is_valid = true;
-                error_log('ACA: License valid based on purchase data');
+                aca_debug_log('License valid based on purchase data');
             } else {
                 $is_valid = false;
             }
@@ -3967,15 +3969,15 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
             // Check if subscription has ended, cancelled, or failed (for subscription products)
             if (isset($data['purchase']['subscription_ended_at']) && $data['purchase']['subscription_ended_at'] !== null) {
                 $is_valid = false;
-                error_log('ACA: License invalid - subscription ended at: ' . $data['purchase']['subscription_ended_at']);
+                aca_debug_log('License invalid - subscription ended at: ' . $data['purchase']['subscription_ended_at']);
             }
             if (isset($data['purchase']['subscription_cancelled_at']) && $data['purchase']['subscription_cancelled_at'] !== null) {
                 $is_valid = false;
-                error_log('ACA: License invalid - subscription cancelled at: ' . $data['purchase']['subscription_cancelled_at']);
+                aca_debug_log('License invalid - subscription cancelled at: ' . $data['purchase']['subscription_cancelled_at']);
             }
             if (isset($data['purchase']['subscription_failed_at']) && $data['purchase']['subscription_failed_at'] !== null) {
                 $is_valid = false;
-                error_log('ACA: License invalid - subscription failed at: ' . $data['purchase']['subscription_failed_at']);
+                aca_debug_log('License invalid - subscription failed at: ' . $data['purchase']['subscription_failed_at']);
             }
         }
         
@@ -4252,12 +4254,12 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         
         // Check for database errors
         if ($wpdb->last_error) {
-            error_log('ACA: Database error in get_posts_freshness_data: ' . $wpdb->last_error);
+            aca_debug_log('Database error in get_posts_freshness_data: ' . $wpdb->last_error);
             return new WP_Error('database_error', 'Database query failed: ' . $wpdb->last_error, array('status' => 500));
         }
         
         if ($results === null) {
-            error_log('ACA: NULL result from database query in get_posts_freshness_data');
+            aca_debug_log('NULL result from database query in get_posts_freshness_data');
             return new WP_Error('query_failed', 'Database query returned null', array('status' => 500));
         }
         
@@ -4468,7 +4470,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         $json = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         
         if (json_last_error() !== JSON_ERROR_NONE) {
-            error_log('ACA: JSON encoding error: ' . json_last_error_msg());
+            aca_debug_log('JSON encoding error: ' . json_last_error_msg());
             
             // Fallback: try with escaped Unicode
             $json = json_encode($data);
@@ -4492,7 +4494,7 @@ IMPORTANT: Return ONLY a valid JSON object with this exact structure. Do not inc
         $data = json_decode($json, $assoc);
         
         if (json_last_error() !== JSON_ERROR_NONE) {
-            error_log('ACA: JSON decoding error: ' . json_last_error_msg());
+            aca_debug_log('JSON decoding error: ' . json_last_error_msg());
             return $assoc ? array() : null;
         }
         

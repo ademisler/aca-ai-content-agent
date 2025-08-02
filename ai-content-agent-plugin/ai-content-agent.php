@@ -8,7 +8,7 @@
  * Author URI: https://ademisler.com/en
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: ai-content-agent-v2.4.6-production-stable
+ * Text Domain: ai-content-agent-plugin
  * Requires at least: 5.0
  * Tested up to: 6.7
  * Requires PHP: 7.4
@@ -345,7 +345,7 @@ function aca_handle_gsc_reauth_dismissal() {
     if (isset($_GET['dismiss_gsc_reauth']) && $_GET['dismiss_gsc_reauth'] == '1' && current_user_can('manage_options')) {
         // Add nonce verification for security
         if (!isset($_GET['_wpnonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['_wpnonce'])), 'aca_dismiss_gsc_reauth')) {
-            wp_die(esc_html__('Security check failed. Please try again.', 'ai-content-agent-v2.4.6-production-stable'));
+            wp_die(esc_html__('Security check failed. Please try again.', 'ai-content-agent-plugin'));
         }
         
         delete_transient('aca_gsc_reauth_required');
@@ -386,7 +386,7 @@ function aca_handle_gsc_scope_reauth_dismissal() {
     if (isset($_GET['dismiss_gsc_scope_reauth']) && $_GET['dismiss_gsc_scope_reauth'] == '1' && current_user_can('manage_options')) {
         // Add nonce verification for security
         if (!isset($_GET['_wpnonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['_wpnonce'])), 'aca_dismiss_gsc_scope_reauth')) {
-            wp_die(esc_html__('Security check failed. Please try again.', 'ai-content-agent-v2.4.6-production-stable'));
+            wp_die(esc_html__('Security check failed. Please try again.', 'ai-content-agent-plugin'));
         }
         
         delete_transient('aca_gsc_scope_reauth_required');

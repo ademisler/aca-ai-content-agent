@@ -558,7 +558,8 @@ Return only valid JSON format.";
         
         // Get published posts that haven't been analyzed in the last week
         // Check both the freshness table and the meta field
-        $posts = $wpdb->get_col($wpdb->prepare(" // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Complex query for freshness analysis across custom and core tables
+        $posts = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Complex query for freshness analysis across custom and core tables
+            $wpdb->prepare("
             SELECT p.ID 
             FROM {$wpdb->posts} p
             LEFT JOIN {$wpdb->prefix}aca_content_freshness f ON p.ID = f.post_id
@@ -594,7 +595,8 @@ Return only valid JSON format.";
         
         $freshness_table = $wpdb->prefix . 'aca_content_freshness';
         
-        $results = $wpdb->get_results($wpdb->prepare(" // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table query for posts needing updates
+        $results = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table query for posts needing updates
+            $wpdb->prepare("
             SELECT p.ID, p.post_title, p.post_date, f.freshness_score, f.update_priority, f.last_analyzed
             FROM {$wpdb->posts} p
             INNER JOIN {$wpdb->prefix}aca_content_freshness f ON p.ID = f.post_id

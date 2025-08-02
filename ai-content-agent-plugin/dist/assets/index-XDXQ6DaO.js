@@ -92,16 +92,14 @@ body.no-admin-bar {
   width: 240px;
   background: #23282d;
   border-right: 1px solid #ccd0d4;
-  position: fixed;
-  top: var(--wp-admin-bar-height, 32px); /* Dynamic height instead of fixed 32px */
-  left: 160px; /* Right next to WordPress admin menu */
-  height: calc(100vh - var(--wp-admin-bar-height, 32px)); /* Dynamic calculation instead of fixed 32px */
+  position: static; /* Changed from fixed to static for proper flexbox flow */
   z-index: 9999;
   overflow-y: auto; /* Allow internal scrolling */
-  transform: translateX(-100%);
+  transform: none; /* Remove transform for static positioning */
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 2px 0 20px rgba(0, 0, 0, 0.15);
   backdrop-filter: blur(10px);
+  height: 100vh; /* Full height for proper layout */
 }
 
 .aca-sidebar.open {
@@ -308,7 +306,9 @@ body.no-admin-bar {
 
 @media (min-width: 783px) {
   .aca-sidebar {
-    transform: translateX(0); /* Show sidebar on desktop */
+    transform: none; /* Static positioning - no transform needed */
+    position: static !important; /* Ensure static positioning on desktop */
+    height: 100vh !important; /* Full height for proper layout */
   }
   
   .aca-main {
@@ -318,28 +318,12 @@ body.no-admin-bar {
   
   /* Add aesthetic gap between sidebar and content */
   .aca-container {
-    gap: 1px; /* Perfect 1px separation as requested */
+    gap: 24px; /* Modern 24px spacing between sidebar and content */
+    padding: 0 24px; /* Add padding to right side as well */
   }
 }
 
-/* Auto-fold WordPress menu support (when menu is collapsed) */
-
-body.auto-fold .aca-sidebar {
-  left: 36px !important; /* Collapsed WordPress menu width */
-}
-
-/* Auto-fold state - flexbox handles positioning automatically */
-
-body.auto-fold .aca-main {
-  margin-left: 0 !important; /* Flexbox handles positioning - no manual margin needed */
-}
-
-/* Auto-fold #root container adjustment */
-
-body.auto-fold #root {
-  left: 36px !important; /* Collapsed WordPress menu width */
-  width: calc(100% - 36px) !important; /* Adjust width for collapsed menu */
-}
+/* Static positioning makes auto-fold adjustments unnecessary - flexbox handles everything */
 
 /* Mobile header */
 
